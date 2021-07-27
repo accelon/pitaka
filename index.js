@@ -1,0 +1,1 @@
+export {open} from './db/index.js'

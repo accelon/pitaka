@@ -1,0 +1,29 @@
+{
+  "name": "pitaka",
+  "version": "1.0.0",
+  "description": "Backend for progressive corpus",
+  "type":"module",
+  "exports" :{
+    ".":"./index.js",
+    "./htll":"./htll/index.js",
+    "./db":"./db/index.js",
+    "./utils":"./utils/index.js",
+    "./jsonprom":"./jsonprom/index.js",
+    "./package.json":"./package.json"
+  },
+  "main": "./index.js",
+   "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yapcheahshen/pitaka.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/yapcheahshen/pitaka/issues"
+  },
+  "homepage": "https://github.com/yapcheahshen/pitaka#readme"
+}
