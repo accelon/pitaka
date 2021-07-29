@@ -19,6 +19,7 @@ class Builder {
             const nline=this.rom.header.lineCount+idx;
             for (let i=0;i<li.tags.length;i++) {
                 const tag=li.tags[i];
+                // if (tag.attrs) console.log(tag.attrs,tag.ele)
                 let deltag=false;
                 s+=text.substring(prev,tag.rawoffset);
                 li.tags[i].offset=s.length;                    
@@ -36,6 +37,9 @@ class Builder {
             s+=text.substring(prev);
             out.push(s);
         });
+        for (let i=0;i<this.labelTypes.length;i++) { 
+            this.labelTypes[i].fileDone();
+        }
         this.rom.append(out);
     }
     writeLabels(){
@@ -44,6 +48,9 @@ class Builder {
         this.rom.append(section);
     }
     finalize(opts={}){
+        for (let i=0;i<this.labelTypes.length;i++) { 
+            this.labelTypes[i].finalize();
+        }
         this.writeLabels();
         if (!opts.nowrite) this.rom.save();
     }

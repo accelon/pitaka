@@ -1,7 +1,5 @@
 import Label from './label.js'
 import {pack_delta,unpack_delta,packStrings,unpackStrings,bsearch} from'../utils/index.js';
-
-import {writeFileSync} from 'fs'
 class LabelDictEntry extends Label {
     constructor(name,opts={}) {
         super(name,opts)
@@ -43,6 +41,9 @@ class LabelDictEntry extends Label {
         const start=this.linePos[nheadword];
         const end=nheadword<this.linePos.length-1? this.linePos[nheadword+1]: this.lastLine;
         return [start,end];
+    }
+    find(tofind,near=false){
+        return bsearch(this.headword,tofind,near);
     }
 }
 export default LabelDictEntry;

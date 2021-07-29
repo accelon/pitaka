@@ -1,1 +1,1 @@
-export {open} from './db/index.js'
+export {open,parse,readLines} from './db/index.js'

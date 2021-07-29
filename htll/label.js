@@ -6,9 +6,24 @@ class Label {
         return this;
     }
     action(){
-        console.log('root class label has no action')
+        console.error('not implemented')
+    }
+    find(){
+        
     }
     serialize(){
+        
+    }
+    fileDone() { //file completed
+
+    }
+    locate(nline){
+        //give human readible expression        
+    }
+    parse(str){
+        //parse address and produce action line position for reading
+    }
+    finalize() { //build complete
 
     }
 }

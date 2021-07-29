@@ -5,6 +5,7 @@
    /n as line break
 */
 import {readFileSync} from 'fs'
+import { parseAttr } from '../utils/argument.js';
 export const fileContent=(fn,format='utf8')=>{
    let c=readFileSync(fn,format).replace(/\r?\n/g,'\n');
    const bom=c.charCodeAt(0);
@@ -48,8 +49,11 @@ export const scanLine=(arr,cb)=> {
    for (let i=0;i<arr.length;i++) {
       const t=arr[i];
       li.tags=[];
-      t.replace(/<([^>]+)>/g,(m,m1,rawoffset)=>{
-         li.tags.push({raw:m1,rawoffset,len:m.length});
+      t.replace(/<(.+?)>/g,(m,raw,rawoffset)=>{
+         const at=raw.indexOf(' ');
+         const ele=at>0?raw.substr(0,at):raw.trim();
+         const attrs=at>0?parseAttr(raw.substr(at+1)):null;
+         li.tags.push({raw,ele,attrs,rawoffset,len:m.length});
       });
       cb(li,i,arr);
    }

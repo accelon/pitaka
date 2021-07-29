@@ -18,12 +18,38 @@ class DB extends JSONPROM {
         const sectionRange=this.getSectionRange(section);
         this.labels=deserializeLabels(labelsection,sectionRange);
     }
+    parse(str){
+        for (let i=0;i<this.labels.length;i++) {
+            const r=this.labels[i].parse(str);
+            if (r) return r;
+        }
+    }
+    locate(nline){
+        for (let i=0;i<this.labels.length;i++) {
+            const r=this.labels[i].locate(nline);
+            if (r) return r;
+        }
+    }
 }
-async function open(name){
+export async function open(name){
     if (pool.has(name)) return pool.get(name);
     const db= new DB({name});
     pool.add(name,db);
     await db.init();
     return db;
 }
-export default open;
+
+export async function parse (db_addr) {
+    const [dbname,addr] = db_addr.split('*');
+    const db=await open(dbname);
+    const r=db.parse(addr);
+    if (r) r.db=dbname;
+    return r;
+}
+export async function readLines (cap,max=100) {
+    const db=pool.get(cap.db);
+    let count=cap.eline-cap.sline;
+    if (count>max) count=max;
+    const lines=await db.readLines(cap.sline, count );
+    return lines;
+}

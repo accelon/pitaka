@@ -1,4 +1,5 @@
 export * from './sortedarray.js'
 export * from './packintarray.js'
 export * from './packstrings.js'
+export * from './argument.js'
 export {bsearch} from './bsearch.js'
