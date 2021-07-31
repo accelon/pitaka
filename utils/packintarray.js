@@ -215,19 +215,9 @@ const test=()=>{
 	console.log("pack length"+s.length)
 }
 
-/*
-if (typeof process!=="undefined" && process.argv.length==2){
-	const arr=[90,91,92,93];
-	const s=pack(arr);
-	arr2=unpack(s);
-	console.log(arr,arr2)
-}
-*/
-//729,000
-
-
 const escapePackedStr=str=>str.replace(/\\/g,"\\\\").replace(/`/g,"\\`").replace(/\$\{/g,'$\\{');
 export {
+	packRange,unpackRange,
 	pack1,pack2,pack3,unpack3,unpack1,unpack2,
 	unpack,pack,unpack2d,pack2d,escapePackedStr,
 	pack_delta,unpack_delta,pack_delta2d,unpack_delta2d

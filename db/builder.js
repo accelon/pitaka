@@ -13,20 +13,29 @@ class Builder {
     addFile(fn,format){
         const rawlines=fileLines(fn,format);
         const out=[];
+        for (let i=0;i<this.labelTypes.length;i++) {
+            const lt=this.labelTypes[i];
+            lt.filename=fn;
+            //subfolder in same scope
+            lt.scope=fn.replace(/[\/\..]+/,''); 
+        }
         scanLine(rawlines,(li,idx)=>{
             let s='',prev=0;  
             const text=rawlines[idx];
+            let accTagLen=0;
             const nline=this.rom.header.lineCount+idx;
             for (let i=0;i<li.tags.length;i++) {
                 const tag=li.tags[i];
                 // if (tag.attrs) console.log(tag.attrs,tag.ele)
                 let deltag=false;
-                s+=text.substring(prev,tag.rawoffset);
-                li.tags[i].offset=s.length;                    
+                accTagLen+=tag.len;
+                s+=text.substring(prev,tag.rawoffset); //offset of input file
+                li.tags[i].offset=s.length; //offset in pitaka (some tags are deleted)
+                li.tags[i].textOffset=s.length-accTagLen; //exclude tag len
                 prev=tag.rawoffset+tag.len;
                 for (let i=0;i<this.labelTypes.length;i++) {
                     const lt=this.labelTypes[i];
-                    if (tag.raw.match(lt.pat)) {
+                    if (tag.ele.match(lt.pat)) {
                         lt.action({tag,nline,builder:this,text});
                         deltag=lt.del;
                         break;

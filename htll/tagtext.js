@@ -51,9 +51,14 @@ export const scanLine=(arr,cb)=> {
       li.tags=[];
       t.replace(/<(.+?)>/g,(m,raw,rawoffset)=>{
          const at=raw.indexOf(' ');
-         const ele=at>0?raw.substr(0,at):raw.trim();
+         let ele=at>0?raw.substr(0,at):raw.trim();
+         let closing=false;
+         if (ele[0]=='/') {
+            ele=ele.substr(1)
+            closing=true;
+         }
          const attrs=at>0?parseAttr(raw.substr(at+1)):null;
-         li.tags.push({raw,ele,attrs,rawoffset,len:m.length});
+         li.tags.push({raw,ele,attrs,rawoffset,len:m.length,closing});
       });
       cb(li,i,arr);
    }

@@ -2,6 +2,8 @@ class Label {
     constructor(name,opts={}) {
         this.cb=opts.cb;
         this.name=name;
+        this.scope='';
+        this.filename='';
         this.lastLine=opts.lastLine||-1;
         return this;
     }
