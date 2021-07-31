@@ -31,7 +31,7 @@ const test_compareKey=()=>{
     pass+=compareKey([1],[1,0,0])==0; test++
     return test==pass;
 }
-const print_interal=nol=>{
+const print_nol=nol=>{
     console.log(nol._getKeys(),nol._getValues())
 }
 const test_level1_seq=()=>{
@@ -40,7 +40,7 @@ const test_level1_seq=()=>{
     pass+=nol.add('1','v0');test++;
     pass+=nol.add('2','v1');test++;
     pass+=nol.add('3','v2');test++;
-    // print_interal(nol)
+    // print_nol(nol)
     return test==pass;
 }
 
@@ -49,7 +49,7 @@ const test_level1_repeat=()=>{
     let pass=0,test=0;
     pass+=nol.add('1','v0');test++;
     pass+=nol.add('1','v1');test++; //failed repeated
-    // print_interal()
+    // print_nol()
     return test==pass+1;
 }
 const test_level1_gap=()=>{
@@ -57,7 +57,7 @@ const test_level1_gap=()=>{
     let pass=0,test=0;
     pass+=nol.add('1','v0');test++;
     pass+=nol.add('3','v1');test++; //failed gap
-    // print_interal(nol)
+    // print_nol(nol)
     return test==pass+1;
 }
 const test_nested=()=>{
@@ -70,7 +70,7 @@ const test_nested=()=>{
     pass+=nol.add('1.1.1','v5');test++;
     pass+=nol.add('1.1.2','v6');test++;
     pass+=nol.add('1.2','v4');test++;
-    // print_interal(nol)
+    // print_nol(nol)
     // const list=nol.list();
     return test==pass;
 }
