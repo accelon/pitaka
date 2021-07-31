@@ -1,1 +1,1 @@
-export {open,parse,readLines} from './db/index.js'
+export {openNiche,parse,readLines} from './niche/index.js'

@@ -6,7 +6,7 @@
   "exports" :{
     ".":"./index.js",
     "./htll":"./htll/index.js",
-    "./db":"./db/index.js",
+    "./niche":"./niche/index.js",
     "./utils":"./utils/index.js",
     "./jsonprom":"./jsonprom/index.js",
     "./package.json":"./package.cd ..json"

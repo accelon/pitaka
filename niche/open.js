@@ -1,8 +1,12 @@
 import JSONPROM from "../jsonprom/jsonprom.js";
 import pool from './pool.js';
 import {deserializeLabels} from './serialize-label.js';
-
-class DB extends JSONPROM {
+/*
+   Niche is a read-only container
+   of htll texts, prebuilt data-structure to facilitate fast access,
+   and optional full text index.
+*/
+class Niche extends JSONPROM {
     constructor(opts) {
         super(opts)
         this.sections=[]
@@ -31,25 +35,25 @@ class DB extends JSONPROM {
         }
     }
 }
-export async function open(name){
+export async function openNiche(name){
     if (pool.has(name)) return pool.get(name);
-    const db= new DB({name});
-    pool.add(name,db);
-    await db.init();
-    return db;
+    const nich= new Niche({name});
+    pool.add(name,nich);
+    await nich.init();
+    return nich;
 }
 
-export async function parse (db_addr) {
-    const [dbname,addr] = db_addr.split('*');
-    const db=await open(dbname);
-    const r=db.parse(addr);
-    if (r) r.db=dbname;
+export async function parse (niche_addr) {
+    const [name,addr] = niche_addr.split('*');
+    const nich=await open(name);
+    const r=nich.parse(addr);
+    if (r) r.nich=name;
     return r;
 }
 export async function readLines (cap,max=100) {
-    const db=pool.get(cap.db);
+    const nich=pool.get(cap.nich);
     let count=cap.eline-cap.sline;
     if (count>max) count=max;
-    const lines=await db.readLines(cap.sline, count );
+    const lines=await nich.readLines(cap.sline, count );
     return lines;
 }

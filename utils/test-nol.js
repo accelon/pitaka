@@ -95,11 +95,18 @@ const gen_huge=()=>{
 }
 
 const test_add_in_order=()=>{
-    let pass=0,test=0; const nol=new NestedOrderedListBuilder({addInOrder:false});
+    let pass=0,test=0; const nol=new NestedOrderedListBuilder();
     pass+=nol.add('1','v1');test++;
     pass+=nol.add('1.1','v2');test++;
     pass+=nol.add('1.2','v3');test++;
-    pass+=nol.add('1.1.1','v4');test++; //should fail
+
+    pass+=nol.add('1.1.1','v4');test++;  //fail
+    
+    const nol2=new NestedOrderedListBuilder({freeOrder:true});
+    pass+=nol2.add('1','v1');test++;
+    pass+=nol2.add('1.1','v2');test++;
+    pass+=nol2.add('1.2','v3');test++;
+    pass+=nol2.add('1.1.1','v4');test++;  //pass
     return test-1==pass
 }
 
@@ -136,7 +143,7 @@ const test_access_value=()=>{
     const keyvalues=rnol.list().map( (i,idx)=>[i,rawvalues[idx]]);
 
     keyvalues.forEach( ([key,value],idx) =>{
-        pass+=nol.getValue(key)==value; test++;
+        pass+=nol.val(key)==value; test++;
     })
     return pass==test;
 }
@@ -157,6 +164,23 @@ const test_siblingCount=()=>{
     pass+=nol.siblingCount('1.1.3')==4;test++;
     return pass==test;
 }
+
+const test_1level_serialize=()=>{
+    const wnol=new NestedOrderedListBuilder();
+    let pass=0,test=0;
+    pass+=wnol.add('1','v0');test++;
+    pass+=wnol.add('2','v1');test++;
+    pass+=wnol.add('3','v2');test++;
+
+    const keys=wnol.packKeys();
+    const values=wnol.packValues();
+    const nol=new NestedOrderedList({values , keys});
+
+    pass+=nol.val('1')=='v0';test++;
+    pass+=nol.val('3')=='v2';test++;
+    pass+=!nol.val('4');test++;
+    return pass==test;
+}
 console.clear();
 // pass +=  test_parseKey(); test++;
 // pass +=  test_compareKey() ; test++;
@@ -170,6 +194,7 @@ console.clear();
 // pass +=  test_pack_keys() ; test++;
 // pass +=  test_access_value() ; test++;
 // pass +=  test_has_children() ; test++;
-pass +=  test_siblingCount() ; test++;
+// pass +=  test_siblingCount() ; test++;
+pass += test_1level_serialize() ; test++;
 
 console.log(`pass ${pass}/${test}`);

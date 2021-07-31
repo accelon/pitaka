@@ -1,19 +1,19 @@
 import {pack3,unpack3,alphabetically0} from '../utils/index.js'
-
-export default class UniqueID  {
+import HTLLField from './htllfield.js';
+export default class UniqueID  extends HTLLField {
     constructor (opts={}){
+        super(opts);
         this._id={};
         this.id=[];
         this.name=opts.name||'';
-        this.scope=opts.scope||'';
         this.linePos=[];
     }
     push(id,linepos) {
+        super.push();
         if (!id)return;
-        if (this._id[id]) {
-            throw "repeated id "+id;
-        }
+        if (this._id[id]) throw "repeated id "+id;
         this._id[id]=linepos;
+        return true;
     }
     serialize(){
         const sorted=[],out=[];
@@ -21,7 +21,6 @@ export default class UniqueID  {
             sorted.push([id,this._id[id]]);
         }
         sorted.sort(alphabetically0);
-
         out.push( sorted.map(item=>item[0]).join('\t'));
         out.push( pack3(sorted.map(item=>item[1])));
         return out;

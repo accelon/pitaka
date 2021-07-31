@@ -1,6 +1,9 @@
-export const parseKey=(key)=>{
-        const nums= key.split('.').map(i=>parseInt(i)).filter(i=>!isNaN(i));
+export const parseKey=key=>{
+        const rawnums= key.split('.')
+        const nums=rawnums.map(i=>parseInt(i)).filter(i=>!isNaN(i));
+        if (rawnums.length!==nums.length) return false; //contain non digit
         while (nums.length && nums[nums.length-1]==0) nums.pop();
+        if (!nums.length)return false;
         return nums;
 }
 export const compareKey=(key1,key2)=> {
@@ -58,32 +61,48 @@ const unpackKeys=(keys,vidx=0)=>{
 export class NestedOrderedList {
     constructor (opts) {
         this.opts=Object.assign({sep:'\t'},opts);
-        let _values=opts.values.split(this.opts.sep);
+        let _values=opts.values;
+        if (typeof opts.values=='string') {
+            _values=opts.values.split(this.opts.sep);
+        }
         // console.log(JSON.stringify(opts.keys))
-        const _keys=unpackKeys(JSON.parse(opts.keys));
+        const rawkeys=JSON.parse(opts.keys);
+        let _keys;
+        if (typeof rawkeys=='number') { //1 level only
+            _keys=new Array(-rawkeys) ;
+        } else {
+            _keys=unpackKeys(rawkeys);
+        }
 
         //when serialized , first null changed to 0 for faster loading (same type)
         if (_keys[0]===0) delete _keys[0]; 
         this._getKeys=()=>_keys;
         this._valueOf=i=>_values[i];
+        this._getValues=()=>_values;
     }
-    getValue(key) {
+    key(i){
+        
+    }
+    val(key) {
         return this._valueOf( this.indexOf(key))
     }
     find(key){
         if (typeof key=='string') key=parseKey(key);
+        if (typeof key=='number') key=[key];
         let keys=this._getKeys();
         if (!keys)return [-1,null];
-        let idx=0;
+        let idx=-1;
 
         for (let i=0;i<key.length;i++) {
             const childkeys=keys[ key[i] ];
             const t=typeof childkeys;
             if (t=='number') return [t,childkeys];
             if (t=='undefined' && i==key.length-1) {
-                 return [ (key[i]<keys.length)?keys[0]+key[i]:-1, childkeys];
+                
+                 return [ (key[i]<keys.length)?(keys[0]||-1)+key[i]:-1, childkeys];
             }
             keys=childkeys;
+            if (!keys) break;
         }
         const children=keys;
         while (keys&&Array.isArray(keys)) {
@@ -114,7 +133,8 @@ export class NestedOrderedList {
 }
 export class NestedOrderedListBuilder {
     constructor(opts) {
-        this.opts=Object.assign({addInOrder:true,sep:'\t'},opts);
+        this.opts=Object.assign({freeOrder:false,sep:'\t'},opts);
+
         let _values=[];
         let _keys=[];
         
@@ -152,7 +172,7 @@ export class NestedOrderedListBuilder {
     }
     add( key , value){
         const nums=Array.isArray(key)?key:parseKey(key);
-        if (!this.addInOrder&&compareKey(this._previous,nums)>=0) {
+        if (!this.opts.freeOrder&&compareKey(this._previous,nums)>=0) {
             return false;
         }
         this._previous=nums;

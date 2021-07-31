@@ -217,7 +217,6 @@ const test=()=>{
 
 const escapePackedStr=str=>str.replace(/\\/g,"\\\\").replace(/`/g,"\\`").replace(/\$\{/g,'$\\{');
 export {
-	packRange,unpackRange,
 	pack1,pack2,pack3,unpack3,unpack1,unpack2,
 	unpack,pack,unpack2d,pack2d,escapePackedStr,
 	pack_delta,unpack_delta,pack_delta2d,unpack_delta2d
