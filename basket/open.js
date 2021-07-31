@@ -2,11 +2,11 @@ import JSONPROM from "../jsonprom/jsonprom.js";
 import pool from './pool.js';
 import {deserializeLabels} from './serialize-label.js';
 /*
-   Niche is a read-only container
+   Basket is a read-only container
    of htll texts, prebuilt data-structure to facilitate fast access,
    and optional full text index.
 */
-class Niche extends JSONPROM {
+class Basket extends JSONPROM {
     constructor(opts) {
         super(opts)
         this.sections=[]
@@ -35,25 +35,25 @@ class Niche extends JSONPROM {
         }
     }
 }
-export async function openNiche(name){
+export async function openBasket(name){
     if (pool.has(name)) return pool.get(name);
-    const nich= new Niche({name});
-    pool.add(name,nich);
-    await nich.init();
-    return nich;
+    const basket= new Basket({name});
+    pool.add(name,basket);
+    await basket.init();
+    return basket;
 }
 
-export async function parse (niche_addr) {
-    const [name,addr] = niche_addr.split('*');
-    const nich=await open(name);
-    const r=nich.parse(addr);
-    if (r) r.nich=name;
+export async function parse (basket_addr) {
+    const [name,addr] = basket_addr.split('*');
+    const basket=await open(name);
+    const r=basket.parse(addr);
+    if (r) r.basket=name;
     return r;
 }
 export async function readLines (cap,max=100) {
-    const nich=pool.get(cap.nich);
+    const basket=pool.get(cap.basket);
     let count=cap.eline-cap.sline;
     if (count>max) count=max;
-    const lines=await nich.readLines(cap.sline, count );
+    const lines=await basket.readLines(cap.sline, count );
     return lines;
 }
