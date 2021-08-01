@@ -79,9 +79,31 @@ export class NestedOrderedList {
         this._getKeys=()=>_keys;
         this._valueOf=i=>_values[i];
         this._getValues=()=>_values;
+        this.itemCount=()=>_values.length;
     }
-    key(i){
-        
+    key(idx,path=[],subkeys){
+        if (typeof idx!=='number') return;
+        if (!subkeys) subkeys=this._getKeys();
+        if (!subkeys||idx<0) return;
+        if (idx>=this.itemCount())return;
+        for (let i=0;i<subkeys.length;i++) {
+            if (Array.isArray(subkeys[i])) {
+                const start=subkeys[i][0]
+                const end=typeof start=='number'?subkeys[i][0]+subkeys[i].length:0;
+                if (Array.isArray(start) || (idx>=start && idx<end) ) {
+                    path=this.key(idx, path.concat(i), subkeys[i]);
+                }
+            } else {
+                if (subkeys[0]+subkeys[i]===idx) return path.concat(i);
+                else if (typeof subkeys[i]=='undefined' && i) {
+                    if (i) {
+                        return path.concat(idx-subkeys[0]);
+                    }
+                }
+            }
+        }
+        while (path.length && path[path.length-1]==0) path.pop();
+        return path;
     }
     val(key) {
         return this._valueOf( this.indexOf(key))

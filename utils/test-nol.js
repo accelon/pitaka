@@ -181,7 +181,20 @@ const test_1level_serialize=()=>{
     pass+=!nol.val('4');test++;
     return pass==test;
 }
+const test_get_key=()=>{
+    let pass=0,test=0;    
+    const nol=gen_readonly();
+
+    pass+= (typeof nol.key(-1)=='undefined') ;test++
+    pass+= nol.key(0).join('.')=='1' ;test++
+    pass+= nol.key(1).join('.')=='1.0.1' ;test++
+    pass+= nol.key( nol.itemCount()-1 ) ;test++
+    pass+= (typeof nol.key( nol.itemCount() )=='undefined') ;test++
+
+    return pass==test;
+}
 console.clear();
+console.log();//conemu
 // pass +=  test_parseKey(); test++;
 // pass +=  test_compareKey() ; test++;
 
@@ -195,6 +208,7 @@ console.clear();
 // pass +=  test_access_value() ; test++;
 // pass +=  test_has_children() ; test++;
 // pass +=  test_siblingCount() ; test++;
-pass += test_1level_serialize() ; test++;
-
+// pass += test_1level_serialize() ; test++;
+pass += test_get_key() ; test++;
+console.log('')
 console.log(`pass ${pass}/${test}`);
