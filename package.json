@@ -6,12 +6,13 @@
   "exports" :{
     ".":"./index.js",
     "./htll":"./htll/index.js",
-    "./niche":"./niche/index.js",
+    "./basket":"./basket/index.js",
     "./utils":"./utils/index.js",
     "./jsonprom":"./jsonprom/index.js",
-    "./package.json":"./package.cd ..json"
+    "./package.json":"./package.json",
+    "./cli":"./cli/index.js"
   },
-  "bin":"./bin.js",
+  "bin":"cli/bin.js",
   "main": "./index.js",
    "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

@@ -118,9 +118,7 @@ export class NestedOrderedList {
         for (let i=0;i<key.length;i++) {
             const childkeys=keys[ key[i] ];
             const t=typeof childkeys;
-            if (t=='number') return [t,childkeys];
-            if (t=='undefined' && i==key.length-1) {
-                
+            if (t=='number'||(t=='undefined' && i==key.length-1)) {
                  return [ (key[i]<keys.length)?(keys[0]||-1)+key[i]:-1, childkeys];
             }
             keys=childkeys;

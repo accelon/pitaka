@@ -44,16 +44,16 @@ export async function openBasket(name){
 }
 
 export async function parse (basket_addr) {
-    const [name,addr] = basket_addr.split('*');
-    const basket=await open(name);
+    const [name,addr] = basket_addr.split('/');
+    const basket=await openBasket(name);
     const r=basket.parse(addr);
     if (r) r.basket=name;
     return r;
 }
 export async function readLines (cap,max=100) {
     const basket=pool.get(cap.basket);
-    let count=cap.eline-cap.sline;
+    let count=cap.eline?(cap.eline-cap.nline):1;
     if (count>max) count=max;
-    const lines=await basket.readLines(cap.sline, count );
+    const lines=await basket.readLines(cap.nline, count );
     return lines;
 }

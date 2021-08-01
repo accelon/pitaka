@@ -1,4 +1,4 @@
-import {parse,stringify} from './address.js'
+import {parseAddress} from './address.js'
 import {scanLine,scanTag,fileLines,fileContent,convertLine} from './tagtext.js'
 import Label from './label.js'
 import LabelPB from './label-pb.js'
@@ -11,5 +11,5 @@ import LabelAnchor from './label-anchor.js'
 const LabelType={LabelPB,LabelHeader,
     LabelDictEntry,
     LabelBook,LabelChapter,LabelSection,LabelAnchor};
-export {parse,stringify,Label,LabelType,scanLine,scanTag,convertLine,
+export {parseAddress,Label,LabelType,scanLine,scanTag,convertLine,
     fileLines,fileContent}

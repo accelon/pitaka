@@ -3,21 +3,22 @@ import {pack_delta,unpack_delta,packStrings,unpackStrings,bsearch} from'../utils
 class LabelDictEntry extends Label {
     constructor(name,opts={}) {
         super(name,opts)
-        this.pat=/^H(.*)/
         this.headword=[];
         this.linePos=[];
         this.prevhw='';
+        this.textual=true;
         this.normalizeText=opts.normalizeText;
         return this;
     }
-    action( {tag ,nline,text}){
-        let hw=text.substr(tag.rawoffset+tag.len);
-        if (this.normalizeText) hw=this.normalizeText(hw);
-        if (hw==this.prevhw) return;
-        this.headword.push(hw);
-        this.prevhw=hw;
-        this.linePos.push(nline);
-
+    action( {nline,text}){
+        if (text[0]=='#') {
+            let hw=text.substr(1);
+            if (this.normalizeText) hw=this.normalizeText(hw);
+            if (hw==this.prevhw) return;
+            this.headword.push(hw);
+            this.prevhw=hw;
+            this.linePos.push(nline);
+        }
     }
     serialize(){
         const out=[];

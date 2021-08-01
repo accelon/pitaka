@@ -11,6 +11,7 @@ class JSONPROMW {
             chunkStarts:[1],
             sectionStarts:[1],
             sectionNames:['txt'],
+            buildtime:(new Date()).toISOString()
         }
         const lines=[''];
         this._lines=lines;
