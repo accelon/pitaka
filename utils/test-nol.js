@@ -124,11 +124,12 @@ const test_pack_keys=()=>{
     pass+= rnol.list().join('\n')==nol.list().join('\n');test++;
     return pass==test
 }
-const gen_readonly=()=>{
+const gen_readonly=dump=>{
     const rnol=gen_huge();
     const keys=rnol.packKeys();
     const values=rnol.packValues();
     const nol=new NestedOrderedList({values , keys});
+    if (dump) console.log(rnol._getKeys(),rnol.list())
     return nol;
 }
 const test_access_value=()=>{
@@ -168,47 +169,93 @@ const test_siblingCount=()=>{
 const test_1level_serialize=()=>{
     const wnol=new NestedOrderedListBuilder();
     let pass=0,test=0;
-    pass+=wnol.add('1','v0');test++;
-    pass+=wnol.add('2','v1');test++;
-    pass+=wnol.add('3','v2');test++;
-
+    
+    pass+=wnol.add('1','v1');test++;            
+    pass+=wnol.add('1.0.1','v1.0.1');test++;        
+    pass+=wnol.add('1.1','v1.1');test++;        
+    pass+=wnol.add('1.1.1','v1.1.1');test++;    
+    pass+=wnol.add('1.1.2','v1.1.2');test++;    
+    pass+=wnol.add('1.2','v1.2');test++;    
+    pass+=wnol.add('1.3','v1.3');test++;    
+    pass+=wnol.add('1.3.1','v1.3.1');test++;    
+    pass+=wnol.add('2','v2');test++;            
+    // pass+=wnol.add('2.0.1','v2.0.1');test++;        
+    // pass+=wnol.add('2.1','v2.1');test++;        
+    // pass+=wnol.add('2.1.1','v2.1.1');test++;    
+    // pass+=wnol.add('2.1.2','v2.1.2');test++;    
+    // pass+=wnol.add('2.2','v2.2');test++;        
+    // pass+=wnol.add('2.2.1','v2.2.1');test++;    
     const keys=wnol.packKeys();
     const values=wnol.packValues();
     const nol=new NestedOrderedList({values , keys});
-
-    pass+=nol.val('1')=='v0';test++;
-    pass+=nol.val('3')=='v2';test++;
-    pass+=!nol.val('4');test++;
+    // console.log(wnol._getKeys())
+    // console.log(keys);   
+    // console.dir (nol._getKeys(),{depth:4})
+    // const k='2'
+    // console.log('idx',k,nol.indexOf(k), 'val',nol.val(k))
+    pass+=nol.val('1')=='v1';test++;
+    pass+=nol.val('1.1')=='v1.1';test++;
+    pass+=nol.val('1.1.1')=='v1.1.1';test++;
+    pass+=nol.val('1.3')=='v1.3';test++;
+    pass+=nol.val('2')=='v2';test++;
+    // pass+=nol.val('2.2.1')=='v2.2.1';test++;
+    // pass+=nol.val('2.0.1')=='v2.0.1';test++;
+    pass+=!nol.val('3');test++;
     return pass==test;
 }
 const test_get_key=()=>{
     let pass=0,test=0;    
-    const nol=gen_readonly();
+    const nol=gen_readonly(false);
+
+    // console.log(nol._getKeys())
+    // console.log(nol.key(12),nol.val('1.2.2'))
 
     pass+= (typeof nol.key(-1)=='undefined') ;test++
-    pass+= nol.key(0).join('.')=='1' ;test++
-    pass+= nol.key(1).join('.')=='1.0.1' ;test++
-    pass+= nol.key( nol.itemCount()-1 ) ;test++
-    pass+= (typeof nol.key( nol.itemCount() )=='undefined') ;test++
+    pass+= nol.key(1).join('.')=='1' ;test++
+    pass+= nol.key(2).join('.')=='1.0.1' ;test++
+    pass+= nol.key(5).join('.')=='1.1' ;test++
+    pass+= nol.key(12).join('.')=='1.2.3' ;test++ //last item
+    pass+= (Array.isArray(nol.key( nol.itemCount() ) ));test++
+    pass+= (typeof nol.key( nol.itemCount()+1 )=='undefined') ;test++
 
     return pass==test;
 }
+const test_1level=()=>{
+    const wnol=new NestedOrderedListBuilder();
+    let pass=0,test=0;
+ 
+    for (let i=1;i<10;i++) {
+        wnol.add(i.toString(),'v'+i);
+    }
+    const keys=wnol.packKeys();
+    const values=wnol.packValues();
+    const nol=new NestedOrderedList({values , keys});
+
+    pass+=nol.key(1).join('.')=='1';test++;
+    pass+=nol.key(2).join('.')=='2';test++;
+    pass+=nol.key(9).join('.')=='9';test++;
+    pass+=nol.val('9')=='v9';test++;
+    // console.log(nol.find('1'))
+
+    return pass==test
+}
 console.clear();
 console.log();//conemu
-// pass +=  test_parseKey(); test++;
-// pass +=  test_compareKey() ; test++;
+pass +=  test_parseKey(); test++;
+pass +=  test_compareKey() ; test++;
 
-// pass +=  test_level1_seq() ; test++;
-// pass +=  test_level1_repeat() ; test++;
-// pass +=  test_level1_gap() ; test++;
-// pass +=  test_nested() ; test++;
+pass +=  test_level1_seq() ; test++;
+pass +=  test_level1_repeat() ; test++;
+pass +=  test_level1_gap() ; test++;
+pass +=  test_nested() ; test++;
 
-// pass +=  test_add_in_order() ; test++;
-// pass +=  test_pack_keys() ; test++;
-// pass +=  test_access_value() ; test++;
-// pass +=  test_has_children() ; test++;
-// pass +=  test_siblingCount() ; test++;
-// pass += test_1level_serialize() ; test++;
+pass +=  test_add_in_order() ; test++;
+pass +=  test_pack_keys() ; test++;
+pass +=  test_access_value() ; test++;
+pass +=  test_has_children() ; test++;
+pass +=  test_siblingCount() ; test++;
+pass += test_1level_serialize() ; test++;
 pass += test_get_key() ; test++;
+pass += test_1level() ; test++;
 console.log('')
 console.log(`pass ${pass}/${test}`);

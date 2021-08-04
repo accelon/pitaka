@@ -1,4 +1,8 @@
+import { bsearch } from "./bsearch.js";
+
 export const parseKey=key=>{
+        if (!key)return false;
+        key=key.replace(/^\.+/,'').replace(/\.+$/,'');
         const rawnums= key.split('.')
         const nums=rawnums.map(i=>parseInt(i)).filter(i=>!isNaN(i));
         if (rawnums.length!==nums.length) return false; //contain non digit
@@ -34,17 +38,20 @@ const listKeys=(keys,parent=[])=>{
     }
     return out;
 }
+
 const unpackKeys=(keys,vidx=0)=>{
     let out=[];
     for (let i=0;i<keys.length;i++) {
         if (Array.isArray(keys[i])) {
-            out.push( unpackKeys(keys[i],vidx));
+            const r=unpackKeys(keys[i],vidx);
+            vidx=r[1];
+            out.push(r[0]);
         } else {
             if (keys[i]) {
                 if (keys[i]<0) {
                     const n=-keys[i];
                     const subarr=new Array(n);
-                    subarr[0]=vidx;
+                    subarr[0]=vidx+1;
                     out.push( subarr)
                     vidx+= n;
                 } else {
@@ -56,7 +63,7 @@ const unpackKeys=(keys,vidx=0)=>{
             }
         }
     }
-    return out;
+    return [out,vidx];
 }
 export class NestedOrderedList {
     constructor (opts) {
@@ -71,33 +78,49 @@ export class NestedOrderedList {
         if (typeof rawkeys=='number') { //1 level only
             _keys=new Array(-rawkeys) ;
         } else {
-            _keys=unpackKeys(rawkeys);
+            // vidx=0;
+            _keys=unpackKeys(rawkeys,0)[0];
         }
 
         //when serialized , first null changed to 0 for faster loading (same type)
         if (_keys[0]===0) delete _keys[0]; 
         this._getKeys=()=>_keys;
-        this._valueOf=i=>_values[i];
+        this._valueOf=i=>_values[i-1];
         this._getValues=()=>_values;
+        this.lastValue=()=>_values[_values.length-1];
         this.itemCount=()=>_values.length;
+    }
+    getEnd(keys){
+        let lastitem= keys[keys.length-1];
+        const t=typeof lastitem;
+        if (t=='undefined') { //a compressed final array 
+            return keys[0]+keys.length;
+        } else if (t=='number') {
+            return keys[keys.length-1];
+        } else { 
+            return this.getEnd(lastitem);
+        }
     }
     key(idx,path=[],subkeys){
         if (typeof idx!=='number') return;
         if (!subkeys) subkeys=this._getKeys();
-        if (!subkeys||idx<0) return;
-        if (idx>=this.itemCount())return;
+        if (!subkeys||idx<1) return;
+        if (idx>this.itemCount())return;
         for (let i=0;i<subkeys.length;i++) {
             if (Array.isArray(subkeys[i])) {
                 const start=subkeys[i][0]
-                const end=typeof start=='number'?subkeys[i][0]+subkeys[i].length:0;
+                const end=typeof start=='number'?this.getEnd(subkeys[i]):0;
+                if (start===idx) return path.concat(i); //match
                 if (Array.isArray(start) || (idx>=start && idx<end) ) {
                     path=this.key(idx, path.concat(i), subkeys[i]);
                 }
             } else {
-                if (subkeys[0]+subkeys[i]===idx) return path.concat(i);
-                else if (typeof subkeys[i]=='undefined' && i) {
+                if (subkeys[0]+subkeys[i]===idx+1) return path.concat(idx-subkeys[0]);
+                else if (typeof subkeys[i]=='undefined') {
                     if (i) {
-                        return path.concat(idx-subkeys[0]);
+                        return path.concat(idx-(subkeys[0]||0) );
+                    } else if (typeof subkeys[idx]=='number') {
+                        return path.concat(subkeys[idx]);
                     }
                 }
             }
@@ -106,44 +129,63 @@ export class NestedOrderedList {
         return path;
     }
     val(key) {
-        return this._valueOf( this.indexOf(key))
+        return this._valueOf( this.seqOf(key) )
+    }
+    seqOfVal(v,closest=false) {
+        const values=this._getValues();
+        return bsearch(values,v,closest)+1;
     }
     find(key){
         if (typeof key=='string') key=parseKey(key);
         if (typeof key=='number') key=[key];
         let keys=this._getKeys();
-        if (!keys)return [-1,null];
-        let idx=-1;
-
+        if (!keys)return [0,null];
+        let idx=0; //not found
         for (let i=0;i<key.length;i++) {
             const childkeys=keys[ key[i] ];
             const t=typeof childkeys;
-            if (t=='number'||(t=='undefined' && i==key.length-1)) {
-                 return [ (key[i]<keys.length)?(keys[0]||-1)+key[i]:-1, childkeys];
+            if (t=='number') {
+                return [childkeys, null ];
+            } else if (t=='undefined' && i==key.length-1) {
+                return [ (key[i]<keys.length)?(keys[0]||0)+key[i]:0, childkeys];
             }
             keys=childkeys;
             if (!keys) break;
         }
         const children=keys;
-        while (keys&&Array.isArray(keys)) {
+
+        while ((typeof keys!=='undefined')&&Array.isArray(keys)) {
             idx=keys[0] ;
             keys=keys[0];
         }
-        if (typeof idx=='undefined') idx=-1;
+
+        if (typeof idx=='undefined') idx=0;
         return [idx, children ] ;
     }
-    indexOf(key) {
+    seqOf(key) { //one-based
         return this.find(key)[0];
     }
     hasChild(key) {
         return !!this.find(key)[1];
     }
+    nextSibling(key) {
+        if (typeof key=='string') key=parseKey(key);
+        if (this.hasChild(key)) {
+            const count=this.siblingCount(key);
+            if (count > key[key.length-1]) {
+                const nextkey=key.slice(0,key.length-1)
+                nextkey.push( key[key.length-1] + 1) ;
+                return nextkey;
+            }
+        } 
+        const at=this.seqOf(key);
+        return this.key(at+1);
+    }
     siblingCount(key) {
         if (typeof key=='string') key=parseKey(key);
         let r=this.find(key);
         if (r[0]<0) return 0;
-        key.pop();
-        r=this.find(key);
+        r=this.find(key.slice(0,key.length-1) );
         const children=r[1];
         return key.length?children.length: (children.length - (children[0]?0:1) ); 
     }
@@ -158,10 +200,11 @@ export class NestedOrderedListBuilder {
         let _values=[];
         let _keys=[];
         
-        this._pushValue=val=>{_values.push(val);return _values.length-1};
+        this._pushValue=val=>{_values.push(val);return _values.length}; //1
         this._getValue=i=>_values[i];
         this.itemCount=()=>_values.length;
         this._getValues=()=>_values;
+
         this.packValues=sep=>_values.join(sep||this.opts.sep);
         this._getKeys=()=>_keys;
         this._previous=[0];
@@ -182,7 +225,7 @@ export class NestedOrderedListBuilder {
                 if (Array.isArray(keys[i])) {
                     out.push( this.packKeys(keys[i]) ) ;
                 } else { 
-                    out[i]=keys[i]||0;
+                    out[i]=keys[i] || 0;
                 }
             }
         }

@@ -28,6 +28,12 @@ class Basket extends JSONPROM {
             if (r) return r;
         }
     }
+    namespaces(){
+        for (let i=0;i<this.labels.length;i++) {
+            const r=this.labels[i].parse("");
+            if (r) return r;
+        }
+    }
     locate(nline){
         for (let i=0;i<this.labels.length;i++) {
             const r=this.labels[i].locate(nline);
@@ -50,10 +56,17 @@ export async function parse (basket_addr) {
     if (r) r.basket=name;
     return r;
 }
-export async function readLines (cap,max=100) {
-    const basket=pool.get(cap.basket);
-    let count=cap.eline?(cap.eline-cap.nline):1;
-    if (count>max) count=max;
-    const lines=await basket.readLines(cap.nline, count );
+const MAXLINE=256;
+export async function readLines ({basket,nline,eline,count=10}={}) {
+    if (!basket )return;
+    const bsk=pool.get(basket);
+    count=eline?(eline-nline):(count||1);
+    if (count>MAXLINE) count=MAXLINE;
+    const lines=await bsk.readLines(nline, count );
+
     return lines;
+}
+
+export const opened=()=>{
+    return pool.getAll();
 }

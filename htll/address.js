@@ -1,4 +1,4 @@
-const nlineOf=(ns,nslabels,id)=>{
+export const nlineOf=(ns,nslabels,id)=>{
     for (let i in nslabels) {
         const r=nslabels[i].nlineOf(id);
         if (r) {
@@ -8,17 +8,38 @@ const nlineOf=(ns,nslabels,id)=>{
     }
     return null;
 }
-export const parseAddress=(namespaces,nsnline,addr)=>{
+const nLineOfFirstKey=nsobj=>{
+    const nol=nsobj['.'].nol;
+    return nol.val(nol.key(1));
+}
+export const parseAddress=(namespaces,titles,header,addr)=>{
     let [ns,id]=addr.split('#');
     let nsobj=namespaces[ns];
-
+    const {title,nsnline}=header;
+    if (!nsobj) {
+        ns=titles[ns];
+        nsobj=namespaces[ns]
+    }
     if (nsobj) {
-        return nlineOf(ns,nsobj,id);
+        if (id) {
+            return nlineOf(ns,nsobj,id);
+        } else {
+            let intropage=null;
+            if (nsnline[ns]) {
+                for (let name in title) {
+                    if (title[name]==ns) {
+                        const eline=nLineOfFirstKey(nsobj);
+                        intropage={ns,id:'',title:name,nline:nsnline[ns],eline};
+                        break;
+                    }
+                }
+            }
+            return intropage;
+        }
     } else {
-        //is a namespace
         const eline=10;//todo get the first section of book
-        if (nsnline[ns]) return {ns,id:'',nline:nsnline,eline}
-        
+        if (nsnline[ns]) return {ns,id:'',nline:nsnline[ns],eline}
+
         for (let ns in namespaces) {
             const r=nlineOf(ns,namespaces[ns],id);
             if (r)return r;

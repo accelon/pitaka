@@ -1,1 +1,1 @@
-export {openBasket,parse,readLines} from './basket/index.js'
+export {openBasket,parse,readLines,pool,opened} from './basket/index.js'

@@ -1,6 +1,9 @@
 import {scanLine,fileLines} from 'pitaka/htll';
 import JSONPROMWriter from '../jsonprom/jsonpromw.js';
 import {serializeLabels} from './serialize-label.js';
+import kluer from '../cli/kluer.js';
+import { getCaption } from '../htll/caption.js';
+const {red,yellow}=kluer;
 class Builder {
     constructor(opts) {
         this.labelTypes=[];
@@ -11,11 +14,13 @@ class Builder {
     defineLabel(name,Type,opts){
         this.labelTypes.push(new Type(name,opts));
     }
-    handleTags(tags,text,nline){
+    handleTags(tags,text,nline,context){
         let accTagLen=0,s='',prev=0;  
         for (let i=0;i<tags.length;i++) {
             const tag=tags[i];
-            // if (tag.attrs) console.log(tag.attrs,tag.ele)
+            if (tag.ele=='htll' &&tag.attrs) {
+                context.htll=tag.attrs;
+            }
             let deltag=false;
             accTagLen+=tag.len;
             s+=text.substring(prev,tag.rawoffset); //offset of input file
@@ -25,24 +30,32 @@ class Builder {
             for (let i=0;i<this.labelTypes.length;i++) {
                 const lt=this.labelTypes[i];
                 if (lt.textual) continue;
-               
-               
                 if (tag.ele.match(lt.pat)) {
                     lt.action({tag,nline,context:this.context,text});
                     deltag=lt.del;
                     break;
                 }
             }
-            if (!deltag) s+='<'+tag.raw+'>';
+            //drop <!DOCTYPE> and so on
+            if (!deltag&& tags[i].ele[0]!=='!') s+='<'+tag.raw+'>';
         }
         s+=text.substring(prev);
         return s;
+    }
+    handleHTLL(tags,text){
+        let htll;
+        for (let i=0;i<tags.length;i++) {
+            if (tags[i].ele=='htll') {htll=tags[i];break;}
+        }
+        if (!htll)return;
+        this.context.title=getCaption(text);
+        this.context.htll=htll.attrs;
     }
     addFile(fn,format){
         const rawlines=fileLines(fn,format);
         const out=[];
         this.context.filename=fn;
-            
+        this.context.filenline=this.rom.header.lineCount;
         this.context.namespace=fn.replace(/^\.\//,'')
              .replace(/\..+/,'')//extension
              .replace(/[\\\/].+?/,'') //subfolder 
@@ -56,23 +69,26 @@ class Builder {
             if (lt.textual) handletext=true;
             else handletag=true;
         }
-        scanLine(rawlines,(li,idx)=>{
-            const text=rawlines[idx];
-            const nline=this.rom.header.lineCount+idx;
-            if (idx==0) {
-                if (!li.tags[0] || li.tags[0].ele!=='htll') {
-                    throw 'Missing <htll> as root ele '+text;
+        try{
+            scanLine(rawlines,(li,idx)=>{
+                const text=rawlines[idx];
+                const nline=this.rom.header.lineCount+idx;
+    
+                this.context.fileline=idx+1;      
+                if (handletext) for (let i=0;i<this.labelTypes.length;i++) {
+                    const lt=this.labelTypes[i];
+                    if (lt.textual) lt.action({nline,text,context:this.context});
                 }
-                this.context.htll=li.tags[0].attrs;
-            }
-            if (handletext) for (let i=0;i<this.labelTypes.length;i++) {
-                const lt=this.labelTypes[i];
-                if (lt.textual) lt.action({nline,text,context:this.context});
-            }
-           
-            if (handletag) out.push(this.handleTags(li.tags,text,nline));
-            else out.push(text);
-        });
+                if (idx==0) this.handleHTLL(li.tags,text);
+                if (handletag) out.push(this.handleTags(li.tags,text,nline,this.context));
+                else out.push(text);
+            });
+        } catch(e){
+            const {filename,fileline,title}=this.context;
+            console.error(yellow(filename+'('+fileline+'):') , title,red(e) );
+            throw '';
+        }
+
         for (let i=0;i<this.labelTypes.length;i++) { 
             this.labelTypes[i].fileDone();
         }

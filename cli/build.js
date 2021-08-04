@@ -23,21 +23,27 @@ export const indexHTMLFiles=(indexhtm='index.htm')=>{
   }
   const files=[];
   const content=readFileSync(indexhtm,'utf8');
+  const m_title=content.match(/<title>([^<]+?)<\/title>/);
+  const m_h1=content.match(/<h1>([^<]+?)<\/h1>/);
+
+  const title=(m_title?m_title[1].trim():m_h1[1].trim())||"無名";
+  
   content.replace(/<a href=([^"'\.-][a-z\d\\.]+\.html?)>/g,(m,fn)=>{
       if (fn==indexhtm) return;
       files.push(fn);
   })
-  return files;
+  return [files,title];
 }
 export const getWorkingPitakaName=()=>{
     let name=process.cwd();
     const m=name.match(/[\\\/\-\.]([a-z\d]+)$/i);
     return m[1].toLowerCase();
 }
-export const buildPitaka=({name,files}={})=>{
+export const buildPitaka=({name,title,files}={})=>{
 	if (!name) name=getWorkingPitakaName();
-    if (!files) files=indexHTMLFiles();
-    const builder=new Builder({name}); //core chinese text
+    if (!files) [files,title]=indexHTMLFiles();
+
+    const builder=new Builder({name,title}); //core chinese text
     builder.defineLabel('anchor',LabelType.LabelAnchor); //超連結
     builder.defineLabel('sections',LabelType.LabelHeader); //書-章回(序號) 結構
     files.forEach(fn=>builder.addFile(fn))

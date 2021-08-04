@@ -52,6 +52,9 @@ export const scanLine=(arr,cb)=> {
       t.replace(/<(.+?)>/g,(m,raw,rawoffset)=>{
          const at=raw.indexOf(' ');
          let ele=at>0?raw.substr(0,at):raw.trim();
+         if (ele.match(/[^a-z_!\d\/]/i)) {
+            throw 'invalid element '+ele
+         }
          let closing=false;
          if (ele[0]=='/') {
             ele=ele.substr(1)

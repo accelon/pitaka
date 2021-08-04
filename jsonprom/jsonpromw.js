@@ -7,6 +7,7 @@ class JSONPROMW {
         };
         this.header= {
             name:opts.name||'noname' ,
+            title:opts.title||'notitle',
             lineCount: 1,
             chunkStarts:[1],
             sectionStarts:[1],

@@ -20,6 +20,18 @@ class LabelDictEntry extends Label {
             this.linePos.push(nline);
         }
     }
+    parse(addr){
+        let HW=this.headword;
+        let tf=addr;
+        let at=bsearch(HW,tf);
+        while (at==-1 && tf) {
+            tf=tf.substr(0,tf.length-1);
+            at=bsearch(HW,tf);
+        }
+        if (at>-1) {
+            return {text:tf,nline:this.linePos[at]};
+        }
+    }
     serialize(){
         const out=[];
         const hw=packStrings(this.headword);

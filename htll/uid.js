@@ -31,7 +31,7 @@ export default class UniqueID  extends HTLLField {
     push(id,linepos) {
         super.push();
         if (!id)return;
-        if (this._id[id]) throw "repeated id "+id;
+        if (this._id[id]) throw "repeated id "+id+ ' line:'+linepos;
         this._id[id]=linepos;
         return true;
     }
