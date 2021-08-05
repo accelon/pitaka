@@ -11,9 +11,14 @@ const find = (arr, obj, near) =>{
   let low = 0, high = arr.length-1, mid;
   while (low < high) {
     mid = (low + high) >> 1;
-    if (arr[mid] === obj) return mid;
+    if (arr[mid] === obj)  {
+      while (mid>-1 &&arr[mid-1]===obj ) mid--; //值重覆的元素，回逆到第一個
+      return mid;
+    }
     (arr[mid] < obj) ? low = mid + 1 : high = mid;
   }
+  
+
   if (near) {
     if (typeof obj=='string'){
       let same=sameLeadingByte( arr[low], obj);
@@ -27,6 +32,7 @@ const find = (arr, obj, near) =>{
     }
     return low;
   }
+
   else if (arr[low] === obj) return low;
   else return -1;
 };
@@ -36,7 +42,10 @@ const find_getter =  (getter, obj, near) =>{
   let low = 0,high = len;
   while (low < high) {
     var mid = (low + high) >> 1;
-    if (getter(mid)===obj) return mid<len?mid:len-1;
+    if (getter(mid)===obj) {
+      while (mid>-1 &&getter(mid-1)===obj ) mid--; //值重覆的元素，回逆到第一個
+      return mid<len?mid:len-1;
+    }
     getter(mid)<obj ? low=mid+1 : high=mid;
   }
   if (near) return low<len?low:len-1;

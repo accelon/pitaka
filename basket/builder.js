@@ -18,10 +18,12 @@ class Builder {
         let accTagLen=0,s='',prev=0;  
         for (let i=0;i<tags.length;i++) {
             const tag=tags[i];
+            let deltag=false;
             if (tag.ele=='htll' &&tag.attrs) {
                 context.htll=tag.attrs;
+                deltag=true;
             }
-            let deltag=false;
+            
             accTagLen+=tag.len;
             s+=text.substring(prev,tag.rawoffset); //offset of input file
             tags[i].offset=s.length; //offset in pitaka (some tags are deleted)

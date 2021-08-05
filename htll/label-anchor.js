@@ -44,7 +44,6 @@ class LabelAnchor extends Label {
         if (!tag.ele) throw 'empty element name'
         if (!tag.attrs) throw 'wrong ele '+text;
         const {name,href}=tag.attrs;
-        debugger
         const ns=this.namespaceObject(context);
         name?addAName(tag,ns,context,name,nline,text):addHref(tag,href,this.hrefs,nline,text);
     }
@@ -101,7 +100,17 @@ class LabelAnchor extends Label {
         if (!addr) {
             return {namespaces:this.getNamespaces()};
         }
-        return parseAddress(this.namespace,this.header.title,this.header,addr);
+        const r=parseAddress(this.namespace,this.header.title,this.header,addr);
+        if (r) {
+            if (r.eline==-1) { //end of namespace
+                for (let ns in this.header.nsnline) {
+                    if (this.header.nsnline[ns]>r.nline) {
+                        r.eline=this.header.nsnline[ns];
+                    }
+                }
+            }
+            return r;
+        }
     }
 }
 export default LabelAnchor ;

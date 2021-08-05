@@ -136,6 +136,7 @@ export class NestedOrderedList {
         return bsearch(values,v,closest)+1;
     }
     find(key){
+        if (!key)return [0,null];
         if (typeof key=='string') key=parseKey(key);
         if (typeof key=='number') key=[key];
         let keys=this._getKeys();
