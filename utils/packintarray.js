@@ -1,11 +1,5 @@
-// const maxlen1=91
-// const maxlen2=91*91	   //8281
-// const maxlen3=91*91*91 //753571
-const maxlen1=109
-const maxlen2=109*109	   //11881
-const maxlen3=109*109*109 //1295029
-const CodeStart=0x0E;
-const pack1=(arr,esc)=>{
+import {maxlen1,maxlen2,maxlen3,CodeStart} from './unpackintarray.js';
+export const pack1=(arr,esc)=>{
 	let s="";
 	for (let i=0;i<arr.length;i++) {
 		if (arr[i]>=maxlen1) throw new Error("exit boundary "+arr[i])
@@ -16,7 +10,7 @@ const pack1=(arr,esc)=>{
 	if (esc) s=escapePackedStr(s); 
 	return s;
 }
-const pack2=(arr,esc=false)=>{
+export const pack2=(arr,esc=false)=>{
 	let s="";
 	for (let i=0;i<arr.length;i++) {
 		if (arr[i]>=maxlen2) {
@@ -33,7 +27,7 @@ const pack2=(arr,esc=false)=>{
 	if (esc) s=escapePackedStr(s); 
 	return s;
 }
-const pack3=(arr,esc=false)=>{
+export const pack3=(arr,esc=false)=>{
 	let s="";
 	for (let i=0;i<arr.length;i++) {
 		if (arr[i]>=maxlen3) throw "exit boundary "+arr[i]
@@ -50,74 +44,17 @@ const pack3=(arr,esc=false)=>{
 	return s;
 }
 
-const unpack3=str=>{
-	let arr=[],i1,i2,i3;
-	const count=Math.floor(str.length/3);
-	for (let i=0;i<count;i++) {
-		i3=str.charCodeAt(i*3) -CodeStart;
-		i2=str.charCodeAt(i*3+1) -CodeStart;
-		i1=str.charCodeAt(i*3+2) -CodeStart;
-		arr.push( maxlen1*maxlen1*i3 +maxlen1*i2+i1 );
-	}
-	return arr;
-}
-const unpack2=str=>{
-	let arr=[],i1,i2;
-	const count=Math.floor(str.length/2);
-	for (let i=0;i<count;i++) {
-		i2=str.charCodeAt(i*3) -CodeStart;
-		i1=str.charCodeAt(i*3+1) -CodeStart;
-		arr.push(maxlen1*i2+i1 );
-	}
-	return arr;
-}
-const unpack1=str=>{
-	let arr=[],i1;
-	const count=Math.floor(str.length);
-	for (let i=0;i<count;i++) {
-		i1=str.charCodeAt(i*3) -CodeStart;
-		arr.push( i1 );
-	}
-	return arr;
-}
-//letiable  1or 3 bytes, maxlen2
-const unpack=str=>{
-	let arr=[],o,i=0;
-
-	while (i<str.length) {
-		o=str.charCodeAt(i) -CodeStart;
-		if ( str[i]=='{' ) { // unpack2
-			o=(str.charCodeAt(i+1)-CodeStart)*maxlen1
-			+(str.charCodeAt(i+2)-CodeStart);
-			i+=2;
-		} else if (str[i]=='}') { // unpack3
-			o=(str.charCodeAt(i+1)-CodeStart)*maxlen1*maxlen1
-			+(str.charCodeAt(i+2)-CodeStart)*maxlen1
-			+(str.charCodeAt(i+3)-CodeStart);
-			i+=3;
-		}
-		arr.push(o);
-		i++;
-	}
-	return arr;
-}
 
 //might be two dimensional,separated by | 
-const pack2d=(arr,esc)=>{
+export const pack2d=(arr,esc)=>{
 	const o=[];
 	for (let i=0;i<arr.length;i++) {
 		o.push(pack(arr[i]||[],esc));
 	}
 	return o.join("|");
 }
-const unpack2d=s=>{
-	if (!s)return [];
-	const arr=s.split("|");
-	if (arr.length==1) return [unpack(arr[0])];
-	return arr.map(itm=>unpack(itm));
-}
 
-const pack=(arr,esc)=>{
+export const pack=(arr,esc)=>{
 	let s="";
 	for (let i=0;i<arr.length;i++) {
 		if (arr[i]==Number.MIN_VALUE) continue;
@@ -143,7 +80,7 @@ const pack=(arr,esc)=>{
 	return s;
 }
 
-const pack_delta=(arr,removeRepeat=false)=>{
+export const pack_delta=(arr,removeRepeat=false)=>{
 	if (arr.length<1)return "";
 	if (!arr[0]) arr[0]=0;
 	let now=arr[0];
@@ -175,49 +112,6 @@ const pack_delta2d=(arr2d,removeRepeat=false)=>{
 		return pack(arr);
 	}).join("|");
 }
-const unpack_delta=s=>{
-	const arr=unpack(s);
-	if (arr.length<2)return arr;
-	for (let i=1;i<arr.length;i++) {
-		arr[i]+=arr[i-1];
-	}	
-	return arr;
-}
 
-const unpack_delta2d=s=>{
-	if (!s)return [];
-	const arr2d=unpack2d(s);
-	if (arr2d.length==1) {
-		return [unpack_delta(s)];
-	}
-	return arr2d.map( arr=> {
-		if (arr.length<2)return arr;
-		for (let i=1;i<arr.length;i++) {
-			arr[i]+=arr[i-1];
-		}	
-		return arr;
-	});
-}
-const test=()=>{
-	let arr=[];
-	for (i=100000;i< maxlen3-1000;i+=1000){
-		arr.push(i);
-	}
-	let s=pack3(arr);
-	let out=unpack3(s);
-	
-	for (let i=0;i<out.length;i++) {
-		if (out[i]!==arr[i]) {
-			throw new Error("test fail at"+i)
-		}
-	}
-	console.log("arr length"+JSON.stringify(arr).length)
-	console.log("pack length"+s.length)
-}
-
-const escapePackedStr=str=>str.replace(/\\/g,"\\\\").replace(/`/g,"\\`").replace(/\$\{/g,'$\\{');
-export {
-	pack1,pack2,pack3,unpack3,unpack1,unpack2,
-	unpack,pack,unpack2d,pack2d,escapePackedStr,
-	pack_delta,unpack_delta,pack_delta2d,unpack_delta2d
-}
+export const escapeStrWithQuote=str=>str.replace(/"/g,'\\"');
+export const escapePackedStr=str=>str.replace(/\\/g,"\\\\").replace(/`/g,"\\`").replace(/\$\{/g,'$\\{');

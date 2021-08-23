@@ -19,6 +19,7 @@ class LabelAnchor extends Label {
           };   
         this.hrefs=new HREFs();
     }
+
     namespaceObject(context){
         if (!this.namespace[context.namespace]) {
             this.namespace[context.namespace]={
@@ -112,5 +113,6 @@ class LabelAnchor extends Label {
             return r;
         }
     }
+
 }
 export default LabelAnchor ;

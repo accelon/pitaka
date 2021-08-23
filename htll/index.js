@@ -8,8 +8,7 @@ import LabelBook from './label-book.js'
 import LabelChapter from './label-chapter.js'
 import LabelSection from './label-section.js'
 import LabelAnchor from './label-anchor.js'
-const LabelType={LabelPB,LabelHeader,
-    LabelDictEntry,
-    LabelBook,LabelChapter,LabelSection,LabelAnchor};
-export {parseAddress,Label,LabelType,scanLine,scanTag,convertLine,
-    fileLines,fileContent}
+const LabelType={Label,LabelPB,LabelHeader,LabelDictEntry,
+    LabelBook,LabelChapter,LabelSection,LabelAnchor}
+
+export {parseAddress,LabelType,scanLine,scanTag,convertLine,fileLines,fileContent}

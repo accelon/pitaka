@@ -1,7 +1,8 @@
 import JSONPROM from "../jsonprom/jsonprom.js";
 import pool from './pool.js';
-import { bsearch } from "../utils/bsearch.js";
+import { bsearch } from "../utils/bsearch.js" ;
 import {deserializeLabels} from './serialize-label.js';
+
 /*
    Basket is a read-only container
    of htll texts, prebuilt data-structure to facilitate fast access,
@@ -14,7 +15,7 @@ class Basket extends JSONPROM {
         this.labelTypes=[];
         this.labels={};
     }
-    
+   
     async init(){
         const section='labels'
         await this.load(0);
@@ -23,6 +24,7 @@ class Basket extends JSONPROM {
         const sectionRange=this.getSectionRange(section);
         this.labels=deserializeLabels(labelsection,sectionRange);
     }
+    
     parse(str){
         for (let i=0;i<this.labels.length;i++) {
             const r=this.labels[i].parse(str);
@@ -33,7 +35,20 @@ class Basket extends JSONPROM {
             }
         }
     }
-    getLinksAtLine=nline=>{
+    namespaces(){
+        for (let i=0;i<this.labels.length;i++) {
+            const r=this.labels[i].parse("");
+            if (r) return r;
+        }
+    }
+    
+    locate(nline){
+        for (let i=0;i<this.labels.length;i++) {
+            const r=this.labels[i].locate(nline);
+            if (r) return r;
+        }
+    }
+    getLinksAtLine(nline){
         const links=[];
         const hrefs=this.labels[0].hrefs;
         if (!hrefs)return links;
@@ -56,19 +71,8 @@ class Basket extends JSONPROM {
         }
         return links;
     }
-    namespaces(){
-        for (let i=0;i<this.labels.length;i++) {
-            const r=this.labels[i].parse("");
-            if (r) return r;
-        }
-    }
-    locate(nline){
-        for (let i=0;i<this.labels.length;i++) {
-            const r=this.labels[i].locate(nline);
-            if (r) return r;
-        }
-    }
 }
+
 export async function openBasket(name){
     if (pool.has(name)) return pool.get(name);
     const basket= new Basket({name});
@@ -84,6 +88,7 @@ export async function parse (basket_addr) {
     if (r) r.basket=name;
     return r;
 }
+
 const MAXLINE=256;
 export async function readLines ({basket,nline,eline,count=10}={}) {
     if (!basket )return;
@@ -98,3 +103,4 @@ export async function readLines ({basket,nline,eline,count=10}={}) {
 export const opened=()=>{
     return pool.getAll();
 }
+

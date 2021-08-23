@@ -22,23 +22,3 @@ export const packStrings=sl=>{
     }
     return out;
 }
-export const unpackStrings=str=>{
-    let p=0, s='', prevstr='',shared=0;
-    const out=[];
-    while (p<str.length) {
-        const code=str.charCodeAt(p);
-        if (code>=CodeStart && code<=CodeEnd) {
-            if (s) {
-                prevstr=prevstr.substr(0,shared)+s;
-                out.push(prevstr);
-            }
-            shared=code-CodeStart;
-            s='';
-        } else {
-            s+=str[p];
-        }
-        p++; 
-    }
-    if (s) out.push(s);
-    return out;
-}
