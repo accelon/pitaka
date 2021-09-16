@@ -12,27 +12,30 @@ const {blue,yellow,red,bgWhite} = kluer;
 import {buildPitaka,getWorkingPitakaName} from './build.js'
 import {info} from './info.js';
 import validate from "./validate.js"
-import rom from "../rom/pack.js"
+// import pack from "../rom/pack.js"
 
-const build=name=>{  
-    const report=buildPitaka({name});
+const rom=name=>jsonp(name,true);
+const jsonp=(name,rom=false)=>{  
+    const report=buildPitaka({name,rom});
     console.log('\n'+report);
 }
 const help=()=>{
     console.log('Description: ')
     console.log(' Pitaka command line interface')
-    console.log('\nUsage (first char is also good)')
-    console.log(yellow(' $ pitaka build'), 'to build a pitaka')
-    console.log(yellow(' $ pitaka info'), ' dump information of pitaka')
-    console.log(yellow(' $ pitaka validate'), 'validate all htm files')
-    console.log(yellow(' $ pitaka rom'), 'create rom file from a folder')
+    console.log('\nUsage: ')
+    console.log(yellow('$ pitaka jsonp   '), 'build pitaka jsonp folder')
+    console.log(yellow('$ pitaka rom     '), 'build pitaka rom file')
+    console.log(yellow('$ pitaka info    '), 'dump information of pitaka')
+    console.log(yellow('$ pitaka validate'), 'validate all htm files')
+    // console.log(yellow(' $ pitaka pack    '), 'pack folder to a rom file')
 }
 
 try {
     const name=getWorkingPitakaName();
 
     ({v:validate,validate,
-        b:build,build,'--help':help,'-h':help,i:info,info,rom,r:rom})[cmd](name);
+        j:jsonp,jsonp,
+        '--help':help,'-h':help,i:info,info,rom,r:rom})[cmd](name);
 } catch(e) {
     console.log( kluer.red('error running command'),cmd)
     console.log(e)

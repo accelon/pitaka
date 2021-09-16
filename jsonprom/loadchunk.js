@@ -1,7 +1,5 @@
 const unescapeTemplateString=str=>str.replace(/\\\\/g,"\\").replace(/\\`/g,"`").replace(/\$\\\{/g,'${');
-
 const chunkfilename=chunk=>chunk.toString().padStart(3,'0')+'.js';
-import  {ROMHEADERSIZE} from '../rom/romconst.js';
 
 const makeChunkURI=(name,chunk)=>{
     const fn=name+'/'+chunkfilename(chunk);
@@ -26,9 +24,10 @@ export async function loadNodeJs (name,chunk){
 }
 
 export const loadFetch= async (name,chunk,rom)=>{
-    const at=rom.filenames.indexOf(chunkfilename(chunk));
+    const at=rom.filenames?rom.filenames.indexOf(chunkfilename(chunk)):chunk;
+    
     if (at>-1) {
-        const start=ROMHEADERSIZE+rom.offsets[at],end=ROMHEADERSIZE+rom.offsets[at+1];
+        const start=rom.offsets[at],end=rom.offsets[at+1];
         const res=await fetch(rom.romfile,{headers: {
             'content-type': 'multipart/byteranges',
             'range': 'bytes='+start+'-'+end,

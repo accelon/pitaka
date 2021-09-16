@@ -3,25 +3,28 @@ const {blue,yellow,red,bgWhite} = kluer;
 import { existsSync,unlinkSync,readdirSync,writeSync, close, appendFileSync, readFileSync, openSync} from 'fs';
 import { alphabetically } from '../utils/sortedarray.js';
 import crc32 from './crc32.js';
-import {ROMHEADERSIZE} from './romconst.js';
+import {ROMHEADERSIZE,EMPTYROMHEADER,ROMEXT} from './romconst.js';
 const packrom=()=>{
     const folder=process.argv[3];
     if (!folder) {
         console.log(red('missing foldername'));
+        return;
     }
 
     const files=readdirSync(folder);
-    const outfn=folder+'.rom';
+    const outfn=folder+ROMEXT;
     if (existsSync(outfn)) unlinkSync(outfn);
     const outfile=openSync(outfn,'w');
-
-    appendFileSync( outfile,Buffer.from('PITAKA\x1a'+'-'.repeat(25)));
+    let isPitaka=true;
+    appendFileSync( outfile,Buffer.from(EMPTYROMHEADER));
 
     files.sort((a,b)=>alphabetically);
     const offsets=[], filenames=[];
-    let romsize=0,crc=0;
-    
+    let romsize=ROMHEADERSIZE,crc=0,filecount=0;
     files.forEach(file=>{
+        if (!file.match(/\d+\.js/))return;
+        if (parseInt(file)!==filecount) isPitaka=false;
+        filecount++;
         const content=readFileSync(folder+'/'+file);
         filenames.push(file);
         offsets.push(romsize);
@@ -31,14 +34,16 @@ const packrom=()=>{
     })
     offsets.push(romsize);
 
-    const fileinfo={filenames,offsets};
+    const fileinfo={offsets};
+    if (!isPitaka) fileinfo.filenames=filenames;
     appendFileSync(outfile, Buffer.from( JSON.stringify(fileinfo) ) )
     
     //header 32 bytes
     //PITAKA 7 bytes , 9 bytes , reserved 8 bytes, crc32 8 bytes
-    writeSync(outfile,(ROMHEADERSIZE+romsize).toString(16).padStart(9,' '), 7 );
+    writeSync(outfile,(romsize+ROMHEADERSIZE).toString(16).padStart(9,' '), 7 );
     writeSync(outfile,crc.toString(16).padStart(16,' '),7+9 );
 
     close(outfile);
+    console.log(outfn,'consists',filecount,'js files, content size',romsize)
 }
 export default packrom;

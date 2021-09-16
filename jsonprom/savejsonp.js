@@ -1,25 +1,50 @@
+import {readFileSync,writeFileSync,existsSync,writeSync,mkdirSync,close, appendFileSync} from 'fs'
+import { ROMHEADERSIZE,EMPTYROMHEADER } from '../rom/romconst.js';
+
 const escapeTemplateString=str=>str.replace(/\\/g,"\\\\").replace(/`/g,"\\`").replace(/\$\{/g,'$\\{');
-import {readFileSync,writeFileSync,existsSync,mkdirSync} from 'fs'
 
 const prepareJSONP=({chunk,name,start},lines)=>{
     return 'jsonp('+chunk+',{"name":"'+name+'","start":'+start
     +'},`'+escapeTemplateString(lines.join('\n'))+'`)';
 }
-const saveHeader=(folder,header,payload)=>{    
-    writeFileSync(folder+'/000.js','jsonp(0,'+JSON.stringify(header)+',`'
+const chunkOffsets=[];
+let romsize=ROMHEADERSIZE;
+
+const writeChunk=(romfile,folder,chunk,rawcontent)=>{
+    if (romfile) {
+        chunkOffsets.push(romsize);
+        const content=Buffer.from(rawcontent,'utf8');
+        romsize+=content.length;
+        appendFileSync(romfile,content);
+    } else {
+        const fn=folder+'/'+ chunk.toString().padStart(3,'0')+'.js';
+        writeFileSync(fn,rawcontent,'utf8');        
+    }
+    
+}
+const saveHeader=(romfile,folder,header,payload)=>{    
+    writeChunk(romfile,folder,0,'jsonp(0,'+JSON.stringify(header)+',`'
     +escapeTemplateString(payload)+'`)','utf8');
 }
-const saveJsonp=(folder,chunk,name,start,L)=>{
+const saveJsonp=(romfile,folder,chunk,name,start,L)=>{
     let writeCount=0;
-    const fn=folder+'/'+ chunk.toString().padStart(3,'0')+'.js'
+    
     const newcontent=prepareJSONP({chunk,name,start},L);
-    if (!existsSync(fn) || readFileSync(fn,'utf8')!==newcontent) {
-        writeFileSync(fn,newcontent,'utf8');
+    if (romfile) {
+        writeChunk(romfile,folder,chunk,newcontent);
         writeCount++;
-        process.stdout.write('\rwritten'+fn+'     ');
+    } else {
+        const fn=folder+'/'+ chunk.toString().padStart(3,'0')+'.js';
+
+        if (!existsSync(fn) || readFileSync(fn,'utf8')!==newcontent) {
+            writeChunk(romfile,folder,chunk,newcontent);
+            writeCount++;
+            process.stdout.write('\rwritten'+fn+'     ');
+        }
     }
     return writeCount;
 }
+
 function save(opts,newheader={}){
     opts=Object.assign(this.opts,opts);
     const folder=(opts.folder||opts.name);
@@ -28,23 +53,33 @@ function save(opts,newheader={}){
     const header=Object.assign({},newheader,this.header);
     const {chunkStarts}=header;
 
+    if (opts.romfile) appendFileSync( opts.romfile,Buffer.from(EMPTYROMHEADER));
+
+    this.payload=opts.payload||'';
+    if (typeof this.payload!=='string') this.payload=this.payload.join('\n');
+    saveHeader(opts.romfile,folder,header,this.payload);
+
     let i=1,wc=1;
     const name=opts.name;
     while (i<chunkStarts.length) {
         const L=this._lines.slice( chunkStarts[i-1],chunkStarts[i]);
-        wc+=saveJsonp(folder,i,name,chunkStarts[i-1],L)
+       
+        wc+=saveJsonp(opts.romfile,folder,i,name,chunkStarts[i-1],L)
         i++;
     }
     const start=chunkStarts[chunkStarts.length-1];
     const last=this._lines.slice(start,this._lines.length);
-    wc+=saveJsonp(folder,chunkStarts.length, name, start,last )
+    wc+=saveJsonp(opts.romfile,folder,chunkStarts.length, name, start,last )
 
-    this.payload=opts.payload||'';
-    if (typeof this.payload!=='string') this.payload=this.payload.join('\n');
-    saveHeader(folder,header,this.payload);
     const rep={};
     rep.Number_of_chunk=chunkStarts.length+1;
     rep.written_files=wc;
+    if (opts.romfile) {
+        chunkOffsets.push(romsize);
+        appendFileSync(opts.romfile, Buffer.from( JSON.stringify({offsets:chunkOffsets}) ) )
+        writeSync(opts.romfile,(romsize).toString(16).padStart(9,' '), 7 );
+        close(opts.romfile);
+    }
     return rep;
 }
 export default save;

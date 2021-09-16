@@ -1,6 +1,6 @@
 import {loadJSONP,loadFetch,loadNodeJs} from './loadchunk.js';
 import {readLines,prefetchLines} from './readline.js';
-
+import {ROMEXT, ROMHEADERSIZE} from '../rom/romconst.js';
 class JSONPROM {
     constructor(opts) {
         this.context = {
@@ -10,7 +10,6 @@ class JSONPROM {
         this.romfile=null;
         this.filenames=[];
         this.offsets=[];
-        
 
         this.header= {
             name:opts.name||'noname',
@@ -53,10 +52,10 @@ class JSONPROM {
         this.context.loadedChunk[chunk]=true;
     }
     async openrom(){
-        const romfn='/'+this.header.name+'.rom';
+        const romfn='/'+this.header.name+ROMEXT;
         const res=await fetch(romfn,{headers: {
             'content-type': 'multipart/byteranges',
-            'range': 'bytes=0-32',
+            'range': 'bytes=0-'+(ROMHEADERSIZE-1),
         }}
         );
         if (res.ok) {

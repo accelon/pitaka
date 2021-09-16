@@ -1,5 +1,6 @@
 import save from './savejsonp.js'
-import {readFileSync} from 'fs'
+import { readFileSync} from 'fs'
+
 class JSONPROMW {
     constructor(opts) {
         this.context = {
@@ -14,6 +15,7 @@ class JSONPROMW {
             sectionNames:['txt'],
             buildtime:(new Date()).toISOString()
         }
+
         const lines=[''];
         this._lines=lines;
 
