@@ -7,6 +7,11 @@ class JSONPROM {
             accLength:0,
             loadedChunk:[],
         };
+        this.romfile=null;
+        this.filenames=[];
+        this.offsets=[];
+        
+
         this.header= {
             name:opts.name||'noname',
             lineCount:1,
@@ -30,6 +35,7 @@ class JSONPROM {
         this.readLines=readLines;
         this.prefetchLines=prefetchLines;
         this.getLine=i=>lines[i];
+        this.rom=null;
         return this;
     }
     setChunk(chunk,header,payload){
@@ -45,6 +51,28 @@ class JSONPROM {
             }
         }
         this.context.loadedChunk[chunk]=true;
+    }
+    async openrom(){
+        const romfn='/'+this.header.name+'.rom';
+        const res=await fetch(romfn,{headers: {
+            'content-type': 'multipart/byteranges',
+            'range': 'bytes=0-32',
+        }}
+        );
+        if (res.ok) {
+            const text=await res.text();
+            const headeroffset=parseInt(text.substr(7,9) , 16);
+            
+            const res2=await fetch(romfn,{headers: {
+                'content-type': 'multipart/byteranges',
+                'range': 'bytes='+headeroffset+'-'
+            }})
+
+            const header= JSON.parse(await res2.text());
+            this.offsets=header.offsets;
+            this.filenames=header.filenames;
+            this.romfile=romfn;
+        }
     }
     async load(_chunk=0){
         let res;

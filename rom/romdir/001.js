@@ -1,0 +1,1 @@
+jsonp({test:true},`"this is a javascript file"`)

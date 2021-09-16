@@ -12,6 +12,7 @@ const {blue,yellow,red,bgWhite} = kluer;
 import {buildPitaka,getWorkingPitakaName} from './build.js'
 import {info} from './info.js';
 import validate from "./validate.js"
+import rom from "../rom/pack.js"
 
 const build=name=>{  
     const report=buildPitaka({name});
@@ -24,13 +25,14 @@ const help=()=>{
     console.log(yellow(' $ pitaka build'), 'to build a pitaka')
     console.log(yellow(' $ pitaka info'), ' dump information of pitaka')
     console.log(yellow(' $ pitaka validate'), 'validate all htm files')
+    console.log(yellow(' $ pitaka rom'), 'create rom file from a folder')
 }
 
 try {
     const name=getWorkingPitakaName();
 
     ({v:validate,validate,
-        b:build,build,'--help':help,'-h':help,i:info,info})[cmd](name);
+        b:build,build,'--help':help,'-h':help,i:info,info,rom,r:rom})[cmd](name);
 } catch(e) {
     console.log( kluer.red('error running command'),cmd)
     console.log(e)

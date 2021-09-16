@@ -1,7 +1,10 @@
 const unescapeTemplateString=str=>str.replace(/\\\\/g,"\\").replace(/\\`/g,"`").replace(/\$\\\{/g,'${');
 
+const chunkfilename=chunk=>chunk.toString().padStart(3,'0')+'.js';
+import  {ROMHEADERSIZE} from '../rom/romconst.js';
+
 const makeChunkURI=(name,chunk)=>{
-    const fn=name+'/'+chunk.toString().padStart(3,'0')+'.js';
+    const fn=name+'/'+chunkfilename(chunk);
     return fn;
 }
 
@@ -21,7 +24,24 @@ export async function loadNodeJs (name,chunk){
         console.error('readFile failed,',fn);
     }
 }
-export const loadFetch= async (name,chunk)=>{
+
+export const loadFetch= async (name,chunk,rom)=>{
+    const at=rom.filenames.indexOf(chunkfilename(chunk));
+    if (at>-1) {
+        const start=ROMHEADERSIZE+rom.offsets[at],end=ROMHEADERSIZE+rom.offsets[at+1];
+        const res=await fetch(rom.romfile,{headers: {
+            'content-type': 'multipart/byteranges',
+            'range': 'bytes='+start+'-'+end,
+        }})
+
+        if (res.ok) {
+            const content=await res.text();
+            return parseChunk(content)
+        }
+        console.error('rom fetch failed,',name,chunk);
+        return '';
+    }
+
     const uri=makeChunkURI(name,chunk);
     try {
         const res=await fetch(uri);

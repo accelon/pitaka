@@ -18,6 +18,7 @@ class Basket extends JSONPROM {
    
     async init(){
         const section='labels'
+        await this.openrom();
         await this.load(0);
         await this.loadSection(section);
         const labelsection=this.getSection(section);
