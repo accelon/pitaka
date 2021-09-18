@@ -12,11 +12,11 @@ const parseChunk=str=>{
     return {header:JSON.parse(str.substring(start,end)),
         payload:unescapeTemplateString(str.substring(end+2,str.length-2)).split(/\r?\n/) }
 }
-import {promises} from 'fs';
+//import {promises} from 'fs';
 export async function loadNodeJs (name,chunk){
     const fn=makeChunkURI(name,chunk);
     try{
-        const data=await promises.readFile(fn,'utf8');
+        const data=await fs.promises.readFile(fn,'utf8');
         return parseChunk(data);
     } catch(e) {
         console.error('readFile failed,',fn);

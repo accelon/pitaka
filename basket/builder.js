@@ -3,19 +3,22 @@ import JSONPROMWriter from '../jsonprom/jsonpromw.js';
 import {serializeLabels} from './serialize-label.js';
 import kluer from '../cli/kluer.js';
 import { getCaption } from '../htll/caption.js';
-import {existsSync,openSync,unlinkSync} from 'fs';
+// import {existsSync,openSync,unlinkSync} from 'fs';
 const {red,yellow}=kluer;
 class Builder {
     constructor(opts) {
         this.labelTypes=[];
         this.context={namespaces:{}};
         this.rom=new JSONPROMWriter(opts);
-
         this.romfilename='';
         if (opts.rom) {
-            this.romfilename=this.rom.header.name+'.ptk';
-            if (existsSync(this.romfilename)) unlinkSync(this.romfilename);
-            this.romfile=openSync(this.romfilename,'w');
+            if (fs) {
+                this.romfilename=this.rom.header.name+'.ptk';
+                if (fs.existsSync(this.romfilename)) fs.unlinkSync(this.romfilename);
+                this.romfile=fs.openSync(this.romfilename,'w');    
+            } else { //chrome file system access API
+
+            }
         }
 
         return this;

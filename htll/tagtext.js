@@ -4,10 +4,10 @@
 
    /n as line break
 */
-import {readFileSync} from 'fs'
+//import {readFileSync} from 'fs'
 import { parseAttr } from '../utils/argument.js';
 export const fileContent=(fn,format='utf8')=>{
-   let c=readFileSync(fn,format).replace(/\r?\n/g,'\n');
+   let c=fs.readFileSync(fn,format).replace(/\r?\n/g,'\n');
    const bom=c.charCodeAt(0);
    if (bom===0xfeff || bom==0xffe) c=c.substr(1);
    return c;

@@ -24,7 +24,7 @@ class JSONPROM {
         this._loader=loadNodeJs;
         if (typeof window!=='undefined') {
             const protocol=window.location.protocol;
-            if (protocol=='http:' || protocol=='https:') {
+            if (protocol==='http:'||protocol==='https:'|| protocol==='chrome-extension:') {
                 this._loader=loadFetch;
             } else {
                 this._loader=loadJSONP;

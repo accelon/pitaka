@@ -10,7 +10,8 @@
     "./utils":"./utils/index.js",
     "./jsonprom":"./jsonprom/index.js",
     "./package.json":"./package.json",
-    "./cli":"./cli/index.js"
+    "./cli":"./cli/index.js",
+    "./platform":"./platform/index.js"
   },
   "bin":"cli/bin.js",
   "main": "./index.js",

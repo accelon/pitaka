@@ -1,5 +1,5 @@
 import save from './savejsonp.js'
-import { readFileSync} from 'fs'
+//import { readFileSync} from 'fs'
 
 class JSONPROMW {
     constructor(opts) {
@@ -39,7 +39,7 @@ class JSONPROMW {
         header.lineCount+=lines.length;
     }
     appendFile(fn,format='utf8'){
-        const lines=readFileSync(fn,format).split(/\r?\n/);
+        const lines=fs.readFileSync(fn,format).split(/\r?\n/);
         this.append(lines);
     }
     addSection(name){

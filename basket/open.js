@@ -18,12 +18,17 @@ class Basket extends JSONPROM {
    
     async init(){
         const section='labels'
-        await this.openrom();
-        await this.load(0);
-        await this.loadSection(section);
-        const labelsection=this.getSection(section);
-        const sectionRange=this.getSectionRange(section);
-        this.labels=deserializeLabels(labelsection,sectionRange);
+        try{
+            await this.openrom();
+            await this.load(0);
+            await this.loadSection(section);
+            const labelsection=this.getSection(section);
+            const sectionRange=this.getSectionRange(section);
+            this.labels=deserializeLabels(labelsection,sectionRange);    
+            return true;
+        } catch(e){
+            console.error(e)
+        }
     }
     
     parse(str){
@@ -75,10 +80,14 @@ class Basket extends JSONPROM {
 }
 
 export async function openBasket(name){
-    if (pool.has(name)) return pool.get(name);
+    if (pool.has(name)) {
+        console.log('reuse',name)
+        return pool.get(name);
+    }
+    console.log('open new',name);
     const basket= new Basket({name});
-    pool.add(name,basket);
-    await basket.init();
+    const success=await basket.init();
+    if (success) pool.add(name,basket);
     return basket;
 }
 
@@ -94,6 +103,10 @@ const MAXLINE=256;
 export async function readLines ({basket,nline,eline,count=10}={}) {
     if (!basket )return;
     const bsk=pool.get(basket);
+    if (!bsk) {
+        console.error('basket not open',basket)
+        return [];
+    }
     count=eline?(eline-nline):(count||1);
     if (count>MAXLINE) count=MAXLINE;
     const lines=await bsk.readLines(nline, count );

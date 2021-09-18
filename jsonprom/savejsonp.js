@@ -1,4 +1,4 @@
-import {readFileSync,writeFileSync,existsSync,writeSync,mkdirSync,close, appendFileSync} from 'fs'
+//import {readFileSync,writeFileSync,existsSync,writeSync,mkdirSync,close, appendFileSync} from 'fs'
 import { ROMHEADERSIZE,EMPTYROMHEADER } from '../rom/romconst.js';
 
 const escapeTemplateString=str=>str.replace(/\\/g,"\\\\").replace(/`/g,"\\`").replace(/\$\{/g,'$\\{');
@@ -15,7 +15,7 @@ const writeChunk=(romfile,folder,chunk,rawcontent)=>{
         chunkOffsets.push(romsize);
         const content=Buffer.from(rawcontent,'utf8');
         romsize+=content.length;
-        appendFileSync(romfile,content);
+        fs.appendFileSync(romfile,content);
     } else {
         const fn=folder+'/'+ chunk.toString().padStart(3,'0')+'.js';
         writeFileSync(fn,rawcontent,'utf8');        
@@ -36,7 +36,7 @@ const saveJsonp=(romfile,folder,chunk,name,start,L)=>{
     } else {
         const fn=folder+'/'+ chunk.toString().padStart(3,'0')+'.js';
 
-        if (!existsSync(fn) || readFileSync(fn,'utf8')!==newcontent) {
+        if (!fs.existsSync(fn) || fs.readFileSync(fn,'utf8')!==newcontent) {
             writeChunk(romfile,folder,chunk,newcontent);
             writeCount++;
             process.stdout.write('\rwritten'+fn+'     ');
@@ -48,12 +48,12 @@ const saveJsonp=(romfile,folder,chunk,name,start,L)=>{
 function save(opts,newheader={}){
     opts=Object.assign(this.opts,opts);
     const folder=(opts.folder||opts.name);
-    !existsSync(folder)&& mkdirSync(folder);
+    !fs.existsSync(folder)&& fs.mkdirSync(folder);
 
     const header=Object.assign({},newheader,this.header);
     const {chunkStarts}=header;
 
-    if (opts.romfile) appendFileSync( opts.romfile,Buffer.from(EMPTYROMHEADER));
+    if (opts.romfile) fs.appendFileSync( opts.romfile,Buffer.from(EMPTYROMHEADER));
 
     this.payload=opts.payload||'';
     if (typeof this.payload!=='string') this.payload=this.payload.join('\n');
@@ -76,9 +76,9 @@ function save(opts,newheader={}){
     rep.written_files=wc;
     if (opts.romfile) {
         chunkOffsets.push(romsize);
-        appendFileSync(opts.romfile, Buffer.from( JSON.stringify({offsets:chunkOffsets}) ) )
-        writeSync(opts.romfile,(romsize).toString(16).padStart(9,' '), 7 );
-        close(opts.romfile);
+        fs.appendFileSync(opts.romfile, Buffer.from( JSON.stringify({offsets:chunkOffsets}) ) )
+        fs.writeSync(opts.romfile,(romsize).toString(16).padStart(9,' '), 7 );
+        fs.close(opts.romfile);
     }
     return rep;
 }

@@ -9,6 +9,7 @@ const cmd=process.argv[2] || '-h';
 import kluer from './kluer.js' //copy from https://github.com/lukeed/kleur/
 const {blue,yellow,red,bgWhite} = kluer;
 
+import platform from '../platform/nodejs.js';
 import {buildPitaka,getWorkingPitakaName} from './build.js'
 import {info} from './info.js';
 import validate from "./validate.js"
