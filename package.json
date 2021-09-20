@@ -14,7 +14,7 @@
     "./platform":"./platform/index.js",
     "./adaptors":"./adaptors/index.js",
     "./jszip":"./3rdparty/jszip.js",
-    "./fetchzip":"./utils/fetchzip.js"
+    "./lazip":"./utils/lazip.js"
   },
   "bin":"cli/bin.js",
   "main": "./index.js",
