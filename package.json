@@ -11,7 +11,10 @@
     "./jsonprom":"./jsonprom/index.js",
     "./package.json":"./package.json",
     "./cli":"./cli/index.js",
-    "./platform":"./platform/index.js"
+    "./platform":"./platform/index.js",
+    "./adaptors":"./adaptors/index.js",
+    "./jszip":"./3rdparty/jszip.js",
+    "./fetchzip":"./utils/fetchzip.js"
   },
   "bin":"cli/bin.js",
   "main": "./index.js",

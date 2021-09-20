@@ -27,9 +27,48 @@ const openFileOption={
           accept: {
               'text/plain': ['.txt'],
               'text/html': ['.html','.htm'],
+              'text/xml': ['.xml'],
+              'application/zip': ['.zip'],
           }
       }
   ]
 }
-const saveFileOption={};
-export default {ready,verifyPermission,openFileOption,saveFileOption};
+const openZipFileOption={
+  id:'zipinputfile',
+  multiple:true,
+  types:[
+      {
+          description: 'Zip Files',
+          accept: {
+              'application/zip': ['.zip'],
+          }
+      }
+  ]
+}
+const saveZipOption={
+  id:'zipfile',
+  multiple:true,
+  types:[
+      {
+          description: 'Zip File',
+          accept: {
+              'application/zip': ['.zip'],
+          }
+      }
+  ]
+}
+const savePitakaOption={
+  id:'ptkfile',
+  multiple:true,
+  types:[
+      {
+          description: 'Pitaka File',
+          accept: {
+              'application/octet-stream': ['.ptk'],
+          }
+      }
+  ]
+}
+
+export default {ready,verifyPermission,openFileOption,openZipFileOption,
+  saveZipOption,savePitakaOption};
