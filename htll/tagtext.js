@@ -4,16 +4,23 @@
 
    /n as line break
 */
-//import {readFileSync} from 'fs'
+
+import { readTextFile } from '../platform/inputfiles.js';
 import { parseAttr } from '../utils/argument.js';
-export const fileContent=(fn,format='utf8')=>{
-   let c=fs.readFileSync(fn,format).replace(/\r?\n/g,'\n');
+export const fileContent=async fn=>{
+   let c;
+   if (typeof fn=='string') {
+      c=fs.readFile(fn,'utf8').replace(/\r?\n/g,'\n');
+   } else {
+      c=(await readTextFile(fn)).replace(/\r?\n/g,'\n');
+   }
+
    const bom=c.charCodeAt(0);
    if (bom===0xfeff || bom==0xffe) c=c.substr(1);
    return c;
 }
-export const fileLines=(fn,format='utf8')=>{
-   const content=fileContent(fn,format);
+export const fileLines=async fn=>{
+   const content=await fileContent(fn);
    return content.split(/\n/g);
 }
 export const scanTag=(t,cb)=>{

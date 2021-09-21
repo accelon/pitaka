@@ -1,4 +1,4 @@
-import JSZip from '../3rdparty/jszip' //need tailored version of jszip.
+import JSZip from '../3rdparty/jszip.js' //need tailored version of jszip.
 function readInt(buf,idx,size) {
     var result = 0,  i;
     for (i = idx + size - 1; i >= idx; i--) {
@@ -26,7 +26,7 @@ const fetchZIPEntries=async (url,zipbuf)=>{
     return await fetchBuf(url,zipbuf,dirOffset,dirOffset+dirSize);
 }
 const debug=false;
-export default async function(url){
+const LaZip= async function(url){
     const headbuf=new Uint8Array(16);
     const ok=await fetchBuf(url,headbuf, 0, 15);
 
@@ -36,8 +36,8 @@ export default async function(url){
         console.error('invalid zip file',url);
         return false;
     }
-    if (headbuf[7]==0x80) { 
-        //use TIME STAMP to store zip file size
+    if (headbuf[7]&0x80) { //reserve bit 15 of flags
+        //use TIME STAMP to store zip file size, normally local file headers are skipped.
         //workaround for chrome-extension HEAD not returning content-length
         filesize=readInt(headbuf,0xa,4);
     } else { //use HEAD
@@ -48,7 +48,6 @@ export default async function(url){
     if (isNaN(filesize)) {
         debug&&console.error('unable to get filesize');
         return false;
-        // filesize=168554418;
     }
     debug&&console.timeEnd('head')
 
@@ -77,25 +76,26 @@ export default async function(url){
     const fetchFile=async function(fn){
         const i=jszip.fileNames[fn]; //all filenames in zip
         if (i>-1) {
-            const file=jszip.fileEntries[i];
-            const {localHeaderOffset,compressedSize}=file;
+            const entry=jszip.fileEntries[i];
+            const {localHeaderOffset,compressedSize}=entry;
             const sz=localHeaderOffset+compressedSize+1024; //assuming no per file comment
             await fetchBuf(url,zipbuf, localHeaderOffset, sz);
 
             //defering readLocalFiles()
-            jszip.reader.setIndex(file.localHeaderOffset+4); //signature 4 bytes
-            file.readLocalPart(jszip.reader);
-            file.processAttributes();
+            jszip.reader.setIndex(entry.localHeaderOffset+4); //signature 4 bytes
+            entry.readLocalPart(jszip.reader);
+            entry.processAttributes();
 
             //create an entry in jszip.files , jszip.files stored fetched file
-            //defer of addFiles(results) in prepareContent
-            jszip.file(file.fileNameStr, file.decompressed, {
+            //defering addFiles(results) in prepareContent
+            jszip.file(entry.fileNameStr, entry.decompressed, {
                 binary: true, optimizedBinaryString: true,
-                date: file.date,dir: file.dir,
-                comment: file.fileCommentStr.length ? file.fileCommentStr : null,
-                unixPermissions: file.unixPermissions,
-                dosPermissions: file.dosPermissions
+                date: entry.date,dir: entry.dir,
+                comment: entry.fileCommentStr.length ? entry.fileCommentStr : null,
+                unixPermissions: entry.unixPermissions,
+                dosPermissions: entry.dosPermissions
             });
+            //compressed data is ready
             return jszip.files[fn];
         }
         return null;
@@ -103,10 +103,11 @@ export default async function(url){
     const readTextFile=async function(fn) {
         let f=jszip.files[fn];
         if (!f) f=await fetchFile(fn);
-        if (f) {
-            const content=await f.async("string");
-            return content;
-        }
+        if (f) return await f.async("string");
     }
     return {readTextFile,fetchFile,jszip};
 }
+
+LaZip.JSZip=JSZip;
+LaZip.loadAsync=JSZip.loadAsync;
+export default LaZip;

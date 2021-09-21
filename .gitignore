@@ -2,3 +2,5 @@
 *.7z
 test-data
 test
+node_modules
+*.min.js

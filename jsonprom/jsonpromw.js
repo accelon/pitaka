@@ -1,5 +1,4 @@
-import save from './savejsonp.js'
-//import { readFileSync} from 'fs'
+import save from './save.js'
 
 class JSONPROMW {
     constructor(opts) {
@@ -10,23 +9,26 @@ class JSONPROMW {
             name:opts.name||'noname' ,
             title:opts.title||'notitle',
             lineCount: 1,
+            appendCount:0,
             chunkStarts:[1],
             sectionStarts:[1],
+            fileStarts:[],
             sectionNames:['txt'],
             buildtime:(new Date()).toISOString()
         }
 
         const lines=[''];
         this._lines=lines;
-
+        this.save=save;
         this.opts = Object.assign({ chunkSize: 128 * 1024 },opts);
-        this.save = save;
         return this;
     }
-    append(lines){
+    append(lines,isSourceFile=true){
         const ctx=this.context;
         const header=this.header;
         let acc=ctx.accLength||0;
+        if (isSourceFile) header.fileStarts.push(header.lineCount);
+
         for (let i=0;i<lines.length;i++) {
             acc+=lines[i].length;
             if (acc>=this.opts.chunkSize) {
@@ -37,6 +39,8 @@ class JSONPROMW {
         }
         ctx.accLength=acc;
         header.lineCount+=lines.length;
+        
+        header.appendCount++;
     }
     appendFile(fn,format='utf8'){
         const lines=fs.readFileSync(fn,format).split(/\r?\n/);

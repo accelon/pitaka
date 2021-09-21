@@ -1133,12 +1133,15 @@ module.exports = function (data, options) {
         }).then(function addFiles(results) {
           var zipEntries = results.shift();
           if (options.lazyfetch) {
-            zip.fileNames={};
-            zip.fileEntries=zipEntries.files;
-            zip.reader=zipEntries.reader;
+            zip.fileNames={};                   //filename to fileEntries index
+            zip.fileEntries=zipEntries.files;   //for lazip
+            zip.reader=zipEntries.reader;       //for lazip
             for (let i=0;i<zipEntries.files.length;i++) {
               zip.fileNames[ zipEntries.files[i].fileNameStr]=i;
             }
+            //zip.files is empty now,
+            //when a file compressed data is downloaded
+            //new item will be added to zip.files
           } else {
             var files = zipEntries.files;
             for (var i = 0; i < files.length; i++) {

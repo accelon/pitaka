@@ -22,15 +22,36 @@ const openFileOption={
   id:'inputfile',
   multiple:true,
   types:[
-      {
-          description: 'Source Files',
-          accept: {
-              'text/plain': ['.txt'],
-              'text/html': ['.html','.htm'],
-              'text/xml': ['.xml'],
-              'application/zip': ['.zip'],
-          }
+    {
+      description: 'Text Files',
+      accept: {
+          'text/plain': ['.txt'],
+          'text/json': ['.json']
       }
+  },  {
+      description: 'Haodoo Files',
+      accept: {
+          'text/json': ['.updb','.json']
+      }
+    },
+
+      {
+        description: 'Html Files',
+        accept: {
+            'text/html': ['.html','.htm'],
+            'text/json': ['.json']
+        }
+      }
+      ,
+      { 
+        description: 'XML Files',
+        accept: {
+            'text/xml': ['.xml'],
+            'text/json': ['.json']
+        },
+        
+      },
+
   ]
 }
 const openZipFileOption={
@@ -38,9 +59,9 @@ const openZipFileOption={
   multiple:true,
   types:[
       {
-          description: 'Zip Files',
+          description: 'Ptk Files',
           accept: {
-              'application/zip': ['.zip'],
+              'application/zip': ['.ptk','.zip'],
           }
       }
   ]
@@ -59,7 +80,6 @@ const saveZipOption={
 }
 const savePitakaOption={
   id:'ptkfile',
-  multiple:true,
   types:[
       {
           description: 'Pitaka File',

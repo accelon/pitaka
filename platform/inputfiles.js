@@ -12,10 +12,10 @@ export async function readFiles(files,onFile){
     }
 }
 
-export async function readFile(file,opts={}){
+export async function readTextFile(file,opts={}){
     const {start=0,len=65535}=opts;
-    if (typeof fs!=='undefined') {
-
+    if (typeof fs!=='undefined' && typeof file=='string') {
+        
     } else {
         const f=await file.getFile();
         let content= (len>0?await f.slice(start,len).text():await f.text());
