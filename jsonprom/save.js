@@ -1,7 +1,7 @@
 import ZipSaver from './savezip.js';
 import JsonpSaver from './savejsonp.js';
 import CacheSaver from './savecache.js';
-
+import {chunkjsfn} from '../utils/index.js';
 const escapeTemplateString=str=>str.replace(/\\/g,"\\\\").replace(/`/g,"\\`").replace(/\$\{/g,'$\\{');
 
 const prepareJSONP=({chunk,name,start},lines)=>{
@@ -17,17 +17,17 @@ const saveHeader=async (saver,header,payload)=>{
 const saveJsonp=async(saver,chunk,name,start,L)=>{
     let writeCount=0;
     const newcontent=prepareJSONP({chunk,name,start},L);
-
-    if (saver instanceof ZipSaver) {
-        await saver.writeChunk(chunk,newcontent);
-        writeCount++;
-    } else if (saver instanceof JsonpSaver ) {
-        const fn=saver.folder+'/'+ chunk.toString().padStart(3,'0')+'.js';
+    
+    if (saver instanceof JsonpSaver ) {
+        const fn=saver.folder+'/'+ chunkjsfn(chunk);
         //write only touched file
         if (!fs.existsSync(fn) || fs.readFileSync(fn,'utf8')!==newcontent) {
             await saver.writeChunk(chunk,newcontent);
             writeCount++;
         }
+    } else {
+        await saver.writeChunk(chunk,newcontent);
+        writeCount++;
     }
     return writeCount;
 }
@@ -45,6 +45,8 @@ async function save(opts,extraheader={}){
     } else {
         saver=new ZipSaver({folder,name:opts.name,file:opts.file,log:this.log});
     }
+    await saver.init();
+
     this.payload=opts.payload||'';
     if (typeof this.payload!=='string') this.payload=this.payload.join('\n');
     await saveHeader(saver,header,this.payload);

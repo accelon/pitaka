@@ -1,3 +1,4 @@
+import {chunkjsfn} from '../utils/index.js'
 class ZipSaver {
     constructor(opts){
         this.name=opts.name;
@@ -7,9 +8,11 @@ class ZipSaver {
         this.zip=new Zip();
         this.file=opts.file;
     }
+    async init(){
+
+    }
     async writeChunk(chunk,rawcontent){
-        const fn=chunk.toString().padStart(3,'0')+'.js';
-        this.zip.file(fn, rawcontent);
+        this.zip.file(chunkjsfn(chunk), rawcontent);
     }
     pitakaPatchNodeJs(fn){ 
         //save the size of zipfile in DATETIME of first file, and set flags bit 15 to true

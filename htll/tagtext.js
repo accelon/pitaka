@@ -10,7 +10,7 @@ import { parseAttr } from '../utils/argument.js';
 export const fileContent=async fn=>{
    let c;
    if (typeof fn=='string') {
-      c=fs.readFile(fn,'utf8').replace(/\r?\n/g,'\n');
+      c=(await fs.promises.readFile(fn,'utf8')).replace(/\r?\n/g,'\n');
    } else {
       c=(await readTextFile(fn)).replace(/\r?\n/g,'\n');
    }

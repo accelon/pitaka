@@ -57,7 +57,7 @@ class Builder {
     }
     async addFile(file,format){
         let fn=file;
-        if ('name' in file) {
+        if (typeof file!=='string' && 'name' in file) {
             fn=file.name;
         }
         if (this.finalized) {

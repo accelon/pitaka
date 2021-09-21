@@ -23,3 +23,7 @@ export const codePointLength=text=>{
     var result = text.match(/[\s\S]/gu);
     return result ? result.length : 0;
 }
+
+export const StringByteLength=text=>{
+   return new Blob([text]).size;
+}
