@@ -10,6 +10,7 @@ export * from './nested-ordered-list.js'
 export * from './bsearch.js'
 export * from './es6.js'
 export * from './html.js'
-export function chunkjsfn(chunk){
-    return chunk.toString().padStart(3,'0')+'.js'
+export function chunkjsfn(chunk,folder){
+    const jsfn=chunk.toString().padStart(3,'0')+'.js'
+    return folder?folder+'/'+jsfn:jsfn;
 }

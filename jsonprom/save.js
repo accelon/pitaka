@@ -19,7 +19,7 @@ const saveJsonp=async(saver,chunk,name,start,L)=>{
     const newcontent=prepareJSONP({chunk,name,start},L);
     
     if (saver instanceof JsonpSaver ) {
-        const fn=saver.folder+'/'+ chunkjsfn(chunk);
+        const fn=chunkjsfn(chunk,name);
         //write only touched file
         if (!fs.existsSync(fn) || fs.readFileSync(fn,'utf8')!==newcontent) {
             await saver.writeChunk(chunk,newcontent);
@@ -34,16 +34,15 @@ const saveJsonp=async(saver,chunk,name,start,L)=>{
 
 async function save(opts,extraheader={}){
     opts=Object.assign({},opts,this.opts);
-    const folder=(opts.folder||opts.name);
     let saver=null;
     const header=Object.assign({},extraheader,this.header);
     const {chunkStarts}=header;
     if (opts.jsonp) {
-        saver=new JsonpSaver({folder,name:opts.name,log:this.log});       
+        saver=new JsonpSaver({name:opts.name,log:this.log});       
     } else if (opts.cache) {
-        saver=new CacheSaver({folder,name:opts.name,log:this.log});
+        saver=new CacheSaver({name:opts.name,log:this.log});
     } else {
-        saver=new ZipSaver({folder,name:opts.name,file:opts.file,log:this.log});
+        saver=new ZipSaver({name:opts.name,file:opts.file,log:this.log});
     }
     await saver.init();
 

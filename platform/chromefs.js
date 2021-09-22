@@ -54,14 +54,25 @@ const openFileOption={
 
   ]
 }
-const openZipFileOption={
+const openOneZipFileOption={
   id:'zipinputfile',
+  types:[
+      {
+          description: 'zip Files',
+          accept: {
+              'application/zip': ['.zip'],
+          }
+      }
+  ]
+}
+const openPtkFileOption={
+  id:'ptkinputfile',
   multiple:true,
   types:[
       {
           description: 'Ptk Files',
           accept: {
-              'application/zip': ['.ptk','.zip'],
+              'application/zip': ['.zip'],
           }
       }
   ]
@@ -90,5 +101,5 @@ const savePitakaOption={
   ]
 }
 
-export default {ready,verifyPermission,openFileOption,openZipFileOption,
+export default {ready,verifyPermission,openFileOption,openOneZipFileOption,openPtkFileOption,
   saveZipOption,savePitakaOption};

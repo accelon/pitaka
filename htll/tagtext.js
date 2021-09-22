@@ -12,7 +12,11 @@ export const fileContent=async fn=>{
    if (typeof fn=='string') {
       c=(await fs.promises.readFile(fn,'utf8')).replace(/\r?\n/g,'\n');
    } else {
-      c=(await readTextFile(fn)).replace(/\r?\n/g,'\n');
+      if (fn.zip) {
+         c=(await fn.zip.files[fn.name].async('string')).replace(/\r?\n/g,'\n');
+      } else {
+         c=(await readTextFile(fn)).replace(/\r?\n/g,'\n');
+      }
    }
 
    const bom=c.charCodeAt(0);

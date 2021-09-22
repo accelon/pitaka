@@ -1,14 +1,14 @@
 import {chunkjsfn} from '../utils/index.js'
 class JsonpSaver {
     constructor (opts) {
-        this.folder=opts.folder;
-        if (!fs.existsSync(opts.folder)) fs.mkdirSync(opts.folder);
+        this.name=opts.name;
+        if (!fs.existsSync(opts.name)) fs.mkdirSync(opts.name);
     }
     async init(){
 
     }
     async writeChunk (chunk,rawcontent) {
-        const fn=this.folder+'/'+ chunkjsfn(chunk);
+        const fn=chunkjsfn(chunk,this.name);
         await fs.promises.writeFile(fn,rawcontent,'utf8');        
     }
     async done(){

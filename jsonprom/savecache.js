@@ -23,7 +23,7 @@ class CacheSaver {
                 'Vary': 'Accept-Encoding',
             }
         });
-	    this.cache.put(chunkjsfn(chunk),res);  
+	    this.cache.put(chunkjsfn(chunk,this.name),res);  
     }
     async done(){
     }

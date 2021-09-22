@@ -55,7 +55,7 @@ class Builder {
         this.context.title=getCaption(text);
         this.context.htll=htll.attrs;
     }
-    async addFile(file,format){
+    async addFile(file,format){ //file=='string' nodejs , File browser local file, or a File in zip
         let fn=file;
         if (typeof file!=='string' && 'name' in file) {
             fn=file.name;
@@ -119,7 +119,7 @@ class Builder {
             this.log('not finalized');
             return;
         }
-        this.writer.save(opts,this.config)     
+        return this.writer.save(opts,this.config)     
     }
     finalize(opts={}){
         for (let i=0;i<this.labelTypes.length;i++) { 
