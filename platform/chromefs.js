@@ -23,17 +23,18 @@ const openFileOption={
   multiple:true,
   types:[
     {
-      description: 'Text Files',
-      accept: {
-          'text/plain': ['.txt'],
-          'text/json': ['.json']
-      }
-  },  {
       description: 'Haodoo Files',
       accept: {
           'text/json': ['.updb','.json']
       }
     },
+    {
+      description: 'Text Files',
+      accept: {
+          'text/plain': ['.txt'],
+          'text/json': ['.json']
+      }
+  },  
 
       {
         description: 'Html Files',

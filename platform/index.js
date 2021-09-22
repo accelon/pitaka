@@ -1,6 +1,6 @@
 import chromefs from './chromefs.js'
 import nodefs from './nodefs.js'
-import {readFiles,readTextFile} from './inputfiles.js'
+import {readFiles,readTextFile,readBLOBFile} from './inputfiles.js'
 
 const cacheStorageReady=(function(){
     if (typeof document!=='undefined') {
@@ -10,4 +10,4 @@ const cacheStorageReady=(function(){
     }
     return false;
 })();
-export {chromefs,nodefs,readFiles,readTextFile,cacheStorageReady}
+export {chromefs,nodefs,readFiles,readTextFile,readBLOBFile,cacheStorageReady}

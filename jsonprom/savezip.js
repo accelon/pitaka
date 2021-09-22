@@ -12,7 +12,10 @@ class ZipSaver {
 
     }
     async writeChunk(chunk,rawcontent){
-        this.zip.file(chunkjsfn(chunk), rawcontent);
+        //prepand pitaka name as user might change name of zip
+        //can store multiple pitaka in one zip
+        //but for lazip, zip folder should be same as the name of zip 
+        this.zip.file(chunkjsfn(chunk,this.name), rawcontent);
     }
     pitakaPatchNodeJs(fn){ 
         //save the size of zipfile in DATETIME of first file, and set flags bit 15 to true
