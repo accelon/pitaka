@@ -18,13 +18,13 @@ import validate from "./validate.js"
 const pitakajson=arg||'pitaka.json';
 
 const jsonp=()=>build(true);
-const build=(jsonp=false)=>{  
+const build=async (jsonp=false)=>{  
     if (!existsSync(pitakajson)) {
         console.log(red(arg+' not found'));
         return 
     }
     const config=JSON.parse(readFileSync(pitakajson,'utf8').trim());
-    const builder=buildPitaka( {config}  );
+    const builder=await buildPitaka( {config}  );
     if (jsonp) {
         builder.saveJSONP({jsonp});
     } else {

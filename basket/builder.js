@@ -1,7 +1,6 @@
+import {getFormatter, getZipIndex,fileLines} from '../format/index.js'
 import JSONPROMWriter from '../jsonprom/jsonpromw.js';
 import {serializeLabels} from './serialize-label.js';
-import { getCaption } from '../htll/caption.js';
-import {scanLine,fileLines} from '../htll/tagtext.js';
 
 class Builder {
     constructor(opts) {
@@ -16,50 +15,34 @@ class Builder {
     defineLabel(name,Type,opts){
         this.labelTypes.push(new Type(name,opts));
     }
-    handleTags(tags,text,nline,context){
-        let accTagLen=0,s='',prev=0;  
-        for (let i=0;i<tags.length;i++) {
-            const tag=tags[i];
-            let deltag=false;
-            if (tag.ele=='htll' &&tag.attrs) {
-                context.htll=tag.attrs;
-                deltag=true;
-            }
-            
-            accTagLen+=tag.len;
-            s+=text.substring(prev,tag.rawoffset); //offset of input file
-            tags[i].offset=s.length; //offset in pitaka (some tags are deleted)
-            tags[i].textOffset=s.length-accTagLen; //exclude tag len
-            prev=tag.rawoffset+tag.len;
-            for (let i=0;i<this.labelTypes.length;i++) {
-                const lt=this.labelTypes[i];
-                if (lt.textual) continue;
-                if (tag.ele.match(lt.pat)) {
-                    lt.action({tag,nline,context:this.context,text});
-                    deltag=lt.del;
-                    break;
-                }
-            }
-            //drop <!DOCTYPE> and so on
-            if (!deltag&& tags[i].ele[0]!=='!') s+='<'+tag.raw+'>';
+    async addZip(file,format){
+        let fn=file;
+        if (typeof file!=='string' && 'name' in file) {
+            fn=file.name;
         }
-        s+=text.substring(prev);
-        return s;
-    }
-    handleHTLL(tags,text){
-        let htll;
-        for (let i=0;i<tags.length;i++) {
-            if (tags[i].ele=='htll') {htll=tags[i];break;}
+        const jszip=new JSZip();
+        let zip;
+        if (typeof file=='string') {
+            const data=await fs.promises.readFile(file);
+            zip=await jszip.loadAsync(data);
+        } else {
+            zip=await jszip.loadAsync(file.getFile());
         }
-        if (!htll)return;
-        this.context.title=getCaption(text);
-        this.context.htll=htll.attrs;
+        
+        const zipfiles=await getZipIndex(zip,format);
+        for (let i=0;i<zipfiles.length;i++) {
+            await this.addFile({name:zipfiles[i],zip},format);
+        }
     }
     async addFile(file,format){ //file=='string' nodejs , File browser local file, or a File in zip
         let fn=file;
         if (typeof file!=='string' && 'name' in file) {
             fn=file.name;
         }
+        if (fn.endsWith('.zip')) {
+            return await this.addZip(file,format);
+        }
+
         if (this.finalized) {
             this.log("cannot addFile, finalized");
             return;
@@ -74,27 +57,16 @@ class Builder {
             ||'*' //global context
         this.context.namespaces[this.context.namespace]=0;
 
-        let handletext,handletag;
         for (let i=0;i<this.labelTypes.length;i++) {
             const lt=this.labelTypes[i];
             
-            if (lt.textual) handletext=true;
-            else handletag=true;
+            // if (lt.textual) handletext=true;
+            // else handletag=true;
         }
         try{
-            scanLine(rawlines,(li,idx)=>{
-                const text=rawlines[idx];
-                const nline=this.writer.header.lineCount+idx;
-    
-                this.context.fileline=idx+1;      
-                if (handletext) for (let i=0;i<this.labelTypes.length;i++) {
-                    const lt=this.labelTypes[i];
-                    if (lt.textual) lt.action({nline,text,context:this.context});
-                }
-                if (idx==0) this.handleHTLL(li.tags,text);
-                if (handletag) out.push(this.handleTags(li.tags,text,nline,this.context));
-                else out.push(text);
-            });
+            const Formatter=getFormatter(format);
+            const formatter=new Formatter(this.context);
+            formatter.scan(rawlines);
         } catch(e){
             const {filename,fileline,title}=this.context;
             this.log( filename+'('+fileline+'):' , title, e );

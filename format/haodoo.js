@@ -52,7 +52,7 @@ const ctbl=[
     [/︹/g,'〔'],    [/︺/g,'〕'],
     [/︷/g,'｛'],    [/︸/g,'｝'],
     [/﹃/g,'『'],    [/﹄/g,'』'],
-    [/︙/g,'…'], [/︱/g,'—'],
+    [/︙/g,'…'], [/[︱｜]/g,'—'],
 ]
 const convertHaodoo=str=>{
     for (let i=0;i<ctbl.length;i++) {
@@ -96,6 +96,9 @@ const parseFirstRecord=(buf,start,len,decoder)=>{ //special care with mix ule-16
 
 */
 export const readHaodoo=buf=>{
+    if (typeof Buffer!=='undefined'&& buf instanceof Buffer) {
+        buf=buf.buffer;
+    }
     const signature=new DataView( buf, 64,4);
 
     //must be MTIU, only accept uPDB format

@@ -45,15 +45,19 @@ export const getWorkingDirectory=()=>{
     const m=name.match(/[\\\/\-\.]([a-z\d]+)$/i);
     return m[1].toLowerCase();
 }
-export const buildPitaka=({config, PickedFiles=null , log=console.log})=>{
-    let {name,files,title}=config;
+export const  buildPitaka=async ({config, PickedFiles=null , log=console.log})=>{
+    let {name,files,title,format}=config;
+
 	if (!name) name=getWorkingDirectory();
     if (!files) [files,title]=indexHTMLFiles();
     
     const builder=new Builder({name,title,config}); //core chinese text
     builder.defineLabel('anchor',LabelType.LabelAnchor); //超連結
     builder.defineLabel('sections',LabelType.LabelHeader); //書-章回(序號) 結構
-    files.forEach(fn=>builder.addFile(fn))
+    if (typeof files=='string') files=files.split(/[;,]/);
+    for (let i=0;i<files.length;i++){   
+        await builder.addFile(files[i],format);
+    }
     builder.finalize();
     
     console.log('\n'+report(builder,files));

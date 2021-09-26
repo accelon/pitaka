@@ -5,28 +5,10 @@
    /n as line break
 */
 
-import { readTextFile } from '../platform/inputfiles.js';
-import { parseAttr } from '../utils/argument.js';
-export const fileContent=async fn=>{
-   let c;
-   if (typeof fn=='string') {
-      c=(await fs.promises.readFile(fn,'utf8')).replace(/\r?\n/g,'\n');
-   } else {
-      if (fn.zip) {
-         c=(await fn.zip.files[fn.name].async('string')).replace(/\r?\n/g,'\n');
-      } else {
-         c=(await readTextFile(fn)).replace(/\r?\n/g,'\n');
-      }
-   }
 
-   const bom=c.charCodeAt(0);
-   if (bom===0xfeff || bom==0xffe) c=c.substr(1);
-   return c;
-}
-export const fileLines=async fn=>{
-   const content=await fileContent(fn);
-   return content.split(/\n/g);
-}
+import { parseAttr } from '../utils/argument.js';
+
+
 export const scanTag=(t,cb)=>{
    let i=0,lineNumber=0;
    while (i<t.length) {
