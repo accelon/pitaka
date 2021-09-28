@@ -20,7 +20,7 @@ const pitakajson=arg||'pitaka.json';
 const jsonp=()=>build(true);
 const build=async (jsonp=false)=>{  
     if (!existsSync(pitakajson)) {
-        console.log(red(arg+' not found'));
+        console.log(red('pitaka.json not found'));
         return 
     }
     const config=JSON.parse(readFileSync(pitakajson,'utf8').trim());

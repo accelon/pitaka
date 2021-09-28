@@ -47,5 +47,6 @@ const fileLines=async fn=>{
     const lines=content.split('\n');
     return lines;
  }
+export * from './offtext-parser.js';
 export {readPlainTextFile,readHaodooFile,readHaodoo,
     fileContent,getFormatter,fileLines,getZipIndex};

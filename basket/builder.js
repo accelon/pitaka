@@ -5,7 +5,7 @@ import {serializeLabels} from './serialize-label.js';
 class Builder {
     constructor(opts) {
         // this.labelTypes=[];
-        this.context={namespaces:{},eudc:{} };
+        this.context={namespaces:{},eudc:{},nchapter:0 };
         this.writer=new JSONPROMWriter(opts);
         this.finalized=false;
         this.log=opts.log || console.log;
@@ -55,7 +55,6 @@ class Builder {
             return;
         }
         const rawcontent=await fileContent(file,format);
-        let out;
         this.context.filename=fn;
         this.context.filenline=this.writer.header.lineCount;
         this.context.namespace=fn.replace(/^\.\//,'')
@@ -70,21 +69,20 @@ class Builder {
         try{
             const Formatter=getFormatter(format);
             const formatter=new Formatter(this.context,this.log);
-            out=formatter.scan(rawcontent);
+            const {text,tags}=formatter.scan(rawcontent);
+            console.log(tags.length,text.length);
+
+            this.writer.append(text);
+            //indexer
         } catch(e){
             const {filename,fileline,title}=this.context;
             this.log( filename+'('+fileline+'):' , title, e );
             throw '';
         }
-
-        // for (let i=0;i<this.labelTypes.length;i++) { 
-        //     this.labelTypes[i].fileDone();
-        // }
-        this.writer.append(out);//true to write starting of source  file
     }
     writeLabels(){
         this.writer.addSection('labels');
-        const section=serializeLabels(this.labelTypes )
+        // const section=serializeLabels(this.labelTypes )
         this.writer.append(section);
     }
     saveJSONP(opts){
@@ -95,7 +93,7 @@ class Builder {
             this.log('not finalized');
             return;
         }
-     return this.writer.save(opts,this.config)     
+    //  return this.writer.save(opts,this.config)     
     }
     finalize(opts={}){
         // for (let i=0;i<this.labelTypes.length;i++) { 
@@ -103,7 +101,9 @@ class Builder {
         // }
         // this.writeLabels();
         //indexes
-        fs.writeFileSync('eudc.txt',JSON.stringify(this.context.eudc),'utf8')
+        
+        // fs.writeFileSync('eudc.txt',JSON.stringify(this.context.eudc),'utf8')
+
         this.finalized=true;
         return this.context;
     }

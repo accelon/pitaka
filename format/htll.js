@@ -7,8 +7,8 @@ const handleHTLL=(tags,text)=>{
         if (tags[i].ele=='htll') {htll=tags[i];break;}
     }
     if (!htll)return;
-    this.context.title=getCaption(text);
-    this.context.htll=htll.attrs;
+    // this.context.title=getCaption(text);
+    // this.context.htll=htll.attrs;
 }
 
 

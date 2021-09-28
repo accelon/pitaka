@@ -37,7 +37,7 @@ class ZipSaver {
         const writable=fs.createWriteStream(zipfn);
 
         await new Promise(resolve=>{
-            this.zip.generateNodeStream({type:'nodebuffer',streamFiles:true})
+            this.zip.generateNodeStream({type:'nodebuffer',streamFiles:true,compression:'DEFLATE'})
             .pipe(writable)
             .on('finish', function () {
                 resolve();

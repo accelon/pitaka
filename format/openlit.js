@@ -1,12 +1,13 @@
-const removeHtmlTag=str=>{
-    return str=str.replace(/<[^>]+>/g,'');
-}
+import {headerWithNumber,fromChineseNumber} from 'pitaka/utils';
+import offTextFormatter from './offtext.js';
+
 import EUDC from './openlit-eudc.js';
 import hotfixes from './openlit-hotfix.js';
 const tidy=str=>str.replace(/<<([\d▉\u3400-\u9fff]+)>>/g,'《$1》')
            .replace(/<([\d▉\u3400-\u9fff]+)>/g,'〈$1〉');
-class Formatter {
+class Formatter extends offTextFormatter {
     constructor (context,log){
+        super();
         this.context=context;
         this.log=log;
     }
@@ -24,6 +25,25 @@ class Formatter {
         }
         return content;
     }
+    parseHeader(str){
+        str=str.replace(/<[^>]+>/g,'');
+        let cn=0;
+        for (let i=0;i<headerWithNumber.length;i++) {
+            const pat=headerWithNumber[i];
+            const m=str.match(pat);
+            if (m) cn=fromChineseNumber(m[1]);
+            // if (m) this.log(cn,m[1])
+        }
+        if (cn) {
+            if (cn && cn!==this.context.nchapter+1 && cn!==1) {
+                this.log('chapter number',this.context.filename,str,cn,'prev',this.context.nchapter+1);
+            }
+            this.context.nchapter=cn;
+            return '^ch'+cn+' '+str;
+        } else {
+            return '^ch '+str;
+        }
+    }
     scan(content){
         const rawlines=tidy(this.applyfix(content)).split(/\r?\n/);
 
@@ -32,8 +52,8 @@ class Formatter {
         const {eudc}=this.context;
         for (let i=0;i<23;i++) rawlines.shift();
         rawlines.length=rawlines.length-29;
-        const ch=rawlines.shift().trim();
-        out.push('^ch '+removeHtmlTag(ch));
+        const ch=this.parseHeader(rawlines.shift().trim());
+        out.push(ch);
         
         for (let i=0;i<rawlines.length;i++) {
             let s=rawlines[i].replace(/<br \/>$/i,'').replace(/<br \/>$/i,'')
@@ -69,9 +89,10 @@ class Formatter {
                 s.substr(s.indexOf('<'),50));
                 this.context.error++;
             }
+            s=s.replace(/\n　　/g,'\n^p');
             out.push(s);
         }
-        return out;
+        return super.scan(out.join('\n'));
     }
 }
 const getZipFileOrder=async zip=>{
