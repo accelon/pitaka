@@ -11,7 +11,7 @@ class ZipSaver {
     async init(){
 
     }
-    async writeChunk(chunk,rawcontent){
+    async writeChunk(rawcontent,chunk){
         //prepand pitaka name as user might change name of zip
         //can store multiple pitaka in one zip
         //but for lazip, zip folder should be same as the name of zip 

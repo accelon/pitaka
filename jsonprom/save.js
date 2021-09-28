@@ -1,6 +1,7 @@
 import ZipSaver from './savezip.js';
 import JsonpSaver from './savejsonp.js';
 import CacheSaver from './savecache.js';
+import RawSaver from './saveraw.js';
 import {chunkjsfn} from '../utils/index.js';
 const escapeTemplateString=str=>str.replace(/\\/g,"\\\\").replace(/`/g,"\\`").replace(/\$\{/g,'$\\{');
 
@@ -10,8 +11,8 @@ const prepareJSONP=({chunk,name,start},lines)=>{
 }
 
 const saveHeader=async (saver,header,payload)=>{    
-    await saver.writeChunk(0,'jsonp(0,'+JSON.stringify(header)+',`'
-    +escapeTemplateString(payload)+'`)','utf8');
+    await saver.writeChunk('jsonp(0,'+JSON.stringify(header)+',`'
+    +escapeTemplateString(payload)+'`)',0);
 }
 
 const saveJsonp=async(saver,chunk,name,start,L)=>{
@@ -22,11 +23,11 @@ const saveJsonp=async(saver,chunk,name,start,L)=>{
         const fn=chunkjsfn(chunk,name);
         //write only touched file
         if (!fs.existsSync(fn) || fs.readFileSync(fn,'utf8')!==newcontent) {
-            await saver.writeChunk(chunk,newcontent);
+            await saver.writeChunk(newcontent,chunk);
             writeCount++;
         }
     } else {
-        await saver.writeChunk(chunk,newcontent);
+        await saver.writeChunk(newcontent,chunk);
         writeCount++;
     }
     return writeCount;
@@ -41,6 +42,8 @@ async function save(opts,extraheader={}){
         saver=new JsonpSaver({name:opts.name,log:this.log});       
     } else if (opts.cache) {
         saver=new CacheSaver({name:opts.name,log:this.log});
+    } else if (opts.raw) {
+        saver=new RawSaver({name:opts.name,log:this.log});
     } else {
         saver=new ZipSaver({name:opts.name,file:opts.file,log:this.log});
     }

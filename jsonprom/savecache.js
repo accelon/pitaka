@@ -8,7 +8,7 @@ class CacheSaver {
     async init(){
         this.cache = await caches.open(this.name);
     }
-    async writeChunk(chunk,rawcontent){
+    async writeChunk(rawcontent,chunk){
         const body = rawcontent;
         const contentlength=StringByteLength(rawcontent);
         

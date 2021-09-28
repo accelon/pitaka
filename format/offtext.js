@@ -5,8 +5,8 @@ class Formatter_OffText {
         this.context=context;
     }
     scan(content){
-        const {text,tags}=parse(content);
-        // console.log(tags)
+        const {text,tags}=parseOfftext(content);
+
         return {text,tags};    
     }
 }

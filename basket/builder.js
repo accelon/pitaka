@@ -74,6 +74,7 @@ class Builder {
 
             this.writer.append(text);
             //indexer
+            
         } catch(e){
             const {filename,fileline,title}=this.context;
             this.log( filename+'('+fileline+'):' , title, e );
@@ -85,15 +86,12 @@ class Builder {
         // const section=serializeLabels(this.labelTypes )
         this.writer.append(section);
     }
-    saveJSONP(opts){
-        this.save(Object.assign(opts,{jsonp:true}));
-    }
     save(opts){
         if (!this.finalized) {
             this.log('not finalized');
             return;
         }
-    //  return this.writer.save(opts,this.config)     
+        return this.writer.save(opts,this.config)     
     }
     finalize(opts={}){
         // for (let i=0;i<this.labelTypes.length;i++) { 

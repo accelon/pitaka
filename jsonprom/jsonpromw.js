@@ -24,6 +24,7 @@ class JSONPROMW {
         return this;
     }
     append(lines,isSourceFile=true){
+        if (typeof lines=='string') lines=lines.split(/\r?\n/);
         const ctx=this.context;
         const header=this.header;
         let acc=ctx.accLength||0;

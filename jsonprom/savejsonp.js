@@ -7,7 +7,7 @@ class JsonpSaver {
     async init(){
 
     }
-    async writeChunk (chunk,rawcontent) {
+    async writeChunk (rawcontent,chunk) {
         const fn=chunkjsfn(chunk,this.name);
         await fs.promises.writeFile(fn,rawcontent,'utf8');        
     }

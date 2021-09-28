@@ -14,22 +14,21 @@ await nodefs;
 import {existsSync,  readFileSync} from 'fs';
 import {buildPitaka} from './build.js'
 import {info} from './info.js';
+
 import validate from "./validate.js"
 const pitakajson=arg||'pitaka.json';
 
-const jsonp=()=>build(true);
-const build=async (jsonp=false)=>{  
+const jsonp=()=>build({jsonp:true});
+const raw=()=>build({raw:true});
+const build=async ({raw=false,jsonp=false})=>{  
     if (!existsSync(pitakajson)) {
         console.log(red('pitaka.json not found'));
         return 
     }
     const config=JSON.parse(readFileSync(pitakajson,'utf8').trim());
     const builder=await buildPitaka( {config}  );
-    if (jsonp) {
-        builder.saveJSONP({jsonp});
-    } else {
-        builder.save();
-    }
+
+    builder.save({raw,jsonp});
 }
 const help=()=>{
     console.log('Description: ')
@@ -37,7 +36,8 @@ const help=()=>{
     console.log('\nUsage: ')
     console.log(yellow('$ pitaka build   '), 'build pitaka rom file')
     console.log(yellow('$ pitaka jsonp   '), 'build pitaka jsonp folder')
-    console.log(yellow('$ pitaka info    '), 'dump information of pitaka')
+    console.log(yellow('$ pitaka raw     '), 'create *-raw.txt and *-raw.json')
+    console.log(yellow('$ pitaka info    '), 'show information of pitaka')
     console.log(yellow('$ pitaka validate'), 'validate all htm files')
     // console.log(yellow(' $ pitaka pack    '), 'pack folder to a rom file')
 }
@@ -45,7 +45,7 @@ const help=()=>{
 
 try {
     ({v:validate,validate,
-        j:jsonp,jsonp,
+        j:jsonp,jsonp,raw,r:raw,
         '--help':help,'-h':help,i:info,info,build,b:build})[cmd]();
 } catch(e) {
     console.log( kluer.red('error running command'),cmd)
