@@ -13,8 +13,9 @@ const handleHTLL=(tags,text)=>{
 
 
 class Formatter_HTLL {
-    constructor (context){
+    constructor (context,log){
         this.context=context;
+        this.log=log;
     }
 
     handleTags(tags,text,nline,context){
@@ -47,7 +48,8 @@ class Formatter_HTLL {
         s+=text.substring(prev);
         return s;
     }
-    scan(rawlines){
+    scan(rawcontent){
+        const rawlines=rawcontent.split(/\r?\n/);
         scanLine(rawlines,(li,idx)=>{
             const text=rawlines[idx];
             const nline=this.writer.header.lineCount+idx;

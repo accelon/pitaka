@@ -1,5 +1,6 @@
 import {LabelType} from 'pitaka/htll'
 import {Builder} from 'pitaka/basket'
+import {filesFromStringPattern} from 'pitaka/utils'
 import kluer from './kluer.js'
 const {blue,yellow,red,bgGreen} = kluer;
 import {existsSync,readFileSync} from 'fs'
@@ -54,13 +55,15 @@ export const  buildPitaka=async ({config, PickedFiles=null , log=console.log})=>
     const builder=new Builder({name,title,config}); //core chinese text
     builder.defineLabel('anchor',LabelType.LabelAnchor); //超連結
     builder.defineLabel('sections',LabelType.LabelHeader); //書-章回(序號) 結構
-    if (typeof files=='string') files=files.split(/[;,]/);
+    if (typeof files=='string') {
+        files=filesFromStringPattern(files);
+    }
     for (let i=0;i<files.length;i++){   
         await builder.addFile(files[i],format);
     }
     builder.finalize();
     
-    console.log('\n'+report(builder,files));
+    builder.log('\n'+report(builder,files));
 
     return builder;
 }
