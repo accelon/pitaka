@@ -1,7 +1,7 @@
 import {readTextFile,readBLOBFile} from 'pitaka/platform'
 import {readHaodoo} from './haodoo.js';
 import Formatter_HTLL from './htll.js';
-import Formatter_OffText from './offtext.js';
+import Formatter_OffText from '../offtext/formatter.js';
 import OpenLit from './openlit.js';
 
 const fileContent=async fn=>{
@@ -47,6 +47,6 @@ const fileLines=async fn=>{
     const lines=content.split('\n');
     return lines;
  }
-export * from './offtext-parser.js';
+
 export {readPlainTextFile,readHaodooFile,readHaodoo,
     fileContent,getFormatter,fileLines,getZipIndex};

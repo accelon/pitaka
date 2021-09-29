@@ -1,12 +1,11 @@
-import {parseOfftext} from './offtext-parser.js';
+import {parseOfftext} from './parser.js';
 
 class Formatter_OffText {
     constructor (context){
         this.context=context;
     }
     scan(content){
-        const {text,tags}=parseOfftext(content);
-
+        const {text,tags}=parseOfftext(content,this.context.ptkline);
         return {text,tags};    
     }
 }

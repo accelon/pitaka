@@ -16,7 +16,11 @@ export function chunkjsfn(chunk,folder){
     const jsfn=chunk.toString().padStart(3,'0')+'.js'
     return folder?folder+'/'+jsfn:jsfn;
 }
-
+export function dedup(arr) {
+    const out=[];
+    arr.forEach(item=>out.indexOf(item)==-1?out.push(item):null);
+    return out;
+}
 export function filesFromStringPattern(pat){
     let out=[];
     if (pat.indexOf(';')>0 || pat.indexOf(',')>0) {

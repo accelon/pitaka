@@ -10,16 +10,17 @@ const prepareJSONP=({chunk,name,start},lines)=>{
     +'},`'+escapeTemplateString(lines.join('\n'))+'`)';
 }
 
-const saveHeader=async (saver,header,payload)=>{    
+const saveHeader=async (saver,header,payload)=>{ 
+    if (saver instanceof RawSaver) return;   
     await saver.writeChunk('jsonp(0,'+JSON.stringify(header)+',`'
     +escapeTemplateString(payload)+'`)',0);
 }
 
 const saveJsonp=async(saver,chunk,name,start,L)=>{
     let writeCount=0;
-    const newcontent=prepareJSONP({chunk,name,start},L);
     
-    if (saver instanceof JsonpSaver ) {
+    const newcontent=prepareJSONP({chunk,name,start},L);
+    if (saver instanceof JsonpSaver ) { //need node js
         const fn=chunkjsfn(chunk,name);
         //write only touched file
         if (!fs.existsSync(fn) || fs.readFileSync(fn,'utf8')!==newcontent) {
@@ -27,7 +28,11 @@ const saveJsonp=async(saver,chunk,name,start,L)=>{
             writeCount++;
         }
     } else {
-        await saver.writeChunk(newcontent,chunk);
+        if (saver instanceof RawSaver) {
+            await saver.writeChunk(L.join('\n'),chunk);
+        } else {
+            await saver.writeChunk(newcontent,chunk);
+        }
         writeCount++;
     }
     return writeCount;
@@ -43,7 +48,7 @@ async function save(opts,extraheader={}){
     } else if (opts.cache) {
         saver=new CacheSaver({name:opts.name,log:this.log});
     } else if (opts.raw) {
-        saver=new RawSaver({name:opts.name,log:this.log});
+        saver=new RawSaver({name:opts.name,log:this.log,context:this.context});
     } else {
         saver=new ZipSaver({name:opts.name,file:opts.file,log:this.log});
     }

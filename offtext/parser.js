@@ -8,9 +8,7 @@
  *             若為文字，則會搜尋，並以該文字的結尾作為標記的終點。
  **/
 const QUOTEPREFIX='\u001a', QUOTEPAT=/\u001a(\d+)/g ;                // 抽取字串的前綴，之後是序號
-export const OFFTAG_REGEX_G=/\^([A-Za-z_]+[#\.~A-Za-z_\-\d]*)(\[(?:\\.|.)*?\])?/g //標記樣式
-export const QSTRING_REGEX_G= /"((?:\\.|.)*?)"/g                                  //字串標式
-export const TNAME=0, TATTR = 1, TPOS = 2,TWIDTH =3 ,TLINE=4;                     //標記數據結構
+import {OffTag,ALLOW_EMPTY, ALWAYS_EMPTY, OFFTAG_REGEX_G,QSTRING_REGEX_G} from './def.js'
 
 const parseCompactAttr=str=>{  //              序號和長度和標記名 簡寫情形，未來可能有 @ 
     const out={}, arr=str.split(/([#~])/);
@@ -22,23 +20,24 @@ const parseCompactAttr=str=>{  //              序號和長度和標記名 簡�
     }
     return out;
 }
-const resolveTagWidth=(text,tags)=>{  //正文已準備好，可計算標記終點
+const resolveTagWidth=(line,tags)=>{  
+//正文已準備好，可計算標記終點，TWIDTH 不為負值，只允許少數TWIDTH==0的標記(br,fn) ，其餘自動延伸至行尾
     tags.forEach(tag=>{
-        const tagpos=tag[TPOS];    //負數為從行末倒數之位置
-        if (-1 > tag[TWIDTH]){     //只有-1常見（會壓縮儲存），其他的負值轉換為正值（從標記起算）
-            const nl0=text.indexOf('\n',tagpos);
-            const nl1=text.lastIndexOf('\n',tagpos);
-            const linewidth=nl0-nl1;
-            tag[TWIDTH]= tag[TWIDTH] +tagpos-nl1+linewidth-1;
-            if (tag[TWIDTH]<0) tag[TWIDTH]=0;
-        } else {    //以文字標定結束位置
-            const w=tag[TATTR]['~'];
-            if (!w)return;
-            const pos=text.indexOf(w,tagpos);
-            if (pos>0) {
-                tag[TWIDTH]=pos+1-tagpos;
-            } else tag[TWIDTH]=0;
-            delete tag[TATTR]['~'];
+        const w=tag.attrs['~'];
+        if (w) {                    //以文字標定結束位置
+            if (!ALWAYS_EMPTY[tag.name]) {
+                const pos=line.indexOf(w);
+                if (pos>0) tag.width=pos-tag.pos+1; 
+                else tag.width=0;
+            } else tag.width=0;
+            delete tag.attrs['~'];
+        } else if ( 0 > tag.width ) {  //負值轉換為正值（從標記起算)
+            if (!ALLOW_EMPTY[[tag.name]] && tag.width==-1) {
+                tag.width=0; //空標籤自動延至至行尾
+            } else {
+                tag.width= tag.width +line.length+1; 
+                if (tag.width<0) tag.width=0;    
+            }
         }
     })
 }
@@ -85,15 +84,15 @@ const parseOfftextLine=(str,idx)=>{
         }
         const W=attrs['~'];
         if (W && !isNaN(parseInt(W))) { //數字型終點
-            width=parseInt(W);
+            width=ALWAYS_EMPTY[tagName]?0:parseInt(W); 
             delete attrs['~'];
         }
         width=putback.length?putback.length:width;
-        if (!width && (offset==0 || str[offset-1]=='\n')) {
-            width=-1; //to end of line
-        }
+
+        if (width==0 && !ALLOW_EMPTY[tagName]) width=-1;
+
         textoffset+= offset-prevoff;            //目前文字座標，做為標記的起點
-        tags.push( [tagName, attrs, textoffset, width, idx]);
+        tags.push( new OffTag(tagName, attrs, idx, textoffset, width) );
         textoffset+=putback.length - m.length;  
         prevoff=offset;
         return putback;
@@ -102,13 +101,12 @@ const parseOfftextLine=(str,idx)=>{
     return [text,tags];
 }
 
-export const parseOfftext=str=>{
+export const parseOfftext=(str,startline=0)=>{
     let lines=str;
     if (typeof str=='string') lines=str.split(/\r?\n/);
-    const out=lines.map( parseOfftextLine );
+    const out=lines.map((line,idx)=>parseOfftextLine(line,idx+startline) );
     const text=out.map(item=>item[0]).join('\n');
     const tags=[];
-    out.forEach(item=>tags.push(...item[1]) );
-
+    out.forEach(item=>tags.push(...item[1]));
     return {text,tags};
 }

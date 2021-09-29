@@ -2,9 +2,8 @@ import save from './save.js'
 
 class JSONPROMW {
     constructor(opts) {
-        this.context = {
-            accLength:0,
-        };
+        this.context = opts.context;
+        this.accLength=0;
         this.header= {
             name:opts.name||'noname' ,
             title:opts.title||'notitle',
@@ -25,9 +24,8 @@ class JSONPROMW {
     }
     append(lines,isSourceFile=true){
         if (typeof lines=='string') lines=lines.split(/\r?\n/);
-        const ctx=this.context;
         const header=this.header;
-        let acc=ctx.accLength||0;
+        let acc=this.accLength||0;
         if (isSourceFile) header.fileStarts.push(header.lineCount);
 
         for (let i=0;i<lines.length;i++) {
@@ -38,7 +36,7 @@ class JSONPROMW {
             }
             this._lines.push(lines[i]);
         }
-        ctx.accLength=acc;
+        this.accLength=acc;
         header.lineCount+=lines.length;
         
         header.appendCount++;

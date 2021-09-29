@@ -1,5 +1,5 @@
 import {headerWithNumber,fromChineseNumber} from 'pitaka/utils';
-import offTextFormatter from './offtext.js';
+import offTextFormatter from '../offtext/formatter.js';
 
 import EUDC from './openlit-eudc.js';
 import hotfixes from './openlit-hotfix.js';
@@ -45,10 +45,15 @@ class Formatter extends offTextFormatter {
         }
     }
     scan(content){
-        const rawlines=tidy(this.applyfix(content)).split(/\r?\n/);
-
-        // console.log('processing',this.context.filename);
         const out=[];
+        const rawlines=tidy(this.applyfix(content)).split(/\r?\n/);
+        if (this.context.filename=='readme.html') {
+            const m=content.match(/<title>([^ <]+)/);
+            if (m) {
+                out.push('^book '+m[1]);
+            }
+        }
+
         const {eudc}=this.context;
         for (let i=0;i<23;i++) rawlines.shift();
         rawlines.length=rawlines.length-29;
@@ -102,6 +107,7 @@ const getZipFileOrder=async zip=>{
         if (!zip.files[fn]) console.log(fn,'not found');
         zipfiles.push(fn);
     })
+    if (zip.files['readme.html']) zipfiles.unshift('readme.html');
     return zipfiles;
 }
 

@@ -5,8 +5,9 @@ import {serializeLabels} from './serialize-label.js';
 class Builder {
     constructor(opts) {
         // this.labelTypes=[];
-        this.context={namespaces:{},eudc:{},nchapter:0 };
-        this.writer=new JSONPROMWriter(opts);
+        this.context={namespaces:{},namespace:'',eudc:{},nchapter:0,rawtags:[] 
+                    ,filename:'',ptkline:0};
+        this.writer=new JSONPROMWriter(Object.assign({},opts,{context:this.context}));
         this.finalized=false;
         this.log=opts.log || console.log;
         this.config=opts.config;
@@ -56,24 +57,20 @@ class Builder {
         }
         const rawcontent=await fileContent(file,format);
         this.context.filename=fn;
-        this.context.filenline=this.writer.header.lineCount;
+        this.context.ptkline=this.writer.header.lineCount; //ptk line count
         this.context.namespace=fn.replace(/^\.\//,'')
              .replace(/\..+/,'')//extension
              .replace(/[\\\/].+?/,'') //subfolder 
             ||'*' //global context
         this.context.namespaces[this.context.namespace]=0;
 
-        // for (let i=0;i<this.labelTypes.length;i++) {
-        //     const lt=this.labelTypes[i];
-        // }
         try{
             const Formatter=getFormatter(format);
             const formatter=new Formatter(this.context,this.log);
             const {text,tags}=formatter.scan(rawcontent);
-            console.log(tags.length,text.length);
 
+            this.context.rawtags.push(...tags);
             this.writer.append(text);
-            //indexer
             
         } catch(e){
             const {filename,fileline,title}=this.context;
