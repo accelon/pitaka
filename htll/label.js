@@ -1,6 +1,7 @@
 class Label {
     constructor(name,opts={}) {
         this.cb=opts.cb;
+        this.log=opts.log||console.log;
         this.name=name;
         this.scope='';
         this.filename='';

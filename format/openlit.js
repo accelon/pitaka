@@ -1,10 +1,11 @@
 import {headerWithNumber,fromChineseNumber} from 'pitaka/utils';
 import offTextFormatter from '../offtext/formatter.js';
-
+import TypeDef from './openlit-typedef.js';
 import EUDC from './openlit-eudc.js';
 import hotfixes from './openlit-hotfix.js';
 const tidy=str=>str.replace(/<<([\d▉\u3400-\u9fff]+)>>/g,'《$1》')
            .replace(/<([\d▉\u3400-\u9fff]+)>/g,'〈$1〉');
+
 class Formatter extends offTextFormatter {
     constructor (context,log){
         super();
@@ -97,7 +98,7 @@ class Formatter extends offTextFormatter {
             s=s.replace(/\n　　/g,'\n^p');
             out.push(s);
         }
-        return super.scan(out.join('\n'));
+        return super.scan(out);
     }
 }
 const getZipFileOrder=async zip=>{
@@ -111,4 +112,4 @@ const getZipFileOrder=async zip=>{
     return zipfiles;
 }
 
-export default {getZipFileOrder,Formatter}
+export default {getZipFileOrder,Formatter,TypeDef}

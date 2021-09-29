@@ -1,4 +1,4 @@
-import {getFormatter, getZipIndex,fileContent} from '../format/index.js'
+import {getFormatter, getZipIndex, getFormatTypeDef, fileContent} from '../format/index.js'
 import JSONPROMWriter from '../jsonprom/jsonpromw.js';
 import {serializeLabels} from './serialize-label.js';
 
@@ -11,10 +11,10 @@ class Builder {
         this.finalized=false;
         this.log=opts.log || console.log;
         this.config=opts.config;
+        this.opts=opts;
+        this.labelTypes=getFormatTypeDef(this.config.format,{context:this.context,log:this.log});
+
         return this;
-    }
-    defineLabel(name,Type,opts){
-        // this.labelTypes.push(new Type(name,opts));
     }
     async addZip(file,format){
         let fn=file;       
@@ -69,7 +69,17 @@ class Builder {
             const formatter=new Formatter(this.context,this.log);
             const {text,tags}=formatter.scan(rawcontent);
 
-            this.context.rawtags.push(...tags);
+            for (let i=0;i<tags.length;i++) {
+                const tag=tags[i];
+                const labeltype=this.labelTypes[tag.name];
+                if (labeltype) {
+                    const linetext=text[tag.line - this.context.ptkline ];
+                    labeltype.action(tag,linetext);
+                } else this.log('undefined tag',tag.name)
+            }
+
+            if (this.opts.raw) this.context.rawtags.push(...tags);
+
             this.writer.append(text);
             
         } catch(e){
@@ -78,26 +88,21 @@ class Builder {
             throw '';
         }
     }
-    writeLabels(){
-        this.writer.addSection('labels');
-        // const section=serializeLabels(this.labelTypes )
-        this.writer.append(section);
-    }
     save(opts){
         if (!this.finalized) {
             this.log('not finalized');
             return;
         }
-        return this.writer.save(opts,this.config)     
+        // return this.writer.save(opts,this.config);
     }
     finalize(opts={}){
-        // for (let i=0;i<this.labelTypes.length;i++) { 
-            // this.labelTypes[i].finalize();
-        // }
-        // this.writeLabels();
+        for (let label in this.labelTypes) { 
+            this.labelTypes[label].finalize();
+        }
+        // this.writer.addSection('labels');
+        // const section=serializeLabels(this.labelTypes )
+        // this.writer.append(section);
         //indexes
-        
-        // fs.writeFileSync('eudc.txt',JSON.stringify(this.context.eudc),'utf8')
 
         this.finalized=true;
         return this.context;

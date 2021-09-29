@@ -16,7 +16,7 @@ const parseCompactAttr=str=>{  //              序號和長度和標記名 簡�
         const v=arr.shift();
         if      (v==='~') out['~']=arr.shift();
         else if (v==='#') out['#']=arr.shift(); 
-        else if (v)       out.n=v;
+        else if (v.trim()) out.n=v;
     }
     return out;
 }
@@ -105,7 +105,7 @@ export const parseOfftext=(str,startline=0)=>{
     let lines=str;
     if (typeof str=='string') lines=str.split(/\r?\n/);
     const out=lines.map((line,idx)=>parseOfftextLine(line,idx+startline) );
-    const text=out.map(item=>item[0]).join('\n');
+    const text=out.map(item=>item[0]);
     const tags=[];
     out.forEach(item=>tags.push(...item[1]));
     return {text,tags};

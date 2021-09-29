@@ -9,18 +9,20 @@ class LabelBookChapter extends Label {
         this.chapterId=[];
         this.chapterLinePos=[];
         this._chapterId={};
+        this.context=opts.context;
         return this;
     }
-    action( {tag ,nline,text}){
-        let name=text.substr(tag.rawoffset+tag.len);
-        const id=tag.raw.substr(1).trim();
-        if (tag.raw[0]=='c') {
-            this.chapterNames.push(name);
-            if (this._chapterId[id]) throw 'repeated chapterid' ;
-            this._chapterId[id]=nline;
-            this.chapterId.push(id);    
-            this.chapterLinePos.push(nline);
-        }
+    action( tag ,linetext){
+        // this.log('ch',text,tag)
+        // let name=text.substr(tag.rawoffset+tag.len);
+        // const id=tag.raw.substr(1).trim();
+        // if (tag.raw[0]=='c') {
+        //     this.chapterNames.push(name);
+        //     if (this._chapterId[id]) throw 'repeated chapterid' ;
+        //     this._chapterId[id]=nline;
+        //     this.chapterId.push(id);    
+        //     this.chapterLinePos.push(nline);
+        // }
     }
     serialize(){
         const out=super.serialize();
@@ -38,6 +40,9 @@ class LabelBookChapter extends Label {
     getRange(nheadword){
     }
     find(tofind,near=false){
+    }
+    finalize() {
+        this.log('finalize chapter')
     }
 }
 export default LabelBookChapter;

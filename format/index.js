@@ -3,6 +3,7 @@ import {readHaodoo} from './haodoo.js';
 import Formatter_HTLL from './htll.js';
 import Formatter_OffText from '../offtext/formatter.js';
 import OpenLit from './openlit.js';
+import Default_Typedef from './typedef.js';
 
 const fileContent=async fn=>{
     let c;
@@ -42,6 +43,14 @@ const getZipIndex=async (zip,format)=>{
     }
     return zip.files;
 }
+
+const getFormatTypeDef=(format,opts)=>{
+    if (format=='openlit') {
+        return new OpenLit.TypeDef(opts);
+    }
+    return Default_Typedef;
+}
+
 const fileLines=async fn=>{
     const content=await fileContent(fn);
     const lines=content.split('\n');
@@ -49,4 +58,4 @@ const fileLines=async fn=>{
  }
 
 export {readPlainTextFile,readHaodooFile,readHaodoo,
-    fileContent,getFormatter,fileLines,getZipIndex};
+    fileContent,getFormatter,fileLines,getZipIndex,getFormatTypeDef};

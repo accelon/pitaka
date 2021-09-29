@@ -53,8 +53,7 @@ export const  buildPitaka=async ({config, PickedFiles=null , log=console.log})=>
     if (!files) [files,title]=indexHTMLFiles();
     
     const builder=new Builder({name,title,config}); //core chinese text
-    builder.defineLabel('anchor',LabelType.LabelAnchor); //超連結
-    builder.defineLabel('sections',LabelType.LabelHeader); //書-章回(序號) 結構
+
     if (typeof files=='string') {
         files=filesFromStringPattern(files);
     }

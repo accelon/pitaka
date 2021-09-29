@@ -11,21 +11,24 @@ class LabelBook extends Label {
         this._bookId={};
         return this;
     }
-    action( {tag ,nline,text}){
-        if (tag.raw.substr(0,3).toLowerCase()=='pre') {        
-            let name=text.substr(tag.rawoffset+tag.len).replace(/>.*/,'');    
-            const id=tag.raw.match(this.pat)[2].trim().toLowerCase();
-            this.bookNames.push(name);
-            if (this._bookId[id]) throw 'repeated bookid , at '+nline ;
-            this._bookId[id]=nline;
-            this.bookId.push(id);
-            this.bookLinePos.push(nline);
-            return true;
-        } 
+    action(tag ,linetext){
+        this.log('book',linetext,tag)
+        
+        // if (tag.raw.substr(0,3).toLowerCase()=='pre') {        
+        //     let name=text.substr(tag.rawoffset+tag.len).replace(/>.*/,'');    
+        //     const id=tag.raw.match(this.pat)[2].trim().toLowerCase();
+        //     this.bookNames.push(name);
+        //     if (this._bookId[id]) throw 'repeated bookid , at '+nline ;
+        //     this._bookId[id]=nline;
+        //     this.bookId.push(id);
+        //     this.bookLinePos.push(nline);
+        //     return true;
+        // } 
     }
     finalize(){
-        this.chapterCount.push(this.chapterCount);
-        this.chapterCount=0;
+        this.log('finalize book')
+        // this.chapterCount.push(this.chapterCount);
+        // this.chapterCount=0;
     }
     serialize(){
         const out=[];

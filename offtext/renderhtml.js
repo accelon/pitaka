@@ -12,7 +12,7 @@ function HTMLTag (pos,closing,name,attrs,width,tempclose=false) {
 }
 const toHtmlTag=(content,tags)=>{
     const T=[];
-    const lines=content.split(/\r?\n/);
+    const lines=(typeof content=='string')?content.split(/\r?\n/):content;
     let offset=0;  //offset of content
     let ntag=0,tag=tags[ntag], tagcount=0;
     for (let i=0;i<lines.length;i++) {
@@ -32,7 +32,7 @@ const toHtmlTag=(content,tags)=>{
             ntag++;
             tag=tags[ntag];
         }
-        offset+=1+lines[i].length;
+        offset += lines[i].length+1; //width of \n
     }
     T.sort((a,b)=>{
         if (a.pos==b.pos && b.closing) {    //multiple closing tag at same position
@@ -74,7 +74,8 @@ const lastSpan=(T,activetags,idx,pos)=>{ //if last span of a tag, return -name
     return out;
 }
 
-export const renderHTML=(content,tags,opts={})=>{
+export const renderHTML=(lines,tags,opts={})=>{
+    const content=(typeof lines=='string')?lines:lines.join('\n');
     const T=toHtmlTag(content,tags);
     let output='';
     let activetags=[];//active classes

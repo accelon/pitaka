@@ -20,7 +20,8 @@ const pitakajson=arg||'pitaka.json';
 
 const jsonp=()=>build({jsonp:true});
 const raw=()=>build({raw:true});
-const build=async ({raw=false,jsonp=false})=>{  
+const build=async (opts)=>{  
+    opts=opts||{raw:false,jsonp:false};
     if (!existsSync(pitakajson)) {
         console.log(red('pitaka.json not found'));
         return 
