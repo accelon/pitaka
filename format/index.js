@@ -29,7 +29,21 @@ const readPlainTextFile=async fn=>{
 
 const readHaodooFile=async fn=>{
     const buf=await readBLOBFile(fn);
-    return readHaodoo(buf).join(String.fromCharCode(0x0a,0x1a));//0x1a terminate marker
+    const blocks=readHaodoo(buf);
+    
+    const toc={};
+    const lines=[];
+    blocks.forEach( (block,idx)=>{
+        let prev=0;
+        toc[idx]=lines.length;
+        block.replace(/\r*\n+/g,(m,offset)=>{
+            if (!prev)lines.push(block.substring(0,offset));
+            else lines.push(block.substring(prev,offset));
+            prev=offset+m.length;
+        })
+        if (prev<block.length) lines.push(block.substr(prev));
+    })
+    return {lines,toc}
 }
 const formatters={htll:Formatter_HTLL, openlit:OpenLit.Formatter};
 
