@@ -36,27 +36,17 @@ class Builder {
         }
 
         this.context.error=0;
-        const zipfiles=await getZipIndex(zip,format);
+        const {zipfiles,toclines}=await getZipIndex(zip,format);
+        if (toclines) {
+            this.context.filename='index';
+            this.addContent(toclines.join('\n'),format);
+        }
         for (let i=0;i<zipfiles.length;i++) {
             await this.addFile({name:zipfiles[i],zip},format);
         }
         if (this.context.error) this.log(fn,'has',this.context.error,'errors')
     }
-    async addFile(file,format){ //file=='string' nodejs , File browser local file, or a File in zip
-        let fn=file;
-        if (typeof file!=='string' && 'name' in file) {
-            fn=file.name;
-        }
-        if (fn.endsWith('.zip')) {
-            return await this.addZip(file,format);
-        }
-
-        if (this.finalized) {
-            this.log("cannot addFile, finalized");
-            return;
-        }
-        const rawcontent=await fileContent(file,format);
-        this.context.filename=fn;
+    addContent(rawcontent,format) {
         this.context.ptkline=this.writer.header.lineCount; //ptk line count
         this.context.namespace=fn.replace(/^\.\//,'')
              .replace(/\..+/,'')//extension
@@ -87,6 +77,23 @@ class Builder {
             this.log( filename+'('+fileline+'):' , title, e );
             throw '';
         }
+    }
+    async addFile(file,format){ //file=='string' nodejs , File browser local file, or a File in zip
+        let fn=file;
+        if (typeof file!=='string' && 'name' in file) {
+            fn=file.name;
+        }
+        if (fn.endsWith('.zip')) {
+            return await this.addZip(file,format);
+        }
+
+        if (this.finalized) {
+            this.log("cannot addFile, finalized");
+            return;
+        }
+        const rawcontent=await fileContent(file,format);
+        this.context.filename=fn;
+        this.addContent(rawcontent,format);
     }
     save(opts){
         if (!this.finalized) {

@@ -23,6 +23,12 @@ const openFileOption={
   multiple:true,
   types:[
     {
+      description: 'OpenLit Zip Files',
+      accept: {
+          'text/json': ['.zip','.json']
+      }
+    },
+    {
       description: 'Haodoo Files',
       accept: {
           'text/json': ['.updb','.json']

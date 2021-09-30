@@ -9,8 +9,10 @@ const tidy=str=>str.replace(/<<([\d▉\u3400-\u9fff]+)>>/g,'《$1》')
 class Formatter extends offTextFormatter {
     constructor (context,log){
         super();
-        this.context=context;
-        this.log=log;
+        this.context=context||{};
+        if (typeof this.context.nchapter==='undefined') this.context.nchapter=0;
+        if (typeof this.context.error==='undefined') this.context.error=0;
+        this.log=log||console.log;
     }
     applyfix(content){
         const hotfix=hotfixes[this.context.filename];
@@ -48,12 +50,6 @@ class Formatter extends offTextFormatter {
     scan(content){
         const out=[];
         const rawlines=tidy(this.applyfix(content)).split(/\r?\n/);
-        if (this.context.filename=='readme.html') {
-            const m=content.match(/<title>([^ <]+)/);
-            if (m) {
-                out.push('^book '+m[1]);
-            }
-        }
 
         const {eudc}=this.context;
         for (let i=0;i<23;i++) rawlines.shift();
@@ -98,18 +94,34 @@ class Formatter extends offTextFormatter {
             s=s.replace(/\n　　/g,'\n^p');
             out.push(s);
         }
-        return super.scan(out);
+        
+        return super.scan(out.join('\n').split('\n')); //<br> replace with \n , join+split
     }
 }
-const getZipFileOrder=async zip=>{
-    const zipfiles=[];
-    const index=await zip.files['index.html'].async('string');
-    index.replace(/<a href="([\d]+\.html)" target="right_Article"/g,(m,fn)=>{
+const getZipFileToc=async zip=>{
+    const zipfiles=[],tocpage=[];
+    const indexhtml=await zip.files['index.html'].async('string');
+
+    const m=indexhtml.match(/<title>([^ <]+)/); 
+    if (m) {
+        tocpage.push('^book '+m[1]); //第一行為書名，和haodoo 一致
+    } else {
+        tocpage.push('^book 缺書名');
+    }
+
+    if (zipfiles.indexOf('readme.html')==-1 && zip.files['readme.html']) {
+        zipfiles.push('readme.html');
+        tocpage.push('本書說明')
+    }
+
+    indexhtml.replace(/<a href="([\d]+\.html)" target="right_Article" ?>(.+?)<\/a>/g,(m,fn,toc)=>{
         if (!zip.files[fn]) console.log(fn,'not found');
+        tocpage.push(toc.replace(/<[^>]+>/g,''))
         zipfiles.push(fn);
     })
-    if (zip.files['readme.html']) zipfiles.unshift('readme.html');
-    return zipfiles;
+
+
+    return {files:zipfiles, tocpage};
 }
 
-export default {getZipFileOrder,Formatter,TypeDef}
+export default {getZipFileToc,Formatter,TypeDef}

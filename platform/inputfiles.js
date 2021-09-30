@@ -12,19 +12,14 @@ export async function readFiles(files,onFile){
     }
 }
 
-export async function readTextFile(file,opts={}){
-    const {start=0,len=65535}=opts;
+export async function readTextFile(file){
     if (typeof fs!=='undefined' && typeof file=='string') {
         let content= (await fs.promises.readFile(file,'utf8')).replace(/\r?\n/g,'\n');
         if (len<0)len=content.length;
-        return content.substr(start,len);
+        return content;
     } else {
         const f=await file.getFile();
-        let content= (len>0?await f.slice(start,len).text():await f.text());
-        if (len>0 && f.size>len) {
-            content+='\n---filesize---'+f.size;
-        }
-        return content;
+        return (await f.text()).replace(/\r?\n/g,'\n');
     }
 }
 
