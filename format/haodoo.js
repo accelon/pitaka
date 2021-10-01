@@ -43,6 +43,7 @@
 
     第N+2筆資料是書籤，預設是-1。可以不理。
 */
+import {extractChineseNumber} from 'pitaka/utils';
 const ctbl=[
     [/︽/g,'《'],    [/︾/g,'》'],
     [/︵/g,'（'],    [/︶/g,'）'],
@@ -58,7 +59,7 @@ const convertHaodoo=str=>{
     for (let i=0;i<ctbl.length;i++) {
         str=str.replace(ctbl[i][0],ctbl[i][1])
     }
-    return str.replace(/\r?\n/g,'\n'); //use unix-style linebreak;
+    return str; //use unix-style linebreak;
 }
 
 //first record consists mix ucs2 and ascii encoding,
@@ -82,9 +83,9 @@ const parseFirstRecord=(buf,start,len,decoder)=>{ //special care with mix ule-16
     }
     i+=2;//skip 0x1b,0x0
     tocstart+=i;
-    const toc=decoder.decode(new Uint8Array(buf,tocstart,start+len-tocstart));
+    const toc=decoder.decode(new Uint8Array(buf,tocstart,start+len-tocstart)).replace(/\r?\n/g,'\n');
 
-    return '《'+bookname+'》\n'+toc;
+    return '^bk '+bookname+'\n'+toc;
 }
 /* 
    input :uPDB raw buffer
@@ -121,9 +122,13 @@ export const readHaodoo=buf=>{
         if (i==0){     //remove ascii 章
             s=parseFirstRecord(buf,start,len,decoder); 
         } else {//remaining record are pure utf-16
-            s=decoder.decode(rec);
+            const content=decoder.decode(rec).replace(/\r?\n/g,'\n');
+            const at=content.indexOf('\n');
+            const firstline=content.substr(0,at);
+            let n=extractChineseNumber(firstline);
+            s='^ch'+n+' '+content;
         }
-        output.push( convertHaodoo(s));
+        output.push( convertHaodoo(s)); //first line is chapter
     }
     return output;
  }

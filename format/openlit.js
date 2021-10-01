@@ -1,4 +1,4 @@
-import {headerWithNumber,fromChineseNumber} from 'pitaka/utils';
+import {extractChineseNumber} from 'pitaka/utils';
 import offTextFormatter from '../offtext/formatter.js';
 import TypeDef from './openlit-typedef.js';
 import EUDC from './openlit-eudc.js';
@@ -30,13 +30,7 @@ class Formatter extends offTextFormatter {
     }
     parseHeader(str){
         str=str.replace(/<[^>]+>/g,'');
-        let cn=0;
-        for (let i=0;i<headerWithNumber.length;i++) {
-            const pat=headerWithNumber[i];
-            const m=str.match(pat);
-            if (m) cn=fromChineseNumber(m[1]);
-            // if (m) this.log(cn,m[1])
-        }
+        const cn=extractChineseNumber(str);
         if (cn) {
             if (cn && cn!==this.context.nchapter+1 && cn!==1) {
                 this.log('chapter number',this.context.filename,str,cn,'prev',this.context.nchapter+1);

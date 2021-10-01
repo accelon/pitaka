@@ -14,6 +14,8 @@ await nodefs;
 import {existsSync,  readFileSync} from 'fs';
 import {buildPitaka} from './build.js'
 import {info} from './info.js';
+import quote from './quote.js';
+import pinpoint from './pinpoint.js';
 
 import validate from "./validate.js"
 const pitakajson=arg||'pitaka.json';
@@ -40,13 +42,14 @@ const help=()=>{
     console.log(yellow('$ pitaka raw     '), 'create *-raw.txt and *-raw.json')
     console.log(yellow('$ pitaka info    '), 'show information of pitaka')
     console.log(yellow('$ pitaka validate'), 'validate all htm files')
+    console.log(yellow('$ pitaka quote   '), 'extract quote from a ptk or offtext file')
+    console.log(yellow('$ pitaka pinpoint'), 'pinpoint a citation by quote and source book')
     // console.log(yellow(' $ pitaka pack    '), 'pack folder to a rom file')
 }
 
-
 try {
     ({v:validate,validate,
-        j:jsonp,jsonp,raw,r:raw,
+        j:jsonp,jsonp,raw,r:raw, q:quote,quote, p:pinpoint,pinpoint,
         '--help':help,'-h':help,i:info,info,build,b:build})[cmd]();
 } catch(e) {
     console.log( kluer.red('error running command'),cmd)

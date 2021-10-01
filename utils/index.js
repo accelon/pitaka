@@ -10,7 +10,6 @@ export * from './nested-ordered-list.js'
 export * from './bsearch.js'
 export * from './es6.js'
 export * from './html.js'
-export * from './patterns.js'
 export * from './cnumber.js'
 export function chunkjsfn(chunk,folder){
     const jsfn=chunk.toString().padStart(3,'0')+'.js'

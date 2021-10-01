@@ -7,7 +7,8 @@ export const maxlen3=109*109*109 //1295029
 export const CodeStart=0x0E;
 
 export const unpack3=str=>{
-	let arr=[],i1,i2,i3;
+	const arr=[];
+	let i1,i2,i3;
 	const count=Math.floor(str.length/3);
 	for (let i=0;i<count;i++) {
 		i3=str.charCodeAt(i*3) -CodeStart;
@@ -15,31 +16,33 @@ export const unpack3=str=>{
 		i1=str.charCodeAt(i*3+2) -CodeStart;
 		arr.push( maxlen1*maxlen1*i3 +maxlen1*i2+i1 );
 	}
-	return arr;
+	return new Int32Array(arr);
 }
 export const unpack2=str=>{
-	let arr=[],i1,i2;
+	const arr=[];
+	let i1,i2;
 	const count=Math.floor(str.length/2);
 	for (let i=0;i<count;i++) {
 		i2=str.charCodeAt(i*3) -CodeStart;
 		i1=str.charCodeAt(i*3+1) -CodeStart;
 		arr.push(maxlen1*i2+i1 );
 	}
-	return arr;
+	return new Int32Array(arr);
 }
 export const unpack1=str=>{
-	let arr=[],i1;
+	const arr=[];
+	let i1;
 	const count=Math.floor(str.length);
 	for (let i=0;i<count;i++) {
 		i1=str.charCodeAt(i*3) -CodeStart;
 		arr.push( i1 );
 	}
-	return arr;
+	return new Int32Array(arr);
 }
 //letiable  1or 3 bytes, maxlen2
 export const unpack=str=>{
-	let arr=[],o,i=0;
-
+	const arr=[];
+	let o,i=0;
 	while (i<str.length) {
 		o=str.charCodeAt(i) -CodeStart;
 		if ( str[i]=='{' ) { // unpack2
@@ -55,7 +58,7 @@ export const unpack=str=>{
 		arr.push(o);
 		i++;
 	}
-	return arr;
+	return new Int32Array(arr);
 }
 
 
@@ -65,7 +68,7 @@ export const unpack_delta=s=>{
 	for (let i=1;i<arr.length;i++) {
 		arr[i]+=arr[i-1];
 	}	
-	return arr;
+	return new Int32Array(arr);
 }
 
 export const unpack_delta2d=s=>{
@@ -79,7 +82,7 @@ export const unpack_delta2d=s=>{
 		for (let i=1;i<arr.length;i++) {
 			arr[i]+=arr[i-1];
 		}	
-		return arr;
+		return new Int32Array(arr);
 	});
 }
 

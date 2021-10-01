@@ -1,3 +1,8 @@
+export const headerWithNumber = [
+    /第([一二三四五六七八九十○零]+)[回章卷品節]/,
+    /卷([一二三四五六七八九十○零]+)/,
+]
+
 export const fromChineseNumber=str=>{
     return parseInt(str.replace(/一/g,'1')
     .replace(/二/g,'2')
@@ -13,4 +18,18 @@ export const fromChineseNumber=str=>{
     .replace(/十$/,'0')
     .replace(/十/g,'')
     .replace(/[○零]/g,'0'));
+}
+
+export const extractChineseNumber=(str,firstnum=false)=>{
+    let cn='';
+    for (let i=0;i<headerWithNumber.length;i++) {
+        const pat=headerWithNumber[i];
+        const m=str.match(pat);
+        if (m) cn=fromChineseNumber(m[1]);
+    }
+    if (!cn) {
+        const m=str.match(/^([一二三四五六七八九十○零]+)$/);
+        if (m) cn=fromChineseNumber(m[1]);
+    }
+    return cn;
 }

@@ -71,13 +71,17 @@ const readOpenlitFile=async fn=>{
     
     const context={filename:fn.name};
     const formatter=new OpenLit.Formatter(context);
+    const jobs=[];
     for (let i=0;i<files.length;i++){
         toclines[i+1]=lines.length;
         const file=files[i];
-        const content=await zip.file(file).async('string');
-        const {text,tags}=formatter.scan(content);
-        lines.push(...text);
+        jobs.push(zip.file(file).async('string').then(content=>{
+            const {text,tags}=formatter.scan(content);
+            lines.push(...text);
+        }));
+
     }
+    await Promise.all(jobs);
 
     return {lines,toclines};
 }

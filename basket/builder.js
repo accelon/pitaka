@@ -41,9 +41,11 @@ class Builder {
             this.context.filename='index';
             this.addContent(toclines.join('\n'),format);
         }
+        const jobs=[];
         for (let i=0;i<zipfiles.length;i++) {
-            await this.addFile({name:zipfiles[i],zip},format);
+            jobs.push(this.addFile({name:zipfiles[i],zip},format));
         }
+        await Promise.all(jobs)
         if (this.context.error) this.log(fn,'has',this.context.error,'errors')
     }
     addContent(rawcontent,format) {
