@@ -36,9 +36,9 @@ class Formatter extends offTextFormatter {
                 this.log('chapter number',this.context.filename,str,cn,'prev',this.context.nchapter+1);
             }
             this.context.nchapter=cn;
-            return '^ch'+cn+' '+str;
+            return '^c'+cn+' '+str;
         } else {
-            return '^ch '+str;
+            return '^c '+str;
         }
     }
     scan(content){

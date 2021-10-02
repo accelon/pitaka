@@ -126,7 +126,7 @@ export const readHaodoo=buf=>{
             const at=content.indexOf('\n');
             const firstline=content.substr(0,at);
             let n=extractChineseNumber(firstline);
-            s='^ch'+n+' '+content;
+            s='^c'+n+' '+content;
         }
         output.push( convertHaodoo(s)); //first line is chapter
     }

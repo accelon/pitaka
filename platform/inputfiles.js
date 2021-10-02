@@ -15,7 +15,6 @@ export async function readFiles(files,onFile){
 export async function readTextFile(file){
     if (typeof fs!=='undefined' && typeof file=='string') {
         let content= (await fs.promises.readFile(file,'utf8')).replace(/\r?\n/g,'\n');
-        if (len<0)len=content.length;
         return content;
     } else {
         const f=await file.getFile();
