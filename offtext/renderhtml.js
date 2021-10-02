@@ -1,4 +1,5 @@
-import {ALLOW_EMPTY, ALWAYS_EMPTY} from './def.js';
+import {ALLOW_EMPTY, ALWAYS_EMPTY,OffTag} from './def.js';
+import {parseOfftextLine} from './parser.js'
 
 function HTMLTag (pos,closing,name,attrs,width,tempclose=false) {
     return {
@@ -12,6 +13,7 @@ function HTMLTag (pos,closing,name,attrs,width,tempclose=false) {
 }
 const toHtmlTag=(content,tags)=>{
     const T=[];
+    tags.sort((a,b)=> (a.line==b.line)? ((a.pos==b.pos)?0:a.pos-b.pos) : (a.line-b.line)  );
     const lines=(typeof content=='string')?content.split(/\r?\n/):content;
     let offset=0;  //offset of content
     let ntag=0,tag=tags[ntag], tagcount=0;
@@ -90,7 +92,8 @@ export const renderHTML=(lines,tags,opts={})=>{
         if (closing) {
             output+=content.substring(prev, pos) +'</t '+closing+'>';
             activetags=activetags.filter( c=>c.i!==closing-1);
-            const clss=activetags.map(t=>t.name).push( ... lastSpan(T,activetags,idx,pos) );
+            const clss=activetags.map(t=>t.name);
+            clss.push( ... lastSpan(T,activetags,idx,pos) );
             if (clss.length) output+='<t class="'+clss.join(" ").trim()+'">';
         } else {
             output+=content.substring(prev,pos);
@@ -108,4 +111,29 @@ export const renderHTML=(lines,tags,opts={})=>{
     }
     output+=content.substr(prev);
     return output;
+}
+
+//render a line with extra keywords ( string or [pos,width])
+export const OfftextToHtml =(linetext , extra , renderInlinetag=false)=>{
+    const hastag=linetext.includes('^');
+    if (!hastag && extra.filter(it=>!!it.trim()).length==0 )return linetext;
+    if (extra[0]==extra[1]) extra[0]=''
+    let tags=[],text=linetext;
+    if (hastag && renderInlinetag) [text,tags]=parseOfftextLine(linetext);
+
+    for (let i=0;i<extra.length;i++) {
+        if (typeof extra[i]==='string' && extra[i].trim()) {
+            const keywords=extra[i].split(/ +/).filter(i=>!!i.trim());
+            for (let j=0;j<keywords.length;j++) {
+                const keyword=keywords[j];
+                const regex=new RegExp(keyword,'g');
+                text.replace(regex,(m,offset)=>{
+                   tags.push(new OffTag('hl'+i, null, 0, offset, m.length) );
+                })
+            }
+        } else if (extra[i][1]){
+            tags.push(new OffTag('hl'+i, null, 0, extra[i][0], extra[i][1]) );
+        }
+    }
+    return renderHTML(text,tags);
 }

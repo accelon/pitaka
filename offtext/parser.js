@@ -42,7 +42,7 @@ const resolveTagWidth=(line,tags)=>{
     })
 }
 
-const parseOfftextLine=(str,idx)=>{
+export const parseOfftextLine=(str,idx=0)=>{
     const tags=[];
     let textoffset=0,prevoff=0;
     let text=str.replace(OFFTAG_REGEX_G, (m,rawName,rawA,offset)=>{
