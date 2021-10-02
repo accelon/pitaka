@@ -90,8 +90,7 @@ export const renderHTML=(lines,tags,opts={})=>{
         if (closing) {
             output+=content.substring(prev, pos) +'</t '+closing+'>';
             activetags=activetags.filter( c=>c.i!==closing-1);
-            const clss=activetags.map(t=>t.name)
-                        .concat(lastSpan(T,activetags,idx,pos) );
+            const clss=activetags.map(t=>t.name).push( ... lastSpan(T,activetags,idx,pos) );
             if (clss.length) output+='<t class="'+clss.join(" ").trim()+'">';
         } else {
             output+=content.substring(prev,pos);

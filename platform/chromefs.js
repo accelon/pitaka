@@ -23,17 +23,18 @@ const openFileOption={
   multiple:true,
   types:[
     {
+      description: 'OpenLit Zip Files',
+      accept: {
+          'text/json': ['.zip','.json']
+      }
+    } ,
+   {
       description: 'Haodoo Files',
       accept: {
           'text/json': ['.updb','.json']
       }
     },
-    {
-      description: 'OpenLit Zip Files',
-      accept: {
-          'text/json': ['.zip','.json']
-      }
-    },
+
     {
       description: 'Text Files',
       accept: {
@@ -107,6 +108,16 @@ const savePitakaOption={
       }
   ]
 }
-
+const saveTxtOption={
+  id:'textfile',
+  types:[
+      {
+          description: 'Text File',
+          accept: {
+              'text/plain': ['.txt','.off'],
+          }
+      }
+  ]
+}
 export default {ready,verifyPermission,openFileOption,openOneZipFileOption,openPtkFileOption,
-  saveZipOption,savePitakaOption};
+  saveZipOption,savePitakaOption,saveTxtOption};

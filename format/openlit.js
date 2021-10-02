@@ -55,7 +55,6 @@ class Formatter extends offTextFormatter {
             let s=rawlines[i].replace(/<br \/>$/i,'').replace(/<br \/>$/i,'')
             .replace(/<br>$/ig,'\n')
             .replace(/^\t+/,'');
-            s=s.replace(/^　　/,'^p');
             if (!s) continue;
             const space=s[0].match(/[a-zA-Z_\d]/)?' ':'';
             s=s.replace(/<img src=[\-a-z\.\/:]+([A-Z\d]+)\.BMP[^>]+>/g,(m,m1)=>{
@@ -73,7 +72,7 @@ class Formatter extends offTextFormatter {
 
             s=s.replace(/<b>([^<]+)<\/b>/ig,'^b[$1]');
             s=s.replace(/<i>([^<]+)<\/i>/ig,'^i[$1]');
-            s=s.replace(/^\^p ?\^b\[([^\[]+)\]$/,'^h'+space+'$1');
+            s=s.replace(/^　　 ?\^b\[([^\[]+)\]$/,'^h'+space+'$1');
             s=s.replace(/<br>/ig,'\n');
             s=s.replace(/<br \/>/ig,'\n');
  
@@ -85,7 +84,6 @@ class Formatter extends offTextFormatter {
                 s.substr(s.indexOf('<'),50));
                 this.context.error++;
             }
-            s=s.replace(/\n　　/g,'\n^p');
             out.push(s);
         }
         
@@ -98,9 +96,9 @@ const getZipFileToc=async zip=>{
 
     const m=indexhtml.match(/<title>([^ <]+)/); 
     if (m) {
-        tocpage.push('^book '+m[1]); //第一行為書名，和haodoo 一致
+        tocpage.push('^bk '+m[1]); //第一行為書名，和haodoo 一致
     } else {
-        tocpage.push('^book 缺書名');
+        tocpage.push('^bk 缺書名');
     }
 
     if (zipfiles.indexOf('readme.html')==-1 && zip.files['readme.html']) {

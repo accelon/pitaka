@@ -66,34 +66,42 @@ const readOpenlitFile=async fn=>{
     const zip=await jszip.loadAsync(fn.getFile());
 
     const lines=[] ,toclines=[0];
+    const jobs=[], rawlines=[] ;
     const { files,tocpage}=await OpenLit.getZipFileToc(zip);
     lines.push(...tocpage);
-    
+    rawlines.push(...tocpage);
     const context={filename:fn.name};
     const formatter=new OpenLit.Formatter(context);
-    const jobs=[];
+    
+    const chunks=new Array(files.length); //promises finished not in sequence
     for (let i=0;i<files.length;i++){
-        toclines[i+1]=lines.length;
         const file=files[i];
-        jobs.push(zip.file(file).async('string').then(content=>{
-            const {text,tags}=formatter.scan(content);
-            lines.push(...text);
+        jobs.push(zip.file(file).async('string').then(c=>{
+            chunks[i]=c;
         }));
 
     }
     await Promise.all(jobs);
 
-    return {lines,toclines};
+    for (let i=0;i<chunks.length;i++) {
+        const out=formatter.scan(chunks[i]);
+        toclines[i+1]=lines.length;
+        lines.push(...out.text);
+        rawlines.push(...out.rawlines);
+    }
+
+    return {lines,toclines,rawlines};
 }
 const readFormatFile=async (f,format)=>{
     const ext=f.name.match(/(\.\w+)$/)[1];
     if (format=='haodoo' && ext==='.updb') {
         const haodoo=await readHaodooFile(f);
-        return haodoo;
+        return {...haodoo,rawlines:haodoo.lines};
     } else if (format=='openlit' && ext==='.zip'){
         return await readOpenlitFile(f);
     } else {
-        return {lines:(await readTextFile(f)).split("\n")};
+        const rawlines=await readTextFile(f).split("\n");
+        return {lines:rawlines,rawlines};
     }
 }
 export {readHaodooFile,readHaodoo,readFormatFile,
