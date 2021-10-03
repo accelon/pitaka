@@ -1,6 +1,6 @@
 import {ALLOW_EMPTY, ALWAYS_EMPTY,OffTag} from './def.js';
 import {parseOfftextLine} from './parser.js'
-
+import {toSim} from 'lossless-simplified-chinese'
 function HTMLTag (pos,closing,name,attrs,width,tempclose=false) {
     return {
         pos,
@@ -77,6 +77,7 @@ const lastSpan=(T,activetags,idx,pos)=>{ //if last span of a tag, return -name
 }
 
 export const renderHTML=(lines,tags,opts={})=>{
+    const sim=opts.sim;
     const content=(typeof lines=='string')?lines:lines.join('\n');
     const T=toHtmlTag(content,tags);
     let output='';
@@ -85,18 +86,18 @@ export const renderHTML=(lines,tags,opts={})=>{
     for(let idx=0;idx<T.length;idx++) { //idx=html tag index
         const {pos,closing,name,attrs,width} = T[idx];
         if (name=='br'||name=='r') {
-            output+=content.substring(prev, pos)+'<br i='+i+htmlAttrs(attrs)+'>';
+            output+=toSim(content.substring(prev, pos)+'<br i='+i+htmlAttrs(attrs)+'>',sim);
             prev=pos;
             continue;
         }
         if (closing) {
-            output+=content.substring(prev, pos) +'</t '+closing+'>';
+            output+=toSim(content.substring(prev, pos) +'</t '+closing+'>',sim);
             activetags=activetags.filter( c=>c.i!==closing-1);
             const clss=activetags.map(t=>t.name);
             clss.push( ... lastSpan(T,activetags,idx,pos) );
             if (clss.length) output+='<t class="'+clss.join(" ").trim()+'">';
         } else {
-            output+=content.substring(prev,pos);
+            output+=toSim(content.substring(prev,pos),sim);
             let clss=activetags.map(t=>t.name);
             if (clss.length) output+='</t>';
             clss.push(name);
@@ -109,14 +110,13 @@ export const renderHTML=(lines,tags,opts={})=>{
         }
         prev=pos;
     }
-    output+=content.substr(prev);
+    output+=toSim(content.substr(prev),sim);
     return output;
 }
 
-//render a line with extra keywords ( string or [pos,width])
-export const OfftextToHtml =(linetext , extra , renderInlinetag=false)=>{
+export const OfftextToHtml =(linetext , extra , renderInlinetag=false,sim=0)=>{
     const hastag=linetext.includes('^');
-    if (!hastag && extra.filter(it=>!!it.trim()).length==0 )return linetext;
+    if (!hastag && extra.filter(it=>!!it.trim()).length==0 )return toSim(linetext,sim);
     if (extra[0]==extra[1]) extra[0]=''
     let tags=[],text=linetext;
     if (hastag && renderInlinetag) [text,tags]=parseOfftextLine(linetext);
@@ -135,5 +135,5 @@ export const OfftextToHtml =(linetext , extra , renderInlinetag=false)=>{
             tags.push(new OffTag('hl'+i, null, 0, extra[i][0], extra[i][1]) );
         }
     }
-    return renderHTML(text,tags);
+    return renderHTML(text,tags,{sim});
 }
