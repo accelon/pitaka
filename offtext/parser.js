@@ -16,7 +16,7 @@ const parseCompactAttr=str=>{  //              序號和長度和標記名 簡�
         const v=arr.shift();
         if      (v==='~') out['~']=arr.shift();
         else if (v==='#') out['#']=arr.shift(); 
-        else if (v.trim()) out.n=v;
+        else if (v.trim()) out.n=v.trim();
     }
     return out;
 }

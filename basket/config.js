@@ -17,3 +17,4 @@ export function validateConfig(json,filenames){
     }
     return null; //ok
 }
+export const DEFAULT_TREE='bk,c';

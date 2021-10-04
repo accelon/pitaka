@@ -14,6 +14,9 @@ class Label {
     find(){
         
     }
+    deserialize(){
+        return [];
+    }
     serialize(){
         return [];
     }

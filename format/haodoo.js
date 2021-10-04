@@ -118,17 +118,18 @@ export const readHaodoo=buf=>{
         const start=offsets[i]
         const len=offsets[i+1]-start;
         const rec=new DataView(buf, start, len);
-        let s;
+        let s,n=0;
         if (i==0){     //remove ascii 章
             s=parseFirstRecord(buf,start,len,decoder); 
         } else {//remaining record are pure utf-16
             const content=decoder.decode(rec).replace(/\r?\n/g,'\n');
             const at=content.indexOf('\n');
-            const firstline=content.substr(0,at);
-            let n=extractChineseNumber(firstline);
+            // const firstline=content.substr(0,at);
+            // let n=extractChineseNumber(firstline);
+            n++;
             s='^c'+n+' '+content;
         }
-        output.push( convertHaodoo(s)); //first line is chapter
+        output.push(convertHaodoo(s)); //first line is chapter
     }
     return output;
  }

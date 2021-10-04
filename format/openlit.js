@@ -90,13 +90,14 @@ class Formatter extends offTextFormatter {
         return super.scan(out.join('\n').split('\n')); //<br> replace with \n , join+split
     }
 }
-const getZipFileToc=async zip=>{
+const getZipFileToc=async (zip,zipfn)=>{
     const zipfiles=[],tocpage=[];
     const indexhtml=await zip.files['index.html'].async('string');
 
     const m=indexhtml.match(/<title>([^ <]+)/); 
     if (m) {
-        tocpage.push('^bk '+m[1]); //第一行為書名，和haodoo 一致
+        const id=zipfn.match(/lit_(\d+)/)[1];
+        tocpage.push('^bk'+id+' '+m[1]); //第一行為書名，和haodoo 一致
     } else {
         tocpage.push('^bk 缺書名');
     }

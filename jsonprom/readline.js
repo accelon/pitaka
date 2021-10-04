@@ -12,15 +12,11 @@ async function prefetchLines(nline,count){ //getLine is valid
     const cstart=chunkOfLine(nline,this.header.chunkStarts);
     const cend=chunkOfLine(nline+count,this.header.chunkStarts);
     
-    // if (this.context.jsonp) { //if parallel load is not supported
-        // for (let i=cstart;i<cend+1;i++) await this.load(i);
-    // } else {
-        const toLoad=[];
-        for (let i=cstart;i<cend+1;i++) {
-            if (!loadedChunk[i]) toLoad.push(this.load(i));
-        }
-        await Promise.all(toLoad);
-    // }
+    const toLoad=[];
+    for (let i=cstart;i<cend+1;i++) {
+        if (!loadedChunk[i]) toLoad.push(this.load(i));
+    }
+    await Promise.all(toLoad);
 }
 async function readLines(nline,count=1){
     await prefetchLines.call(this,nline,count);

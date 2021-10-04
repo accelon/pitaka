@@ -1,15 +1,16 @@
 import {getFormatter, getZipIndex, getFormatTypeDef, fileContent} from '../format/index.js'
 import JSONPROMWriter from '../jsonprom/jsonpromw.js';
 import {serializeLabels} from './serialize-label.js';
-
+import {DEFAULT_TREE} from './config.js'
 class Builder {
     constructor(opts) {
-        this.context={namespaces:{},namespace:'',eudc:{},nchapter:0,rawtags:[] 
+        this.context={eudc:{},nchapter:0,rawtags:[] 
                     ,filename:'',ptkline:0};
         this.writer=new JSONPROMWriter(Object.assign({},opts,{context:this.context}));
         this.finalized=false;
         this.log=opts.log || console.log;
         this.config=opts.config;
+        this.config.tree=this.config.tree||DEFAULT_TREE;
         this.opts=opts;
         this.labeldefs=getFormatTypeDef(this.config.format,{context:this.context,log:this.log});
 
@@ -34,7 +35,7 @@ class Builder {
             zip=await jszip.loadAsync(file.getFile());
         }
         this.context.error=0;
-        const {files,tocpage}=await getZipIndex(zip,format);
+        const {files,tocpage}=await getZipIndex(zip,format,fn); //pitaka not using tocpage
 
         const jobs=[];
         const contents=new Array(files.length); //save the contents in order
@@ -46,9 +47,7 @@ class Builder {
             }));
         }
         await Promise.all(jobs);
-        if (tocpage) {
-            this.addContent(tocpage.join('\n'),'offtext','index.html');
-        }
+        this.addContent(tocpage[0],'offtext','index.html');//only take the bookname
         for (let i=0;i<files.length;i++) {
             this.addContent(contents[i], format, files[i]);
         }

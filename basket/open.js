@@ -2,7 +2,7 @@ import JSONPROM from "../jsonprom/jsonprom.js";
 import pool from './pool.js';
 import { bsearch } from "../utils/bsearch.js" ;
 import {deserializeLabels} from './serialize-label.js';
-
+import {DEFAULT_TREE} from './config.js';
 /*
    Basket is a read-only container
    of htll texts, prebuilt data-structure to facilitate fast access,
@@ -41,13 +41,6 @@ class Basket extends JSONPROM {
             }
         }
     }
-    namespaces(){
-        for (let i=0;i<this.labels.length;i++) {
-            const r=this.labels[i].parse("");
-            if (r) return r;
-        }
-    }
-    
     locate(nline){
         for (let i=0;i<this.labels.length;i++) {
             const r=this.labels[i].locate(nline);
@@ -77,14 +70,69 @@ class Basket extends JSONPROM {
         }
         return links;
     }
+    findLabel(name){
+        for (let i=0;i<this.labels.length;i++) {
+            if (this.labels[i].name==name) return this.labels[i];
+        }
+    }
+    getName(tag) {
+        const m=tag.match(/([a-z]+)(\d+)/);
+        if (!m)return '';
+        const label=this.findLabel(m[1]);
+        if (!label)return;
+
+        const at=label.idarr.indexOf(m[2]);
+        if (at>-1) {
+            return label.names[at];
+        }
+        return '';
+    }
+    getTree(treepath){
+        const thetree=(this.header.tree||DEFAULT_TREE).split(',');
+        if (!treepath) {
+            const label=this.findLabel(thetree[0]);
+            return label.names.map((nm,key)=>{
+                const tree=thetree[0]+label.idarr[key];
+                return { key , text:nm, tree }
+            })
+        } else {
+            const pth=treepath.split(',');
+            let y0=0,y1=-1;
+            if (pth.length<thetree.length) {
+                for (let i=0;i<pth.length;i++) {
+                    if (pth[i].substr(0,thetree[i].length)==thetree[i]) {
+                        const label=this.findLabel(thetree[i]);
+                        const id=pth[i].substr(thetree[i].length);
+                        const at=label.idarr.indexOf(id,y0);
+                        if (at>-1) {
+                            y0=label.linepos[at];
+                            y1=label.linepos[at+1]||-1;
+                        }
+                    }
+                }
+                if (y1==-1) y1=this.header.lineCount;
+                const out=[],label=this.findLabel(thetree[pth.length]);
+                const at=bsearch(label.linepos,y0,true);
+                for (let i=at;i<label.linepos.length;i++) {
+                    if (y1>label.linepos[i]) {
+                        out.push({key:i,text:label.names[i],
+                            tree:treepath+','+thetree[pth.length]+label.idarr[at]})
+                    }
+                }
+                return out;
+            } else { //load text
+
+            }
+        }
+        return [{key:0,text:'1'},{key:1,text:'2'}]
+    }
 }
 
 export async function openBasket(name){
     if (pool.has(name)) {
-        console.log('reuse',name)
+        // console.log('reuse',name)
         return pool.get(name);
     }
-    console.log('open new',name);
     const basket= new Basket({name});
     const success=await basket.init();
     if (success) pool.add(name,basket);

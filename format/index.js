@@ -40,9 +40,9 @@ const getFormatter=format=>{
     return formatters[format] || Formatter_OffText;
 }
 
-const getZipIndex=async (zip,format)=>{
+const getZipIndex=async (zip,format,fn)=>{
     if (format=='openlit') {
-        return await OpenLit.getZipFileToc(zip);
+        return await OpenLit.getZipFileToc(zip,fn);
     }
     return {files:zip.files,tocpage:[]};
 }
