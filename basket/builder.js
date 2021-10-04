@@ -4,7 +4,6 @@ import {serializeLabels} from './serialize-label.js';
 
 class Builder {
     constructor(opts) {
-        // this.labelTypes=[];
         this.context={namespaces:{},namespace:'',eudc:{},nchapter:0,rawtags:[] 
                     ,filename:'',ptkline:0};
         this.writer=new JSONPROMWriter(Object.assign({},opts,{context:this.context}));
@@ -12,7 +11,7 @@ class Builder {
         this.log=opts.log || console.log;
         this.config=opts.config;
         this.opts=opts;
-        this.labelTypes=getFormatTypeDef(this.config.format,{context:this.context,log:this.log});
+        this.labeldefs=getFormatTypeDef(this.config.format,{context:this.context,log:this.log});
 
         return this;
     }
@@ -34,36 +33,40 @@ class Builder {
         } else {
             zip=await jszip.loadAsync(file.getFile());
         }
-
         this.context.error=0;
-        const {zipfiles,toclines}=await getZipIndex(zip,format);
-        if (toclines) {
-            this.context.filename='index';
-            this.addContent(toclines.join('\n'),format);
-        }
+        const {files,tocpage}=await getZipIndex(zip,format);
+
         const jobs=[];
-        for (let i=0;i<zipfiles.length;i++) {
-            jobs.push(this.addFile({name:zipfiles[i],zip},format));
+        const contents=new Array(files.length); //save the contents in order
+        for (let i=0;i<files.length;i++) {
+            jobs.push(new Promise( async resolve=>{
+                const c=await fileContent({name:files[i],zip},format);
+                contents[i]=c;
+                resolve();
+            }));
         }
-        await Promise.all(jobs)
+        await Promise.all(jobs);
+        if (tocpage) {
+            this.addContent(tocpage.join('\n'),'offtext','index.html');
+        }
+        for (let i=0;i<files.length;i++) {
+            this.addContent(contents[i], format, files[i]);
+        }
+
         if (this.context.error) this.log(fn,'has',this.context.error,'errors')
     }
-    addContent(rawcontent,format) {
+
+    addContent(rawcontent,format,fn) {
+        this.context.filename=fn;
         this.context.ptkline=this.writer.header.lineCount; //ptk line count
-        this.context.namespace=fn.replace(/^\.\//,'')
-             .replace(/\..+/,'')//extension
-             .replace(/[\\\/].+?/,'') //subfolder 
-            ||'*' //global context
-        this.context.namespaces[this.context.namespace]=0;
 
         try{
             const Formatter=getFormatter(format);
             const formatter=new Formatter(this.context,this.log);
-            const {text,tags}=formatter.scan(rawcontent);
-
+            const {text,tags,rawlines}=formatter.scan(rawcontent);
             for (let i=0;i<tags.length;i++) {
                 const tag=tags[i];
-                const labeltype=this.labelTypes[tag.name];
+                const labeltype=this.labeldefs[tag.name];
                 if (labeltype) {
                     const linetext=text[tag.line - this.context.ptkline ];
                     labeltype.action(tag,linetext);
@@ -72,7 +75,7 @@ class Builder {
 
             if (this.opts.raw) this.context.rawtags.push(...tags);
 
-            this.writer.append(text);
+            this.writer.append(rawlines);
             
         } catch(e){
             const {filename,fileline,title}=this.context;
@@ -94,24 +97,20 @@ class Builder {
             return;
         }
         const rawcontent=await fileContent(file,format);
-        this.context.filename=fn;
-        this.addContent(rawcontent,format);
+        this.addContent(rawcontent,format,fn);
     }
     save(opts){
         if (!this.finalized) {
             this.log('not finalized');
             return;
         }
-        // return this.writer.save(opts,this.config);
+
+        return this.writer.save(opts,this.config);
     }
     finalize(opts={}){
-        for (let label in this.labelTypes) { 
-            this.labelTypes[label].finalize();
-        }
-        // this.writer.addSection('labels');
-        // const section=serializeLabels(this.labelTypes )
-        // this.writer.append(section);
-        //indexes
+        this.writer.addSection('labels');
+        const section=serializeLabels(this.labeldefs )
+        this.writer.append(section);
 
         this.finalized=true;
         return this.context;

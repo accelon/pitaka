@@ -31,7 +31,7 @@ const build=async (opts)=>{
     const config=JSON.parse(readFileSync(pitakajson,'utf8').trim());
     const builder=await buildPitaka( {config}  );
 
-    builder.save({raw,jsonp});
+    builder.save(opts);
 }
 const help=()=>{
     console.log('Description: ')

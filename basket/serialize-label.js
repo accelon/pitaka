@@ -1,17 +1,19 @@
 import {LabelType} from '../htll/index.js'
 
-const serializeLabels=(LabelTypes)=>{
+const serializeLabels=(labeldefs)=>{
     let pos=3;//labelNames,labelTypes,labelPoss
     const labelNames=[],labelPoss=[],labelTypes=[];
     let section=[];
-    LabelTypes.forEach(lt=>{
+    for (let name in labeldefs) { 
+        const lt=labeldefs[name];
+        lt.finalize();
         labelNames.push(lt.name);
         labelPoss.push(pos);
         labelTypes.push(lt.constructor.name);
         const lines=lt.serialize();
         section=section.concat(lines);
         pos+=lines.length;
-    });
+    };
     section.unshift(labelPoss.join(','))
     section.unshift(labelTypes.join(','));
     section.unshift(labelNames.join(','));

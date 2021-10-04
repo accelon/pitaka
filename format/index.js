@@ -76,10 +76,7 @@ const readOpenlitFile=async fn=>{
     const chunks=new Array(files.length); //promises finished not in sequence
     for (let i=0;i<files.length;i++){
         const file=files[i];
-        jobs.push(zip.file(file).async('string').then(c=>{
-            chunks[i]=c;
-        }));
-
+        jobs.push(zip.file(file).async('string').then(c=>chunks[i]=c));
     }
     await Promise.all(jobs);
 

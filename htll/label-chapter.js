@@ -1,7 +1,7 @@
 import Label from './label.js'
 import {pack,unpack,pack_delta,unpack_delta,packStrings,unpackStrings,bsearch} from'../utils/index.js';
 
-class LabelBookChapter extends Label {
+class LabelChapter extends Label {
     constructor(name,opts={}) {
         super(name,opts)
         this.pat=/^[bc]([A-Z\d]+)/
@@ -13,16 +13,18 @@ class LabelBookChapter extends Label {
         return this;
     }
     action( tag ,linetext){
-        // this.log('ch',text,tag)
-        // let name=text.substr(tag.rawoffset+tag.len);
-        // const id=tag.raw.substr(1).trim();
-        // if (tag.raw[0]=='c') {
-        //     this.chapterNames.push(name);
-        //     if (this._chapterId[id]) throw 'repeated chapterid' ;
-        //     this._chapterId[id]=nline;
-        //     this.chapterId.push(id);    
-        //     this.chapterLinePos.push(nline);
-        // }
+        const {line}=tag;
+        const id=tag.attrs.id||tag.attrs.n||'';
+        this.chapterNames.push(linetext);
+        this.chapterId.push()
+        if (id) {
+            if (this._chapterId[id]) throw 'repeated chapterid ('+id+') at '+line + linetext;
+            this._chapterId[id]=line;
+            this.chapterId.push(id);            
+        }
+
+        this.chapterLinePos.push(line);
+        return true;
     }
     serialize(){
         const out=super.serialize();
@@ -45,4 +47,4 @@ class LabelBookChapter extends Label {
         this.log('finalize chapter')
     }
 }
-export default LabelBookChapter;
+export default LabelChapter;

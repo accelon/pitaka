@@ -15,7 +15,7 @@ class Label {
         
     }
     serialize(){
-        
+        return [];
     }
     fileDone() { //file completed
 

@@ -12,23 +12,20 @@ class LabelBook extends Label {
         return this;
     }
     action(tag ,linetext){
-        this.log('book',linetext,tag)
-        
-        // if (tag.raw.substr(0,3).toLowerCase()=='pre') {        
-        //     let name=text.substr(tag.rawoffset+tag.len).replace(/>.*/,'');    
-        //     const id=tag.raw.match(this.pat)[2].trim().toLowerCase();
-        //     this.bookNames.push(name);
-        //     if (this._bookId[id]) throw 'repeated bookid , at '+nline ;
-        //     this._bookId[id]=nline;
-        //     this.bookId.push(id);
-        //     this.bookLinePos.push(nline);
-        //     return true;
-        // } 
+        let {line,pos,width}=tag;
+        const id=tag.attrs.id||tag.attrs.n||'';
+        if (width==0) width=linetext.length;
+        this.bookNames.push(linetext.substr(pos,width));
+
+        if (id) {
+            if (this._bookId[id]) throw 'repeated bookid, at '+line ;
+            this._bookId[id]=line;
+            this.bookId.push(id);            
+        }
+        return true;
     }
     finalize(){
         this.log('finalize book')
-        // this.chapterCount.push(this.chapterCount);
-        // this.chapterCount=0;
     }
     serialize(){
         const out=[];
