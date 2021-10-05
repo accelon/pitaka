@@ -13,15 +13,13 @@ class LabelBook extends Label {
     }
     action(tag ,linetext){
         let {line,pos,width}=tag;
-        const id=tag.attrs.id||tag.attrs.n||'';
+        const id=tag.attrs.id||tag.attrs.n;
         if (width==0) width=linetext.length;
         this.names.push(linetext.substr(pos,width));
         this.linepos.push(line);
-        if (id) {
-            if (this._idarr[id]) throw 'repeated idarr, at '+line ;
-            this._idarr[id]=line;
-            this.idarr.push(id);            
-        }
+        if (this._idarr[id]) throw 'repeated idarr, at '+line ;
+        this._idarr[id]=line;
+        this.idarr.push(id||' ');
         return true;
     }
     finalize(){

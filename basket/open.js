@@ -87,44 +87,71 @@ class Basket extends JSONPROM {
         }
         return '';
     }
-    getTree(treepath){
+    getTocTree(addr) {
+        const out=[{address:'',name:this.header.title }];
+        if (!addr.trim())return out;
         const thetree=(this.header.tree||DEFAULT_TREE).split(',');
-        if (!treepath) {
+        const parents=addr.split(',');
+        let address='';
+        for (let i=0;i<parents.length;i++){
+            const label=this.findLabel(thetree[i]);
+            const at=label.idarr.indexOf(parents[i]);
+            if (at==-1) break;
+            address=address+(address?',':'')+(label.idarr[at].trim()||(':'+at));
+            let name=label.names[at];
+            const at2=name.indexOf('　');
+            if (at2>0 && name.length>10) name=name.substr(0,at2);
+            out.push({name, n: at, address})
+        }
+        return out;
+    }
+    async fetch(addr){
+        const thetree=(this.header.tree||DEFAULT_TREE).split(',');
+        if (!addr) {
             const label=this.findLabel(thetree[0]);
             return label.names.map((nm,key)=>{
-                const tree=thetree[0]+label.idarr[key];
-                return { key , text:nm, tree }
+                const address=label.idarr[key];
+                return { key , text:nm, address }
             })
         } else {
-            const pth=treepath.split(',');
+            const pth=addr.split(',');
             let y0=0,y1=-1;
-            if (pth.length<thetree.length) {
-                for (let i=0;i<pth.length;i++) {
-                    if (pth[i].substr(0,thetree[i].length)==thetree[i]) {
-                        const label=this.findLabel(thetree[i]);
-                        const id=pth[i].substr(thetree[i].length);
-                        const at=label.idarr.indexOf(id,y0);
-                        if (at>-1) {
-                            y0=label.linepos[at];
-                            y1=label.linepos[at+1]||-1;
-                        }
-                    }
+   
+            for (let i=0;i<pth.length;i++) {
+                const label=this.findLabel(thetree[i]);
+                const id=pth[i];
+                let at=-1;
+                if (id[0]==':') { // by nth
+                    at=parseInt(id.substr(1));
+                } else {
+                    const from=bsearch(label.linepos,y0,true);
+                    at=label.idarr.indexOf(id,from);
                 }
-                if (y1==-1) y1=this.header.lineCount;
-                const out=[],label=this.findLabel(thetree[pth.length]);
+                if (at>-1) {
+                    y0=label.linepos[at];
+                    y1=label.linepos[at+1]||-1;
+                }
+            }
+
+            if (y1==-1) y1=this.header.lineCount;
+            const out=[];
+            if (pth.length<thetree.length) {
+                const label=this.findLabel(thetree[pth.length]);
                 const at=bsearch(label.linepos,y0,true);
                 for (let i=at;i<label.linepos.length;i++) {
                     if (y1>label.linepos[i]) {
-                        out.push({key:i,text:label.names[i],
-                            tree:treepath+','+thetree[pth.length]+label.idarr[at]})
+                        const address=addr+','+(label.idarr[i].trim()||':'+i);
+                        out.push({key:i,text:label.names[i],address})
                     }
                 }
-                return out;
-            } else { //load text
-
+            } else { //fetch a page
+                await this.prefetchLines(y0,y1-y0);
+                for (let i=y0;i<y1;i++) {
+                    out.push({key:i});
+                }
             }
+            return out;
         }
-        return [{key:0,text:'1'},{key:1,text:'2'}]
     }
 }
 

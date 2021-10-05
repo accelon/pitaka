@@ -14,9 +14,9 @@ class LabelChapter extends Label {
     }
     action( tag ,linetext){
         const {line}=tag;
-        const id=tag.attrs.id||tag.attrs.n||'';
+        const id=tag.attrs.id||tag.attrs.n; //
         this.names.push(linetext);
-        this.idarr.push(id);
+        this.idarr.push(id||' ');
         this.linepos.push(line);
         return true;
     }
