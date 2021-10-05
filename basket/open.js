@@ -95,9 +95,11 @@ class Basket extends JSONPROM {
         let address='';
         for (let i=0;i<parents.length;i++){
             const label=this.findLabel(thetree[i]);
-            const at=label.idarr.indexOf(parents[i]);
+            let at=label.idarr.indexOf(parents[i]);
             if (at==-1) break;
-            address=address+(address?',':'')+(label.idarr[at].trim()||(':'+at));
+            let next=at;
+            if (i==parents.length-1 && thetree.length==parents.length && next+1<label.idarr.length) next++;
+            address=address+(address?',':'')+(label.idarr[next].trim()||(':'+next));
             let name=label.names[at];
             const at2=name.indexOf('　');
             if (at2>0 && name.length>10) name=name.substr(0,at2);
@@ -105,13 +107,13 @@ class Basket extends JSONPROM {
         }
         return out;
     }
-    async fetch(addr){
+    fetch(addr){
         const thetree=(this.header.tree||DEFAULT_TREE).split(',');
         if (!addr) {
             const label=this.findLabel(thetree[0]);
             return label.names.map((nm,key)=>{
                 const address=label.idarr[key];
-                return { key , text:nm, address }
+                return { key:key+1 , text:nm, address }
             })
         } else {
             const pth=addr.split(',');
@@ -133,7 +135,7 @@ class Basket extends JSONPROM {
                 }
             }
 
-            if (y1==-1) y1=this.header.lineCount;
+            if (y1==-1) y1=(this.header.sectionStarts[1]||this.header.lineCount)-1;
             const out=[];
             if (pth.length<thetree.length) {
                 const label=this.findLabel(thetree[pth.length]);
@@ -141,14 +143,11 @@ class Basket extends JSONPROM {
                 for (let i=at;i<label.linepos.length;i++) {
                     if (y1>label.linepos[i]) {
                         const address=addr+','+(label.idarr[i].trim()||':'+i);
-                        out.push({key:i,text:label.names[i],address})
+                        out.push({key:(i+1),text:label.names[i],address})
                     }
                 }
             } else { //fetch a page
-                await this.prefetchLines(y0,y1-y0);
-                for (let i=y0;i<y1;i++) {
-                    out.push({key:i});
-                }
+                for (let i=y0;i<y1;i++) out.push({key:i});
             }
             return out;
         }

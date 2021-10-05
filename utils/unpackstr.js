@@ -16,6 +16,6 @@ export const unpackStrings=str=>{
         }
         p++; 
     }
-    if (s) out.push(s);
+    if (s) out.push(prevstr.substr(0,shared)+s);
     return out;
 }
