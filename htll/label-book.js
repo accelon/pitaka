@@ -12,14 +12,14 @@ class LabelBook extends Label {
         return this;
     }
     action(tag ,linetext){
-        let {line,pos,width}=tag;
+        let {y,pos,width}=tag;
         const id=(tag.attrs.id||tag.attrs.n)||' ';
         if (width==0) width=linetext.length;
         this.names.push(linetext.substr(pos,width));
-        this.linepos.push(line);
+        this.linepos.push(y);
         if (this._idarr[id]) throw 'repeated idarr, '+id+' at '+line ;
 
-        this._idarr[id]=line;
+        this._idarr[id]=y;
         this.idarr.push(id);
         return true;
     }

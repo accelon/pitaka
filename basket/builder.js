@@ -1,7 +1,7 @@
 import {getFormatter, getZipIndex, getFormatTypeDef, fileContent} from '../format/index.js'
 import JSONPROMWriter from '../jsonprom/jsonpromw.js';
 import {serializeLabels} from './serialize-label.js';
-import {DEFAULT_TREE} from './config.js'
+import {DEFAULT_TREE} from '../platform/constants.js'
 class Builder {
     constructor(opts) {
         this.context={eudc:{},nchapter:0,rawtags:[] 

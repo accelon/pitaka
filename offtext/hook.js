@@ -1,4 +1,6 @@
 
+import {PATHSEP,INCSEP} from '../platform/constants.js'
+
 //hook 文鉤 : 以一或兩字表達引文的起訖，不能跨段。
 export const makeHook=(linetext,x,w)=>{
     let lead=linetext.substr(x,2);
@@ -21,7 +23,7 @@ export const makeHook=(linetext,x,w)=>{
         if (at==x) lead=lead.substr(0,1);//one char is enough
     }
 
-    let hook=lead+(occur?':'+occur:'');
+    let hook=lead+(occur?INCSEP+occur:'');
 
     if (end) {
         let at=linetext.indexOf(end,x);
@@ -31,7 +33,7 @@ export const makeHook=(linetext,x,w)=>{
         }
         if (at>-1) {
             if (eoccur==0&&linetext.indexOf(end.substr(1),x)==at+1) end=end.substr(1);
-            hook+=','+end+(eoccur?':'+eoccur:'');
+            hook+=PATHSEP+end+(eoccur?INCSEP+eoccur:'');
         } else {
             end='';
         }

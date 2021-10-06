@@ -2,7 +2,7 @@ import JSONPROM from "../jsonprom/jsonprom.js";
 import pool from './pool.js';
 import { bsearch } from "../utils/bsearch.js" ;
 import {deserializeLabels} from './serialize-label.js';
-import {DEFAULT_TREE} from './config.js';
+import {PATHSEP,INCSEP,DEFAULT_TREE} from '../platform/constants.js'
 /*
    Basket is a read-only container
    of htll texts, prebuilt data-structure to facilitate fast access,
@@ -75,6 +75,9 @@ class Basket extends JSONPROM {
             if (this.labels[i].name==name) return this.labels[i];
         }
     }
+    lastTextLine(){
+        return (this.header.sectionStarts[1]||this.header.lineCount)-1;
+    }
     getName(tag) {
         const m=tag.match(/([a-z]+)(\d+)/);
         if (!m)return '';
@@ -87,11 +90,25 @@ class Basket extends JSONPROM {
         }
         return '';
     }
+    getPage(addr) {
+        const thetree=(this.header.tree||DEFAULT_TREE).split(PATHSEP);
+        const pths=addr.split(PATHSEP);
+        let from=0,to=this.lastTextLine();
+        for (let i=0;i<pths.length;i++){
+            const label=this.findLabel(thetree[i]);
+            const startfrom=bsearch(label.linepos,from,true);
+            let at=label.idarr.indexOf(pths[i], startfrom);
+            if (at==-1) break;
+            from=label.linepos[at];
+            to=label.linepos[at+1] || to;
+        }
+        return [from,to];
+    }
     getTocTree(addr) {
         const out=[{loc:'',name:this.header.title }];
         if (!addr.trim())return out;
-        const thetree=(this.header.tree||DEFAULT_TREE).split(',');
-        const parents=addr.split(',');
+        const thetree=(this.header.tree||DEFAULT_TREE).split(PATHSEP);
+        const parents=addr.split(PATHSEP);
         let loc='';
         for (let i=0;i<parents.length;i++){
             const label=this.findLabel(thetree[i]);
@@ -99,7 +116,7 @@ class Basket extends JSONPROM {
             if (at==-1) break;
             let next=at;
             if (i==parents.length-1 && thetree.length==parents.length && next+1<label.idarr.length) next++;
-            loc=loc+(loc?',':'')+(label.idarr[next].trim()||(':'+next));
+            loc=loc+(loc?PATHSEP:'')+(label.idarr[next].trim()||(INCSEP+next));
             let name=label.names[at];
             const at2=name.indexOf('　');
             if (at2>0 && name.length>10) name=name.substr(0,at2);
@@ -108,7 +125,7 @@ class Basket extends JSONPROM {
         return out;
     }
     fetch(addr){
-        const thetree=(this.header.tree||DEFAULT_TREE).split(',');
+        const thetree=(this.header.tree||DEFAULT_TREE).split(PATHSEP);
         if (!addr) {
             const label=this.findLabel(thetree[0]);
             return label.names.map((nm,key)=>{
@@ -135,14 +152,14 @@ class Basket extends JSONPROM {
                 }
             }
 
-            if (y1==-1) y1=(this.header.sectionStarts[1]||this.header.lineCount)-1;
+            if (y1==-1) y1=this.lastTextLine();
             const out=[];
             if (pth.length<thetree.length) {
                 const label=this.findLabel(thetree[pth.length]);
                 const at=bsearch(label.linepos,y0,true);
                 for (let i=at;i<label.linepos.length;i++) {
                     if (y1>label.linepos[i]) {
-                        const loc=addr+','+(label.idarr[i].trim()||':'+i);
+                        const loc=addr+PATHSEP+(label.idarr[i].trim()||INCSEP+i);
                         out.push({key:(i+1),text:label.names[i],loc})
                     }
                 }

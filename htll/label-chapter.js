@@ -13,15 +13,15 @@ class LabelChapter extends Label {
         return this;
     }
     action( tag ,linetext){
-        const {line}=tag;
+        const {y}=tag;
         const id=(tag.attrs.id||tag.attrs.n)||' ';
 
-        if (this._idarr[id]) throw 'repeated idarr, '+id+' at '+line ;
+        if (this._idarr[id]) throw 'repeated idarr, '+id+' at '+y ;
 
         this._idarr[id]=true;
         this.names.push(linetext);
         this.idarr.push(id);
-        this.linepos.push(line);
+        this.linepos.push(y);
         return true;
     }
     reset() {
