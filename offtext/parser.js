@@ -27,16 +27,16 @@ const resolveTagWidth=(line,tags)=>{
         if (w) {                    //以文字標定結束位置
             if (!ALWAYS_EMPTY[tag.name]) {
                 const pos=line.indexOf(w);
-                if (pos>0) tag.width=pos-tag.pos+1; 
-                else tag.width=0;
-            } else tag.width=0;
+                if (pos>0) tag.w=pos-tag.x+1; 
+                else tag.w=0;
+            } else tag.w=0;
             delete tag.attrs['~'];
-        } else if ( 0 > tag.width ) {  //負值轉換為正值（從標記起算)
-            if (!ALLOW_EMPTY[[tag.name]] && tag.width==-1) {
-                tag.width=0; //空標籤自動延至至行尾
+        } else if ( 0 > tag.w ) {  //負值轉換為正值（從標記起算)
+            if (!ALLOW_EMPTY[[tag.name]] && tag.w==-1) {
+                tag.w=0; //空標籤自動延至至行尾
             } else {
-                tag.width= tag.width +line.length+1; 
-                if (tag.width<0) tag.width=0;    
+                tag.w= tag.w +line.length+1; 
+                if (tag.w<0) tag.w=0;    
             }
         }
     })
@@ -101,10 +101,10 @@ export const parseOfftextLine=(str,idx=0)=>{
     return [text,tags];
 }
 
-export const parseOfftext=(str,startline=0)=>{
+export const parseOfftext=(str,starty=0)=>{
     let lines=str;
     if (typeof str=='string') lines=str.split(/\r?\n/);
-    const out=lines.map((line,idx)=>parseOfftextLine(line,idx+startline) );
+    const out=lines.map((line,y)=>parseOfftextLine(line,y+starty) );
     const text=out.map(item=>item[0]);
     const tags=[];
     out.forEach(item=>tags.push(...item[1]));

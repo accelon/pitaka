@@ -1,13 +1,14 @@
 import {ALLOW_EMPTY, ALWAYS_EMPTY,OffTag} from './def.js';
 import {parseOfftextLine} from './parser.js'
 import {toSim} from 'lossless-simplified-chinese'
-function HTMLTag (pos,closing,name,attrs,width,tempclose=false) {
+function HTMLTag (x,closing,name,attrs,y,w,tempclose=false) {
     return {
-        pos,
+        x,       //offset from begining of line
         closing, //one-base to opening HTMLTag
         name,
         attrs,
-        width,
+        y,        //relative line index
+        w,        //width
         tempclose, // temporary closed, need to reopen on next span
     }
 }
@@ -17,29 +18,29 @@ const toHtmlTag=(content,tags)=>{
     const lines=(typeof content=='string')?content.split(/\r?\n/):content;
     let offset=0;  //offset of content
     let ntag=0,tag=tags[ntag], tagcount=0;
-    for (let i=0;i<lines.length;i++) {
-        const line=lines[i];
+    for (let y=0;y<lines.length;y++) {
+        const line=lines[y];
         while (ntag<tags.length && tag) {
-            let w=tag.width;
-            if (tag.line!==i) break;           //tag beyond in this line
+            let w=tag.w;
+            if (tag.y!==y) break;           //tag beyond in this line
 
-            if (w==0 && !ALLOW_EMPTY[tag.name]) w=line.length-tag.pos; // 從行末倒數
+            if (w==0 && !ALLOW_EMPTY[tag.name]) w=line.length-tag.x; // 從行末倒數
 
-            T.push( new HTMLTag(offset+tag.pos,0,tag.name, tag.attrs,w) );  //open tag
+            T.push( new HTMLTag(offset+tag.x,0,tag.name, tag.attrs,y,w) );  //open tag
             tagcount++;
             
             if (tag.name!=='r' && tag.name!=='br') {
-                T.push( new HTMLTag(offset+tag.pos+w, tagcount ) ); // close after n characters
+                T.push( new HTMLTag(offset+tag.x+w, tagcount ) ); // close after n characters
             }
             ntag++;
             tag=tags[ntag];
         }
-        offset += lines[i].length+1; //width of \n
+        offset += lines[y].length+1; //width of \n
     }
     T.sort((a,b)=>{
-        if (a.pos==b.pos && b.closing) {    //multiple closing tag at same position
+        if (a.x==b.x && b.closing) {    //multiple closing tag at same position
             return b.closing-a.closing;     //closing the nearer tag
-        } else return a.pos-b.pos;    //sort by offset
+        } else return a.x-b.x;    //sort by offset
     })
     return T;
 }
@@ -55,20 +56,20 @@ const htmlAttrs=attrs=>{
     return s;
 }
 
-const lastSpan=(T,activetags,idx,pos)=>{ //if last span of a tag, return -name
+const lastSpan=(T,activetags,idx,x)=>{ //if last span of a tag, return -name
     const out=[];
     for (let j=0;j<activetags.length;j++) {
         const tag=T[activetags[j].i];
-        const tagend=tag.pos+tag.width;
+        const tagend=tag.x+tag.w;
         let hasopentag=false;
         for (let i=idx;i<T.length;i++) {
             if (!T[i].closing) {
                 hasopentag=true;
                 break;
             }
-            if (T[i].pos + T[i].width > tagend) break;
+            if (T[i].x + T[i].w > tagend) break;
         }
-        if (!hasopentag && tagend==pos && !activetags[j].closed) {
+        if (!hasopentag && tagend==x && !activetags[j].closed) {
             out.push('-'+tag.name);
             activetags[j].closed=true;
             break;
@@ -83,21 +84,22 @@ export const renderSnippet=(lines=[],tags=[])=>{
     let activetags=[];//active classes
     let prev=0, i=0;           //offtag index
     for(let idx=0;idx<T.length;idx++) { //idx=html tag index
-        const {pos,closing,name,attrs,width} = T[idx];
-        const s=content.substring(prev, pos);
-        s&&out.push(s);
+        const {x,closing,name,attrs,y,w} = T[idx];
+        const s=content.substring(prev, x);
+        s&&out.push([s,prev]);
+
         if (name=='br'||name=='r') {
-            out.push({empty:'br',i,attrs});
-            prev=pos;
+            out.push({empty:name,i,attrs,x,y,extra:(name=='br'?' ':'')});
+            prev=x;
             continue;
         }
         if (closing) {
             out.push({i,closing:true});
             activetags=activetags.filter( c=>c.i!==closing-1);
             const clss=activetags.map(t=>t.name);
-            clss.push( ... lastSpan(T,activetags,idx,pos) );
+            clss.push( ... lastSpan(T,activetags,idx,x) );
             if (clss.length) {
-                out.push({clss});
+                out.push({clss,x});
             }
         } else {
             let clss=activetags.map(t=>t.name);
@@ -105,29 +107,37 @@ export const renderSnippet=(lines=[],tags=[])=>{
                 out.push({closing:true});
             }
             clss.push(name);
-            if (width) clss.push(name+'-'); //原始的標記位置，不是自動補上的
+            if (w) clss.push(name+'-'); //原始的標記位置，不是自動補上的
 
-            if (width && !ALWAYS_EMPTY[name]) activetags.unshift( {i, idx,name,closed:false} );
+            if (w && !ALWAYS_EMPTY[name]) activetags.unshift( {i, idx,name,closed:false} );
             i++;
-            out.push({i,clss,attrs});
+            out.push({i,clss,attrs,x,y});
         }
-        prev=pos;
+        prev=x;
     }
-    if (content.substr(prev)) out.push(content.substr(prev));
+    if (content.substr(prev)) out.push([content.substr(prev),prev]);
     
+    let py=0;
     i=0;
-    const units=[]; //  單純字串  或 <tag>, 字串, </tag> 
+    const units=[]; //  單純字串,x  或 <tag>, 字串, </tag> 
     while (i<out.length) {
-        if (typeof out[i]=='string') {
-            units.push([out[i]]);
+        if (typeof out[i][0]=='string') {
+            const [t,x]=out[i];
+            units.push([t,{x,y:py},{closing:true}]);
             i++;
         } else {
             const unit=[];
             let innertext='';
             unit[1]=out[i];i++;
-            while (typeof out[i]=='string' || out[i].empty) {
-                const emptytag=out[i].empty?('<'+out[i].empty+(open.i?' i="'+i+'" ':'')+htmlAttrs(open.attrs)+'/>'):'';
-                innertext+=emptytag||out[i];
+            while (typeof out[i][0]=='string' || out[i].empty) {
+                const emptytag=out[i].empty
+                    ?(out[i].extra+'<'+out[i].empty
+                        +(open.i?' i="'+i+'" ':'')
+                        +'x="'+open.x+'" '+'y="'+open.y+'" '
+                        +htmlAttrs(open.attrs)+'/>')
+                    :'';
+                py=open.y;
+                innertext+=emptytag||out[i][0];
                 i++;
             }
             unit[2]=out[i];i++;
@@ -137,16 +147,18 @@ export const renderSnippet=(lines=[],tags=[])=>{
     }
     return units;
 }
-export const composeSnippet=(snippet,sim=0)=>{
+export const composeSnippet=(snippet,lineidx,sim=0)=>{
     const [innertext,open,close]=snippet;
     let out='';
-    if (open && !close) {
-        out+='<'+open.empty+(open.i?' i="'+i+'" ':'')+htmlAttrs(open.attrs)+'/>';
+    if (open && open.empty) {
+        out+=open.extra+'<'+open.empty+(open.i?' i="'+i+'" ':'')
+            +'x="'+open.x+'" '+'y="'+(lineidx+open.y)+'" '+htmlAttrs(open.attrs)+'/>';
     } else {
         if (!open) out+=innertext;
         else out+=
         '<t'+ htmlAttrs(open.attrs)
                 +(open.clss&&open.clss.length?' class="'+open.clss.join(' ')+'"':'')
+                +' x="'+open.x+'"'+' y="'+(lineidx+open.y)+'"'
                 +(open.i?' i="'+open.i+'" ':'')
                 +'>'
         +toSim(innertext,sim)
@@ -189,6 +201,7 @@ export const OfftextToSnippet =(linetext , extra=[] , renderInlinetag=true)=>{
             tags.push(new OffTag('hl'+i, null, 0, extra[i][0], extra[i][1]) );
         }
     }
+    
     const snippets= renderSnippet(text,tags);
     return snippets;
 }
