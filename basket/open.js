@@ -88,22 +88,22 @@ class Basket extends JSONPROM {
         return '';
     }
     getTocTree(addr) {
-        const out=[{address:'',name:this.header.title }];
+        const out=[{loc:'',name:this.header.title }];
         if (!addr.trim())return out;
         const thetree=(this.header.tree||DEFAULT_TREE).split(',');
         const parents=addr.split(',');
-        let address='';
+        let loc='';
         for (let i=0;i<parents.length;i++){
             const label=this.findLabel(thetree[i]);
             let at=label.idarr.indexOf(parents[i]);
             if (at==-1) break;
             let next=at;
             if (i==parents.length-1 && thetree.length==parents.length && next+1<label.idarr.length) next++;
-            address=address+(address?',':'')+(label.idarr[next].trim()||(':'+next));
+            loc=loc+(loc?',':'')+(label.idarr[next].trim()||(':'+next));
             let name=label.names[at];
             const at2=name.indexOf('　');
             if (at2>0 && name.length>10) name=name.substr(0,at2);
-            out.push({name, n: at, address})
+            out.push({name, n: at, loc})
         }
         return out;
     }
@@ -112,8 +112,8 @@ class Basket extends JSONPROM {
         if (!addr) {
             const label=this.findLabel(thetree[0]);
             return label.names.map((nm,key)=>{
-                const address=label.idarr[key];
-                return { key:key+1 , text:nm, address }
+                const loc=label.idarr[key];
+                return { key:key+1 , text:nm, loc }
             })
         } else {
             const pth=addr.split(',');
@@ -142,8 +142,8 @@ class Basket extends JSONPROM {
                 const at=bsearch(label.linepos,y0,true);
                 for (let i=at;i<label.linepos.length;i++) {
                     if (y1>label.linepos[i]) {
-                        const address=addr+','+(label.idarr[i].trim()||':'+i);
-                        out.push({key:(i+1),text:label.names[i],address})
+                        const loc=addr+','+(label.idarr[i].trim()||':'+i);
+                        out.push({key:(i+1),text:label.names[i],loc})
                     }
                 }
             } else { //fetch a page

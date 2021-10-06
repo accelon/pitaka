@@ -3,7 +3,7 @@ import LabelBook from '../htll/label-book.js';
 
 const TypeDef=function(opts){
     return {
-        'bk': new LabelBook('bk',opts),
+        'bk': new LabelBook('bk',Object.assign({resets:['c']},opts)),
         'c': new LabelChapter('c',opts),
     }
 };

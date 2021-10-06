@@ -14,11 +14,18 @@ class LabelChapter extends Label {
     }
     action( tag ,linetext){
         const {line}=tag;
-        const id=tag.attrs.id||tag.attrs.n; //
+        const id=(tag.attrs.id||tag.attrs.n)||' ';
+
+        if (this._idarr[id]) throw 'repeated idarr, '+id+' at '+line ;
+
+        this._idarr[id]=true;
         this.names.push(linetext);
-        this.idarr.push(id||' ');
+        this.idarr.push(id);
         this.linepos.push(line);
         return true;
+    }
+    reset() {
+        this._idarr={};
     }
     serialize(){
         const out=super.serialize();

@@ -1,8 +1,8 @@
 const unescapeTemplateString=str=>str.replace(/\\\\/g,"\\").replace(/\\`/g,"`").replace(/\$\\\{/g,'${');
 const chunkfilename=chunk=>chunk.toString().padStart(3,'0')+'.js';
 
-const makeChunkURI=(name,chunk)=>{
-    const fn=name+'/'+chunkfilename(chunk);
+const makeChunkURI=(name,chunk,rom)=>{
+    const fn=rom.romfolder+name+'/'+chunkfilename(chunk);
     return fn;
 }
 
@@ -13,14 +13,19 @@ const parseChunk=str=>{
         payload:unescapeTemplateString(str.substring(end+2,str.length-2)).split(/\r?\n/) }
 }
 //import {promises} from 'fs';
-export async function loadNodeJs (name,chunk){
-    const fn=makeChunkURI(name,chunk);
+export async function loadNodeJs (name,chunk,rom){
+    const fn=makeChunkURI(name,chunk,rom);
+
     try{
         const data=await fs.promises.readFile(fn,'utf8');
         return parseChunk(data);
     } catch(e) {
         console.error('readFile failed,',fn);
     }
+}
+
+export async function loadNodeJsZip (name,chunk,rom) {
+    throw "not implement yet"
 }
 
 export const loadFetch= async (name,chunk,rom)=>{
@@ -54,7 +59,7 @@ import jsonp from './jsonp.js'
 export const loadJSONP=async (name,chunk,rom)=>{
     if (!typeof window.jsonp!=='function') window.jsonp=jsonp;
     const script=document.createElement("script");
-    script.src=makeChunkURI(name,chunk);
+    script.src=makeChunkURI(name,chunk,rom);
     const promise=new Promise((resolve,reject)=>{
         let tried=0;
         const timer=setInterval(function(){

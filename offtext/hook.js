@@ -1,5 +1,5 @@
 
-//hook 文鉤 : 以一或兩字表達引文的起訖，
+//hook 文鉤 : 以一或兩字表達引文的起訖，不能跨段。
 export const makeHook=(linetext,x,w)=>{
     let lead=linetext.substr(x,2);
     let end='';
@@ -21,7 +21,7 @@ export const makeHook=(linetext,x,w)=>{
         if (at==x) lead=lead.substr(0,1);//one char is enough
     }
 
-    let hook=lead+(occur?'\u001a'+occur:'');
+    let hook=lead+(occur?':'+occur:'');
 
     if (end) {
         let at=linetext.indexOf(end,x);
@@ -31,7 +31,9 @@ export const makeHook=(linetext,x,w)=>{
         }
         if (at>-1) {
             if (eoccur==0&&linetext.indexOf(end.substr(1),x)==at+1) end=end.substr(1);
-            hook+='\t'+end+(eoccur?'\u001a'+eoccur:'');
+            hook+=','+end+(eoccur?':'+eoccur:'');
+        } else {
+            end='';
         }
     }
 
@@ -41,9 +43,9 @@ export const makeHook=(linetext,x,w)=>{
 export const parseHook=(str,linetext)=>{
     if (!str.trim())return null;
 
-    const [L,E]=str.split('\t');
-    let [lead,leadn]=(L||'').split('\u001a');
-    let [end,endn]=(E||'').split('\u001a');
+    const [L,E]=str.split(',');
+    let [lead,leadn]=(L||'').split(/:(\d+)/);
+    let [end,endn]=(E||'').split(/:(\d+)/);
 
     leadn=parseInt(leadn)||0;
     endn=parseInt(endn)||0;

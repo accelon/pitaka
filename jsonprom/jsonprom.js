@@ -1,4 +1,5 @@
-import {loadJSONP,loadFetch,loadNodeJs} from './loadchunk.js';
+import {loadJSONP,loadFetch,loadNodeJs,loadNodeJsZip} from './loadchunk.js';
+import {findPitakaFolder} from '../platform/nodefs.js'
 import {readLines,prefetchLines} from './readline.js';
 import {ROMEXT, ROMHEADERSIZE} from '../rom/romconst.js';
 class JSONPROM {
@@ -8,11 +9,13 @@ class JSONPROM {
             loadedChunk:[],
         };
         this.romfile=null;
+        this.romfolder=findPitakaFolder(opts.name);
         this.filenames=[];
         this.offsets=[];
-
+        this.rom=null;
+        this.name=opts.name||'noname';
         this.header= {
-            name:opts.name||'noname',
+            name:this.name,
             lineCount:1,
             chunkStarts:[1],
             sectionNames:['txt'],
@@ -21,7 +24,7 @@ class JSONPROM {
         this.opts=opts||{};
         const lines=[''];
         this._lines=lines;
-        this._loader=loadNodeJs;
+        this._loader=this.romfile?loadNodeJsZip:loadNodeJs;
         if (typeof window!=='undefined') {
             const protocol=window.location.protocol;
             if (protocol==='http:'||protocol==='https:'|| protocol==='chrome-extension:') {
@@ -34,7 +37,7 @@ class JSONPROM {
         this.readLines=readLines;
         this.prefetchLines=prefetchLines;
         this.getLine=i=>lines[i];
-        this.rom=null;
+        
         return this;
     }
     setChunk(chunk,header,payload){
@@ -52,12 +55,16 @@ class JSONPROM {
         this.context.loadedChunk[chunk]=true;
     }
     async openrom(){
+        if (this._loader==loadNodeJs || this._loader==loadNodeJsZip) {
+            return;
+        }
         const romfn='/'+this.header.name+ROMEXT;
         const res=await fetch(romfn,{headers: {
             'content-type': 'multipart/byteranges',
             'range': 'bytes=0-'+(ROMHEADERSIZE-1),
         }}
         );
+
         if (res.ok) {
             const text=await res.text();
             const headeroffset=parseInt(text.substr(7,9) , 16);

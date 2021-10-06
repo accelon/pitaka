@@ -1,0 +1,1 @@
+export const PITAKA_EXT='.ptk'

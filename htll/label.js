@@ -6,6 +6,7 @@ class Label {
         this.scope='';
         this.filename='';
         this.lastLine=opts.lastLine||-1;
+        this.resets=opts.resets||null; //reseting other label
         return this;
     }
     action(){

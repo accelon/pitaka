@@ -63,12 +63,17 @@ class Builder {
             const Formatter=getFormatter(format);
             const formatter=new Formatter(this.context,this.log);
             const {text,tags,rawlines}=formatter.scan(rawcontent);
+
             for (let i=0;i<tags.length;i++) {
                 const tag=tags[i];
                 const labeltype=this.labeldefs[tag.name];
                 if (labeltype) {
-                    const linetext=text[tag.line - this.context.ptkline ];
+                    const linetext=text[tag.y - this.context.ptkline ];
                     labeltype.action(tag,linetext);
+                    if (labeltype.resets) {
+                        const D=this.labeldefs;
+                        labeltype.resets.forEach(r=>D[r]&&D[r].reset());
+                    }
                 } else this.log('undefined tag',tag.name)
             }
 
