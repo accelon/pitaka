@@ -1,7 +1,8 @@
+import { makeHook } from '../offtext/hook.js';
 import {extractChineseNumber} from '../utils/cnumber.js';
 import {similarity} from './similarity.js'
 
-export const locatePhrase=(quoteline,chunks)=>{
+export const locatePhrase=(quoteline,chunks,bkid)=>{
     
     const chapter=extractChineseNumber(quoteline);
     const m2=quoteline.match(/「(.+)」/);
@@ -26,8 +27,8 @@ export const locatePhrase=(quoteline,chunks)=>{
                 const offset=parseInt(m.index);
                 const t=linetext.substr(offset,m[0].length);
                 const sim=similarity(q,t);
-
-                return { y:'c'+chapter+':'+i, x:offset, z:t.length , t, sim}
+                const h=makeHook(linetext,offset,t.length);
+                return { target: bkid+'/'+chapter+':'+(i+1)+'/'+h, t, sim}
             }
         }
     }

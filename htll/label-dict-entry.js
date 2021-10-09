@@ -3,25 +3,22 @@ import {pack_delta,unpack_delta,packStrings,unpackStrings,bsearch} from'../utils
 class LabelDictEntry extends Label {
     constructor(name,opts={}) {
         super(name,opts)
-        this.headword=[];
-        this.linePos=[];
+        this.names=[];
+        this.linepos=[];
         this.prevhw='';
         this.textual=true;
-        this.normalizeText=opts.normalizeText;
         return this;
     }
-    action( {nline,text}){
-        if (text[0]=='#') {
-            let hw=text.substr(1);
-            if (this.normalizeText) hw=this.normalizeText(hw);
-            if (hw==this.prevhw) return;
-            this.headword.push(hw);
-            this.prevhw=hw;
-            this.linePos.push(nline);
-        }
+    action(tag,linetext){
+        let {y,pos,width}=tag;
+        let hw=linetext.substr(pos);
+        if (hw==this.prevhw) return;
+        this.names.push(hw);
+        this.prevhw=hw;
+        this.linepos.push(y);
     }
     parse(addr){
-        let HW=this.headword;
+        let HW=this.names;
         let tf=addr;
         let at=bsearch(HW,tf);
         while (at==-1 && tf) {
@@ -29,34 +26,34 @@ class LabelDictEntry extends Label {
             at=bsearch(HW,tf);
         }
         if (at>-1) {
-            return {text:tf,nline:this.linePos[at]};
+            return {text:tf,nline:this.linepos[at]};
         }
     }
     serialize(){
         const out=[];
-        const hw=packStrings(this.headword);
-        // writeFileSync('hw.txt',this.headword.join('\n'),'utf8');
+        const hw=packStrings(this.names);
+        // writeFileSync('hw.txt',this.names.join('\n'),'utf8');
         out.push(hw);  //58ms 
-        out.push(pack_delta(this.linePos)); 
-        // console.log('hw length',this.headword.length)
+        out.push(pack_delta(this.linepos)); 
+        // console.log('hw length',this.names.length)
         // console.log('linePos length',this.linePos.length)
         return out;
     }
     deserialize(payload){
-        this.headword=unpackStrings(payload[0]);// 28.ms
-        this.linePos=unpack_delta(payload[1])
+        this.names=unpackStrings(payload[0]);// 28.ms
+        this.linepos=unpack_delta(payload[1])
     }
-    getRange(nheadword){
-        if (typeof nheadword!=='Number') {
-            nheadword=bsearch(this.headword,nheadword);
+    getRange(n){
+        if (typeof n!=='number') {
+            n=bsearch(this.names,n);
         }
-        if (nheadword<0) return null;
-        const start=this.linePos[nheadword];
-        const end=nheadword<this.linePos.length-1? this.linePos[nheadword+1]: this.lastLine;
-        return [start,end];
+        if (n<0) return null;
+        const start=this.linepos[n];
+        const end=n<this.linepos.length-1? this.linepos[n+1]: this.lastLine;
+        return [start,end,n];
     }
     find(tofind,near=false){
-        return bsearch(this.headword,tofind,near);
+        return bsearch(this.names,tofind,near);
     }
 }
 export default LabelDictEntry;

@@ -1,6 +1,6 @@
 import {loadJSONP,loadFetch,loadNodeJs,loadNodeJsZip} from './loadchunk.js';
 import {findPitakaFolder} from '../platform/nodefs.js'
-import {readLines,prefetchLines} from './readline.js';
+import {readLines,prefetchLines,  unreadyChunk,prefetchChunks} from './readline.js';
 import {ROMEXT, ROMHEADERSIZE} from '../rom/romconst.js';
 class JSONPROM {
     constructor(opts) {
@@ -20,6 +20,7 @@ class JSONPROM {
             chunkStarts:[1],
             sectionNames:['txt'],
             sectionStarts:[1],
+            format:'',
         }
         this.opts=opts||{};
         const lines=[''];
@@ -36,17 +37,17 @@ class JSONPROM {
         };
         this.readLines=readLines;
         this.prefetchLines=prefetchLines;
+        this.prefetchChunks=prefetchChunks;
+        this.unreadyChunk=unreadyChunk;
         this.getLine=i=>lines[i];
-        
         return this;
     }
     setChunk(chunk,header,payload){
         if (chunk==0) {
             this.header=header;
             this.payload=payload;
-            if (this.opts.onReady) {
-                this.opts.onReady(this);
-            }
+            this.format=header.format;
+            this.opts.onReady&&this.opts.onReady(this);
         } else {
             for (let i=0;i<payload.length;i++) {
                 this._lines[header.start+i]=payload[i];
@@ -78,6 +79,7 @@ class JSONPROM {
             this.offsets=header.offsets;
             this.filenames=header.filenames;
             this.romfile=romfn;
+            this.format=header.format;
         }
     }
     async load(_chunk=0){

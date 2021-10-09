@@ -46,7 +46,7 @@ export const loadFetch= async (name,chunk,rom)=>{
         return '';
     }
 
-    const uri=makeChunkURI(name,chunk);
+    const uri=makeChunkURI(name,chunk,rom);
     try {
         const res=await fetch(uri);
         if (!res.ok) throw res.statusText;

@@ -10,7 +10,7 @@ class Label {
         return this;
     }
     action(){
-        console.error('not implemented')
+        // console.error('not implemented')
     }
     find(){
         
@@ -32,6 +32,9 @@ class Label {
     }
     finalize() { //build complete
 
+    }
+    reset(){
+        
     }
 }
 export default Label;

@@ -23,10 +23,12 @@ export default async function(){
     const matches=[];
     let ok=0
     const quotes=readFileSync(quotefile,'utf8').trim().split(/\r?\n/);
+
     for (let i=0;i<quotes.length;i++) {
         let [wh,line,q]=quotes[i].split(',');
         q=q.replace(/　/g,'');
-        const res=locatePhrase(q,chunks);
+        const bkid=quotefile.match(/(\d+)/)[1]
+        const res=locatePhrase(q,chunks,bkid);
         if (res.error) {
             if (res.error=='chapter not found') {
                 console.log(q)
@@ -38,7 +40,7 @@ export default async function(){
             } else {
                 ok++;
             }
-            matches.push( Object.assign({src:wh+':'+line},res) );
+            matches.push( Object.assign({src:wh,dy:line},res) );
         }
     }
     console.log('ok',ok,'matches',matches.length,'all quotes',quotes.length)

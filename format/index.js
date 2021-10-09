@@ -3,6 +3,7 @@ import {readHaodoo} from './haodoo.js';
 import Formatter_HTLL from './htll.js';
 import Formatter_OffText from '../offtext/formatter.js';
 import OpenLit from './openlit.js';
+import CiDian_TypeDef from './cidian.js';
 import Default_Typedef from './typedef.js';
 const fileContent=async fn=>{
     let c;
@@ -48,8 +49,10 @@ const getZipIndex=async (zip,format,fn)=>{
 }
 
 const getFormatTypeDef=(format,opts)=>{
-    if (format=='openlit') {
+    if (format==='openlit') {
         return new OpenLit.TypeDef(opts);
+    } else if (format==='cidian') {
+        return new CiDian_TypeDef(opts);
     }
     return Default_Typedef;
 }

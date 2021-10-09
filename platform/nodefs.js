@@ -14,6 +14,7 @@ const nodefsready=new Promise(resolve=>{
     }
 })
 export const findPitakaFolder=name=>{
+    if (typeof global=='undefined') return "";
     if (! 'fs' in global) return;
     let pth=process.cwd();
     

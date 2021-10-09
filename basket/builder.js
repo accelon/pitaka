@@ -21,7 +21,6 @@ class Builder {
         if (typeof file!=='string' && 'name' in file) {
             fn=file.name;
         }
-        
         const jszip=new JSZip();
         let zip;
         if (typeof file=='string') {
