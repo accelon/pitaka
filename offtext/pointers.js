@@ -1,10 +1,24 @@
 //unpack array of serialized pointer
-import {openBasket, useBasket} from '../basket/open.js';
-import { unreadyChunk } from '../jsonprom/readline.js';
+import {openBasket, useBasket} from '../basket/index.js';
 import {PATHSEP,DELTASEP,DEFAULT_TREE} from '../platform/constants.js'
 import {makeHook, parseHook} from './hook.js';
 import {parseOfftextLine} from './parser.js';
 
+export const parsePointer=str=>{
+    if (!str) return null;
+    const res={ptk:'',bk:'',c:'',dy:0,hook:''};
+    const pths=str.split(PATHSEP);
+    if (str[0]=='/') {
+        pths.shift();
+        res.ptk=pths.shift();
+    }
+    res.bk=pths.shift();
+    const [c,dy]=pths.shift().split(':');
+    res.c=c;
+    res.dy=parseInt(dy);
+    res.hook=pths.join(PATHSEP);
+    return res;
+}
 export const dereferencing=async (arr,ptk=null)=>{
     if (typeof arr=='string') arr=[arr];
     const out=[],jobs=[];

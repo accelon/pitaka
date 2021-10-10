@@ -20,8 +20,8 @@ export default async function(){
     }
 
     const chunks=await loadOfftextChunk(offtext);
-    const matches=[];
-    let ok=0
+    const matches={},unpassed=[];
+    let passed=0
     const quotes=readFileSync(quotefile,'utf8').trim().split(/\r?\n/);
 
     for (let i=0;i<quotes.length;i++) {
@@ -35,14 +35,19 @@ export default async function(){
             }
             // console.log(res)
         } else {
-            if (res.t.indexOf(wh)==-1) {
+            if (res.t.indexOf(wh)==-1 && res.sim<0.8) {
+                unpassed.push('"'+wh+'\t'+'":"'+line+res.target+'",//'+res.t+' '+res.sim);
             //    console.log("source text doesn't include wh ",res.t,wh)
             } else {
-                ok++;
+                passed++;
+                if (!matches[wh]) matches[wh]=[];
+                matches[wh].push(line+'^'+res.target);
             }
-            matches.push( Object.assign({src:wh,dy:line},res) );
+           
         }
     }
-    console.log('ok',ok,'matches',matches.length,'all quotes',quotes.length)
-    writeFileSync(quotefile+'.ok',matches.map(JSON.stringify).join('\n'),'utf8');
+    console.log('all quotes',quotes.length,'pass',passed,)
+    writeFileSync(quotefile.replace('.txt','.js'),'export default '+JSON.stringify(matches,'',' '),'utf8');
+
+    writeFileSync(quotefile.replace('.txt','.failed'),'export default {'+unpassed.join(',\n')+'}','utf8');
 }

@@ -1,12 +1,12 @@
 import {readTextFile} from '../platform/inputfiles.js'
 export const loadOfftextChunk=async fn=>{
     const content=await readTextFile(fn);
-    const items=content.split(/(\^c[\d ]+.+?\n)/);
+    const items=content.split(/(\^[ce][\d ]+.+?\n)/);
     const entries={};
     let i=0,key='';
     while (i<items.length) {
         const c=items[i].trim();
-        const m=c.match(/^\^c([\d ]+)/);
+        const m=c.match(/^\^[ce]([\d ]+)/);
         if (m) {
             if (parseInt(m[1])) {
                 key=parseInt(m[1]);

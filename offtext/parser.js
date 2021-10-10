@@ -11,11 +11,12 @@ const QUOTEPREFIX='\u001a', QUOTEPAT=/\u001a(\d+)/g ;                // 抽取�
 import {OffTag,ALLOW_EMPTY, ALWAYS_EMPTY, OFFTAG_REGEX_G,QSTRING_REGEX_G} from './def.js'
 
 const parseCompactAttr=str=>{  //              序號和長度和標記名 簡寫情形，未來可能有 @ 
-    const out={}, arr=str.split(/([#~])/);
+    const out={}, arr=str.split(/([#~@])/);
     while (arr.length) {
         const v=arr.shift();
         if      (v==='~') out['~']=arr.shift();
         else if (v==='#') out['#']=arr.shift(); 
+        else if (v==='@') out['@']=arr.shift();  // a hook
         else if (v.trim()) out.n=v.trim();
     }
     return out;
