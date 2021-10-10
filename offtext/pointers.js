@@ -1,11 +1,11 @@
 //unpack array of serialized pointer
-import {openBasket, useBasket} from '../basket/index.js';
+import pool from '../basket/pool.js';
 import {PATHSEP,DELTASEP,DEFAULT_TREE} from '../platform/constants.js'
 import {makeHook, parseHook} from './hook.js';
 import {parseOfftextLine} from './parser.js';
 
 export const parsePointer=str=>{
-    if (!str) return null;
+    if (!str) return {};
     const res={ptk:'',bk:'',c:'',dy:0,hook:''};
     const pths=str.split(PATHSEP);
     if (str[0]=='/') {
@@ -13,6 +13,7 @@ export const parsePointer=str=>{
         res.ptk=pths.shift();
     }
     res.bk=pths.shift();
+    if (!pths.length) return res;
     const [c,dy]=pths.shift().split(':');
     res.c=c;
     res.dy=parseInt(dy);
@@ -26,9 +27,9 @@ export const dereferencing=async (arr,ptk=null)=>{
         const ptr={ptk:null, p:'',h:null};
         if (ptk) ptr.ptk=ptk.name;
         const pths=arr[i].split(PATHSEP);
-        if (pths[0]==PATHSEP) {
+        if (arr[i][0]==PATHSEP) {
             pths.shift(); //drop leading PATHSEP
-            ptk=useBasket(pths.shift());
+            ptk=pool.get(pths.shift());
             ptr.ptk=ptk.name;
         }
         const thetree=(ptk.header.tree||DEFAULT_TREE).split(PATHSEP);
@@ -53,7 +54,7 @@ export const dereferencing=async (arr,ptk=null)=>{
 
     for (let i=0;i<out.length;i++) {
         const [ptr,pths, y]=out[i];
-        const ptk=useBasket(ptr.ptk);
+        const ptk=pool.get(ptr.ptk);
         const linetext= ptk.getLine(y);
         ptr.h=parseHook(pths,linetext,y);
     }
@@ -65,23 +66,7 @@ export const serializePointer=({p,k})=>{
     return p+PATHSEP+k;
 }
 
-export const openPointerBaskets=async arr=>{
-    if (!Array.isArray(arr)) arr=[arr];
-    const pitakas={};
-    for (let i=0;i<arr.length;i++) {
-        let ptr=arr[i];
-        if (ptr[0]==PATHSEP) {
-            const pths=ptr.split(PATHSEP);
-            pths.shift(); //drop leading PATHSEP
-            pitakas[pths.shift()]=true;
-        }
-    }
-    const jobs=[];
-    for (let name in pitakas) {
-        if (!useBasket(name)) jobs.push(openBasket(name));
-    }
-    await Promise.all(jobs);
-}
+
 
 //serialize array of pointers
 export const referencing=async (arr, ptk=null)=>{

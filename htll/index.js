@@ -8,7 +8,8 @@ import LabelBook from './label-book.js'
 import LabelChapter from './label-chapter.js'
 import LabelSection from './label-section.js'
 import LabelAnchor from './label-anchor.js'
+import LabelTransclusion from './label-transclusion.js'
 const LabelType={Label,LabelPB,LabelHeader,LabelDictEntry,
-    LabelBook,LabelChapter,LabelSection,LabelAnchor}
+    LabelBook,LabelChapter,LabelSection,LabelAnchor,LabelTransclusion}
 
 export {parseAddress,LabelType,scanLine,scanTag,convertLine}

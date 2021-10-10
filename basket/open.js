@@ -3,6 +3,7 @@ import pool from './pool.js';
 import {deserializeLabels} from './serialize-label.js';
 import paging from './paging.js';
 import entries from './entries.js';
+import pointers from './pointers.js';
 /*
    Basket is a read-only container
    of htll texts, prebuilt data-structure to facilitate fast access,
@@ -14,8 +15,10 @@ class Basket extends JSONPROM {
         this.sections=[]
         this.labelTypes=[];
         this.labels={};
+        this.foreign={};
         for (let f in paging) this[f]=paging[f];
         for (let f in entries) this[f]=entries[f];
+        for (let f in pointers) this[f]=pointers[f];
     }
     async init(){
         const section='labels'
@@ -31,6 +34,7 @@ class Basket extends JSONPROM {
             console.error(e)
         }
     }
+
     parse(str){
         for (let i=0;i<this.labels.length;i++) {
             const r=this.labels[i].parse(str);
@@ -61,6 +65,7 @@ class Basket extends JSONPROM {
         return (this.header.sectionStarts[1]||this.header.lineCount)-1;
     }
 }
+
 export async function openBasket(name){
     if (pool.has(name)) {
         // console.log('reuse',name)
@@ -68,6 +73,33 @@ export async function openBasket(name){
     }
     const basket= new Basket({name});
     const success=await basket.init();
-    if (success) pool.add(name,basket);
+    if (success) {
+        const tlbl=basket.findLabel('t');
+        if (tlbl) {
+            tlbl.ptks.forEach(ptk=>{
+                const fptk=pool.get(ptk);
+                if (fptk) fptk.addForeign(name)
+            })
+        }   
+        pool.add(name,basket);
+    }
     return basket;
+}
+
+export const openPointerBaskets=async arr=>{
+    if (!Array.isArray(arr)) arr=[arr];
+    const pitakas={};
+    for (let i=0;i<arr.length;i++) {
+        let ptr=arr[i];
+        if (ptr[0]==PATHSEP) {
+            const pths=ptr.split(PATHSEP);
+            pths.shift(); //drop leading PATHSEP
+            pitakas[pths.shift()]=true;
+        }
+    }
+    const jobs=[];
+    for (let name in pitakas) {
+        if (!pool.has(name)) jobs.push(openBasket(name));
+    }
+    await Promise.all(jobs);
 }

@@ -2,7 +2,7 @@ import Label from './label.js'
 import {parsePointer} from '../offtext/pointers.js'
 import {pack3,unpack3,pack_delta,unpack_delta,packStrings,unpackStrings,bsearch} from'../utils/index.js';
 
-class LabelQuote extends Label {
+class LabelTransclusion extends Label {
     constructor(name,opts={}) {
         super(name,opts);
         this.Q={};
@@ -82,4 +82,4 @@ class LabelQuote extends Label {
     }
 }
 
-export default LabelQuote;
+export default LabelTransclusion;

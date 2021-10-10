@@ -50,6 +50,7 @@ const htmlAttrs=attrs=>{
     for (let name in attrs) {
         let aname=name;
         if (name=='#') aname='id';
+        if (name=='@') aname='hook'; //link
         if (name=='~') continue;
         s+=' '+aname+'="'+attrs[name]+'"';
     }
@@ -69,6 +70,7 @@ const lastSpan=(T,activetags,idx,x)=>{ //if last span of a tag, return -name
             }
             if (T[i].x + T[i].w > tagend) break;
         }
+        if (tag.name=='t') debugger
         if (!hasopentag && tagend==x && !activetags[j].closed) {
             out.push('-'+tag.name);
             activetags[j].closed=true;
@@ -78,6 +80,9 @@ const lastSpan=(T,activetags,idx,x)=>{ //if last span of a tag, return -name
     return out;
 }
 export const renderSnippet=(lines=[],tags=[])=>{
+    /*
+    rendering unit= [ text_to_render, open_tag, close_tag ]
+    */
     const content=(typeof lines=='string')?lines:lines.join('\n');
     const T=toHtmlTag(content,tags);
     let out=[];
@@ -94,7 +99,8 @@ export const renderSnippet=(lines=[],tags=[])=>{
             continue;
         }
         if (closing) {
-            out.push({i,closing:true});
+            const {name}=activetags.filter( c=>c.i==closing-1)[0];
+            out.push({i,closing:true, name }); //第i個tag關閉
             activetags=activetags.filter( c=>c.i!==closing-1);
             const clss=activetags.map(t=>t.name);
             clss.push( ... lastSpan(T,activetags,idx,x) );
@@ -111,7 +117,7 @@ export const renderSnippet=(lines=[],tags=[])=>{
 
             if (w && !ALWAYS_EMPTY[name]) activetags.unshift( {i, idx,name,closed:false} );
             i++;
-            out.push({i,clss,attrs,x,y});
+            out.push({i,name,clss,attrs,x,y}); 
         }
         prev=x;
     }
@@ -119,16 +125,15 @@ export const renderSnippet=(lines=[],tags=[])=>{
     
     let py=0;
     i=0;
-    const units=[]; //  單純字串,x  或 <tag>, 字串, </tag> 
+    const units=[]; 
     while (i<out.length) {
         if (typeof out[i][0]=='string') {
-            const [t,x]=out[i];
-            units.push([t,{x,y:py},{closing:true}]);
+            const [text,x]=out[i];
+            units.push({ text,open:{x,y:py}, close:{closing:true} } ); 
             i++;
         } else {
-            const unit=[];
-            let innertext='';
-            unit[1]=out[i];i++;
+            let text='';
+            const open=out[i];i++;
             while (typeof out[i][0]=='string' || out[i].empty) {
                 const emptytag=out[i].empty
                     ?(out[i].extra+'<'+out[i].empty
@@ -137,31 +142,30 @@ export const renderSnippet=(lines=[],tags=[])=>{
                         +htmlAttrs(open.attrs)+'/>')
                     :'';
                 py=open.y;
-                innertext+=emptytag||out[i][0];
+                text+=emptytag||out[i][0];
                 i++;
             }
-            unit[2]=out[i];i++;
-            unit[0]=innertext;
-            units.push(unit);
+            const close=out[i];i++;
+            units.push({text,open,close});
         }
     }
     return units;
 }
 export const composeSnippet=(snippet,lineidx,sim=0)=>{
-    const [innertext,open,close]=snippet;
+    const {text,open,close}=snippet;
     let out='';
     if (open && open.empty) {
         out+=open.extra+'<'+open.empty+(open.i?' i="'+i+'" ':'')
             +'x="'+open.x+'" '+'y="'+(lineidx+open.y)+'" '+htmlAttrs(open.attrs)+'/>';
     } else {
-        if (!open) out+=innertext;
+        if (!open) out+=text;
         else out+=
         '<t'+ htmlAttrs(open.attrs)
                 +(open.clss&&open.clss.length?' class="'+open.clss.join(' ')+'"':'')
                 +' x="'+open.x+'"'+' y="'+(lineidx+open.y)+'"'
                 +(open.i?' i="'+open.i+'" ':'')
                 +'>'
-        +toSim(innertext,sim)
+        +toSim(text,sim)
         +'</t'+(close.i?' i="'+close.i+'" ':'')+'>';
     }
     return out;
@@ -186,9 +190,9 @@ export const OfftextToSnippet =(linetext , extra=[] , renderInlinetag=true)=>{
     if (extra[0]==extra[1]) extra[0]=''
     let tags=[],text=linetext;
     if (hastag && renderInlinetag) [text,tags]=parseOfftextLine(linetext);
-
+    extra=extra.filter(i=>!!i);
     for (let i=0;i<extra.length;i++) {
-        if (typeof extra[i]==='string' && extra[i].trim()) {
+        if (typeof extra[i]==='string' && extra[i].trim()) { //search keyword
             const keywords=extra[i].split(/ +/).filter(i=>!!i.trim());
             for (let j=0;j<keywords.length;j++) {
                 const keyword=keywords[j];
@@ -197,8 +201,10 @@ export const OfftextToSnippet =(linetext , extra=[] , renderInlinetag=true)=>{
                    tags.push(new OffTag('hl'+i, null, 0, offset, m.length) );
                 })
             }
-        } else if (extra[i][1]){
-            tags.push(new OffTag('hl'+i, null, 0, extra[i][0], extra[i][1]) );
+        } else if (extra[i].name) {//instance of offtag
+            tags.push(extra[i]);
+        } else if (extra[i][1]){ //highlight
+            tags.push(new OffTag('hl'+i, null, 0, extra[i][0], extra[i][1]) ); 
         }
     }
     
