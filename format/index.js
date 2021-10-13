@@ -1,4 +1,5 @@
-import {readTextFile,readBLOBFile} from 'pitaka/platform'
+import {readTextFile,readBLOBFile} from '../platform/index.js'
+import {DEFAULT_TREE} from '../platform/constants.js'
 import {readHaodoo} from './haodoo.js';
 import Formatter_HTLL from './htll.js';
 import Formatter_OffText from '../offtext/formatter.js';
@@ -57,6 +58,11 @@ const getFormatTypeDef=(format,opts)=>{
     return Default_Typedef;
 }
 
+const getFormatTree=format=>{
+    if (format==='cidian') return 'e';
+    return DEFAULT_TREE;
+}
+
 const fileLines=async fn=>{
     const content=await fileContent(fn);
     const lines=content.split('\n');
@@ -105,4 +111,4 @@ const readFormatFile=async (f,format)=>{
     }
 }
 export {readHaodooFile,readHaodoo,readFormatFile,
-    fileContent,getFormatter,fileLines,getZipIndex,getFormatTypeDef};
+    fileContent,getFormatter,fileLines,getZipIndex,getFormatTypeDef,getFormatTree};

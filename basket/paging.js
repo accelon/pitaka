@@ -7,6 +7,7 @@ function narrowDown(branches){
         const {lbl, id , dy}=branches[i];
 
         const label=this.findLabel(lbl);
+        if (!label) return [];
         const startfrom=bsearch(label.linepos,from,true);
         let at=label.idarr.indexOf(id, startfrom);
         if (at==-1) break;
@@ -14,6 +15,17 @@ function narrowDown(branches){
         to=label.linepos[at+1] || to;
     }
     return [from,to];
+}
+function locate(y){
+    const thetree=(this.header.tree||DEFAULT_TREE).split(PATHSEP);
+    const out=[];
+    for (let i=0;i<thetree.length;i++) {
+        const lbl=this.findLabel(thetree[i]);
+        const at=bsearch(lbl.linepos, y , true);
+        const dy=y-lbl.linepos[at-1];
+        out.push(lbl.idarr[at-1]+(dy? DELTASEP+dy:''));
+    }
+    return out;
 }
 function getPage(addr){
     const thetree=(this.header.tree||DEFAULT_TREE).split(PATHSEP);
@@ -54,7 +66,7 @@ function getTocTree(addr){
         let next=at;
         if (i==parents.length-1 && thetree.length==parents.length && next+1<label.idarr.length) next++;
         loc=loc+(loc?PATHSEP:'')+(label.idarr[next].trim()||(DELTASEP+next));
-        let name=label.names[at];
+        let name=label.names?label.names[at]:label.idarr[at];
         const at2=name.indexOf('　');
         if (at2>0 && name.length>10) name=name.substr(0,at2);
         out.push({name, n: at, loc})
@@ -75,7 +87,7 @@ function fetchPage(ptr){
             for (let i=at;i<label.linepos.length;i++) {
                 if (y1>label.linepos[i]) {
                     const loc=(ptr?ptr+PATHSEP:'')+(label.idarr[i]||DELTASEP+i);
-                    out.push({key:(i+1),text:label.names[i],loc})
+                    out.push({key:(i+1),text:label.names?label.names[i]:label.idarr[i],loc})
                 }
             }        
         }
@@ -87,4 +99,4 @@ function fetchPage(ptr){
     return out;
 }
 
-export default {pageAt,getTocTree,fetchPage,getPage,narrowDown}
+export default {pageAt,getTocTree,fetchPage,getPage,narrowDown,locate}

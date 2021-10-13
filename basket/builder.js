@@ -1,7 +1,6 @@
-import {getFormatter, getZipIndex, getFormatTypeDef, fileContent} from '../format/index.js'
+import {getFormatter, getZipIndex, getFormatTypeDef, getFormatTree, fileContent} from '../format/index.js'
 import JSONPROMWriter from '../jsonprom/jsonpromw.js';
 import {serializeLabels} from './serialize-label.js';
-import {DEFAULT_TREE} from '../platform/constants.js'
 class Builder {
     constructor(opts) {
         this.context={eudc:{},nchapter:0,rawtags:[] 
@@ -10,7 +9,7 @@ class Builder {
         this.finalized=false;
         this.log=opts.log || console.log;
         this.config=opts.config;
-        this.config.tree=this.config.tree||DEFAULT_TREE;
+        this.config.tree=this.config.tree||getFormatTree(this.config.format);
         this.opts=opts;
         this.labeldefs=getFormatTypeDef(this.config.format,{context:this.context,log:this.log});
 

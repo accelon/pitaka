@@ -1,6 +1,7 @@
 import JSONPROM from "../jsonprom/jsonprom.js";
 import pool from './pool.js';
 import {deserializeLabels} from './serialize-label.js';
+
 import paging from './paging.js';
 import entries from './entries.js';
 import pointers from './pointers.js';
@@ -45,12 +46,7 @@ class Basket extends JSONPROM {
             }
         }
     }
-    locate(nline){
-        for (let i=0;i<this.labels.length;i++) {
-            const r=this.labels[i].locate(nline);
-            if (r) return r;
-        }
-    }
+
     findLabel(name){
         for (let i=0;i<this.labels.length;i++) {
             if (this.labels[i].name==name) return this.labels[i];

@@ -23,14 +23,14 @@ const toHtmlTag=(content,tags)=>{
         while (ntag<tags.length && tag) {
             let w=tag.w;
             if (tag.y!==y) break;           //tag beyond in this line
-
             if (w==0 && !ALLOW_EMPTY[tag.name]) w=line.length-tag.x; // 從行末倒數
 
             T.push( new HTMLTag(offset+tag.x,0,tag.name, tag.attrs,y,w) );  //open tag
             tagcount++;
             
-            if (tag.name!=='r' && tag.name!=='br') {
-                T.push( new HTMLTag(offset+tag.x+w, tagcount ) ); // close after n characters
+            if (tag.name!=='r' && tag.name!=='br') { //closing a tag
+                //y is needed at rendering phase.
+                T.push( new HTMLTag(offset+tag.x+w, tagcount,tag.name, tag.attrs,y,w ) ); // close after n characters
             }
             ntag++;
             tag=tags[ntag];
@@ -70,7 +70,6 @@ const lastSpan=(T,activetags,idx,x)=>{ //if last span of a tag, return -name
             }
             if (T[i].x + T[i].w > tagend) break;
         }
-        if (tag.name=='t') debugger
         if (!hasopentag && tagend==x && !activetags[j].closed) {
             out.push('-'+tag.name);
             activetags[j].closed=true;
@@ -94,18 +93,19 @@ export const renderSnippet=(lines=[],tags=[])=>{
         s&&out.push([s,prev]);
 
         if (name=='br'||name=='r') {
-            out.push({empty:name,i,attrs,x,y,extra:(name=='br'?' ':'')});
+            out.push({empty:name,i,attrs,x,y,w,extra:(name=='br'?' ':'')});
             prev=x;
             continue;
         }
         if (closing) {
             const {name}=activetags.filter( c=>c.i==closing-1)[0];
-            out.push({i,closing:true, name }); //第i個tag關閉
+            const openx=T[closing-1].x;
+            out.push({i:closing,closing:true, name }); //第i個tag關閉
             activetags=activetags.filter( c=>c.i!==closing-1);
             const clss=activetags.map(t=>t.name);
             clss.push( ... lastSpan(T,activetags,idx,x) );
             if (clss.length) {
-                out.push({clss,x});
+                out.push({clss,x:openx,y,w});
             }
         } else {
             let clss=activetags.map(t=>t.name);
@@ -117,7 +117,7 @@ export const renderSnippet=(lines=[],tags=[])=>{
 
             if (w && !ALWAYS_EMPTY[name]) activetags.unshift( {i, idx,name,closed:false} );
             i++;
-            out.push({i,name,clss,attrs,x,y}); 
+            out.push({i,name,clss,attrs,x,y,w}); 
         }
         prev=x;
     }
@@ -149,6 +149,7 @@ export const renderSnippet=(lines=[],tags=[])=>{
             units.push({text,open,close});
         }
     }
+    
     return units;
 }
 export const composeSnippet=(snippet,lineidx,sim=0)=>{
@@ -163,6 +164,7 @@ export const composeSnippet=(snippet,lineidx,sim=0)=>{
         '<t'+ htmlAttrs(open.attrs)
                 +(open.clss&&open.clss.length?' class="'+open.clss.join(' ')+'"':'')
                 +' x="'+open.x+'"'+' y="'+(lineidx+open.y)+'"'
+                + (open.w?' w="'+(open.w)+'"':'')
                 +(open.i?' i="'+open.i+'" ':'')
                 +'>'
         +toSim(text,sim)

@@ -23,9 +23,7 @@ class LabelBook extends Label {
         this.idarr.push(id);
         return true;
     }
-    finalize(){
-        this.log('finalize book')
-    }
+
     serialize(){
         const out=[];
         out.push(packStrings(this.names));
@@ -43,6 +41,9 @@ class LabelBook extends Label {
     getRange(nheadword){
     }
     find(tofind,near=false){
+    }
+    finalize(){
+        this.log('finalize book')
     }
 }
 export default LabelBook;

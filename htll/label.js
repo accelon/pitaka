@@ -28,7 +28,7 @@ class Label {
         //give human readible expression        
     }
     parse(str,basket){
-        //parse address and produce action line position for reading
+        
     }
     finalize() { //build complete
 
