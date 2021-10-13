@@ -92,7 +92,7 @@ export const renderSnippet=(lines=[],tags=[])=>{
         const s=content.substring(prev, x);
         s&&out.push([s,prev]);
 
-        if (name=='br'||name=='r') {
+        if (ALWAYS_EMPTY[name]) {
             out.push({empty:name,i,attrs,x,y,w,extra:(name=='br'?' ':'')});
             prev=x;
             continue;
@@ -115,7 +115,7 @@ export const renderSnippet=(lines=[],tags=[])=>{
             clss.push(name);
             if (w) clss.push(name+'-'); //原始的標記位置，不是自動補上的
 
-            if (w && !ALWAYS_EMPTY[name]) activetags.unshift( {i, idx,name,closed:false} );
+            if (!ALWAYS_EMPTY[name]) activetags.unshift( {i, idx,name,closed:false} );
             i++;
             out.push({i,name,clss,attrs,x,y,w}); 
         }
@@ -134,11 +134,11 @@ export const renderSnippet=(lines=[],tags=[])=>{
         } else {
             let text='';
             const open=out[i];i++;
-            while (typeof out[i][0]=='string' || out[i].empty) {
+            while (i<out.length && (typeof out[i][0]=='string' || out[i].empty)) {
                 const emptytag=out[i].empty
                     ?(out[i].extra+'<'+out[i].empty
                         +(open.i?' i="'+i+'" ':'')
-                        +'x="'+open.x+'" '+'y="'+open.y+'" '
+                        +' x="'+open.x+'" '+' y="'+open.y+'" '
                         +htmlAttrs(open.attrs)+'/>')
                     :'';
                 py=open.y;
@@ -157,7 +157,7 @@ export const composeSnippet=(snippet,lineidx,sim=0)=>{
     let out='';
     if (open && open.empty) {
         out+=open.extra+'<'+open.empty+(open.i?' i="'+i+'" ':'')
-            +'x="'+open.x+'" '+'y="'+(lineidx+open.y)+'" '+htmlAttrs(open.attrs)+'/>';
+            +' x="'+open.x+'" '+' y="'+(lineidx+open.y)+'" '+htmlAttrs(open.attrs)+'/>';
     } else {
         if (!open) out+=text;
         else out+=
@@ -209,8 +209,8 @@ export const OfftextToSnippet =(linetext , extra=[] , renderInlinetag=true)=>{
             tags.push(new OffTag('hl'+i, null, 0, extra[i][0], extra[i][1]) ); 
         }
     }
-    
     const snippets= renderSnippet(text,tags);
+    
     return snippets;
 }
 

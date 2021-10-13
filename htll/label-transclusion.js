@@ -76,32 +76,48 @@ class LabelTransclusion extends Label {
         this.hooks=payload[at++].split('|');
         this.linepos=unpack3(payload[at++]);
     }
+    countBacklinks(str) {
+        let ptr=str;
+        if (typeof str=='string') ptr=parsePointer(str);
+        if (!ptr) return 0;
+
+        const {bk,c} = ptr;
+        const last=this.linepos.length-1;
+        let at=this.books.indexOf(bk);
+        if (at==-1) return res;
+        let start=this.books_start[at];
+        let end = this.books_start[at+1] || last;
+        if (!c) return end-start;
+        
+        at = bsearch(this.chunks_start,start,true);
+        at = this.chunks.indexOf( c ,at);
+        end = this.chunks_start[at+1] || last;
+        start = this.chunks_start[at];
+        return end-start;
+    }
     getBacklinks(str,ystart=0) { //fetch all links in range of bk/c
         let ptr=str;
         const res={};
         if (typeof str=='string') ptr=parsePointer(str);
-        if (ptr){
-            const {bk,c} = ptr;
-            const last=this.linepos.length-1;
-            let at=this.books.indexOf(bk);
-            if (at==-1) return res;
-            let start=this.books_start[at];
+        if (!ptr) return res;
+        const {bk,c} = ptr;
+        const last=this.linepos.length-1;
+        let at=this.books.indexOf(bk);
+        if (at==-1) return res;
+        let start=this.books_start[at];
 
-            at = bsearch(this.chunks_start,start,true);
+        at = bsearch(this.chunks_start,start,true);
+        at = this.chunks.indexOf( c ,at);
+        let i = this.chunks_start[at];
+        const end = this.chunks_start[at+1] || last;
 
-            at = this.chunks.indexOf( c ,at);
-
-            let i = this.chunks_start[at];
-            const end = this.chunks_start[at+1] || last;
-
-            while (i<end) {
-                const arr=this.hooks[i].split('^');
-                const dy=parseInt(arr[0]);
-                const hook=arr[1];
-                if (!res[dy+ystart]) res[dy+ystart]=[];
-                res[dy+ystart].push([hook, this.linepos[i] ]);
-                i++;
-            }
+        while (i<end) {
+            const arr=this.hooks[i].split('^');
+            const dy=parseInt(arr[0]);
+            const hook=arr[1];
+            if (!res[dy+ystart]) res[dy+ystart]=[];
+            res[dy+ystart].push([hook, this.linepos[i] ]);
+            i++;
         }
         return res;
     }

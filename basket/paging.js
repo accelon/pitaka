@@ -29,6 +29,7 @@ function locate(y){
 }
 function getPage(addr){
     const thetree=(this.header.tree||DEFAULT_TREE).split(PATHSEP);
+    if (!addr && thetree[0]=='e') return [0,0];
     const pths=addr.split(PATHSEP).filter(i=>!!i);
     const arr=pths.map((item,idx)=>{
         let pth=pths[idx];
@@ -87,7 +88,9 @@ function fetchPage(ptr){
             for (let i=at;i<label.linepos.length;i++) {
                 if (y1>label.linepos[i]) {
                     const loc=(ptr?ptr+PATHSEP:'')+(label.idarr[i]||DELTASEP+i);
-                    out.push({key:(i+1),text:label.names?label.names[i]:label.idarr[i],loc})
+                    const backlinkCount=this.backlinkCount(loc);
+                    out.push({key:(i+1),text:label.names?label.names[i]:label.idarr[i],loc,backlinkCount})
+
                 }
             }        
         }

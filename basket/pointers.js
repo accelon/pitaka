@@ -3,8 +3,8 @@ import {PATHSEP} from '../platform/constants.js'
 
 function findTransclusion(ptk,srcptk,ptr){
     const tlbl=ptk.findLabel('t');
-    const [from]=srcptk.getPage(ptr);
-    const backlinks = tlbl.getBacklinks(ptr,from);
+    const [startfrom]=srcptk.getPage(ptr);
+    const backlinks = tlbl.getBacklinks(ptr,startfrom);
 
     //translate source y to loc
     for (let y in backlinks) {
@@ -24,9 +24,20 @@ function getBacklinks(ptr) {
     }
     return out;
 }
+function backlinkCount(loc){
+    const out={};
+    
+    for (let ptkname in this.foreign) {
+        const ptk=pool.get(ptkname);
+        const tlbl=ptk.findLabel('t');
+ 
+        out[ptkname]=tlbl.countBacklinks(loc);
+    }
+    return out;
+}
 function addForeign(ptkname) {
     this.foreign[ptkname]=true;
 }
 
 
-export default {findTransclusion,getBacklinks,addForeign}
+export default {findTransclusion,getBacklinks,addForeign,backlinkCount}
