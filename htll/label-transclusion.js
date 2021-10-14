@@ -1,6 +1,6 @@
 import Label from './label.js'
 import {parsePointer} from '../offtext/pointers.js'
-import {pack3,unpack3,pack_delta,unpack_delta,packStrings,unpackStrings,bsearch} from'../utils/index.js';
+import {pack3,unpack3,pack_delta,unpack_delta,bsearch} from'../utils/index.js';
 
 class LabelTransclusion extends Label {
     constructor(name,opts={}) {
@@ -95,7 +95,7 @@ class LabelTransclusion extends Label {
         start = this.chunks_start[at];
         return end-start;
     }
-    getBacklinks(str,ystart=0) { //fetch all links in range of bk/c
+    getBacklinks(str,ystart=0) { //fetch all links in range of bk or bk/c
         let ptr=str;
         const res={};
         if (typeof str=='string') ptr=parsePointer(str);

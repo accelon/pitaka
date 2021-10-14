@@ -9,7 +9,7 @@ const add=(name,inst)=>_pool[name]=inst;
 const getAll=()=>{
     const out=[];
     for (let name in _pool) {
-        out.push([name,_pool[name]]);
+        out.push(_pool[name]);
     }
     return out;
 }

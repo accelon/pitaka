@@ -13,8 +13,17 @@ export const parsePointer=str=>{
         res.ptk=pths.shift();
     }
     res.bk=pths.shift();
+
     if (!pths.length) return res;
-    const [c,dy]=pths.shift().split(':');
+
+    let bk,c='',dy;
+    if (res.bk.indexOf(DELTASEP)>0) { //only one level, no chunk
+        [bk,dy]=res.bk.split(DELTASEP);
+        res.bk=bk;
+    } else {
+        [c,dy]=pths.shift().split(DELTASEP);
+    }
+
     res.c=c;
     res.dy=parseInt(dy);
     res.hook=pths.join(PATHSEP);
@@ -43,9 +52,11 @@ export const dereferencing=async (arr,ptk=null)=>{
             }
             branches.push({lbl:thetree[j], id:pth , dy:delta});
             ptr.p += (ptr.p?PATHSEP:'')+ pth+(delta?DELTASEP+delta:'');
+        
         }
         const [from,to]=ptk.narrowDown(branches);
         ptr.b=branches;
+        ptr.y=from-branches[branches.length-1].dy; //starting of the chunk
         const chunks=ptk.unreadyChunk(from,to)
         if (chunks.length) jobs.push( ptk.prefetchChunks(chunks));
         out.push([ptr, pths, from]);

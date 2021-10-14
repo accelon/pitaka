@@ -3,6 +3,7 @@ import {PATHSEP,DELTASEP} from '../platform/constants.js'
 
 //hook 文鉤 : 以一或兩字表達引文的起訖，不能跨段。
 export const makeHook=(linetext,x,w)=>{
+    if (w<0)return '';
     let lead=linetext.substr(x,2);
     let end='';
     let occur=0; //0-base occurance

@@ -88,9 +88,7 @@ function fetchPage(ptr){
             for (let i=at;i<label.linepos.length;i++) {
                 if (y1>label.linepos[i]) {
                     const loc=(ptr?ptr+PATHSEP:'')+(label.idarr[i]||DELTASEP+i);
-                    const backlinkCount=this.backlinkCount(loc);
-                    out.push({key:(i+1),text:label.names?label.names[i]:label.idarr[i],loc,backlinkCount})
-
+                    out.push({key:(i+1),text:label.names?label.names[i]:label.idarr[i],loc})
                 }
             }        
         }

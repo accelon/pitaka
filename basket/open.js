@@ -16,7 +16,9 @@ class Basket extends JSONPROM {
         this.sections=[]
         this.labelTypes=[];
         this.labels={};
-        this.foreign={};
+        this.foreign={};        //search backlinks here
+        this.futureforeign={};  //not in pool yet, to be check on every new ptk added to pool.
+        this.lblTransclusion=null;
         for (let f in paging) this[f]=paging[f];
         for (let f in entries) this[f]=entries[f];
         for (let f in pointers) this[f]=pointers[f];
@@ -29,7 +31,8 @@ class Basket extends JSONPROM {
             await this.loadSection(section);
             const labelsection=this.getSection(section);
             const sectionRange=this.getSectionRange(section);
-            this.labels=deserializeLabels(labelsection,sectionRange);    
+            this.labels=deserializeLabels(labelsection,sectionRange);
+            this.lblTransclusion=this.findLabel('t');
             return true;
         } catch(e){
             console.error(e)
@@ -69,15 +72,9 @@ export async function openBasket(name){
     }
     const basket= new Basket({name});
     const success=await basket.init();
-    if (success) {
-        const tlbl=basket.findLabel('t');
-        if (tlbl) {
-            tlbl.ptks.forEach(ptk=>{
-                const fptk=pool.get(ptk);
-                if (fptk) fptk.addForeign(name)
-            })
-        }   
+    if (success) { //a new pitaka is added to pool
         pool.add(name,basket);
+        pool.getAll().forEach( ptk=>ptk.connect()); //tell other pitaka 
     }
     return basket;
 }
