@@ -215,6 +215,7 @@ export const OfftextToSnippet =(linetext , extra=[] , renderInlinetag=true)=>{
 }
 
 export const OfftextToHtml=(linetext , extra , renderInlinetag=false,sim=0)=>{
+    const hastag=linetext.includes('^');
     if (!hastag && extra.filter(it=>!!it.trim()).length==0 )return toSim(linetext,sim);
     const snippets=OfftextToSnippet(linetext,extra,renderInlinetag);
     

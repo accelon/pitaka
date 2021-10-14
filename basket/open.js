@@ -38,7 +38,9 @@ class Basket extends JSONPROM {
             console.error(e)
         }
     }
-
+    isDictionary(){
+        return this.header.tree=='e'
+    }
     parse(str){
         for (let i=0;i<this.labels.length;i++) {
             const r=this.labels[i].parse(str);

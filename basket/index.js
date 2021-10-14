@@ -4,7 +4,6 @@ import {validateConfig} from './config.js'
 import pool from './pool.js';
 import Builder from './builder.js';
 
-
 const opened=()=>pool.getAll();
 const useBasket=name=>pool.get(name);
 
@@ -29,18 +28,22 @@ async function fetchHooks(hooks){
         const hook=hooks[i];
         const ptr=await dereferencing(hook);
         if (ptr.length) {
-            const {h,ptk,y}=ptr[0];
-            const hlines=await readLines({basket:ptk,nline:y,count:h.y-y+1});
+            const {h,ptk,y}=ptr[0];  //y is the beginning of chunk
+            const pitaka=useBasket(ptk);
+            let nline=h.y,count=1;  //h.y is y of hook
+            if (pitaka.isDictionary()) { //fetch the dictionary entry
+                nline=y;
+                count=h.y-y+1;
+            }
+            const hlines=await readLines({basket:ptk,nline,count});
             for (let j=0;j<hlines.length;j++) {
                 out.push({ text:hlines[j][1], y:hlines[j][0] , 
-                    ptk:useBasket(ptk), key:'bl'+Math.random() }) ; 
+                    ptk:pitaka, key:'bl'+Math.random() }) ; 
             }                
         }
     }
     return out;
 }
-
-
 
 export {openBasket,pool,opened,useBasket,readLines,Builder,validateConfig
 ,fetchHooks};

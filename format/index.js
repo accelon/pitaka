@@ -76,7 +76,7 @@ const readOpenlitFile=async fn=>{
 
     const lines=[] ,toclines=[0];
     const jobs=[], rawlines=[] ;
-    const { files,tocpage}=await OpenLit.getZipFileToc(zip);
+    const { files,tocpage}=await OpenLit.getZipFileToc(zip,fn.name);
     lines.push(...tocpage);
     rawlines.push(...tocpage);
     const context={filename:fn.name};
