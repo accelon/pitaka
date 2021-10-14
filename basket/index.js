@@ -1,4 +1,13 @@
 import {openBasket} from './open.js';
+import {dereferencing} from '../offtext/pointers.js';
+import {validateConfig} from './config.js'
+import pool from './pool.js';
+import Builder from './builder.js';
+
+
+const opened=()=>pool.getAll();
+const useBasket=name=>pool.get(name);
+
 const MAXLINE=256;
 async function readLines ({basket,nline,eline,count=10}={}) {
     if (!basket )return;
@@ -13,9 +22,25 @@ async function readLines ({basket,nline,eline,count=10}={}) {
 
     return lines;
 }
-import pool from './pool.js';
-const opened=()=>pool.getAll();
-const useBasket=name=>pool.get(name);
-import Builder from './builder.js';
-import {validateConfig} from './config.js'
-export {openBasket,pool,opened,useBasket,readLines,Builder,validateConfig};
+async function fetchHooks(hooks){
+    if (typeof hooks=='string') hooks=[hooks];
+    const out=[];
+    for (let i=0;i<hooks.length;i++){
+        const hook=hooks[i];
+        const ptr=await dereferencing(hook);
+        if (ptr.length) {
+            const {h,ptk,y}=ptr[0];
+            const hlines=await readLines({basket:ptk,nline:y,count:h.y-y+1});
+            for (let j=0;j<hlines.length;j++) {
+                out.push({ text:hlines[j][1], y:hlines[j][0] , 
+                    ptk:useBasket(ptk), key:'bl'+Math.random() }) ; 
+            }                
+        }
+    }
+    return out;
+}
+
+
+
+export {openBasket,pool,opened,useBasket,readLines,Builder,validateConfig
+,fetchHooks};

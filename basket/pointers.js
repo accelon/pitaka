@@ -46,4 +46,5 @@ function connect(){
     })
 }
 
+
 export default {findTransclusion,getBacklinks,backlinkCount,connect}

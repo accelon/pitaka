@@ -159,7 +159,7 @@ export const composeSnippet=(snippet,lineidx,sim=0)=>{
         out+=open.extra+'<'+open.empty+(open.i?' i="'+i+'" ':'')
             +' x="'+open.x+'" '+' y="'+(lineidx+open.y)+'" '+htmlAttrs(open.attrs)+'/>';
     } else {
-        if (!open) out+=text;
+        if (!open) out+=toSim(text,sim);
         else out+=
         '<t'+ htmlAttrs(open.attrs)
                 +(open.clss&&open.clss.length?' class="'+open.clss.join(' ')+'"':'')
