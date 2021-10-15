@@ -22,7 +22,7 @@ class Builder {
         }
         const files=(await fs.promises.readFile(lstfile,'utf8')).split(/\r?\n/);
         for (let i=0;i<files.length;i++) {
-            const fn=this.config.rootdir+files[i];
+            const fn=(this.config.rootdir||'')+files[i];
             if (fs.existsSync(fn)) {
                 await this.addFile(fn,format);
             } else {
