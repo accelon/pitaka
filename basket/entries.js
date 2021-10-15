@@ -43,10 +43,11 @@ function matchEntry(tofind){
     for (let i=1;i<=tofind.length;i++) {
         const at=lbl.find(tofind.substr(0,i));
         if (at>-1) {
-            out.push([at,lbl.idarr[at],...lbl.getRange(at)]);
+            const [from,to]=lbl.getRange(at);
+            out.push({at,e:lbl.idarr[at],from,to } );
         }
     }
-    out.sort((a,b)=>b[1].length-a[1].length);
+    out.sort((a,b)=>b.e.length-a.e.length);
     return out;
 }
 function getName(tag){

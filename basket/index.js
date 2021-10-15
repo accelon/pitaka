@@ -21,6 +21,23 @@ async function readLines ({basket,nline,eline,count=10}={}) {
 
     return lines;
 }
+
+const trimDictDef=lines=>{
+    let dline=-1,yline=-1;
+    for (let i=lines.length-1;i;i--) {
+        const f3=lines[i][1].substr(0,3); 
+        if ((f3==='^d ' || f3==='^d[') && dline===-1) dline=i; //最接近的定義
+        if (f3==='^y ' && yline===-1) yline=i; //最接近的音
+    }
+    const out=[];
+    out.push(lines[0]);
+    if (yline>0) out.push(lines[yline]);
+
+    if (dline>0) for (let i=dline;i<lines.length;i++) {
+        out.push(lines[i]);   
+    }
+    return out;
+}
 async function fetchHooks(hooks){
     if (typeof hooks=='string') hooks=[hooks];
     const out=[];
@@ -28,14 +45,18 @@ async function fetchHooks(hooks){
         const hook=hooks[i];
         const ptr=await dereferencing(hook);
         if (ptr.length) {
-            const {h,ptk,y}=ptr[0];  //y is the beginning of chunk
+            const {h,ptk,y,next}=ptr[0];  //y is the beginning of chunk
             const pitaka=useBasket(ptk);
             let nline=h.y,count=1;  //h.y is y of hook
             if (pitaka.isDictionary()) { //fetch the dictionary entry
                 nline=y;
-                count=h.y-y+1;
+                count=(h.y==y)? next-y : h.y-y+1; //如果沒有 hook ，返回整條
             }
-            const hlines=await readLines({basket:ptk,nline,count});
+            let hlines=await readLines({basket:ptk,nline,count});
+
+            if (h.y>y && pitaka.isDictionary()) { //去掉多餘的義項 ，測試 水滸第八回 頭腦 (結婚的對象)
+                hlines=trimDictDef(hlines);
+            }
             for (let j=0;j<hlines.length;j++) {
                 out.push({ text:hlines[j][1], y:hlines[j][0] , 
                     ptk:pitaka, key:'bl'+Math.random() }) ; 
@@ -44,6 +65,17 @@ async function fetchHooks(hooks){
     }
     return out;
 }
-
+function bestEntries(tf){
+    const ptks=pool.getAll();
+    const out=[];
+    ptks.forEach(ptk=>{
+        if (!ptk.isDictionary())return;
+        const entries=ptk.matchEntry(tf);
+        if (entries&&entries.length) {
+            out.push({ptk:ptk.name, ...entries[0] } );
+        }
+    })
+    return out;
+}
 export {openBasket,pool,opened,useBasket,readLines,Builder,validateConfig
-,fetchHooks};
+,fetchHooks,bestEntries};

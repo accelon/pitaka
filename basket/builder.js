@@ -15,6 +15,21 @@ class Builder {
 
         return this;
     }
+    async addLst(lstfile,format) { //only support by nodejs, mainly for cbeta
+        if (!fs.existsSync(lstfile)) {
+            if (!this.config.allowmissingfile) this.log('missing file',lstfile);
+            else return;
+        }
+        const files=(await fs.promises.readFile(lstfile,'utf8')).split(/\r?\n/);
+        for (let i=0;i<files.length;i++) {
+            const fn=this.config.rootdir+files[i];
+            if (fs.existsSync(fn)) {
+                await this.addFile(fn,format);
+            } else {
+                throw "file not found"+fn
+            }
+        }
+    }
     async addZip(file,format){
         let fn=file;       
         if (typeof file!=='string' && 'name' in file) {
@@ -49,7 +64,6 @@ class Builder {
         for (let i=0;i<files.length;i++) {
             this.addContent(contents[i], format, files[i]);
         }
-
         if (this.context.error) this.log(fn,'has',this.context.error,'errors')
     }
 
@@ -92,6 +106,8 @@ class Builder {
         }
         if (fn.endsWith('.zip')) {
             return await this.addZip(file,format);
+        } else if (fn.endsWith('.lst')) {
+            return await this.addLst(file,format);
         }
 
         if (this.finalized) {
@@ -99,6 +115,7 @@ class Builder {
             return;
         }
         const rawcontent=await fileContent(file,format);
+
         this.addContent(rawcontent,format,fn);
     }
     save(opts){

@@ -1,12 +1,12 @@
 import {extractChineseNumber} from 'pitaka/utils';
-import offTextFormatter from '../offtext/formatter.js';
-import TypeDef from './openlit-typedef.js';
+import OffTextFormatter from '../offtext/formatter.js';
+import TypeDef from './typedef.js';
 import EUDC from './openlit-eudc.js';
 import hotfixes from './openlit-hotfix.js';
 const tidy=str=>str.replace(/<<([\d▉\u3400-\u9fff]+)>>/g,'《$1》')
            .replace(/<([\d▉\u3400-\u9fff]+)>/g,'〈$1〉');
 
-class Formatter extends offTextFormatter {
+class Formatter extends OffTextFormatter {
     constructor (context,log){
         super();
         this.context=context||{};
@@ -38,7 +38,7 @@ class Formatter extends offTextFormatter {
             this.context.nchapter=cn;
             return '^c'+cn+' '+str;
         } else {
-            return '^c '+str;
+            return (str==='本書說明'?'^c0 ':'^c ')+str;
         }
     }
     scan(content){
@@ -117,4 +117,52 @@ const getZipFileToc=async (zip,zipfn)=>{
     return {files:zipfiles, tocpage};
 }
 
-export default {getZipFileToc,Formatter,TypeDef}
+import Label from '../htll/label.js';
+
+class OpenLitTypeDef extends TypeDef {
+    constructor (opts) {
+        super(opts);
+        this.defs.mc=new Label('mc',opts); //missing characters
+    }
+};
+
+/* for toolbox*/
+const readFile=async f=>{
+    let fn=f;
+    if (typeof f.name==='string') fn=f.name;
+    const ext=fn.match(/(\.\w+)$/)[1];
+    if (ext!=='.zip') {
+        const rawlines=(await readTextFile(f)).split("\n");
+        return {lines:rawlines,rawlines,toclines:[]};
+    } else {
+        const Zip= (typeof JSZip!=='undefined' && JSZip) || lazip.JSZip; 
+        const jszip=new Zip();
+        const zip=await jszip.loadAsync(f.getFile());
+
+        const lines=[] ,toclines=[0];
+        const jobs=[], rawlines=[] ;
+        const { files,tocpage}=await getZipFileToc(zip,fn);
+        lines.push(...tocpage);
+        rawlines.push(...tocpage);
+        const context={filename:fn};
+        const formatter=new Formatter(context);
+        
+        const chunks=new Array(files.length); //promises finished not in sequence
+        for (let i=0;i<files.length;i++){
+            const file=files[i];
+            jobs.push(zip.file(file).async('string').then(c=>chunks[i]=c));
+        }
+        await Promise.all(jobs);
+
+        for (let i=0;i<chunks.length;i++) {
+            const out=formatter.scan(chunks[i]);
+            toclines[i+1]=lines.length;
+            lines.push(...out.text);
+            rawlines.push(...out.rawlines);
+        }
+
+        return {lines,toclines,rawlines};
+    }
+}
+
+export default {getZipFileToc,Formatter,'TypeDef':OpenLitTypeDef,readFile}

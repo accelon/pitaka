@@ -1,4 +1,5 @@
 // uPDB file format: http://www.haodoo.net/?M=hd&P=mPDB22#P
+// download link http://www.haodoo.net/?M=d&P=C[bookid].updb
 /*
 
 #新版 uPDB (Unicode) 及 PDB (Big5) 檔規格
@@ -43,7 +44,7 @@
 
     第N+2筆資料是書籤，預設是-1。可以不理。
 */
-import {extractChineseNumber} from 'pitaka/utils';
+import {readBLOBFile,readTextFile} from '../platform/inputfiles.js'
 const ctbl=[
     [/︽/g,'《'],    [/︾/g,'》'],
     [/︵/g,'（'],    [/︶/g,'）'],
@@ -96,7 +97,7 @@ const parseFirstRecord=(buf,start,len,decoder)=>{ //special care with mix ule-16
       Table-of-content (one line per chapter)
 
 */
-export const readHaodoo=buf=>{
+const readHaodoo=buf=>{
     if (typeof Buffer!=='undefined'&& buf instanceof Buffer) {
         buf=buf.buffer;
     }
@@ -133,3 +134,26 @@ export const readHaodoo=buf=>{
     }
     return output;
  }
+
+ const readFile=async f=>{
+    let fn=f;
+    if (typeof f.name==='string') fn=f.name;
+
+    const ext=fn.match(/(\.\w+)$/)[1];
+    if (ext!=='.updb') {
+        const rawlines=(await readTextFile(f)).split("\n");
+        return {lines:rawlines,rawlines,toclines:[]};
+    } else {
+        const buf=await readBLOBFile(f);
+        const blocks=readHaodoo(buf);
+        const rawlines=[], toclines={} ; //從目錄頁指到每一章的起始行
+        blocks.forEach( (block,idx)=>{
+            toclines[idx]=rawlines.length;
+            rawlines.push(... block.split(/\n+/) );
+        });
+        
+        return {rawlines,toclines};
+    }
+}
+
+export default {readFile}

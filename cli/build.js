@@ -1,8 +1,7 @@
-import {LabelType} from 'pitaka/htll'
 import {Builder} from 'pitaka/basket'
 import {filesFromStringPattern} from 'pitaka/utils'
 import kluer from './kluer.js'
-const {blue,yellow,red,bgGreen} = kluer;
+const {yellow,red} = kluer;
 import {existsSync,readFileSync} from 'fs'
 import JSZip from 'jszip';
 global.JSZip=JSZip; //for ZipSaver

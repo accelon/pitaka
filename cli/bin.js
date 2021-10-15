@@ -11,6 +11,8 @@ import kluer from './kluer.js' //copy from https://github.com/lukeed/kleur/
 const {blue,yellow,red,bgWhite} = kluer;
 import nodefs from '../platform/nodefs.js';
 await nodefs;
+import ltx from 'ltx'
+global.XML=ltx;
 import {existsSync,  readFileSync} from 'fs';
 import {buildPitaka} from './build.js'
 import {info} from './info.js';

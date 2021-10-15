@@ -8,7 +8,6 @@ const nodefsready=new Promise(resolve=>{
         import('path').then(p=>{
             global.Path=p;
         })
-        
     } else {
         resolve(null)
     }

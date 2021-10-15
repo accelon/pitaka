@@ -59,14 +59,15 @@ export const dereferencing=async (arr,ptk=null)=>{
         ptr.y=from-branches[branches.length-1].dy; //starting of the chunk
         const chunks=ptk.unreadyChunk(from,to)
         if (chunks.length) jobs.push( ptk.prefetchChunks(chunks));
-        out.push([ptr, pths, from]);
+        out.push([ptr, pths, from, to]);
     }
     await Promise.all(jobs);    //text is ready
 
     for (let i=0;i<out.length;i++) {
-        const [ptr,pths, y]=out[i];
+        const [ptr,pths, y, to]=out[i];
         const ptk=pool.get(ptr.ptk);
         const linetext= ptk.getLine(y);
+        ptr.next=to;
         ptr.h=parseHook(pths,linetext,y);
     }
 

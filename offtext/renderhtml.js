@@ -98,9 +98,13 @@ export const renderSnippet=(lines=[],tags=[])=>{
             continue;
         }
         if (closing) {
-            const {name}=activetags.filter( c=>c.i==closing-1)[0];
+            const actives=activetags.filter( c=>c.i==closing-1);
+            let name='';
+            if (actives.length) {
+                name=actives[0].name;
+            }
             const openx=T[closing-1].x;
-            out.push({i:closing,closing:true, name }); //第i個tag關閉
+            if (name) out.push({i:closing,closing:true, name }); //第i個tag關閉
             activetags=activetags.filter( c=>c.i!==closing-1);
             const clss=activetags.map(t=>t.name);
             clss.push( ... lastSpan(T,activetags,idx,x) );
