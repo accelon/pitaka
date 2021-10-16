@@ -22,6 +22,7 @@ class LabelPage extends Label {
         }
         this.linepos[this.pagestart+page]=tag.y;
         this.prevy=tag.y;
+        
     }
     human(){
         

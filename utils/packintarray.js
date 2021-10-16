@@ -87,9 +87,10 @@ export const pack_delta=(arr,removeRepeat=false)=>{
 
 	for (let i=1;i<arr.length;i++) {
 		const p=arr[i];
-		arr[i]=arr[i]-now;
-		if (arr[i]<0) console.log("negative value",i,arr[i]);
+		if (now>arr[i]) console.log("negative value",i,arr[i]);
 		else if (removeRepeat&&arr[i]==0) arr[i]=Number.MIN_VALUE;
+
+		arr[i]=arr[i]-now;
 		now=p;
 	}
 	return pack(arr);

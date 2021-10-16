@@ -64,7 +64,8 @@ const fillGap=sorted_int_array=>{
     let prev=sorted_int_array[0]||0;
         
     for (let i=1;i<sorted_int_array.length;i++) { //fill the gap
-        if (typeof sorted_int_array[i]=='undefined') sorted_int_array[i]=prev;
+        if (isNaN(sorted_int_array[i])) sorted_int_array[i]=prev;
+        prev=sorted_int_array[i];
     }
     return sorted_int_array;
 }

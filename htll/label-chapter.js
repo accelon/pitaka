@@ -16,7 +16,10 @@ class LabelChapter extends Label {
         const {y}=tag;
         const id=(tag.attrs.id||tag.attrs.n)||' ';
 
-        if (this._idarr[id]) throw 'repeated idarr, '+id+' at '+y ;
+        if (this._idarr[id]) {
+            console.log(tag,linetext)
+            throw 'repeated chunk id, '+id+' at '+y ;
+        }
 
         this._idarr[id]=true;
         this.names.push(linetext);

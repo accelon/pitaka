@@ -24,7 +24,7 @@ const fileContent=async(fn,format)=>{
 
 const readFormatFile=async (f,format)=>{
     const fm=getFormat(format);
-    return await fm.readFile(f);
+    return await fm.parseFile(f);
 }
 
 const getZipIndex=async (zip,format,fn)=>{

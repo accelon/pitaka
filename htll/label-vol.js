@@ -14,7 +14,6 @@ class LabelVol extends Label {
     }
     serialize(){
         fillGap(this.linepos);
-
         const out=[];
         out.push( pack_delta(this.linepos));
         return out;

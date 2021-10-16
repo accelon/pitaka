@@ -17,7 +17,7 @@ class LabelBook extends Label {
         if (width==0) width=linetext.length;
         this.names.push(linetext.substr(pos,width));
         this.linepos.push(y);
-        if (this._idarr[id]) throw 'repeated idarr, '+id+' at '+line ;
+        if (this._idarr[id]) throw 'repeated bk id, '+id+' at '+line ;
 
         this._idarr[id]=y;
         this.idarr.push(id);

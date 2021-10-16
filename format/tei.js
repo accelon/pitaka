@@ -77,23 +77,11 @@ export const handlers={
     p: (el,ctx)=>'\n',
     'cb:mulu':(el,ctx)=>{
     },
-    'cb:juan':(el,ctx)=>{
-        if (el.attrs.fun=='close') {
-            ctx.hide++;
-            return;
-        }
-        ctx.compact=true;
-        return '\n^c'+parseInt(el.attrs.n);
-    },
     'cb:div': (el,ctx)=>{
         ctx.div++;
         ctx.compact=true;
         return '\n^h[o='+el.attrs.type+']';
     },
-    'cb:docNumber' :(el,ctx)=>{
-        ctx.compact=true;
-        return '\n^bk'+el.innerText(true,1).replace('No. ','');
-    }
     // deal with app inside cb:tt <app n="0002008">  t01n0001_001
     /*
     app:(el,ctx)=>{

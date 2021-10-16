@@ -1,6 +1,7 @@
 import OffTextFormatter from '../offtext/formatter.js';
 import {handlers,closeHandlers,CBetaTypeDef} from './tei.js'
 import {DOMFromString,xpath} from '../xmlparser/index.js';
+import { alphabetically } from '../utils/sortedarray.js';
 
 const XML2OffText = (el,ctx) =>{
     if (typeof el=='string') {                     // a string node arrives
@@ -45,7 +46,17 @@ const parseBuffer=(buf,fn='')=>{
     const el=DOMFromString(buf);
     const body=xpath(el,'text/body');
     const charmap=buildChapmap(xpath(el,'teiHeader/encodingDesc/charDecl'));
-    let content=XML2OffText(body,{lbcount:0,hide:0,snippet:'',div:0,charmap});
+
+    
+    let m=fn.match(/n([\dabAB]+)_(\d+)/);
+    let bk='',chunk='';
+    if (!m) {
+        console.log(fn)
+    }
+    if (m[2]=='001')  bk='^bk'+m[1].replace(/^0+/,'').replace('_001','').toLowerCase();
+    chunk='^c'+parseInt(m[2]);
+
+    let content=bk+chunk+XML2OffText(body,{lbcount:0,hide:0,snippet:'',div:0,charmap,fn});
     content=content.replace(/\^r\n/g,'\n');
     return content;
 }
@@ -67,6 +78,7 @@ const getZipFileToc=async (zip,zipfn)=>{
     } else { // zip file in memory
         zipfiles=Object.keys(zip.files);
     }
+    zipfiles.sort(alphabetically);
     return {files:zipfiles, tocpage};
 }
 export default {Formatter:OffTextFormatter,TypeDef:CBetaTypeDef,

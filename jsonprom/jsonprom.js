@@ -63,8 +63,7 @@ class JSONPROM {
         const res=await fetch(romfn,{headers: {
             'content-type': 'multipart/byteranges',
             'range': 'bytes=0-'+(ROMHEADERSIZE-1),
-        }}
-        );
+        }});
 
         if (res.ok) {
             const text=await res.text();
