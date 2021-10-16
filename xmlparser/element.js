@@ -27,5 +27,19 @@ class Element {
         this.children.push(text);
         return this;
     }
+    innerText(trim=false,skip={}) {
+        let s='';
+        // if (level<1) return '';
+        for (let i=0;i<this.children.length;i++) {
+            if (typeof this.children[i]==='string') {
+                const t=this.children[i];
+                s+=trim?t.trim():t;
+            } else {
+                const t=this.children[i].innerText(trim);
+                s+=trim?t.trim():t;
+            }
+        }
+        return s;
+    }
 }
 export default Element;

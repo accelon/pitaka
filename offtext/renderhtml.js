@@ -213,6 +213,7 @@ export const OfftextToSnippet =(linetext , extra=[] , renderInlinetag=true)=>{
             tags.push(new OffTag('hl'+i, null, 0, extra[i][0], extra[i][1]) ); 
         }
     }
+    tags.sort((a,b)=>a.x==b.x?b.w-a.w:a.x-b.x);
     const snippets= renderSnippet(text,tags);
     
     return snippets;

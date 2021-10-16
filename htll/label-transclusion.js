@@ -63,7 +63,7 @@ class LabelTransclusion extends Label {
         return out;
     }
     deserialize(payload){
-        let at=super.deserialize(payload);
+        let at=super.deserialize(payload)||0;
         this.ptks=payload[at++].split('|');
         this.ptks_start=unpack_delta(payload[at++]);
 

@@ -16,7 +16,7 @@ class Label {
         
     }
     deserialize(){
-        return [];
+        return 0;
     }
     serialize(){
         return [];

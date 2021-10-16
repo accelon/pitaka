@@ -126,8 +126,9 @@ class OpenLitTypeDef extends TypeDef {
     }
 };
 
-/* for toolbox*/
-const readFile=async f=>{
+
+/* for toolbox to open */
+const parseFile=async f=>{
     let fn=f;
     if (typeof f.name==='string') fn=f.name;
     const ext=fn.match(/(\.\w+)$/)[1];
@@ -165,4 +166,4 @@ const readFile=async f=>{
     }
 }
 
-export default {getZipFileToc,Formatter,'TypeDef':OpenLitTypeDef,readFile}
+export default {getZipFileToc,Formatter,'TypeDef':OpenLitTypeDef,parseFile}

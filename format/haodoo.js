@@ -134,8 +134,16 @@ const readHaodoo=buf=>{
     }
     return output;
  }
-
- const readFile=async f=>{
+const parseBuffer=buf=>{
+    const blocks=readHaodoo(buf);
+    const rawlines=[], toclines={} ; //從目錄頁指到每一章的起始行
+    blocks.forEach( (block,idx)=>{
+        toclines[idx]=rawlines.length;
+        rawlines.push(... block.split(/\n+/) );
+    });
+    return {rawlines,toclines};
+}
+const parseFile=async f=>{
     let fn=f;
     if (typeof f.name==='string') fn=f.name;
 
@@ -145,15 +153,9 @@ const readHaodoo=buf=>{
         return {lines:rawlines,rawlines,toclines:[]};
     } else {
         const buf=await readBLOBFile(f);
-        const blocks=readHaodoo(buf);
-        const rawlines=[], toclines={} ; //從目錄頁指到每一章的起始行
-        blocks.forEach( (block,idx)=>{
-            toclines[idx]=rawlines.length;
-            rawlines.push(... block.split(/\n+/) );
-        });
-        
-        return {rawlines,toclines};
+
+        return parseBuffer(buf)
     }
 }
 
-export default {readFile}
+export default {parseFile}

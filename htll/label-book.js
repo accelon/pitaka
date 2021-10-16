@@ -21,9 +21,7 @@ class LabelBook extends Label {
 
         this._idarr[id]=y;
         this.idarr.push(id);
-        return true;
     }
-
     serialize(){
         const out=[];
         out.push(packStrings(this.names));
@@ -32,7 +30,7 @@ class LabelBook extends Label {
         return out;
     }
     deserialize(payload){
-        let at=0;
+        let at=super.deserialize(payload);
         this.names=unpackStrings(payload[at++]);
         this.linepos=unpack_delta(payload[at++])
         this.idarr=unpackStrings(payload[at++]);

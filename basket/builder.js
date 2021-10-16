@@ -38,18 +38,19 @@ class Builder {
         const jszip=new JSZip();
         let zip;
         if (typeof file=='string') {
-            if (!fs.existsSync(file)) {
+            fn=(this.config.rootdir||'')+file;
+            if (!fs.existsSync(fn)) {
                 if (!this.config.allowmissingfile) this.log('missing file',fn);
                 else return;
             }
-            const data=await fs.promises.readFile(file);
+            const data=await fs.promises.readFile(fn);
             zip=await jszip.loadAsync(data);
         } else {
             zip=await jszip.loadAsync(file.getFile());
         }
         this.context.error=0;
         const {files,tocpage}=await getZipIndex(zip,format,fn); //pitaka not using tocpage
-
+        
         const jobs=[];
         const contents=new Array(files.length); //save the contents in order
         for (let i=0;i<files.length;i++) {
@@ -60,7 +61,9 @@ class Builder {
             }));
         }
         await Promise.all(jobs);
-        this.addContent(tocpage[0],'offtext','index.html');//only take the bookname
+        if (tocpage.length) {
+            this.addContent(tocpage[0],'offtext','index.html');//only take the bookname
+        }
         for (let i=0;i<files.length;i++) {
             this.addContent(contents[i], format, files[i]);
         }

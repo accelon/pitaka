@@ -59,7 +59,16 @@ const fromObj=(obj,cb=null)=>{
     }
     return arr;
 }
-export {unique,unique1,unique0,fromObj,
+
+const fillGap=sorted_int_array=>{
+    let prev=sorted_int_array[0]||0;
+        
+    for (let i=1;i<sorted_int_array.length;i++) { //fill the gap
+        if (typeof sorted_int_array[i]=='undefined') sorted_int_array[i]=prev;
+    }
+    return sorted_int_array;
+}
+export {unique,unique1,unique0,fromObj,fillGap,
     alphabetically, alphabetically1,alphabetically2,alphabetically0,
     length_alphabetically,length_alphabetically0,length_alphabetically1,
     statStrIntobject};

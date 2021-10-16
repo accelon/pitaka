@@ -35,7 +35,8 @@ function JSONify(el) {
 }
 const xpath=(root,p)=>{
     const paths=p.split('/');
-    let found,el,children=[root];
+    if (!root.children) return null;
+    let found,el,children=root.children;
     for (let i=0;i<paths.length;i++) {
         for (let j=0;j<children.length;j++) {
             found=false;

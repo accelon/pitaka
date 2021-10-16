@@ -1,65 +1,73 @@
 import OffTextFormatter from '../offtext/formatter.js';
-import TypeDef from './typedef.js';
-import {DOMFromString,JSONify,xpath} from '../xmlparser/index.js';
-import {parseOfftext} from '../offtext/parser.js';
-class Formatter extends OffTextFormatter {
-    constructor (context){
-        super(context);
+import {handlers,closeHandlers,CBetaTypeDef} from './tei.js'
+import {DOMFromString,xpath} from '../xmlparser/index.js';
+
+const XML2OffText = (el,ctx) =>{
+    if (typeof el=='string') {                     // a string node arrives
+        let s=el.trimRight();
+        if (ctx.compact && s.charCodeAt(0)<0x7f) { // a compact offtag is emitted just now
+            s=' '+s;                               // use blank to separate tag 
+            ctx.compact=false;
+        }
+        if (ctx.hide) return '';
+        if (s) ctx.snippet=s;
+        return s;
     }
-    scan(rawlines){
-        // const {text,tags}=parseOfftext(rawlines,this.context.ptkline);
-        console.log('scanning',rawlines)
-        const text='',tags=[];
-        return {text,tags,rawlines};    
-    }
-}
-
-class CBetaTypeDef extends TypeDef {
-    constructor(opts) {
-        super(opts);
-    }
-}
-
-const handlers={
-    p: (el)=>{
-        return '\n^p['+el.attrs['xml:id'].substr(6)+']'
-        +el.children.map(node=>{
-            if (typeof node==='string') {
-                return node;
-            }
-            return '';
-        }).join('');
-    },
-    lb:el=>{
-        // return '^lb['+el.attrs.n+']';
-    }
-}
-
-
-
-const XML2OffText = el =>{
     let out='';
     const handler= handlers[el.name];
-    if (handler) out=handler(el);
-    if (el.children && el.children.length) out+=el.children.map(XML2OffText).join('');
+    if (handler) out=handler(el,ctx)||'';
+
+    if (el.children && el.children.length) {
+        out+=el.children.map(e=>XML2OffText(e,ctx)).join('');
+    }
+
+    const closehandler= closeHandlers[el.name];
+    if (closehandler) out+=closehandler(el,ctx)||'';
     return out;
 }
 
-const readFile=async f=>{
+const buildChapmap=(charDecl)=>{
+    const res={};
+    if (!charDecl)return res;
+    for (let i=0;i<charDecl.children.length;i++) {
+        const char=charDecl.children[i];
+        if (!char.attrs)continue;
+        const id=char.attrs['xml:id'];
+        const uni=xpath(char,'mapping');
+        if (uni&& uni.attrs.type=='unicode' && typeof uni.children[0]=='string') {
+            res[id]= String.fromCodePoint(parseInt( uni.children[0].substr(2),16));
+        }
+    }
+    return res;
+}
+const parseBuffer=(buf,fn='')=>{
+    if (fn) process.stdout.write('\r processing'+fn+'    ');
+    const el=DOMFromString(buf);
+    const body=xpath(el,'text/body');
+    const charmap=buildChapmap(xpath(el,'teiHeader/encodingDesc/charDecl'));
+    let content=XML2OffText(body,{lbcount:0,hide:0,snippet:'',div:0,charmap});
+    content=content.replace(/\^r\n/g,'\n');
+    return content;
+}
+const parseFile=async f=>{
     const fn=f;
-    let content='';
     if (typeof f.name==='string') fn=f.name;
     const ext=fn.match(/(\.\w+)$/)[1];
     if (ext=='.xml') {
-        process.stdout.write('\r processing'+f+'    ');
         const xmlcontent=await fs.promises.readFile(f,'utf8');
-        const el=DOMFromString(xmlcontent);  //need ltx
-        const body=xpath(el,'TEI/text/body');
-        content=XML2OffText(body);
-        console.log(content);
+        return parseBuffer(xmlcontent,fn);
     } else {
         throw "unknown extension "+ext
     }
-    return content;
 }
-export default {Formatter,'TypeDef':CBetaTypeDef,readFile}
+const getZipFileToc=async (zip,zipfn)=>{
+    let zipfiles,tocpage=[];
+    if (zip.fileEntries) { //lazip, deflate content is not in memory
+        zipfiles=zip.fileEntries.map(f=>f.fileNameStr);
+    } else { // zip file in memory
+        zipfiles=Object.keys(zip.files);
+    }
+    return {files:zipfiles, tocpage};
+}
+export default {Formatter:OffTextFormatter,TypeDef:CBetaTypeDef,
+    parseFile,parseBuffer,getZipFileToc}

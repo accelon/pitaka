@@ -4,15 +4,16 @@ const fileContent=async(fn,format)=>{
     let c;
     const F=getFormat(format);
     if (typeof fn=='string') {
-        if (F.readFile) c= await F.readFile(fn);
+        if (F.parseFile) c= await F.parseFile(fn);
         else            c=(await fs.promises.readFile(fn,'utf8')).replace(/\r?\n/g,'\n');
         
     } else {
        if (fn.zip) {
             const raw=await fn.zip.files[fn.name].async('string');
-            c=raw.replace(/\r?\n/g,'\n');
+            if (F.parseBuffer) c=F.parseBuffer(raw,fn.name); 
+            else              c=raw.replace(/\r?\n/g,'\n');
        } else {
-            if (F.readFile) c = await F.readFile(fn);
+            if (F.parseFile) c = await F.parseFile(fn);
             else            c =(await readTextFile(fn)).replace(/\r?\n/g,'\n');
        }
     }

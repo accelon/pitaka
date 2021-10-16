@@ -22,7 +22,6 @@ class LabelChapter extends Label {
         this.names.push(linetext);
         this.idarr.push(id);
         this.linepos.push(y);
-        return true;
     }
     reset() {
         this._idarr={};

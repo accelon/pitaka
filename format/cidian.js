@@ -10,8 +10,8 @@ class CidianTypeDef extends TypeDef{
         delete this.defs.bk;
         delete this.defs.c;
 
-        this.defs.e  =new LabelDictEntry('e',Object.assign({resets:['y']},opts));
-        this.defs.y  =new Label('y',Object.assign({resets:['d','eg','q']},opts));
+        this.defs.e  =new LabelDictEntry('e',{resets:['y'],...opts});
+        this.defs.y  =new Label('y',{resets:['d','eg','q'],...opts});
         this.defs.d  =new Label('e',opts);
         this.defs.eg =new Label('eg',opts);
         this.defs.q  =new Label('q',opts);

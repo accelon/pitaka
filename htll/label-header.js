@@ -4,13 +4,12 @@ import UniqueID from './uid.js';
 class LabelHeader extends Label {
     constructor(name,opts={}) {
         super(name,opts)
-        this.pat=/^h(\d+)/i
         this.headerLinePos=[];
         this.header={depth:0};
         this.scope='';
         return this;
     }
-    action( {tag ,nline,text}){
+    action( {tag ,nline}){
         if (tag.closing)return;
 
         const level=parseInt(tag.ele.substr(1))-1;
