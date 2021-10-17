@@ -31,19 +31,9 @@ export async function loadNodeJsZip (name,chunk,rom) {
 export const loadFetch= async (name,chunk,rom)=>{
     const at=rom.filenames?rom.filenames.indexOf(chunkfilename(chunk)):chunk;
     
-    if (at>-1) {
-        const start=rom.offsets[at],end=rom.offsets[at+1];
-        const res=await fetch(rom.romfile,{headers: {
-            'content-type': 'multipart/byteranges',
-            'range': 'bytes='+start+'-'+end,
-        }})
-
-        if (res.ok) {
-            const content=await res.text();
-            return parseChunk(content)
-        }
-        console.error('rom fetch failed,',name,chunk);
-        return '';
+    if (at>-1) { //fetch from ptk
+        const data=await rom.romzip.readTextFile(name+'/'+rom.filenames[at]);
+        return parseChunk(data);
     }
 
     const uri=makeChunkURI(name,chunk,rom);
