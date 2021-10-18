@@ -6,14 +6,15 @@ import {parseOfftextLine} from './parser.js';
 
 export const parsePointer=str=>{
     if (!str) return {};
-    const res={ptk:'',bk:'',c:'',dy:0,hook:''};
+    const res={basket:'',bk:'',c:'',dy:0,hook:'',loc:''};
     const pths=str.split(PATHSEP);
     if (str[0]=='/') {
         pths.shift();
-        res.ptk=pths.shift();
+        res.basket=pths.shift();
     }
+    
     res.bk=pths.shift();
-
+    res.loc=res.bk;
     if (!pths.length) return res;
 
     let bk,c='',dy;
@@ -23,10 +24,10 @@ export const parsePointer=str=>{
     } else {
         [c,dy]=pths.shift().split(DELTASEP);
     }
-
     res.c=c;
     res.dy=parseInt(dy);
     res.hook=pths.join(PATHSEP);
+    res.loc=res.bk+PATHSEP+res.c;
     return res;
 }
 export const dereferencing=async (arr,ptk=null)=>{
@@ -74,8 +75,15 @@ export const dereferencing=async (arr,ptk=null)=>{
     return out.map(i=>i[0]);
 }
 
-export const serializePointer=({p,k})=>{
-    return p+PATHSEP+k;
+export const serializePointer=(ptk,y_loc,hook='')=>{
+    if (!ptk)return '';
+    let loc=y_loc;
+    if (typeof y_loc=='number') {
+        loc=ptk.locate(y_loc).join(PATHSEP);
+    }
+    let ptkname=ptk;
+    if (typeof ptk.name=='string') ptkname=ptk.name;
+    return PATHSEP+ptkname+PATHSEP+loc+(hook?(PATHSEP+hook):'');
 }
 
 
@@ -124,5 +132,5 @@ export const referencing=async (arr, ptk=null)=>{
 
     //convert to hook
     // return pointers;
-    return pointers.map(serializePointer);
+    return pointers.map(({p,k})=>p+PATHSEP+k);
 }

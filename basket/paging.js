@@ -22,7 +22,7 @@ function locate(y){
     for (let i=0;i<thetree.length;i++) {
         const lbl=this.findLabel(thetree[i]);
         const at=bsearch(lbl.linepos, y , true);
-        const dy=y-lbl.linepos[at-1];
+        const dy= (i===thetree.length-1)?(y-lbl.linepos[at-1]):0 ; //dy for last tree node
         out.push(lbl.idarr[at-1]+(dy? DELTASEP+dy:''));
     }
     return out;
@@ -55,40 +55,40 @@ function pageAt(y0){
     return out.map(i=>i[0]+ (i[1]?DELTASEP+i[1]:''));
 }
 function getTocTree(addr){
-    const out=[{loc:'',name:this.header.title }];
+    const out=[{ptr:'',name:this.header.title }];
     if (!addr.trim())return out;
     const thetree=(this.header.tree||DEFAULT_TREE).split(PATHSEP);
     const parents=addr.split(PATHSEP);
-    let loc='';
+    let ptr='';
     for (let i=0;i<parents.length;i++){
         const label=this.findLabel(thetree[i]);
         let at=label.idarr.indexOf(parents[i]);
         if (at==-1) break;
         let next=at;
         if (i==parents.length-1 && thetree.length==parents.length && next+1<label.idarr.length) next++;
-        loc=loc+(loc?PATHSEP:'')+(label.idarr[next].trim()||(DELTASEP+next));
+        ptr=ptr+(ptr?PATHSEP:'')+(label.idarr[next].trim()||(DELTASEP+next));
         let name=label.names?label.names[at]:label.idarr[at];
         const at2=name.indexOf('　');
         if (at2>0 && name.length>10) name=name.substr(0,at2);
-        out.push({name, n: at, loc})
+        out.push({name, n: at, ptr})
     }
     return out;
 }
-function fetchPage(ptr){
+function fetchPage(loc){
     const out=[];
-    let [y0,y1] = this.getPage(ptr);
+    let [y0,y1] = this.getPage(loc);
     if (y1==-1) y1=this.lastTextLine();
 
     const thetree=(this.header.tree||DEFAULT_TREE).split(PATHSEP);
-    const parents=ptr.split(PATHSEP).filter(i=>!!i);
+    const parents=loc.split(PATHSEP).filter(i=>!!i);
     if (parents.length<thetree.length) {
         const label=this.findLabel(thetree[parents.length]);
         if (label){
             const at=bsearch(label.linepos,y0,true);
             for (let i=at;i<label.linepos.length;i++) {
                 if (y1>label.linepos[i]) {
-                    const loc=(ptr?ptr+PATHSEP:'')+(label.idarr[i]||DELTASEP+i);
-                    out.push({key:(i+1),text:label.names?label.names[i]:label.idarr[i],loc})
+                    const ptr=(loc?loc+PATHSEP:'')+(label.idarr[i]||DELTASEP+i);
+                    out.push({key:(i+1),text:label.names?label.names[i]:label.idarr[i],ptr})
                 }
             }        
         }
