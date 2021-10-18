@@ -18,28 +18,28 @@ class LabelTransclusion extends Label {
     }
     action(tag){
         const ptr=parsePointer(tag.attrs['@']); // ptk, bk, c, dy, hook
-        if (ptr && ptr.ptk){ //only deal with external quote
-            const {ptk,bk,c,dy,hook} = ptr;
-            if (!this.Q[ptk])this.Q[ptk]={};
-            if (!this.Q[ptk][bk])this.Q[ptk][bk]={};
-            if (!this.Q[ptk][bk][c])this.Q[ptk][bk][c]=[];
-            this.Q[ptk][bk][c].push([tag.y,dy,hook]);
+        if (ptr && ptr.basket){ //only deal with external quote
+            const {basket,bk,c,dy,hook} = ptr;
+            if (!this.Q[basket])this.Q[basket]={};
+            if (!this.Q[basket][bk])this.Q[basket][bk]={};
+            if (!this.Q[basket][bk][c])this.Q[basket][bk][c]=[];
+            this.Q[basket][bk][c].push([tag.y,dy,hook]);
         }
     }
     serialize(){
-        for (let ptk in this.Q ) {
-            this.ptks.push(ptk)
+        for (let basket in this.Q ) {
+            this.ptks.push(basket)
             this.ptks_start.push(this.hooks.length);
-            for (let bk in this.Q[ptk]) {
+            for (let bk in this.Q[basket]) {
                 this.books.push(bk)
                 this.books_start.push(this.hooks.length);    
-                for (let c in this.Q[ptk][bk]) {
+                for (let c in this.Q[basket][bk]) {
                     this.chunks.push(c)
                     this.chunks_start.push(this.hooks.length);
 
-                    this.Q[ptk][bk][c].sort((a,b)=>a[0]==b[0]?a[1]-b[1]:a[0]-b[0] );// sort by source line pos, then dy
-                    for (let i=0;i<this.Q[ptk][bk][c].length;i++) {
-                        const [srcy, dy, hook] = this.Q[ptk][bk][c][i];
+                    this.Q[basket][bk][c].sort((a,b)=>a[0]==b[0]?a[1]-b[1]:a[0]-b[0] );// sort by source line pos, then dy
+                    for (let i=0;i<this.Q[basket][bk][c].length;i++) {
+                        const [srcy, dy, hook] = this.Q[basket][bk][c][i];
                         this.linepos.push(srcy);
                         this.hooks.push(dy+'^'+hook);   
                     }

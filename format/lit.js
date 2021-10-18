@@ -1,8 +1,7 @@
 import {extractChineseNumber} from 'pitaka/utils';
 import OffTextFormatter from '../offtext/formatter.js';
 import TypeDef from './typedef.js';
-import EUDC from './openlit-eudc.js';
-import hotfixes from './openlit-hotfix.js';
+// import hotfixes from './lit-hotfix.js';
 const tidy=str=>str.replace(/<<([\d▉\u3400-\u9fff]+)>>/g,'《$1》')
            .replace(/<([\d▉\u3400-\u9fff]+)>/g,'〈$1〉');
 
@@ -15,8 +14,11 @@ class Formatter extends OffTextFormatter {
         this.log=log||console.log;
     }
     applyfix(content){
-        const hotfix=hotfixes[this.context.filename];
+        if (!this.context.errata) return content;
+       
+        const hotfix=this.context.errata[this.context.filename];
         if (hotfix) {
+            console.log(hotfix)
             for (let i=0;i<hotfix.length;i++) {
                 const fix=hotfix[i];
                 const newcontent=content.replace(fix[0],fix[1]);
@@ -45,7 +47,8 @@ class Formatter extends OffTextFormatter {
         const out=[];
         const rawlines=tidy(this.applyfix(content)).split(/\r?\n/);
 
-        const {eudc}=this.context;
+        const {eudc,EUDC}=this.context; //EUDC from external eudc.json
+
         for (let i=0;i<23;i++) rawlines.shift();
         rawlines.length=rawlines.length-29;
         const ch=this.parseHeader(rawlines.shift().trim());

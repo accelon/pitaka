@@ -192,7 +192,6 @@ export const renderHTML=(lines,tags=[],opts={})=>{
 export const OfftextToSnippet =(linetext , extra=[] , renderInlinetag=true)=>{
     if (!linetext)return[];
     const hastag=linetext.includes('^');
-    
     if (extra[0]==extra[1]) extra[0]=''
     let tags=[],text=linetext;
     if (hastag && renderInlinetag) [text,tags]=parseOfftextLine(linetext);

@@ -2,7 +2,7 @@ import {loadJSONP,loadFetch,loadNodeJs,loadNodeJsZip} from './loadchunk.js';
 import {findPitakaFolder} from '../platform/nodefs.js'
 import {readLines,prefetchLines,  unreadyChunk,prefetchChunks} from './readline.js';
 import {ROMEXT} from '../rom/romconst.js';
-import LaZip from '../utils/lazip.js';
+
 class JSONPROM {
     constructor(opts) {
         this.context = {
@@ -61,8 +61,9 @@ class JSONPROM {
             return;
         }
         const romfn='/'+this.header.name+ROMEXT;
+        const LaZip= (typeof JSZip!=='undefined' && JSZip) || lazip.JSZip; 
         const zip=await LaZip(romfn);
-        if (zip) {
+        if (zip &&Object.keys(zip.files).length) {
             this.romzip=zip;
             const folder=this.romzip.jszip.fileEntries[0].fileNameStr;
             this.filenames=this.romzip.jszip.fileEntries.map(i=>i.fileNameStr
@@ -73,9 +74,12 @@ class JSONPROM {
     async load(_chunk=0){
         let res;
         if (!this.context.loadedChunk[_chunk]) {
+            this.context.loadedChunk[_chunk]=true; //assuming loading is ok, prevent multiple load
             res = await this._loader(this.header.name,_chunk,this);
-            this.context.loadedChunk[_chunk]=true;
             if (res) this.setChunk(_chunk,res.header,res.payload);
+            else {
+                this.context.loadedChunk[_chunk]=false;
+            }
         }        
     }
     getSectionRange(name){

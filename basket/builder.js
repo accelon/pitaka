@@ -3,8 +3,12 @@ import JSONPROMWriter from '../jsonprom/jsonpromw.js';
 import {serializeLabels} from './serialize-label.js';
 class Builder {
     constructor(opts) {
-        this.context={eudc:{},nchapter:0,rawtags:[] 
-                    ,filename:'',ptkline:0};
+        this.context={
+            eudc:{}//eudc found
+            ,EUDC:null    //external eudc mapping
+            ,errata:{}   
+            ,nchapter:0,rawtags:[] 
+            ,filename:'',ptkline:0};
         this.writer=new JSONPROMWriter(Object.assign({},opts,{context:this.context}));
         this.finalized=false;
         this.log=opts.log || console.log;
@@ -13,7 +17,33 @@ class Builder {
         this.opts=opts;
         this.labeldefs=getFormatTypeDef(this.config.format,{context:this.context,log:this.log});
 
+
+        if (this.config.eudc) this.addEUDC(this.config.eudc)
+        if (this.config.errata) this.addErrata(this.config.errata)
         return this;
+    }
+    addEUDC(eudcfile){
+        const self=this;
+        fileContent(eudcfile).then(content=>{
+            self.context.EUDC=JSON.parse(content);
+        });
+    }
+    addErrata(erratafile) {
+        const self=this;
+        fileContent(erratafile).then(content=>{
+            const errata=JSON.parse(content);
+            for (let fn in errata) {
+                for (let i in errata[fn]) {
+                    const [from,to,opts]=errata[fn][i];
+                    if (opts===true) {
+                        const regex=new RegExp(from,'g');
+                        errata[fn][i]=[regex,to];
+                    }
+                    //todo opts is number, dec for each match
+                }
+            }
+            self.context.errata=errata;
+        });
     }
     async addLst(lstfile,format) { //only support by nodejs, mainly for cbeta
         if (!fs.existsSync(lstfile)) {
@@ -22,11 +52,17 @@ class Builder {
         }
         const files=(await fs.promises.readFile(lstfile,'utf8')).split(/\r?\n/);
         for (let i=0;i<files.length;i++) {
-            const fn=(this.config.rootdir||'')+files[i];
+            let fn=files[i];
             if (fs.existsSync(fn)) {
                 await this.addFile(fn,format);
-            } else {
-                throw "file not found"+fn
+            } else if (this.config.rootdir){
+                fn=this.config.rootdir+files[i];
+                if (fs.existsSync(fn)) {
+                    await this.addFile(fn,format);
+                } else {
+                    throw "file not found"+fn
+                }
+                
             }
         }
     }
