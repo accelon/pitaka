@@ -6,7 +6,8 @@ class Builder {
         this.context={
             eudc:{}//eudc found
             ,EUDC:null    //external eudc mapping
-            ,errata:{}   
+            ,errata:{}  
+            ,catalog:{} 
             ,nchapter:0,rawtags:[] 
             ,filename:'',ptkline:0};
         this.writer=new JSONPROMWriter(Object.assign({},opts,{context:this.context}));
@@ -17,15 +18,15 @@ class Builder {
         this.opts=opts;
         this.labeldefs=getFormatTypeDef(this.config.format,{context:this.context,log:this.log});
 
-
-        if (this.config.eudc) this.addEUDC(this.config.eudc)
-        if (this.config.errata) this.addErrata(this.config.errata)
+        if (this.config.eudc) this.addJSON(this.config.eudc,'EUDC');
+        if (this.config.errata) this.addErrata(this.config.errata);
+        if (this.config.catalog) this.addJSON(this.config.catalog,'catalog');
         return this;
     }
-    addEUDC(eudcfile){
+    addJSON(fn,key) {
         const self=this;
-        fileContent(eudcfile).then(content=>{
-            self.context.EUDC=JSON.parse(content);
+        fileContent(fn).then(content=>{
+            self.context[key]=JSON.parse(content);
         });
     }
     addErrata(erratafile) {
@@ -91,7 +92,7 @@ class Builder {
         const contents=new Array(files.length); //save the contents in order
         for (let i=0;i<files.length;i++) {
             jobs.push(new Promise( async resolve=>{
-                const c=await fileContent({name:files[i],zip},format);
+                const c=await fileContent({name:files[i],zip},format,this.context);
                 contents[i]=c;
                 resolve();
             }));
@@ -123,7 +124,7 @@ class Builder {
                     labeltype.action(tag,linetext);
                     if (labeltype.resets) {
                         const D=this.labeldefs;
-                        labeltype.resets.forEach(r=>D[r]&&D[r].reset());
+                        labeltype.resets.forEach(r=>D[r]&&D[r].reset(tag));
                     }
                 } else this.log('undefined tag',tag.name)
             }
@@ -153,7 +154,7 @@ class Builder {
             this.log("cannot addFile, finalized");
             return;
         }
-        const rawcontent=await fileContent(file,format);
+        const rawcontent=await fileContent(file,format,this.context);
 
         this.addContent(rawcontent,format,fn);
     }

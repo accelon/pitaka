@@ -41,8 +41,8 @@ class LabelDictEntry extends Label {
     }
     deserialize(payload){
         let at=super.deserialize(payload);
-        this.idarr=unpackStrings(payload[at++]);// 28.ms
-        this.linepos=unpack_delta(payload[at])
+        this.idarr=unpackStrings(payload[at++]);payload[at-1]=''; // 28.ms 
+        this.linepos=unpack_delta(payload[at++]);payload[at-1]='';
     }
     getRange(n){
         if (typeof n!=='number') {

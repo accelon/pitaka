@@ -134,7 +134,7 @@ const readHaodoo=buf=>{
     }
     return output;
  }
-const parseBuffer=buf=>{
+const parseBuffer=(buf,ctx)=>{
     const blocks=readHaodoo(buf);
     const rawlines=[], toclines={} ; //從目錄頁指到每一章的起始行
     blocks.forEach( (block,idx)=>{
@@ -143,7 +143,7 @@ const parseBuffer=buf=>{
     });
     return {rawlines,toclines};
 }
-const parseFile=async f=>{
+const parseFile=async( f,ctx)=>{
     let fn=f;
     if (typeof f.name==='string') fn=f.name;
 
@@ -154,7 +154,7 @@ const parseFile=async f=>{
     } else {
         const buf=await readBLOBFile(f);
 
-        return parseBuffer(buf)
+        return parseBuffer(buf,ctx)
     }
 }
 

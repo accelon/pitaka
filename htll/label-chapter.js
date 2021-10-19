@@ -4,7 +4,6 @@ import {pack,unpack,pack_delta,unpack_delta,packStrings,unpackStrings,bsearch} f
 class LabelChapter extends Label {
     constructor(name,opts={}) {
         super(name,opts)
-        this.pat=/^[bc]([A-Z\d]+)/
         this.names=[];
         this.idarr=[];
         this.linepos=[];
@@ -22,8 +21,8 @@ class LabelChapter extends Label {
         }
 
         this._idarr[id]=true;
-        this.names.push(linetext);
-        this.idarr.push(id);
+        this.names.push(linetext.replace(/\r?\n/g,' ')|| ' ');
+        this.idarr.push(id||'_');
         this.linepos.push(y);
     }
     reset() {
@@ -31,16 +30,16 @@ class LabelChapter extends Label {
     }
     serialize(){
         const out=super.serialize();
-        out.push(packStrings(this.names));  
+        out.push(this.names.join('\t'));  
         out.push(pack_delta(this.linepos)); 
-        out.push(packStrings(this.idarr));  
+        out.push(this.idarr.join('\t'));  
         return out;
     }
     deserialize(payload){
         let at=super.deserialize(payload);
-        this.names=unpackStrings(payload[at++]);
-        this.linepos=unpack_delta(payload[at++])
-        this.idarr=unpackStrings(payload[at++]);
+        this.names=payload[at++].split('\t');payload[at-1]='';
+        this.linepos=unpack_delta(payload[at++]);payload[at-1]='';
+        this.idarr=payload[at++].split('\t');payload[at-1]='';
     }
     getRange(nheadword){
     }

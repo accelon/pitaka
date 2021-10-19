@@ -1,3 +1,4 @@
+import {bsearch} from'../utils/index.js';
 class Label {
     constructor(name,opts={}) {
         this.cb=opts.cb;
@@ -14,6 +15,16 @@ class Label {
     }
     find(){
         
+    }
+    countRange(from,to){
+        if (typeof this.linepos=='undefined') return 0;
+        const at=bsearch(this.linepos,from,true);
+        let cnt=0;
+        for (let i=at;i<this.linepos.length;i++) {
+            if (this.linepos[i]>=to) break;
+            cnt++;
+        }
+        return cnt;
     }
     deserialize(){
         return 0;

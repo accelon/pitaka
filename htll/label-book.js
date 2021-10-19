@@ -4,7 +4,6 @@ import {pack_delta,unpack_delta,packStrings,unpackStrings} from'../utils/index.j
 class LabelBook extends Label {
     constructor(name,opts={}) {
         super(name,opts)
-        this.pat=/^(pre) ([^>]+)/i
         this.names=[];
         this.idarr=[];
         this.linepos=[];
@@ -12,12 +11,12 @@ class LabelBook extends Label {
         return this;
     }
     action(tag ,linetext){
-        let {y,pos,width}=tag;
+        let {y,x,w}=tag;
         const id=(tag.attrs.id||tag.attrs.n)||' ';
-        if (width==0) width=linetext.length;
-        this.names.push(linetext.substr(pos,width));
+        if (w==0) w=linetext.length;
+        this.names.push(linetext.substr(x,w));
         this.linepos.push(y);
-        if (this._idarr[id]) throw 'repeated bk id, '+id+' at '+line ;
+        if (this._idarr[id]) throw 'repeated bk id, '+id+' at '+linetext ;
 
         this._idarr[id]=y;
         this.idarr.push(id);
@@ -31,9 +30,9 @@ class LabelBook extends Label {
     }
     deserialize(payload){
         let at=super.deserialize(payload);
-        this.names=unpackStrings(payload[at++]);
-        this.linepos=unpack_delta(payload[at++])
-        this.idarr=unpackStrings(payload[at++]);
+        this.names=unpackStrings(payload[at++]);payload[at-1]='';
+        this.linepos=unpack_delta(payload[at++]);payload[at-1]='';
+        this.idarr=unpackStrings(payload[at++]);payload[at-1]='';
         return at;
     }
     getRange(nheadword){

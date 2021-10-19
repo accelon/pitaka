@@ -49,32 +49,32 @@ class LabelTransclusion extends Label {
         
         const out=super.serialize();
 
-        out.push(this.ptks.join("|"));
+        out.push(this.ptks.join("\t"));
         out.push(pack_delta(this.ptks_start));
         
-        out.push(this.books.join("|"));
+        out.push(this.books.join("\t"));
         out.push(pack_delta(this.books_start));
 
-        out.push(this.chunks.join("|"));
+        out.push(this.chunks.join("\t"));
         out.push(pack_delta(this.chunks_start));
 
-        out.push(this.hooks.join("|"));  //compress same dy
+        out.push(this.hooks.join("\t"));  //compress same dy
         out.push(pack3(this.linepos)); 
         return out;
     }
     deserialize(payload){
         let at=super.deserialize(payload)||0;
-        this.ptks=payload[at++].split('|');
-        this.ptks_start=unpack_delta(payload[at++]);
+        this.ptks=payload[at++].split('\t');payload[at-1]='';
+        this.ptks_start=unpack_delta(payload[at++]);payload[at-1]='';
 
-        this.books=payload[at++].split('|');
-        this.books_start=unpack_delta(payload[at++]);
+        this.books=payload[at++].split('\t');payload[at-1]='';
+        this.books_start=unpack_delta(payload[at++]);payload[at-1]='';
 
-        this.chunks=payload[at++].split('|');
-        this.chunks_start=unpack_delta(payload[at++]);
+        this.chunks=payload[at++].split('\t');payload[at-1]='';
+        this.chunks_start=unpack_delta(payload[at++]);payload[at-1]='';
 
-        this.hooks=payload[at++].split('|');
-        this.linepos=unpack3(payload[at++]);
+        this.hooks=payload[at++].split('\t');payload[at-1]='';
+        this.linepos=unpack3(payload[at++]);payload[at-1]='';
     }
     countBacklinks(str) {
         let ptr=str;

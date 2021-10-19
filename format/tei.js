@@ -3,6 +3,12 @@ const unhide=ctx=>{ (ctx.hide?ctx.hide--:0) ; return ''};
 export const closeHandlers={
     'cb:div': (el,ctx)=>{ctx.div--},
     'cb:tt':(el,ctx)=>unhide(ctx),
+    'cb:mulu':(el,ctx)=>{
+        if (ctx.mulu) {
+            ctx.mulu=false;
+            return '"]';
+        }
+    },
     note:(el,ctx)=>unhide(ctx),
     lem:(el,ctx)=>unhide(ctx),
     // l:(el,ctx)=>{ 
@@ -76,6 +82,10 @@ export const handlers={
 
     p: (el,ctx)=>'\n',
     'cb:mulu':(el,ctx)=>{
+        if (el.attrs.level) {// T01 0001b08 , skip cb:mulu without level 
+            ctx.mulu=true;
+            return '^m[l='+el.attrs.level+' t="';
+        }        
     },
     'cb:div': (el,ctx)=>{
         ctx.div++;
@@ -100,16 +110,25 @@ export const handlers={
 import Label from '../htll/label.js';
 import LabelPage from '../htll/label-page.js';
 import LabelVol from '../htll/label-vol.js';
+import LabelLinePos from '../htll/label-linepos.js';
+import LabelKeyword from '../htll/label-keyword.js';
+import LabelMulu from '../htll/label-mulu.js';
 import TypeDef from './typedef.js';
 export class CBetaTypeDef extends TypeDef {
     constructor(opts) {
         super(opts);
         this.defs.v=new LabelVol('v',{resets:['p'], ...opts} ); //reset page number
+        this.defs.c=new LabelLinePos('c',{sequencial:true,resets:['m'],...opts});//nameless (juan)
         this.defs.p=new LabelPage('p',{cols:3,...opts}); //page number
+        this.defs.m=new LabelMulu('m',{trimlocal:true,opts}); //mulu, remove local
         this.defs.mc=new Label('mc',opts); //missing characters
         this.defs.h=new Label('h',opts); //general header
         this.defs.w=new Label('w',opts); //pali words
         this.defs.lg=new Label('lg',opts); //gathas
+
+        this.defs.pr=new LabelKeyword('pr',opts);//nameless (juan)
+        this.defs.dy=new LabelKeyword('dy',opts);//nameless (juan)
+
     }
 }
 // export default {handlers,closeHandlers,'TypeDef':CBetaTypeDef}

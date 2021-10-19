@@ -23,6 +23,10 @@ export const parsePointer=str=>{
         res.bk=bk;
     } else {
         [c,dy]=pths.shift().split(DELTASEP);
+        if (c=='') { // leading DELTASEP
+            c=c+DELTASEP+dy;
+            dy=0;
+        }
     }
     res.c=c;
     res.dy=parseInt(dy);

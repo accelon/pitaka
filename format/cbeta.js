@@ -41,7 +41,7 @@ const buildChapmap=(charDecl)=>{
     }
     return res;
 }
-const parseBuffer=(buf,fn='')=>{
+const parseBuffer=(buf,fn='',ctx)=>{
     if (fn) process.stdout.write('\r processing'+fn+'    ');
     const el=DOMFromString(buf);
     const body=xpath(el,'text/body');
@@ -50,23 +50,25 @@ const parseBuffer=(buf,fn='')=>{
     
     let m=fn.match(/n([\dabAB]+)_(\d+)/);
     let bk='',chunk='';
-    if (!m) {
-        console.log(fn)
+
+    if (m[2]=='001') {
+        const sutraNo=m[1].replace('_001','').toLowerCase();
+        const sutraline=ctx.catalog[sutraNo];
+        bk='^bk[n='+sutraNo.replace(/^0+/,'')+' '+sutraline.replace(' ',']');
     }
-    if (m[2]=='001')  bk='^bk'+m[1].replace(/^0+/,'').replace('_001','').toLowerCase();
-    chunk='^c'+parseInt(m[2]);
+    chunk='^c'+parseInt(m[2])+'\n';
 
     let content=bk+chunk+XML2OffText(body,{lbcount:0,hide:0,snippet:'',div:0,charmap,fn});
     content=content.replace(/\^r\n/g,'\n');
     return content;
 }
-const parseFile=async f=>{
+const parseFile=async (f,ctx)=>{
     const fn=f;
     if (typeof f.name==='string') fn=f.name;
     const ext=fn.match(/(\.\w+)$/)[1];
     if (ext=='.xml') {
         const xmlcontent=await fs.promises.readFile(f,'utf8');
-        return parseBuffer(xmlcontent,fn);
+        return parseBuffer(xmlcontent,fn,ctx);
     } else {
         throw "unknown extension "+ext
     }

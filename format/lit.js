@@ -131,7 +131,7 @@ class OpenLitTypeDef extends TypeDef {
 
 
 /* for toolbox to open */
-const parseFile=async f=>{
+const parseFile=async (f,ctx)=>{
     let fn=f;
     if (typeof f.name==='string') fn=f.name;
     const ext=fn.match(/(\.\w+)$/)[1];

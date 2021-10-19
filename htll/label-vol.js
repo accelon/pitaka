@@ -20,7 +20,7 @@ class LabelVol extends Label {
     }
     deserialize(payload){
         let at=super.deserialize(payload);
-        this.linepos=unpack_delta(payload[at]);
+        this.linepos=unpack_delta(payload[at++]);payload[at-1]='';
     }
 }
 export default LabelVol;

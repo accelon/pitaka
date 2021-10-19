@@ -35,7 +35,7 @@ class LabelPage extends Label {
     }
     deserialize(payload){
         let at=super.deserialize(payload);
-        this.linepos=unpack_delta(payload[at]);
+        this.linepos=unpack_delta(payload[at]);payload[at]='';
     }
 }
 export default LabelPage;
