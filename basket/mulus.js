@@ -19,6 +19,7 @@ function getMulu(from,to){ //本頁目錄加上 前後科文
     let lastlevel=(out.length)?out[0][0]:0;
     //往上找父節點
     const mu=this.findLabel('mu');
+    if (!mu) return out;
     let i=bsearch(mu.linepos,from,true);
     let lvl=firstlevel-1;
     if (lvl>0) {

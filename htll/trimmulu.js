@@ -69,7 +69,6 @@ export function trimInnerMulu(_names,_level,_linepos){
                 }
             } else {
                 const keep=trimMulu(_level,prev,i-1);
-                console.log(keep)
                 keep.forEach(idx=>{
                     if (_level[idx]){
                         out.names.push(_names[idx])

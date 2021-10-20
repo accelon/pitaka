@@ -2,10 +2,11 @@ const CodeStart=0x0E,CodeEnd=0x1F;
 export const unpackStrings=str=>{
     let p=0, s='', prevstr='',shared=0;
     const out=[];
+    
     while (p<str.length) {
         const code=str.charCodeAt(p);
         if (code>=CodeStart && code<=CodeEnd) {
-            if (s) {
+            if (shared || s){
                 prevstr=prevstr.substr(0,shared)+s;
                 out.push(prevstr);
             }

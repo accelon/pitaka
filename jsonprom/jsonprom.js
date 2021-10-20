@@ -61,9 +61,9 @@ class JSONPROM {
             return;
         }
         const romfn='/'+this.header.name+ROMEXT;
-        const LaZip= (typeof JSZip!=='undefined' && JSZip) || lazip.JSZip; 
-        const zip=await LaZip(romfn);
-        if (zip &&Object.keys(zip.files).length) {
+        // const LaZip= (typeof JSZip!=='undefined' && JSZip) || lazip.JSZip; 
+        const zip=await lazip(romfn);
+        if (zip &&Object.keys(zip.jszip.fileEntries).length) {
             this.romzip=zip;
             const folder=this.romzip.jszip.fileEntries[0].fileNameStr;
             this.filenames=this.romzip.jszip.fileEntries.map(i=>i.fileNameStr

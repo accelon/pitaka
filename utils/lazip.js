@@ -79,7 +79,7 @@ const LaZip= async function(url){
             const entry=jszip.fileEntries[i];
             const {localHeaderOffset,compressedSize}=entry;
             const sz=localHeaderOffset+compressedSize+1024; //assuming no per file comment
-            await fetchBuf(url,zipbuf, localHeaderOffset, sz);
+            await fetchBuf(url+'#'+fn,zipbuf, localHeaderOffset, sz);
 
             //defering readLocalFiles()
             jszip.reader.setIndex(entry.localHeaderOffset+4); //signature 4 bytes
