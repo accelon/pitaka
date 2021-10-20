@@ -4,7 +4,7 @@ export const closeHandlers={
     'cb:div': (el,ctx)=>{ctx.div--},
     'cb:tt':(el,ctx)=>unhide(ctx),
     'cb:mulu':(el,ctx)=>{
-        if (ctx.mulu) {
+        if (ctx.mulu && ctx.started) {
             ctx.mulu=false;
             return '"]';
         }
@@ -76,15 +76,17 @@ const cbtt=(el,ctx)=>{
 }
 export const handlers={
     pb,g,lb,byline,'cb:tt':cbtt,
+    milestone:(el,ctx)=>ctx.started=true,//skip the redundant mulu before milestone, see T30n1579_037
     note:(el,ctx)=>{  ctx.hide++},
     lg:(el,ctx)=>{ctx.compact=true; return '\n^lg'},
     lem:(el,ctx)=>{ ctx.hide+=1},//just keep the rdg
 
     p: (el,ctx)=>'\n',
     'cb:mulu':(el,ctx)=>{
+        if (!ctx.started)return;
         if (el.attrs.level) {// T01 0001b08 , skip cb:mulu without level 
             ctx.mulu=true;
-            return '^m[l='+el.attrs.level+' t="';
+            return '^mu'+el.attrs.level+'[t="';
         }        
     },
     'cb:div': (el,ctx)=>{
@@ -118,9 +120,9 @@ export class CBetaTypeDef extends TypeDef {
     constructor(opts) {
         super(opts);
         this.defs.v=new LabelVol('v',{resets:['p'], ...opts} ); //reset page number
-        this.defs.c=new LabelLinePos('c',{sequencial:true,resets:['m'],...opts});//nameless (juan)
+        this.defs.c=new LabelLinePos('c',{sequencial:true,resets:['mu'],...opts});//nameless (juan)
         this.defs.p=new LabelPage('p',{cols:3,...opts}); //page number
-        this.defs.m=new LabelMulu('m',{trimlocal:true,opts}); //mulu, remove local
+        this.defs.mu=new LabelMulu('mu',{trimlocal:true,opts}); //mulu, remove local
         this.defs.mc=new Label('mc',opts); //missing characters
         this.defs.h=new Label('h',opts); //general header
         this.defs.w=new Label('w',opts); //pali words

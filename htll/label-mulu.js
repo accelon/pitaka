@@ -1,5 +1,6 @@
 import Label from './label.js'
 import {pack,unpack,pack_delta,unpack_delta} from'../utils/index.js';
+import {trimInnerMulu} from './trimmulu.js';
 
 class LabelMulu extends Label {
     constructor(name,opts={}) {
@@ -7,22 +8,27 @@ class LabelMulu extends Label {
         this.names=[];
         this.level=[];
         this.linepos=[];
-        this.pageStarts=[]; //beginning y of each page
+        this.chunkStarts=[]; //beginning y of each page
         this.trimlocal=opts.trimlocal; 
         this.context=opts.context;
         return this;
     }
     action( tag ,linetext){
         const {y}=tag;
-        this.names.push(tag.attrs.t.trim());
-        this.level.push(parseInt(tag.attrs.l));
-        this.linepos.push(y);
+        const n=parseInt(tag.attrs.n);
+        if (n>0) {
+            this.names.push(tag.attrs.t.trim());
+            this.level.push(n);
+            this.linepos.push(y);    
+        } else {
+            throw 'invalid level '+n+' at '+y+' '+linetext;
+        }
     }
-    reset(parenttag) {
-        this.pageStarts.push(parenttag.y);
-    }
-    trimLocal(){
-        //remove local tree
+    reset(parenttag) { //add a milestone
+        this.names.push('');
+        this.level.push(0); //impossible value
+        this.linepos.push(parenttag.y);
+        // console.log(parenttag)
     }
     serialize(){
         const out=super.serialize();
@@ -42,7 +48,17 @@ class LabelMulu extends Label {
     find(tofind,near=false){
     }
     finalize() {
-        // this.log('finalize chapter')
+        // console.log('before trim',this.linepos.length)
+        const {names,level,linepos}=trimInnerMulu(this.names,this.level,this.linepos);
+        this.names=names;
+        this.level=level;
+        this.linepos=linepos;
+        // console.log('after trim',this.linepos.length)
+
+        // const levels=this.level;
+        // const out=[];
+        // this.names.forEach((n,idx)=>out.push(levels[idx]+'\t'.repeat(parseInt(levels[idx])) +n));
+        // fs.writeFileSync( 't30-trim.txt',out.join('\n'),'utf8')
     }
 }
 export default LabelMulu;

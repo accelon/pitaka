@@ -5,6 +5,7 @@ import {deserializeLabels} from './serialize-label.js';
 import paging from './paging.js';
 import entries from './entries.js';
 import pointers from './pointers.js';
+import mulus from './mulus.js';
 /*
    Basket is a read-only container
    of htll texts, prebuilt data-structure to facilitate fast access,
@@ -22,6 +23,7 @@ class Basket extends JSONPROM {
         for (let f in paging) this[f]=paging[f];
         for (let f in entries) this[f]=entries[f];
         for (let f in pointers) this[f]=pointers[f];
+        for (let f in mulus) this[f]=mulus[f];
     }
     async init(){
         const section='labels'

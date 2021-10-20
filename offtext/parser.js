@@ -8,7 +8,8 @@
  *             若為文字，則會搜尋，並以該文字的結尾作為標記的終點。
  **/
 const QUOTEPREFIX='\u001a', QUOTEPAT=/\u001a(\d+)/g ;                // 抽取字串的前綴，之後是序號
-import {OffTag,ALLOW_EMPTY, ALWAYS_EMPTY, OFFTAG_REGEX_G,QSTRING_REGEX_G} from './def.js'
+import {OffTag,ALLOW_EMPTY, ALWAYS_EMPTY,
+    OFFTAG_LEADBYTE,OFFTAG_ATTRS, OFFTAG_REGEX_G,QSTRING_REGEX_G} from './def.js'
 
 const parseCompactAttr=str=>{  //              序號和長度和標記名 簡寫情形，未來可能有 @ 
     const out={}, arr=str.split(/([#~@])/);
@@ -42,42 +43,61 @@ const resolveTagWidth=(line,tags)=>{
         }
     })
 }
+export const extractOfftag=(str,namepat)=>{  //namepat== label name+ optional compact attr
+    const re=new RegExp(OFFTAG_LEADBYTE+"("+namepat+")"+OFFTAG_ATTRS,'g');
+    const out=[];
+    str.replace(re,(m,rawName,rawA)=>{
+        let [m2, tagName, compactAttr]=rawName.match(/([A-Za-z_]*)(.*)/);
+        const [attrs,putback]=parseAttrs(rawA,compactAttr);
+        out.push(attrs);
+    })
+    return out;
+}
 
+const parseAttrs=(rawA,compactAttr)=>{
+    let quotes=[];             //字串抽出到quotes，方便以空白為拆分單元,
+    let putback='';            //標記中非屬性的文字，放回正文
+    const getqstr=(str,withq)=>str.replace(QUOTEPAT,(m,qc)=>{
+        return (withq?'"':'')+quotes[parseInt(qc)]+(withq?'"':'');
+    });
+
+    let rawattr=rawA?rawA.substr(1,rawA.length-2).replace(QSTRING_REGEX_G,(m,m1)=>{
+        quotes.push(m1);
+        return QUOTEPREFIX+(quotes.length-1);
+    }):'';
+    const attrarr=rawattr.split(/( +)/), attrs={};       //至少一個空白做為屬性分隔
+
+    let i=0;
+    if (compactAttr) Object.assign(attrs, parseCompactAttr(compactAttr));
+    while (attrarr.length) {
+        const it=attrarr.shift();
+        let eq=-1,key='';
+        if (it[0]=='~' || it[0]=='#' || it[0]=='@')  {
+           key=it[0];
+           eq=0;
+        } else {
+           eq=it.indexOf('=');
+           if (eq>0) key=it.substr(0,eq);
+        }
+        if (eq>-1) {
+            attrs[key] = getqstr(it.substr(eq+1));
+            if (attrarr.length && !attrarr[0].trim()) attrarr.shift() ;//drop the following space
+        } else {
+            putback+=getqstr(it,true);
+        }
+        i++
+    }
+
+    return [attrs,putback];
+}
 export const parseOfftextLine=(str,idx=0)=>{
     const tags=[];
     let textoffset=0,prevoff=0;
     let text=str.replace(OFFTAG_REGEX_G, (m,rawName,rawA,offset)=>{
-        let quotes=[];             //字串抽出到quotes，方便以空白為拆分單元,
-        let putback='';            //標記中非屬性的文字，放回正文
         let [m2, tagName, compactAttr]=rawName.match(/([A-Za-z_]*)(.*)/);
-        const getqstr=(str,withq)=>str.replace(QUOTEPAT,(m,qc)=>{
-            return (withq?'"':'')+quotes[parseInt(qc)]+(withq?'"':'');
-        });
-        let rawattr=rawA?rawA.substr(1,rawA.length-2).replace(QSTRING_REGEX_G,(m,m1)=>{
-            quotes.push(m1);
-            return QUOTEPREFIX+(quotes.length-1);
-        }):'';
-        const attrarr=rawattr.split(/( +)/), attrs={};       //至少一個空白做為屬性分隔
-        let i=0,width=0;
-        if (compactAttr) Object.assign(attrs, parseCompactAttr(compactAttr));
-        while (attrarr.length) {
-            const it=attrarr.shift();
-            let eq=-1,key='';
-            if (it[0]=='~' || it[0]=='#' || it[0]=='@')  {
-               key=it[0];
-               eq=0;
-            } else {
-               eq=it.indexOf('=');
-               if (eq>0) key=it.substr(0,eq);
-            }
-            if (eq>-1) {
-                attrs[key] = getqstr(it.substr(eq+1));
-                if (attrarr.length && !attrarr[0].trim()) attrarr.shift() ;//drop the following space
-            } else {
-                putback+=getqstr(it,true);
-            }
-            i++
-        }
+
+        let [attrs,putback]=parseAttrs(rawA,compactAttr);
+        let width=0;
         putback=putback.trimRight();     //[xxx ] 只會放回  "xxx"
         if (tagName=='br' && !putback) { //標記前放一個空白, 接行後不會 一^br二  => 一 二
             putback=' ';                 // 用 ^r 折行則不會加空白，適合固定版式的中文。

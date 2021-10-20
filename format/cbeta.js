@@ -12,7 +12,7 @@ const XML2OffText = (el,ctx) =>{
         }
         if (ctx.hide) return '';
         if (s) ctx.snippet=s;
-        return s;
+        return ctx.started?s:'';
     }
     let out='';
     const handler= handlers[el.name];
@@ -47,7 +47,6 @@ const parseBuffer=(buf,fn='',ctx)=>{
     const body=xpath(el,'text/body');
     const charmap=buildChapmap(xpath(el,'teiHeader/encodingDesc/charDecl'));
 
-    
     let m=fn.match(/n([\dabAB]+)_(\d+)/);
     let bk='',chunk='';
 
@@ -58,7 +57,7 @@ const parseBuffer=(buf,fn='',ctx)=>{
     }
     chunk='^c'+parseInt(m[2])+'\n';
 
-    let content=bk+chunk+XML2OffText(body,{lbcount:0,hide:0,snippet:'',div:0,charmap,fn});
+    let content=bk+chunk+XML2OffText(body,{lbcount:0,hide:0,snippet:'',div:0,charmap,fn,started:false});
     content=content.replace(/\^r\n/g,'\n');
     return content;
 }

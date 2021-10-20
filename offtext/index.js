@@ -4,4 +4,4 @@ export * from './renderhtml.js';
 export * from './chunker.js';
 export * from './hook.js'
 export * from './pointers.js';
-export {formatter} from './formatter.js'
+export * from './formatter.js'
