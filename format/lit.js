@@ -105,17 +105,16 @@ const getZipFileToc=async (zip,zipfn)=>{
         tocpage.push('^bk 缺書名');
     }
 
-    if (zipfiles.indexOf('readme.html')==-1 && zip.files['readme.html']) {
-        zipfiles.push('readme.html');
-        tocpage.push('本書說明')
-    }
-
     indexhtml.replace(/<a href="([\d]+\.html)" target="right_Article" ?>(.+?)<\/a>/g,(m,fn,toc)=>{
         if (!zip.files[fn]) console.log(fn,'not found');
         tocpage.push(toc.replace(/<[^>]+>/g,''))
         zipfiles.push(fn);
     })
 
+    if (zipfiles.indexOf('readme.html')==-1 && zip.files['readme.html']) {
+        zipfiles.push('readme.html');
+        tocpage.push('本書說明')
+    }
 
     return {files:zipfiles, tocpage};
 }

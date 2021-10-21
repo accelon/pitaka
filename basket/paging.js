@@ -52,11 +52,15 @@ function getPage(addr){
 function pageAt(y0){
     const out=[];
     const thetree=(this.header.tree||DEFAULT_TREE).split(PATHSEP);
+    let parentat=0;
     for (let i=0;i<thetree.length;i++){
         const label=this.findLabel(thetree[i]);
         const at=bsearch(label.linepos,y0+1,true);
         if (at<1) break;
-        out.push([label.idarr[at-1], (i===thetree.length-1)?y0-label.linepos[at-1]:0 ]);
+        const from=bsearch(label.linepos,parentat,true);
+        const id=label.idarr?(label.idarr[at-1] ): (DELTASEP+(at-from-1));
+        out.push([id, (i===thetree.length-1)?y0-label.linepos[at-1]:0 ]);
+        parentat=label.linepos[at-1];
     }
 
     return out.map(i=>i[0]+ (i[1]?DELTASEP+i[1]:''));
@@ -118,7 +122,8 @@ function fetchToc(loc){
                     const clabel=this.findLabel(thetree[parents.length+1]);
                     childcount=clabel.countRange(from,to );
                 }
-                out.push({key:(i+1),text:label.names?label.names[i]:(':'+chunk),ptr,childcount});
+                const id=label.idarr?label.idarr[i]:'';
+                out.push({key:(i+1),id,text:label.names?label.names[i]:(':'+chunk),ptr,childcount});
             } else break;
         }        
     }

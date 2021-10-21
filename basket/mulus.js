@@ -12,7 +12,7 @@ function getMulu(from,to){ //本頁目錄加上 前後科文
             otags.forEach(o=>{
                 const n=parseInt(o.n);
                 if (!firstlevel) firstlevel=n;
-                n&&out.push([n,o.t]);
+                n&&out.push([n,o.t, i]);
             }) 
         }
     }
@@ -25,7 +25,7 @@ function getMulu(from,to){ //本頁目錄加上 前後科文
     if (lvl>0) {
         while (i>0) {
             if (mu.level[i]<=lvl){
-                out.unshift([mu.level[i], mu.names[i], mu.linepos[i]]);
+                out.unshift([mu.level[i], mu.names[i], mu.linepos[i], this.pageAt(mu.linepos[i]),mu.linepos[i]]);
                 lvl=mu.level[i]-1;
             }
             i--;
@@ -37,7 +37,7 @@ function getMulu(from,to){ //本頁目錄加上 前後科文
     if (lvl>0) {
         while (i<mu.linepos.length) {
             if (mu.level[i]<lvl){
-                out.push([mu.level[i], mu.names[i], mu.linepos[i]]);
+                out.push([mu.level[i], mu.names[i],mu.linepos[i],this.pageAt(mu.linepos[i]),mu.linepos[i]]);
                 lvl=mu.level[i];
             }
             i++;

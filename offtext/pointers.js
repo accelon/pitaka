@@ -17,15 +17,15 @@ export const parsePointer=str=>{
     res.loc=res.bk;
     if (!pths.length) return res;
 
-    let bk,c='',dy;
+    let bk,c='',dy,dy2;//缺少idarr 時會有dy2，如  :0:7  表示第0卷第7行
     if (res.bk.indexOf(DELTASEP)>0) { //only one level, no chunk
         [bk,dy]=res.bk.split(DELTASEP);
         res.bk=bk;
     } else {
-        [c,dy]=pths.shift().split(DELTASEP);
+        [c,dy,dy2]=pths.shift().split(DELTASEP);
         if (c=='') { // leading DELTASEP
             c=c+DELTASEP+dy;
-            dy=0;
+            dy=dy2;
         }
     }
     res.c=c;
