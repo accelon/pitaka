@@ -34,14 +34,14 @@ class Basket extends JSONPROM {
             const labelsection=this.getSection(section);
             const sectionRange=this.getSectionRange(section);
             this.labels=deserializeLabels(labelsection,sectionRange);
-            this.lblTransclusion=this.findLabel('t');
+            this.lblTransclusion=this.getLabel('t');
             return true;
         } catch(e){
             console.error(e)
         }
     }
     bookCount() {
-        const lbl=this.findLabel('bk');
+        const lbl=this.getLabel('bk');
         if (!lbl)return 0;
         return lbl.linepos.length;
     }
@@ -59,13 +59,13 @@ class Basket extends JSONPROM {
         }
     }
 
-    findLabel(name){
+    getLabel(name){
         for (let i=0;i<this.labels.length;i++) {
             if (this.labels[i].name==name) return this.labels[i];
         }
     }
     find(label,tofind,near) {
-        const lbl=this.findLabel(label);
+        const lbl=this.getLabel(label);
         if (!lbl)return null;
         return lbl.find(tofind,near);
     }

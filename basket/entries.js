@@ -1,11 +1,11 @@
 import { bsearch } from "../utils/bsearch.js" ;
 function getEntry(n) {
-    const lbl=this.findLabel('e');
+    const lbl=this.getLabel('e');
     if (!lbl)return [];
     return [n, lbl.idarr[n] , ...lbl.getRange(n)];
 }
 function filterEntry(tofind,mode=0){
-    const lbl=this.findLabel('e');
+    const lbl=this.getLabel('e');
     if (!lbl)return [];
     const out=[];
     if (mode==0) {
@@ -37,7 +37,7 @@ function filterEntry(tofind,mode=0){
 }
 function matchEntry(tofind){
     if (!tofind)return;
-    const lbl=this.findLabel('e');
+    const lbl=this.getLabel('e');
     if (!lbl)return [];
     const out=[];
     for (let i=1;i<=tofind.length;i++) {
@@ -53,7 +53,7 @@ function matchEntry(tofind){
 function getName(tag){
     const m=tag.match(/([a-z]+)(\d+)/);
     if (!m)return '';
-    const label=this.findLabel(m[1]);
+    const label=this.getLabel(m[1]);
     if (!label)return;
 
     const at=label.idarr.indexOf(m[2]);

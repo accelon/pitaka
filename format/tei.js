@@ -128,9 +128,9 @@ export class CBetaTypeDef extends TypeDef {
         this.defs.w=new Label('w',opts); //pali words
         this.defs.lg=new Label('lg',opts); //gathas
 
-        this.defs.pr=new LabelKeyword('pr',opts);//nameless (juan)
-        this.defs.dy=new LabelKeyword('dy',opts);//nameless (juan)
-
+        this.defs.pr=new LabelKeyword('pr',{caption:'人名',master:this.defs.bk,...opts});
+        this.defs.dy=new LabelKeyword('dy',{caption:'朝代',master:this.defs.bk,...opts}); 
+        //dy comes first as finalize from backward
     }
 }
 // export default {handlers,closeHandlers,'TypeDef':CBetaTypeDef}

@@ -6,7 +6,7 @@ function narrowDown(branches){
     for (let i=0;i<branches.length;i++){
         const {lbl, id , dy}=branches[i];
 
-        const label=this.findLabel(lbl);
+        const label=this.getLabel(lbl);
         if (!label) return [];
         const startfrom=bsearch(label.linepos,from,true);
         let at;
@@ -26,7 +26,7 @@ function locate(y){
     const thetree=(this.header.tree||DEFAULT_TREE).split(PATHSEP);
     const out=[];
     for (let i=0;i<thetree.length;i++) {
-        const lbl=this.findLabel(thetree[i]);
+        const lbl=this.getLabel(thetree[i]);
         const at=bsearch(lbl.linepos, y , true);
         const dy= (i===thetree.length-1)?(y-lbl.linepos[at-1]):0 ; //dy for last tree node
         out.push(lbl.idarr[at-1]+(dy? DELTASEP+dy:''));
@@ -46,15 +46,15 @@ function getPage(addr){
         }
         return {lbl:thetree[idx], id:pth , dy}
     })
-    let nextlbl=thetree[pths.length];
-    return [...this.narrowDown(arr) ,  nextlbl] ;
+    const nextlbl=thetree[pths.length];
+    return [...this.narrowDown(arr) ,  nextlbl ] ;
 }
 function pageAt(y0){
     const out=[];
     const thetree=(this.header.tree||DEFAULT_TREE).split(PATHSEP);
     let parentat=0;
     for (let i=0;i<thetree.length;i++){
-        const label=this.findLabel(thetree[i]);
+        const label=this.getLabel(thetree[i]);
         const at=bsearch(label.linepos,y0+1,true);
         if (at<1) break;
         const from=bsearch(label.linepos,parentat,true);
@@ -73,7 +73,7 @@ function getTocTree(addr){
     const parents=addr.split(PATHSEP);
     let ptr=''; //pointer to next juan
     for (let i=0;i<parents.length-1;i++){
-        const label=this.findLabel(thetree[i]);
+        const label=this.getLabel(thetree[i]);
         if (label.idarr) {
             let id=parents[i],at;
             if (id[0]!==DELTASEP) {
@@ -107,26 +107,39 @@ function fetchToc(loc){
     const thetree=(this.header.tree||DEFAULT_TREE).split(PATHSEP);
     const parents=loc.split(PATHSEP).filter(i=>!!i);
 
-    const label=this.findLabel(thetree[parents.length]);
-    if (label){
-        const at=bsearch(label.linepos,y0,true);
-        for (let i=at;i<label.linepos.length;i++) {
-            if (y1>label.linepos[i]) {
-                const chunk=(label.idarr&&label.idarr[i]||(i-at));
-                let ptr=(loc?loc+PATHSEP:'')+chunk;
-                let childcount=0;
-                if (parents.length<thetree.length-1) {
-                    let from=label.linepos[i];
-                    let to=label.linepos[i+1];
-                    if (!to) to==this.lastTextLine();
-                    const clabel=this.findLabel(thetree[parents.length+1]);
-                    childcount=clabel.countRange(from,to );
+    const label=this.getLabel(thetree[parents.length]);
+    if (!label) return out;
+    const at=bsearch(label.linepos,y0,true);
+    for (let i=at;i<label.linepos.length;i++) {
+        if (y1>label.linepos[i]) {
+            const chunk=(label.idarr&&label.idarr[i]||(i-at));
+            let ptr=(loc?loc+PATHSEP:'')+chunk;
+            let childcount=0;
+            if (parents.length<thetree.length-1) {
+                let from=label.linepos[i];
+                let to=label.linepos[i+1];
+                if (!to) to==this.lastTextLine();
+                const clabel=this.getLabel(thetree[parents.length+1]);
+                childcount=clabel.countRange(from,to );
+            }
+            let keywords=[];
+            if (label.keywords) {
+                for (let keylabel in label.keywords) {
+                    const nkeyword=label.keywords[keylabel][i]; 
+                    const lbl=this.getLabel(keylabel);
+                    if (nkeyword && nkeyword.length) {
+                        nkeyword.forEach( n=>{
+                            keywords.push([keylabel, lbl.keys[n]]);
+                        });
+                    } else if (!isNaN(nkeyword)) {
+                        keywords.push([keylabel, lbl.keys[nkeyword]]);
+                    }
                 }
-                const id=label.idarr?label.idarr[i]:'';
-                out.push({key:(i+1),id,text:label.names?label.names[i]:(':'+chunk),ptr,childcount});
-            } else break;
-        }        
-    }
+            }
+            const id=label.idarr?label.idarr[i]:'';
+            out.push({key:(i+1),id,text:label.names?label.names[i]:(':'+chunk),ptr,childcount,keywords});
+        } else break;
+    }        
     return out;
 }
 function fetchPage(loc){
@@ -147,13 +160,13 @@ function fetchPage(loc){
 }
 function getNChild(loc,n){
     const [from,to,nextlbl]=this.getPage(loc);
-    const label=this.findLabel(nextlbl);
+    const label=this.getLabel(nextlbl);
     if (!label) return {};
     const at=bsearch(label.linepos,from,true);
     const i=at+n;
     const ptr=loc+PATHSEP+':'+n;
     const id=(label.idarr&&label.idarr[i])||(n+1);
-    const name=(label.names&&label.names[i])||'卷 Juan '+(n+1);
+    const name=label.names&&label.names[i];
 
     return { id, name,ptr }
 }
@@ -167,7 +180,7 @@ function childCount(loc){
     }
 
     const [from,to,nextlbl]=this.getPage(loc);
-    const label=this.findLabel(nextlbl);
+    const label=this.getLabel(nextlbl);
     if (!label) return 0;
     return label.countRange(from,to);
 }

@@ -3,10 +3,16 @@ import {LabelType} from '../htll/index.js'
 const serializeLabels=(labeldefs)=>{
     let pos=3;//labelNames,labelTypes,labelPoss
     const labelNames=[],labelPoss=[],labelTypes=[];
-    let section=[];
+    let section=[],finalizing=[];
+
+    for (let name in labeldefs) {
+        const lt=labeldefs[name];
+        finalizing.unshift(lt);
+    }
+    finalizing.forEach(lt=>lt.finalize());
+
     for (let name in labeldefs) { 
         const lt=labeldefs[name];
-        lt.finalize();
         labelNames.push(lt.name);
         labelPoss.push(pos);
         labelTypes.push(lt.constructor.name);

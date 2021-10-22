@@ -8,10 +8,10 @@ class Label {
         this.filename='';
         this.lastLine=opts.lastLine||-1;
         this.resets=opts.resets||null; //reseting other label
+        this.count=0;
         return this;
     }
     action(){
-        // console.error('not implemented')
     }
     find(){
         
@@ -41,7 +41,7 @@ class Label {
     parse(str,basket){
         
     }
-    finalize() { //build complete
+    finalize() { //finalize in reverse order of typedef
 
     }
     reset(){
