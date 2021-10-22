@@ -3,8 +3,8 @@ export async function sleep(ms){
 }
 
 export function debounce(f,ms){
+    let timer;
     return function(){
-        let timer;
         clearTimeout(timer);
         timer=setTimeout(f,ms)
     }

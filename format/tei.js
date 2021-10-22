@@ -129,7 +129,7 @@ export class CBetaTypeDef extends TypeDef {
         this.defs.lg=new Label('lg',opts); //gathas
 
         this.defs.pr=new LabelKeyword('pr',{caption:'人名',master:this.defs.bk,...opts});
-        this.defs.dy=new LabelKeyword('dy',{caption:'朝代',master:this.defs.bk,...opts}); 
+        this.defs.er=new LabelKeyword('er',{caption:'年代',master:this.defs.bk,...opts}); 
         //dy comes first as finalize from backward
     }
 }

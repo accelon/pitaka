@@ -71,17 +71,17 @@ class LabelBook extends Label {
             }
             labelsout.push(pack(labelout));
         }
-        return labelsout;
+        return {keylabels,labelsout};
     }
     serialize(){
-        const out=[]
+        const {keylabels,labelsout}=this.serialize_keywords();
+        const out=[];
         out.push(JSON.stringify({keywords:keylabels.length,maxkeyword:this._maxkeyword}) );
         out.push(packStrings(this.names));
         out.push(pack_delta(this.linepos)); 
         out.push(packStrings(this.idarr));
         out.push(keylabels.join('\t'));
         out.push(...labelsout)
-
         return out;
     }
     deserialize(payload){
