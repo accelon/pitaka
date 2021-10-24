@@ -17,7 +17,7 @@ const fetchZIPEntries=async (f,zipbuf)=>{
     const dirOffset=readInt(zipbuf,i+0xc+4,4)
     return await fetchBuf(f,zipbuf,dirOffset,dirOffset+dirSize);
 }
-const debug=true;
+const debug=false;
 const LaZip= async function(zipfn){
     
     const handle=fs.openSync(zipfn,'r');

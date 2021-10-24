@@ -30,10 +30,13 @@ const pb=(el,ctx)=>{
     ctx.lbcount=0;
     ctx.compact=true;
     let vol='';
+    
     if (el.attrs.n==='0001a') {
         vol='^v'+parseInt(el.attrs['xml:id'].substr(1,2));
     }
-    return vol+'^p'+ el.attrs.n.replace(/^0+/,'');
+    const pn=el.attrs.n.replace(/^0+/,'');
+    let out=vol+'^p'+ pn;
+    return out;
 }
 const g=(el,ctx)=>{
     if (ctx.hide)return;

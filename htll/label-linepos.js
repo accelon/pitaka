@@ -17,7 +17,7 @@ class LabelLinePos extends Label {
         if (this.sequencial) {
             if (n!==this.prevn+1){
                 console.log(tag,linetext, n, this.prevn+1)
-                throw ''+tag.attrs.n+'prev'+this.prevn+' at '+y ;
+                throw 'linepos not in order, '+tag.attrs.n+' prev '+this.prevn+' at '+y ;
             }
         }
         this.prevn=n;

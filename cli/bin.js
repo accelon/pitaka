@@ -44,6 +44,7 @@ const report=(builder)=>{
 }
 
 const build=async (opts)=>{  
+    console.time('pitaka');
     opts=opts||{raw:false,jsonp:false};
     if (!existsSync(pitakajson)) {
         console.log(red('pitaka.json not found'));
@@ -75,6 +76,7 @@ const build=async (opts)=>{
         fs.writeFileSync('ngram-'+opts.ngram+'.txt',s.join('\n'),'utf8')
     }
     builder.log('\n'+report(builder));
+    console.timeEnd('pitaka');
 }
 
 const help=()=>{
@@ -98,6 +100,7 @@ try {
         j:jsonp,jsonp,raw,r:raw, q:quote,quote, p:pinpoint,pinpoint,
         z:zip,zip,ngram,n:ngram,
         '--help':help,'-h':help,i:info,info,build,b:build})[cmd]();
+
 } catch(e) {
     console.log( kluer.red('error running command'),cmd)
     console.log(e)
