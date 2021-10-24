@@ -1,7 +1,8 @@
 import {loadJSONP,loadFetch,loadNodeJs,loadNodeJsZip} from './loadchunk.js';
-import {findPitakaFolder} from '../platform/nodefs.js'
+import {findPitakaFolder} from '../platform/fsutils.js'
 import {readLines,prefetchLines,  unreadyChunk,prefetchChunks} from './readline.js';
 import {ROMEXT} from '../rom/romconst.js';
+
 
 class JSONPROM {
     constructor(opts) {
@@ -58,11 +59,19 @@ class JSONPROM {
     }
     async openrom(){
         if (this._loader==loadNodeJs || this._loader==loadNodeJsZip) {
+            const romfn=this.romfolder+this.name+'.ptk';
+            if (fs.existsSync(romfn)) {
+                const zip=await LaZip.default(romfn);
+                console.log(zip)
+                this.romzip=zip;
+            }
+            
             return;
         }
         const romfn='/'+this.header.name+ROMEXT;
         // const LaZip= (typeof JSZip!=='undefined' && JSZip) || lazip.JSZip; 
         const zip=await lazip(romfn);
+
         if (zip &&Object.keys(zip.jszip.fileEntries).length) {
             this.romzip=zip;
             const folder=this.romzip.jszip.fileEntries[0].fileNameStr;

@@ -47,9 +47,9 @@ const parseBuffer=(buf,fn='',ctx)=>{
     const body=xpath(el,'text/body');
     const charmap=buildChapmap(xpath(el,'teiHeader/encodingDesc/charDecl'));
 
-    let m=fn.match(/n([\dabAB]+)_(\d+)/);
+    let m=fn.match(/n([\dabcdefABCDEF]+)_(\d+)/);
     let bk='',chunk='';
-
+    
     if (m[2]=='001') {
         const sutraNo=m[1].replace('_001','').toLowerCase();
         const sutraline=ctx.catalog[sutraNo];

@@ -6,22 +6,6 @@ import {existsSync,readFileSync} from 'fs'
 import JSZip from 'jszip';
 global.JSZip=JSZip; //for ZipSaver
 
-import { ROMEXT } from '../rom/romconst.js';
-const report=(builder,files)=>{
-    const out=[], maxshow=5;
-    if (builder.writerfile) out.push(yellow(' romfile   :')+builder.writer.header.name+ROMEXT);
-    else out.push(yellow(' folder    :')+builder.writer.header.name);
-    const showfile=files.slice(0,maxshow);
-    out.push(' '+yellow((files.length+' files').padEnd(10,' ')+':')
-      +showfile.join(',')
-      +(files.length>maxshow?'...':''));
-    out.push(yellow(' last line :')+builder.writer.header.lineCount);
-    out.push(yellow(' max chunk :')+builder.writer.header.chunkStarts.length.toString().padStart(3,'0')+'.js');
-    out.push(yellow(' build time:')+builder.writer.header.buildtime);
-    
-    return out.join('\n');
-}
-
 export const indexHTMLFiles=(indexhtm='index.htm')=>{
     if (!existsSync(indexhtm)) {
       console.log(red('missing'),indexhtm)
@@ -45,23 +29,26 @@ export const getWorkingDirectory=()=>{
     const m=name.match(/[\\\/\-\.]([a-z\d]+)$/i);
     return m[1].toLowerCase();
 }
-export const  buildPitaka=async ({config, PickedFiles=null , log=console.log})=>{
+export const  buildPitaka=async ({config, nosave=false,
+    onContent=null,raw,jsonp,
+    PickedFiles=null , log=console.log})=>{
     let {name,files,title,format}=config;
 
 	if (!name) name=getWorkingDirectory();
     if (!files) [files,title]=indexHTMLFiles();
     
-    const builder=new Builder({name,title,config}); //core chinese text
+    const builder=new Builder({name,title,config,onContent}); //core chinese text
 
     if (typeof files=='string') {
-        files=filesFromStringPattern(files);
+        files=filesFromStringPattern(files,config.rootdir);
     }
-    for (let i=0;i<files.length;i++){   
+    builder.files=files;
+
+    for (let i=0;i<files.length;i++){ 
         await builder.addFile(files[i],format);
     }
     builder.finalize();
-    
-    builder.log('\n'+report(builder,files));
 
+    if (!nosave) builder.save({raw,jsonp});
     return builder;
 }

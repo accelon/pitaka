@@ -52,4 +52,4 @@ const xpath=(root,p)=>{
     return el;
 }
 
-export {DOMFromString,JSONify,xpath};
+export {DOMFromString,JSONify,xpath,Sax};

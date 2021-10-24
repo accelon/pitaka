@@ -92,3 +92,9 @@
 1. 大約每256KB一個js 檔，file:// 也可以隨需讀取
 2. 未來再考慮包成單一檔案。
 3. 最多分成 999 個檔。檔頭為000.js，其他檔名為 001.js ~ 999.js 
+
+## 
+    rollup -c jszipnodejs.config.js
+
+to build a es6 module for nodejs
+

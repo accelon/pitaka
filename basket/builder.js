@@ -17,7 +17,7 @@ class Builder {
         this.config.tree=this.config.tree||getFormatTree(this.config.format);
         this.opts=opts;
         this.labeldefs=getFormatTypeDef(this.config.format,{context:this.context,log:this.log});
-
+        this.files=[];
         if (this.config.eudc) this.addJSON(this.config.eudc,'EUDC');
         if (this.config.errata) this.addErrata(this.config.errata);
         if (this.config.catalog) this.addJSON(this.config.catalog,'catalog');
@@ -106,7 +106,20 @@ class Builder {
         }
         if (this.context.error) this.log(fn,'has',this.context.error,'errors')
     }
-
+    doTags(tags,text){
+        for (let i=0;i<tags.length;i++) {
+            const tag=tags[i];
+            const labeltype=this.labeldefs[tag.name];
+            if (labeltype) {
+                const linetext=text[tag.y - this.context.ptkline ];
+                labeltype.action(tag,linetext);
+                if (labeltype.resets) {
+                    const D=this.labeldefs;
+                    labeltype.resets.forEach(r=>D[r]&&D[r].reset(tag));
+                }
+            } else this.log('undefined tag',tag.name)
+        }
+    }
     addContent(rawcontent,format,fn) {
         this.context.filename=fn;
         this.context.ptkline=this.writer.header.lineCount; //ptk line count
@@ -116,22 +129,13 @@ class Builder {
             const formatter=new Formatter(this.context,this.log);
             const {text,tags,rawlines}=formatter.scan(rawcontent);
 
-            for (let i=0;i<tags.length;i++) {
-                const tag=tags[i];
-                const labeltype=this.labeldefs[tag.name];
-                if (labeltype) {
-                    const linetext=text[tag.y - this.context.ptkline ];
-                    labeltype.action(tag,linetext);
-                    if (labeltype.resets) {
-                        const D=this.labeldefs;
-                        labeltype.resets.forEach(r=>D[r]&&D[r].reset(tag));
-                    }
-                } else this.log('undefined tag',tag.name)
+            if (this.opts.onContent) {
+                this.opts.onContent(fn,text,tags,rawlines);
+            } else {
+                this.doTags(tags,text);
+                if (this.opts.raw) this.context.rawtags.push(...tags);
+                this.writer.append(rawlines);
             }
-
-            if (this.opts.raw) this.context.rawtags.push(...tags);
-
-            this.writer.append(rawlines);
             
         } catch(e){
             const {filename,fileline,title}=this.context;

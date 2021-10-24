@@ -62,7 +62,7 @@ const byline=(el,ctx)=>{
 }
 const cbtt=(el,ctx)=>{
     let s='';
-    const lang=el.children.length>1&&el.children[1].attrs['xml:lang'];
+    const lang=el.children.length>1&&el.children[1].attrs&&el.children[1].attrs['xml:lang'];
     if (el.children[0].name==='cb:t' && el.children[1].name==='cb:t') {
         if (lang=='pi') {
             let pi=getPali(el.children[1].innerText(true)); //take only one level

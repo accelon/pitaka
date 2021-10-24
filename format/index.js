@@ -1,4 +1,4 @@
-import {readTextFile} from '../platform/index.js'
+import {readTextFile} from '../platform/inputfiles.js'
 import { getFormat } from './format.js';
 const fileContent=async(fn,format,ctx)=>{
     let c;
