@@ -1,6 +1,7 @@
 import {getFormatter, getZipIndex, getFormatTypeDef, getFormatTree, fileContent} from '../format/index.js'
 import JSONPROMWriter from '../jsonprom/jsonpromw.js';
 import {serializeLabels} from './serialize-label.js';
+import {linesOffset} from '../utils/index.js'
 class Builder {
     constructor(opts) {
         this.context={
@@ -9,7 +10,13 @@ class Builder {
             ,errata:{}  
             ,catalog:{} 
             ,nchapter:0,rawtags:[] 
-            ,filename:'',ptkline:0};
+            ,filename:'',ptkline:0
+            ,entry:'' //dictionary entry
+            ,startY:0// starting Y of this content
+            ,lineCount:0 //y0 at the end of parsing content
+            ,prevLineCount:0 //line count of previously parsed content
+            
+        };
         this.writer=new JSONPROMWriter(Object.assign({},opts,{context:this.context}));
         this.finalized=false;
         this.log=opts.log || console.log;
@@ -112,23 +119,28 @@ class Builder {
             const labeltype=this.labeldefs[tag.name];
             if (labeltype) {
                 const linetext=text[tag.y - this.context.ptkline ];
-                labeltype.action(tag,linetext);
+                labeltype.action(tag,linetext,this.context);
                 if (labeltype.resets) {
                     const D=this.labeldefs;
                     labeltype.resets.forEach(r=>D[r]&&D[r].reset(tag));
                 }
-            } else this.log('undefined tag',tag.name)
+            } else this.log('undefined tag',tag.name, tag.y)
         }
     }
     addContent(rawcontent,format,fn) {
+        //for multiple content, keep starting
+        this.context.startY+=this.context.prevLineCount;
         this.context.filename=fn;
         this.context.ptkline=this.writer.header.lineCount; //ptk line count
-
         try{
             const Formatter=getFormatter(format);
             const formatter=new Formatter(this.context,this.log);
             const {text,tags,rawlines}=formatter.scan(rawcontent);
 
+            this.context.linesOffset=linesOffset(text);
+            this.context.rawlinesOffset=linesOffset(rawlines);
+            this.context.lineCount=text.length;
+            
             if (this.opts.onContent) {
                 this.opts.onContent(fn,text,tags,rawlines);
             } else {
@@ -136,7 +148,7 @@ class Builder {
                 if (this.opts.raw) this.context.rawtags.push(...tags);
                 this.writer.append(rawlines);
             }
-            
+            this.context.prevLineCount=text.length;
         } catch(e){
             const {filename,fileline,title}=this.context;
             this.log( filename+'('+fileline+'):' , title, e );
@@ -172,7 +184,7 @@ class Builder {
     }
     finalize(opts={}){
         this.writer.addSection('labels');
-        const section=serializeLabels(this.labeldefs )
+        const section=serializeLabels(this.labeldefs,this.context )
         this.writer.append(section);
 
         this.finalized=true;

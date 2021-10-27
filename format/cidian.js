@@ -1,5 +1,6 @@
 import LabelDictEntry from '../htll/label-dict-entry.js';
 import Label from '../htll/label.js';
+import LabelSeeAlso from '../htll/label-seealso.js';
 import LabelTransclusion from '../htll/label-transclusion.js';
 import TypeDef from './typedef.js';
 //combine external quote
@@ -16,7 +17,7 @@ class CidianTypeDef extends TypeDef{
         this.defs.eg =new Label('eg',opts);
         this.defs.q  =new Label('q',opts);
         this.defs.t  =new LabelTransclusion('t',opts);
-        this.defs.ref=new Label('ref',opts);
+        this.defs.se=new Label('se',opts);
         this.defs.en =new Label('en',opts);
     }
 };

@@ -53,7 +53,13 @@ export const pack2d=(arr,esc)=>{
 	}
 	return o.join("|");
 }
-
+export const pack3_2d=(arr,esc)=>{
+	const o=[];
+	for (let i=0;i<arr.length;i++) {
+		o.push(pack3(arr[i]||[],esc));
+	}
+	return o.join("|");
+}
 export const pack=(arr,esc)=>{
 	let s="";
 	for (let i=0;i<arr.length;i++) {
@@ -96,7 +102,7 @@ export const pack_delta=(arr,removeRepeat=false)=>{
 	return pack(arr);
 }
 
-const pack_delta2d=(arr2d,removeRepeat=false)=>{
+export const pack_delta2d=(arr2d,removeRepeat=false)=>{
 	return arr2d.map(arr=>{
 		if (arr.length<1)return "";
 		if (!arr[0]) arr[0]=0;

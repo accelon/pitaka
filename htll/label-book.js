@@ -20,7 +20,7 @@ class LabelBook extends Label {
         
         this.names.push(bkname);
         this.linepos.push(y);
-        if (this._idarr[id]) throw 'repeated bk id, '+id+' at '+linetext ;
+        if (this._idarr[id]) throw 'repeated bk id, '+id+' at '+linetext;
 
         this._idarr[id]=y;
         this.idarr.push(id);

@@ -13,7 +13,16 @@ export * from './html.js'
 export * from './cnumber.js'
 export * from './device.js'
 
-
+export function linesOffset(lines){
+    const out=[0];
+    let acc=0;
+    for (let i=0;i<lines.length;i++) {
+        out.push(acc);
+        acc+=lines[i].length;
+    }
+    out.push(acc);
+    return out;
+}
 export function chunkjsfn(chunk,folder){
     const jsfn=chunk.toString().padStart(3,'0')+'.js'
     return folder?folder+'/'+jsfn:jsfn;

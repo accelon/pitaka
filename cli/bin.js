@@ -69,6 +69,7 @@ const build=async (opts)=>{
         ngram=new nGram({gram:opts.ngram,stockgram});
         onContent=(fn,text)=>ngram.add(text)
     }
+    
     const builder=await buildPitaka( {config,nosave,onContent,raw:opts.raw,jsonp:opts.jsonp}  );
 
     if (ngram) {

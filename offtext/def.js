@@ -1,4 +1,4 @@
-export const ALLOW_EMPTY = {fn:true,note:true,blnk:true,embed:true};
+export const ALLOW_EMPTY = {fn:true,note:true,blnk:true,embed:true,pr:true};
 export const ALWAYS_EMPTY = {br:true,r:true,pb:true};
 export const OFFTAG_REGEX_G=/\^([A-Za-z_]+[#\.~A-Za-z_\-\d]* ?)(\[(?:\\.|.)*?\])?/g //標記樣式
 export const OFFTAG_ATTRS="(\\[(?:\\\\.|.)*?\\])?"

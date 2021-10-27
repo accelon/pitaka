@@ -64,13 +64,13 @@ const parseBuffer=(buf,fn='',ctx)=>{
     let sutraline=ctx.catalog[sutraNo].trim();
     bkno=sutraNo.replace(/^0+/,'');
 
+    const at=sutraline.indexOf(' ^');
+    if (at>-1) {
+        sutraline=sutraline.substr(0,at)+']'+sutraline.substr(at);
+    } else sutraline+=']'
+
     if (m[2]=='001') {
-        const at=sutraline.indexOf(' ^');
-        if (at>-1) {
-            sutraline=sutraline.substr(0,at)+']'+sutraline.substr(at);
-        } else sutraline+=']'
         bk='^bk[n='+bkno+' '+sutraline;
-        console.log(bk)
     }
 
     let juan=parseInt(m[2]);

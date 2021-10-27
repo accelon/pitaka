@@ -16,7 +16,8 @@
     "./lazip":"./utils/lazip.js",
     "./format":"./format/index.js",
 	  "./offtext":"./offtext/index.js",
-	  "./xmlparser":"./xmlparser/index.js"
+	  "./xmlparser":"./xmlparser/index.js",
+	  "./nlp":"./nlp/index.js"
   },
   "bin":"cli/bin.js",
   "main": "./index.js",

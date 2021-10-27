@@ -92,3 +92,9 @@ export const unpack2d=s=>{
 	if (arr.length==1) return [unpack(arr[0])];
 	return arr.map(itm=>unpack(itm));
 }
+export const unpack3_2d=s=>{
+	if (!s)return [];
+	const arr=s.split("|");
+	if (arr.length==1) return [unpack3(arr[0])];
+	return arr.map(itm=>unpack3(itm));
+}

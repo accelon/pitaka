@@ -40,8 +40,11 @@ class Basket extends JSONPROM {
             console.error(e)
         }
     }
-    bookCount() {
-        const lbl=this.getLabel('bk');
+    contentCount() {
+        let lbl=this.getLabel('bk');
+        if (!lbl) {
+            lbl=this.getLabel('e');
+        };
         if (!lbl)return 0;
         return lbl.linepos.length;
     }

@@ -9,7 +9,7 @@ function filterEntry(tofind,mode=0){
     if (!lbl)return [];
     const out=[];
     if (mode==0) {
-        let at=bsearch(lbl.idarr,tofind);
+        let at=bsearch(lbl.idarr,tofind,true);
         while (at>-1 && at<lbl.idarr.length) {
             if (lbl.idarr[at].substr(0,tofind.length)==tofind) {
                 out.push([at,lbl.idarr[at], ...lbl.getRange(at)]);
