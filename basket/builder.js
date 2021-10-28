@@ -23,6 +23,7 @@ class Builder {
         this.config=opts.config;
         this.config.tree=this.config.tree||getFormatTree(this.config.format);
         this.opts=opts;
+        this.unknownLabel={};
         this.labeldefs=getFormatTypeDef(this.config,{context:this.context,log:this.log});
         this.files=[];
         if (this.config.eudc) this.addJSON(this.config.eudc,'EUDC');
@@ -124,7 +125,12 @@ class Builder {
                     const D=this.labeldefs;
                     labeltype.resets.forEach(r=>D[r]&&D[r].reset(tag));
                 }
-            } else this.log('undefined tag',tag.name, tag.y)
+            } else {
+                if (!this.unknownLabel[tag.name]) {
+                    this.log('undefined tag',tag.name, tag.y);
+                    this.unknownLabel[tag.name]=1;
+                } else this.unknownLabel[tag.name]++;
+            }
         }
     }
     addContent(rawcontent,format,fn) {

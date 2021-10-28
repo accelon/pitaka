@@ -1,6 +1,6 @@
 import Label from './label.js'
 import {pack_delta,pack3,unpack3,unpack_delta,packStrings,unpackStrings,bsearch} from'../utils/index.js';
-class LabelDictEntry extends Label {
+class LabelEntry extends Label {
     constructor(name,opts={}) {
         super(name,opts)
         this.idarr=[];
@@ -10,6 +10,10 @@ class LabelDictEntry extends Label {
         this.prevy=0;
         this.rankBySize=[];//1表示top 1% 
         this.entrysize=[];
+
+        this.attrs=(opts.attrs||'').split(',').filter(it=>!!it);
+        this.attributes={};
+        for (let i=0;i<this.attrs.length;i++) this.attributes[this.attrs[i]]=[];
         return this;
     }
     action(tag,linetext,ctx){
@@ -23,8 +27,14 @@ class LabelDictEntry extends Label {
         this.prevhw=hw;
         this.linepos.push(y);
         this.prevy=y;
-    }
 
+        //build language attributes
+        if (this.attrs.length) {
+            for (let key in this.attributes) {
+                this.attributes[key].push(tag.attrs[key]||'');
+            }
+        }
+    }
     parse(addr){
         let HW=this.idarr;
         let tf=addr;
@@ -39,17 +49,36 @@ class LabelDictEntry extends Label {
     }
     serialize(){
         const out=[];
+        out.push(JSON.stringify({attrs:this.attrs}));
         const hw=packStrings(this.idarr);
         out.push(hw);  //58ms 
         out.push(pack3(this.entrysize));
         out.push(pack_delta(this.linepos)); 
+        for (let attr in this.attributes) {
+            out.push( this.attributes[attr].join('\t'));
+        }
         return out;
     }
     deserialize(payload){
         let at=super.deserialize(payload);
-        this.idarr=unpackStrings(payload[at++]);payload[at-1]=''; // 28.ms 
+        const header=JSON.parse(payload[at++]);payload[at-1]=''; 
+
+        this.idarr=unpackStrings(payload[at++]);payload[at-1]=''; 
         this.entrysize=unpack3(payload[at++]);payload[at-1]='';
         this.linepos=unpack_delta(payload[at++]);payload[at-1]='';
+        this.attrs=header.attrs;
+        this.attributes={};
+        for (let i=0;i<this.attrs.length;i++) {
+            this.attributes[this.attrs[i]]=payload[at++].split('\t');payload[at-1]=''; ;
+        }
+    }
+    getAttrs(n){
+        const out=[];
+        for (let i=0;i<this.attrs.length;i++) {
+            const attrname=this.attrs[i];
+            if (this.attributes[attrname][n]) out.push([ attrname, this.attributes[attrname][n]]);
+        }
+        return out;
     }
     getRange(n){
         if (typeof n!=='number') {
@@ -69,4 +98,4 @@ class LabelDictEntry extends Label {
         this.entrysize.push(lastentrysize);
     }
 }
-export default LabelDictEntry;
+export default LabelEntry;

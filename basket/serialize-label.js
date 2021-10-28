@@ -13,7 +13,7 @@ const serializeLabels=(labeldefs,ctx)=>{
 
     for (let name in labeldefs) { 
         const lt=labeldefs[name];
-        labelNames.push(lt.name);
+        labelNames.push(name);
         labelPoss.push(pos);
         labelTypes.push(lt.constructor.name);
         const lines=lt.serialize();

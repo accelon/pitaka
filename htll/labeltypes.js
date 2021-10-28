@@ -12,14 +12,14 @@ import LabelYearSpan from './label-yearspan.js'
 import LabelSeeAlso from './label-seealso.js'
 
 import LabelHeader from './label-header.js'
-import LabelDictEntry from './label-dict-entry.js'
+import LabelEntry from './label-entry.js'
 
 import LabelSection from './label-section.js'
 import LabelAnchor from './label-anchor.js'
 
 import LabelTransclusion from './label-transclusion.js'
 
-const LabelTypes = {Label,LabelHeader,LabelDictEntry,LabelVol,LabelPage,LabelLinePos
+const LabelTypes = {Label,LabelHeader,LabelEntry,LabelVol,LabelPage,LabelLinePos
     ,LabelKeyword,LabelKeynumber,LabelYear,LabelYearSpan,LabelSeeAlso,
     LabelBook,LabelChapter,LabelMulu,LabelSection,LabelAnchor,LabelTransclusion}
 

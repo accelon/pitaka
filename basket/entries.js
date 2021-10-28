@@ -12,7 +12,8 @@ function filterEntry(tofind,mode=0){
         let at=bsearch(lbl.idarr,tofind,true);
         while (at>-1 && at<lbl.idarr.length) {
             if (lbl.idarr[at].substr(0,tofind.length)==tofind) {
-                out.push([at,lbl.idarr[at], ...lbl.getRange(at)]);
+                const [from,to]=lbl.getRange(at);
+                out.push({nth:at,entry:lbl.idarr[at], attrs:lbl.getAttrs(at),from,to});
                 at++
             } else break;
         }
@@ -21,7 +22,8 @@ function filterEntry(tofind,mode=0){
             const name=lbl.idarr[i];
             const at=name.indexOf(tofind);
             if (at>0&&at+tofind.length==name.length) {
-                out.push([i,lbl.idarr[i], ... lbl.getRange(i)]);
+                const [from,to]=lbl.getRange(i)
+                out.push({nth:i,entry:lbl.idarr[i], attrs:lbl.getAttrs(i),from,to  });
             }
         }    
     } else {
@@ -29,7 +31,8 @@ function filterEntry(tofind,mode=0){
             const name=lbl.idarr[i];
             const at=name.indexOf(tofind);
             if (at>0 && at+tofind.length<name.length) {
-                out.push([i,lbl.idarr[i], ... lbl.getRange(i)]);
+                const [from,to]=lbl.getRange(i)
+                out.push({nth:i,entry:lbl.idarr[i],  attrs:lbl.getAttrs(i),from,to});
             }
         }    
     }

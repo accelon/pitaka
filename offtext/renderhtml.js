@@ -160,7 +160,7 @@ export const composeSnippet=(snippet,lineidx,sim=0)=>{
     const {text,open,close}=snippet;
     let out='';
     if (open && open.empty) {
-        out+=open.extra+'<'+open.empty+(open.i?' i="'+i+'" ':'')
+        out+=open.extra+'<'+open.empty+(open.i?' i="'+open.i+'" ':'')
             +' x="'+open.x+'" '+' y="'+(lineidx+open.y)+'" '+htmlAttrs(open.attrs)+'/>';
     } else {
         if (!open) out+=toSim(text,sim);
@@ -172,7 +172,7 @@ export const composeSnippet=(snippet,lineidx,sim=0)=>{
                 +(open.i?' i="'+open.i+'" ':'')
                 +'>'
         +toSim(text,sim)
-        +'</t'+(close.i?' i="'+close.i+'" ':'')+'>';
+        +'</t'+(close&&close.i?' i="'+close.i+'" ':'')+'>';
     }
     return out;
 }

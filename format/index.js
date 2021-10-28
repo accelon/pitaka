@@ -39,7 +39,7 @@ const default_typedef={
 }
 const getFormatTypeDef=(config,opts)=>{
     const def=config.labels||getFormat(format).def||default_typedef;
-    return TypeDef( def, opts);
+    return TypeDef( def, {config,...opts});
 }
 
 const getFormatTree=format=>{

@@ -10,6 +10,7 @@ class LabelBook extends Label {
         this._idarr={};
         this.keywords={}; // forward index of keywords  nbook: array of keyword idx
         this._maxkeyword=0;
+
         return this;
     }
     action(tag ,linetext){
