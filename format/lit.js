@@ -1,6 +1,5 @@
 import {extractChineseNumber} from 'pitaka/utils';
 import OffTextFormatter from '../offtext/formatter.js';
-import TypeDef from './typedef.js';
 // import hotfixes from './lit-hotfix.js';
 const tidy=str=>str.replace(/<<([\d▉\u3400-\u9fff]+)>>/g,'《$1》')
            .replace(/<([\d▉\u3400-\u9fff]+)>/g,'〈$1〉');
@@ -119,15 +118,6 @@ const getZipFileToc=async (zip,zipfn)=>{
     return {files:zipfiles, tocpage};
 }
 
-import Label from '../htll/label.js';
-
-class OpenLitTypeDef extends TypeDef {
-    constructor (opts) {
-        super(opts);
-        this.defs.mc=new Label('mc',opts); //missing characters
-    }
-};
-
 
 /* for toolbox to open */
 const parseFile=async (f,ctx)=>{
@@ -168,4 +158,4 @@ const parseFile=async (f,ctx)=>{
     }
 }
 
-export default {getZipFileToc,Formatter,'TypeDef':OpenLitTypeDef,parseFile}
+export default {getZipFileToc,Formatter,parseFile}

@@ -14,12 +14,14 @@ class LabelKeyword extends Label {
         this._sortedKeywords=[];
         return this;
     }
-    action( tag ,linetext){
+    action( tag ,linetext,labeltypes){
         const {x,w}=tag;
         const kw=linetext.substr(x,w);
         if (!this._keywords[kw]) this._keywords[kw]=[];
-        if (this.master.linepos&&this.master.linepos.length) {
-            this._keywords[kw].push( this.master.linepos.length-1 );
+
+        const master=labeltypes[this.master];
+        if (master.linepos&&master.linepos.length) {
+            this._keywords[kw].push(master.linepos.length-1 );
         }
     }
     reset() {

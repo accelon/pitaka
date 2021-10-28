@@ -111,29 +111,3 @@ export const handlers={
     }
     */
 }
-
-import Label from '../htll/label.js';
-import LabelPage from '../htll/label-page.js';
-import LabelVol from '../htll/label-vol.js';
-import LabelLinePos from '../htll/label-linepos.js';
-import LabelKeyword from '../htll/label-keyword.js';
-import LabelMulu from '../htll/label-mulu.js';
-import TypeDef from './typedef.js';
-export class CBetaTypeDef extends TypeDef {
-    constructor(opts) {
-        super(opts);
-        this.defs.v=new LabelVol('v',{resets:['p'], ...opts} ); //reset page number
-        this.defs.c=new LabelLinePos('c',{sequencial:true,resets:['mu'],...opts});//nameless (juan)
-        this.defs.p=new LabelPage('p',{cols:3,...opts}); //page number
-        this.defs.mu=new LabelMulu('mu',{trimlocal:true,opts}); //mulu, remove local
-        this.defs.mc=new Label('mc',opts); //missing characters
-        this.defs.h=new Label('h',opts); //general header
-        this.defs.w=new Label('w',opts); //pali words
-        this.defs.lg=new Label('lg',opts); //gathas
-
-        this.defs.pr=new LabelKeyword('pr',{caption:'人名',master:this.defs.bk,...opts});
-        this.defs.er=new LabelKeyword('er',{caption:'年代',master:this.defs.bk,...opts}); 
-        //dy comes first as finalize from backward
-    }
-}
-// export default {handlers,closeHandlers,'TypeDef':CBetaTypeDef}

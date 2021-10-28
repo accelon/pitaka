@@ -1,5 +1,6 @@
 import {readTextFile} from '../platform/inputfiles.js'
 import { getFormat } from './format.js';
+import TypeDef from './typedef.js'
 const fileContent=async(fn,format,ctx)=>{
     let c;
     const F=getFormat(format);
@@ -32,10 +33,13 @@ const getZipIndex=async (zip,format,fn)=>{
     if (fm.getZipFileToc) return await fm.getZipFileToc(zip,fn);
     else return {files:zip.files,tocpage:[]};
 }
-
-const getFormatTypeDef=(format,opts)=>{
-    const fm=getFormat(format);
-    return (new fm.TypeDef(opts)).defs;
+const default_typedef={
+    'bk':['LabelBook',{resets:'c'}],
+    'c':'LabelChapter'
+}
+const getFormatTypeDef=(config,opts)=>{
+    const def=config.labels||getFormat(format).def||default_typedef;
+    return TypeDef( def, opts);
 }
 
 const getFormatTree=format=>{

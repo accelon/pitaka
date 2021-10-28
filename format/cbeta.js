@@ -1,5 +1,5 @@
 import OffTextFormatter from '../offtext/formatter.js';
-import {handlers,closeHandlers,CBetaTypeDef} from './tei.js'
+import {handlers,closeHandlers} from './tei.js'
 import {DOMFromString,xpath} from '../xmlparser/index.js';
 import { alphabetically } from '../utils/sortedarray.js';
 
@@ -125,5 +125,6 @@ const getZipFileToc=async (zip,zipfn)=>{
     zipfiles.sort(alphabetically);
     return {files:zipfiles, tocpage};
 }
-export default {Formatter:OffTextFormatter,TypeDef:CBetaTypeDef,
+
+export default {Formatter:OffTextFormatter,
     parseFile,parseBuffer,getZipFileToc}

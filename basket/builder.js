@@ -23,7 +23,7 @@ class Builder {
         this.config=opts.config;
         this.config.tree=this.config.tree||getFormatTree(this.config.format);
         this.opts=opts;
-        this.labeldefs=getFormatTypeDef(this.config.format,{context:this.context,log:this.log});
+        this.labeldefs=getFormatTypeDef(this.config,{context:this.context,log:this.log});
         this.files=[];
         if (this.config.eudc) this.addJSON(this.config.eudc,'EUDC');
         if (this.config.errata) this.addErrata(this.config.errata);
