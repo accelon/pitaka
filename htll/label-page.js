@@ -2,7 +2,7 @@ import { unpack_delta } from '../utils/unpackintarray.js';
 import { pack_delta } from '../utils/packintarray.js';
 import {fillGap} from '../utils/sortedarray.js'
 import Label from './label.js'
-const debug=true;
+const debug=false;
 class LabelPage extends Label {
     constructor(name,opts={}) {
         super(name,opts)
@@ -35,8 +35,13 @@ class LabelPage extends Label {
         this.linepos[this.pagestart+page]=tag.y;
         this._prevy=tag.y;
     }
-    human(){
-        
+    indexOf(pg){
+        let co=0;
+        if (this.cols>1) {
+            const m=pg.match(/([a-z])$/);
+            co=m?(m[1].toLowerCase().charCodeAt(0)-0x61):0;
+        } 
+        return ((parseInt(pg,10)-1)*this.cols)+co;
     }
     serialize(){
         fillGap(this.linepos);

@@ -1,5 +1,5 @@
 import {PATHSEP,DELTASEP,DEFAULT_TREE} from '../platform/constants.js'
-import {OFFTAG_LEADBYTE,parseOffTag} from '../offtext/index.js'
+import {parseOffTag} from '../offtext/index.js'
 import { bsearch } from "../utils/bsearch.js" ;
 
 function narrowDown(branches){
@@ -14,13 +14,8 @@ function narrowDown(branches){
             at=label.idarr.indexOf(id, startfrom);
             if (at==-1) break;
         } else {
-            if (label.cols&&label.cols>1) {//cbeta page with cols
-                const m=id.match(/([a-z])$/);
-                const co=m?(m[1].toLowerCase().charCodeAt(0)-0x61):0;
-                at=startfrom+((parseInt(id)-1)*label.cols)+co;
-            } else {
-                at=(label.parse?label.parse:parseInt)(id.substr(id[0]==DELTASEP?1:0));
-            }
+            const id2=id.substr(id[0]==DELTASEP?1:0);
+            at=startfrom+(label.indexOf?label.indexOf(id2):parseInt(id2));
         }
         from=label.linepos[at]  + dy;
         to=label.linepos[at+1] || to;
