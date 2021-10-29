@@ -1,4 +1,4 @@
-const unhide=ctx=>{ (ctx.hide?ctx.hide--:0) ; return ''};
+const unhide=ctx=>{ (ctx.hide?ctx.hide--:0) };
 
 export const closeHandlers={
     'cb:div': (el,ctx)=>{ctx.div--},
@@ -79,8 +79,8 @@ const cbtt=(el,ctx)=>{
 }
 export const handlers={
     pb,g,lb,byline,'cb:tt':cbtt,
-    milestone:(el,ctx)=>ctx.started=true,//skip the redundant mulu before milestone, see T30n1579_037
-    note:(el,ctx)=>{  ctx.hide++},
+    milestone:(el,ctx)=>{ctx.started=true;},//skip the redundant mulu before milestone, see T30n1579_037
+    note:(el,ctx)=>{  ctx.hide++;return ''},
     lg:(el,ctx)=>{ctx.compact=true; return '\n^lg'},
     lem:(el,ctx)=>{ ctx.hide+=1},//just keep the rdg
 

@@ -35,7 +35,7 @@ export function dedup(arr) {
 export function filesFromStringPattern(pat,rootdir){
     let out=[];
 
-    if ((pat.indexOf('\\')>0 || pat.indexOf('+')>0)  ) {
+    if ((pat.indexOf('\\')>0 || pat.indexOf('+')>0)  ||pat.indexOf('[')>0 ) {
         const files=fs.readdirSync(rootdir);
         const reg=new RegExp(pat);
         for (let i=0;i<files.length;i++) {

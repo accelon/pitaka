@@ -4,16 +4,14 @@ import {DOMFromString,xpath} from '../xmlparser/index.js';
 import { alphabetically } from '../utils/sortedarray.js';
 
 const XML2OffText = (el,ctx) =>{
-
     if (typeof el=='string') {                     // a string node arrives
         let s=el.trimRight();
         if (ctx.hide) {
             if (ctx.compact) {
                 ctx.compact=false;
                 return ' ';
-            } else {
-                return '';
             }
+            return '';
         }
 
         if (ctx.compact && s.charCodeAt(0)<0x7f) { // a compact offtag is emitted just now
@@ -25,7 +23,10 @@ const XML2OffText = (el,ctx) =>{
     }
     let out='';
     const handler= handlers[el.name];
-    if (handler) out=handler(el,ctx)||'';
+    if (handler) {
+        const out2= handler(el,ctx);
+        if (typeof out2=='string') out=out2;
+    }
 
     if (el.children && el.children.length) {
         out+=el.children.map(e=>XML2OffText(e,ctx)).join('');

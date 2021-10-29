@@ -25,7 +25,9 @@ export async function loadNodeJs (name,chunk,rom){
 }
 
 export async function loadNodeJsZip (name,chunk,rom) {
-    throw "not implement yet"
+    const fn=name+'/'+chunkfilename(chunk);
+    const content=await rom.romzip.readTextFile(fn);
+    return parseChunk(content);
 }
 
 export const loadFetch= async (name,chunk,rom)=>{

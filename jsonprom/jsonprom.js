@@ -58,14 +58,14 @@ class JSONPROM {
         this.context.loadedChunk[chunk]=true;
     }
     async openrom(){
+        
         if (this._loader==loadNodeJs || this._loader==loadNodeJsZip) {
             const romfn=this.romfolder+this.name+'.ptk';
             if (fs.existsSync(romfn)) {
                 const zip=await LaZip.default(romfn);
-                console.log(zip)
                 this.romzip=zip;
+                this._loader=loadNodeJsZip;
             }
-            
             return;
         }
         const romfn='/'+this.header.name+ROMEXT;
@@ -94,7 +94,7 @@ class JSONPROM {
     getSectionRange(name){
         const {sectionNames,sectionStarts,lineCount}=this.header;
         const i=sectionNames.indexOf(name);
-        if (i<0) return;
+        if (i<0) return [0,0];
         const from=sectionStarts[i];
         const to= (i<sectionNames.length-1)?sectionStarts[i+1]:lineCount;
         return [from,to];

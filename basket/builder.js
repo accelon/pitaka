@@ -15,7 +15,7 @@ class Builder {
             ,startY:0// starting Y of this content
             ,lineCount:0 //y0 at the end of parsing content
             ,prevLineCount:0 //line count of previously parsed content
-            
+            ,labeldefs:null
         };
         this.writer=new JSONPROMWriter(Object.assign({},opts,{context:this.context}));
         this.finalized=false;
@@ -24,7 +24,7 @@ class Builder {
         this.config.tree=this.config.tree||getFormatTree(this.config.format);
         this.opts=opts;
         this.unknownLabel={};
-        this.labeldefs=getFormatTypeDef(this.config,{context:this.context,log:this.log});
+        this.context.labeldefs=getFormatTypeDef(this.config,{context:this.context,log:this.log});
         this.files=[];
         if (this.config.eudc) this.addJSON(this.config.eudc,'EUDC');
         if (this.config.errata) this.addErrata(this.config.errata);
@@ -117,12 +117,12 @@ class Builder {
     doTags(tags,text){
         for (let i=0;i<tags.length;i++) {
             const tag=tags[i];
-            const labeltype=this.labeldefs[tag.name];
+            const labeltype=this.context.labeldefs[tag.name];
             if (labeltype) {
                 const linetext=text[tag.y - this.context.ptkline ];
                 labeltype.action(tag,linetext,this.context);
                 if (labeltype.resets) {
-                    const D=this.labeldefs;
+                    const D=this.context.labeldefs;
                     labeltype.resets.forEach(r=>D[r]&&D[r].reset(tag));
                 }
             } else {
@@ -190,7 +190,7 @@ class Builder {
     }
     finalize(opts={}){
         this.writer.addSection('labels');
-        const section=serializeLabels(this.labeldefs,this.context )
+        const section=serializeLabels(this.context )
         this.writer.append(section);
 
         this.finalized=true;

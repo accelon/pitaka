@@ -90,13 +90,24 @@ const parseAttrs=(rawA,compactAttr)=>{
 
     return [attrs,putback];
 }
+export const parseOffTag=(raw,rawA)=>{ // 剖析一個offtag,  ('a7[k=1]') 等效於 ('a7','[k=1]')
+    if (raw[0]=='^') raw=raw.substr(1);
+    if (!rawA){
+        const at=raw.indexOf('[');
+        if (at>0) {
+            rawA=raw.substr(at);
+            raw=raw.substr(0,at);
+        }
+    }
+    let [m2, tagName, compactAttr]=raw.match(/([A-Za-z_]*)(.*)/);
+    let [attrs,putback]=parseAttrs(rawA,compactAttr);
+    return [tagName,attrs,putback];
+}
 export const parseOfftextLine=(str,idx=0)=>{
     const tags=[];
     let textoffset=0,prevoff=0;
     let text=str.replace(OFFTAG_REGEX_G, (m,rawName,rawA,offset)=>{
-        let [m2, tagName, compactAttr]=rawName.match(/([A-Za-z_]*)(.*)/);
-
-        let [attrs,putback]=parseAttrs(rawA,compactAttr);
+        let [tagName,attrs,putback]=parseOffTag(rawName,rawA);
         let width=0;
         putback=putback.trimRight();     //[xxx ] 只會放回  "xxx"
         if (tagName=='br' && !putback) { //標記前放一個空白, 接行後不會 一^br二  => 一 二

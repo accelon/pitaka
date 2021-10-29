@@ -1,11 +1,11 @@
 import {PATHSEP,DELTASEP,DEFAULT_TREE} from '../platform/constants.js'
+import {OFFTAG_LEADBYTE,parseOffTag} from '../offtext/index.js'
 import { bsearch } from "../utils/bsearch.js" ;
 
 function narrowDown(branches){
     let from=0,to=this.lastTextLine();
     for (let i=0;i<branches.length;i++){
         const {lbl, id , dy}=branches[i];
-
         const label=this.getLabel(lbl);
         if (!label) return [];
         const startfrom=bsearch(label.linepos,from,true);
@@ -14,7 +14,13 @@ function narrowDown(branches){
             at=label.idarr.indexOf(id, startfrom);
             if (at==-1) break;
         } else {
-            at=startfrom+parseInt(id.substr(id[0]==DELTASEP?1:0));
+            if (label.cols&&label.cols>1) {//cbeta page with cols
+                const m=id.match(/([a-z])$/);
+                const co=m?(m[1].toLowerCase().charCodeAt(0)-0x61):0;
+                at=startfrom+((parseInt(id)-1)*label.cols)+co;
+            } else {
+                at=(label.parse?label.parse:parseInt)(id.substr(id[0]==DELTASEP?1:0));
+            }
         }
         from=label.linepos[at]  + dy;
         to=label.linepos[at+1] || to;
@@ -33,18 +39,25 @@ function locate(y){
     }
     return out;
 }
-function getPage(addr){
+function getPageRange(addr){
     const thetree=(this.header.tree||DEFAULT_TREE).split(PATHSEP);
     if (!addr && thetree[0]=='e') return [0,0];
     const pths=(addr||'').split(PATHSEP).filter(i=>!!i);
     const arr=pths.map((item,idx)=>{
         let pth=pths[idx];
+        let id=pth;
+        let lbl=thetree[idx];
         const m=pth.lastIndexOf(DELTASEP);
         let dy=m>1?parseInt(pth.substr(m+1)):0;
         if (m>1 && !isNaN(dy) ) {
             pth=pth.substr(0,m);
         }
-        return {lbl:thetree[idx], id:pth , dy}
+        if (id[0]==='^') {
+            const [labelname,attrs]=parseOffTag(id.substr(1));
+            id=attrs.n;
+            lbl=labelname;
+        }
+        return {lbl, id , dy}
     })
     const nextlbl=thetree[pths.length];
     return [...this.narrowDown(arr) ,  nextlbl ] ;
@@ -102,7 +115,7 @@ function getTocTree(addr){
 function fetchToc(loc){
     const out=[];
     if (!loc) loc='';
-    let [y0,y1] = this.getPage(loc);
+    let [y0,y1] = this.getPageRange(loc);
     
     const thetree=(this.header.tree||DEFAULT_TREE).split(PATHSEP);
     const parents=loc.split(PATHSEP).filter(i=>!!i);
@@ -145,7 +158,7 @@ function fetchToc(loc){
 function fetchPage(loc){
     if (!loc) loc='';
     const out=[];
-    let [y0,y1] = this.getPage(loc);
+    let [y0,y1] = this.getPageRange(loc);
 
     const thetree=(this.header.tree||DEFAULT_TREE).split(PATHSEP);
     const parents=loc.split(PATHSEP).filter(i=>!!i);
@@ -159,7 +172,7 @@ function fetchPage(loc){
     return out;
 }
 function getNChild(loc,n){
-    const [from,to,nextlbl]=this.getPage(loc);
+    const [from,to,nextlbl]=this.getPageRange(loc);
     const label=this.getLabel(nextlbl);
     if (!label) return {};
     const at=bsearch(label.linepos,from,true);
@@ -179,9 +192,9 @@ function childCount(loc){
         loc=pths.join(PATHSEP);
     }
 
-    const [from,to,nextlbl]=this.getPage(loc);
+    const [from,to,nextlbl]=this.getPageRange(loc);
     const label=this.getLabel(nextlbl);
     if (!label) return 0;
     return label.countRange(from,to);
 }
-export default {pageAt,getTocTree,getNChild,childCount,fetchPage,fetchToc,getPage,narrowDown,locate}
+export default {pageAt,getTocTree,getNChild,childCount,fetchPage,fetchToc,getPageRange,narrowDown,locate}

@@ -14,12 +14,12 @@ class LabelKeyword extends Label {
         this._sortedKeywords=[];
         return this;
     }
-    action( tag ,linetext,labeltypes){
+    action( tag ,linetext,ctx){
         const {x,w}=tag;
         const kw=linetext.substr(x,w);
         if (!this._keywords[kw]) this._keywords[kw]=[];
 
-        const master=labeltypes[this.master];
+        const master=ctx.labeldefs[this.master];
         if (master.linepos&&master.linepos.length) {
             this._keywords[kw].push(master.linepos.length-1 );
         }
@@ -45,7 +45,7 @@ class LabelKeyword extends Label {
             this.lineposs[i]=unpack_delta(payload[at++]);payload[at-1]='';
         }
     }
-    finalize() {
+    finalize(ctx) {
         const keywords=[];
         for (let k in this._keywords) {
             keywords.push([k,this._keywords[k]]);
@@ -53,7 +53,8 @@ class LabelKeyword extends Label {
         keywords.sort((a,b)=>b[1].length-a[1].length);
 
         this._sortedKeywords=keywords;
-        this.master.addKeywords(this.name,keywords);
+        const master=ctx.labeldefs[this.master];
+        master.addKeywords(this.name,keywords);
     }
 }
 export default LabelKeyword;

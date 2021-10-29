@@ -12,6 +12,9 @@ class LabelVol extends Label {
         const vol=parseInt(tag.attrs.n)-1;
         this.linepos[vol]=tag.y;
     }
+    parse(vol) {
+        return parseInt(vol)-1;
+    }
     serialize(){
         fillGap(this.linepos);
         const out=[];

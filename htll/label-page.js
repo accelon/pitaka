@@ -14,7 +14,6 @@ class LabelPage extends Label {
         return this;
     }
     reset(){
-        console.log()
         this.pagestart+=this._prevpage;
         this._prevpage=-1;
     }
@@ -27,7 +26,7 @@ class LabelPage extends Label {
                 // console.log('more than '+this.cols+' cols',tag.attrs.n);
                 return;
             }
-            page=(page-1)*this.cols+cols;
+            page=(page-1)*this.cols+cols+1;
         }
         if (this._prevpage>=page) {
             throw 'page no in order '+tag.attrs.n+' '+this._prevpage+' '+page+' '+linetext;
