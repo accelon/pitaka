@@ -47,8 +47,9 @@ function getPageRange(addr){
         if (m>1 && !isNaN(dy) ) {
             pth=pth.substr(0,m);
         }
-        if (id[0]==='^') {
-            const [labelname,attrs]=parseOffTag(id.substr(1));
+        const eq=id.indexOf('#');
+        if (eq>0) {
+            const [labelname,attrs]=parseOffTag(id.substr(0,eq)+id.substr(eq+1));
             id=attrs.n;
             lbl=labelname;
         }
@@ -57,7 +58,7 @@ function getPageRange(addr){
     const nextlbl=thetree[pths.length];
     return [...this.narrowDown(arr) ,  nextlbl ] ;
 }
-function pageAt(y0){
+function pageAt(y0,toString=false){
     const out=[];
     const thetree=(this.header.tree||DEFAULT_TREE).split(PATHSEP);
     let parentat=0;
@@ -66,12 +67,20 @@ function pageAt(y0){
         const at=bsearch(label.linepos,y0+1,true);
         if (at<1) break;
         const from=bsearch(label.linepos,parentat,true);
-        const id=label.idarr?(label.idarr[at-1] ): (DELTASEP+(at-from-1));
+        const id=label.idarr?(label.idarr[at-1] ): at-from;
         out.push([id, (i===thetree.length-1)?y0-label.linepos[at-1]:0 ]);
         parentat=label.linepos[at-1];
     }
-
-    return out.map(i=>i[0]+ (i[1]?DELTASEP+i[1]:''));
+    //const out2= out.map(i=>i[0]+ (i[1]?DELTASEP+i[1]:''));
+    if (toString) {
+        let s='';
+        for (let i=0;i<out.length;i++) {
+            s+= out[i][0]+ (out[i][1]?DELTASEP+out[i][1]:'')+PATHSEP;
+        }
+        return s;
+    } else {
+        return out;
+    }
 }
 function getTocTree(addr){
     if (!addr) addr='';

@@ -19,7 +19,7 @@ import {info} from './info.js';
 import quote from './quote.js';
 import pinpoint from './pinpoint.js';
 import nGram from '../fulltext/ngram.js';
-import {group,entrysort} from './offtextutils.js'
+import {group,entrysort,search} from './offtextutils.js'
 
 import validate from "./validate.js"
 import zip from "./zip.js"
@@ -93,15 +93,16 @@ const help=()=>{
     console.log(yellow('$ pitaka zip (regex)'), 'make a zip file')
     console.log(yellow('$ pitaka validate'), 'validate all htm files')
     console.log(yellow('$ pitaka quote   '), 'extract quote from a ptk or offtext file')
-    console.log(yellow('$ pitaka pinpoint'), 'pinpoint a citation by quote and source book')
+    console.log(yellow('$ pitaka pinpoint fn ptk'), 'pinpoint a citation by quote and source book')
     console.log(yellow('$ pitaka group fn [pat]'), 'grouping string matching pattern, each line as item if no pat')
     console.log(yellow('$ pitaka entrysort fn'), 'sort entry in unicode order')
+    console.log(yellow('$ pitaka search fn ptk'), 'search book/entry in pitaka file')
 }
 
 try {
-    ({v:validate,validate,
+    await ({v:validate,validate,
         j:jsonp,jsonp,raw,r:raw, q:quote,quote, p:pinpoint,pinpoint,
-        z:zip,zip,ngram,n:ngram,group,g:group,entrysort,e:entrysort,
+        z:zip,zip,ngram,n:ngram,group,g:group,entrysort,e:entrysort,search,s:search,
         '--help':help,'-h':help,i:info,info,build,b:build})[cmd]();
 
 } catch(e) {

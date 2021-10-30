@@ -1,8 +1,9 @@
 import {openBasket} from './open.js';
-import {dereferencing} from '../offtext/pointers.js';
+import {dereferencing,parsePointer} from '../offtext/pointers.js';
 import {validateConfig} from './config.js'
 import pool from './pool.js';
 import Builder from './builder.js';
+import { PATHSEP } from '../index.js';
 
 const opened=()=>pool.getAll();
 const useBasket=name=>pool.get(name);
@@ -38,6 +39,23 @@ const trimDictDef=lines=>{
     }
     return out;
 }
+
+async function fetchLoc(loc,extraline=0){ //fetch a page
+    if (!loc)return '';
+    const pths=loc.split('/');
+    if (pths[0]=='') pths.shift();
+    const ptkname=pths.shift();
+    if (!pool.has(ptkname))return '';
+    const ptk=useBasket(ptkname);
+    const [from,to]=await ptk.getPageRange(pths.join(PATHSEP));
+    await ptk.prefetchLines(from,to); 
+    const rawlines=[];
+    for(let i=from;i<=to+extraline;i++) {
+        rawlines.push([i,ptk.getLine(i)])
+    }
+    return [ptkname,rawlines];
+}
+
 async function fetchHooks(hooks){
     if (typeof hooks=='string') hooks=[hooks];
     const out=[];
@@ -78,4 +96,4 @@ function bestEntries(tf){
     return out;
 }
 export {openBasket,pool,opened,useBasket,readLines,Builder,validateConfig
-,fetchHooks,bestEntries};
+,fetchHooks,fetchLoc,bestEntries};

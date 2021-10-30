@@ -1,4 +1,5 @@
-import {alphabetically0} from 'pitaka/utils'
+import {alphabetically0, bsearch} from 'pitaka/utils'
+import { openBasket } from '../index.js';
 import { parseOfftextLine } from '../offtext/parser.js';
 export const entrysort=()=>{
     const fn=process.argv[3]||'';
@@ -50,14 +51,14 @@ export const group=()=>{
     const obj={},out=[];
     if (pat) {
         console.log(pat)
-        const content=fs.readFileSync(arg,'utf8').trimLeft();
+        const content=fs.readFileSync(fn,'utf8').trimLeft();
         const regex=new RegExp(pat,'g');
         content.replace(regex,(m,m1)=>{
             if(!obj[m1])obj[m1]=0;
             obj[m1]++;
         })
     } else { 
-        const lines=fs.readFileSync(arg,'utf8').trimLeft().split(/\r?\n/);
+        const lines=fs.readFileSync(fn,'utf8').trimLeft().split(/\r?\n/);
         lines.forEach(line=>{
             if(!obj[line])obj[line]=0;
             obj[line]++;
@@ -71,4 +72,42 @@ export const group=()=>{
     let sum=0;
     out.forEach(it=>{sum+=it[1];it[2]=sum})
     console.log(out.join('\n'))
+}
+
+export const search=async ()=>{
+    const fn=process.argv[3];
+    const ptkname=process.argv[4];
+    const ptk=await openBasket(ptkname);
+    if (!ptk) throw "cannot open pitaka "+ptkname;
+    let lbl=ptk.getLabel('bk');
+    let arr=[];
+    if (!lbl) {
+        lbl=ptk.getLabel('e');
+        if (lbl) arr=lbl.idarr;
+    } else {
+        arr=lbl.names;
+    }
+    if (!lbl) throw "not a valid pitaka"
+    
+    const lines=fs.readFileSync(fn,'utf8').trimLeft().split(/\r?\n/);
+
+    let notfound=0,touched=0;
+    for (let i=0;i<lines.length;i++) {
+        const line=lines[i];
+        const items=line.split(/,/);
+        
+        const at=arr.indexOf(items[0]);       
+        if (at>0) {
+            items[items.length]=lbl.idarr[at];
+            lines[i]=items.join(',');
+            touched++;
+        } else notfound++;
+    }
+
+    console.log('total',lines.length,'not found',notfound)
+    if (touched) {
+        const outfn=fn+'.found';
+        fs.writeFileSync(outfn,lines.join('\n'),'utf8');
+        console.log('written to',outfn)
+    }
 }
