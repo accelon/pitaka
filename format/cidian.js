@@ -1,6 +1,6 @@
 
-const CidianTypeDef={
-    'e':['LabelDictEntry',{resets:'y'}],
+const cidian={
+    'e':['LabelEntry',{resets:'y'}],
     'y':['Label',{resets:['d','eg','q']}],
     'eg':'Label',
     'd':'Label',
@@ -10,4 +10,4 @@ const CidianTypeDef={
     'en':'Label',
 };
 
-export default {def:CidianTypeDef,tree:'e'};
+export default {def:cidian, tree:'e'};

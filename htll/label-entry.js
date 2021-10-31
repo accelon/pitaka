@@ -92,7 +92,7 @@ class LabelEntry extends Label {
     find(tofind,near=false){
         return bsearch(this.idarr,tofind,near);
     }
-    finalize(labeldefs,ctx){
+    finalize(ctx){
         const lastentrysize=ctx.linesOffset[ctx.lineCount]
                            -ctx.linesOffset[this.prevy-ctx.startY];
         this.entrysize.push(lastentrysize);

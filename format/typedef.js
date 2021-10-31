@@ -9,7 +9,6 @@ const TypeDef =(json,opts)=>{
             [typename,_opts]=json[name];
             options={...opts,..._opts}
         }
-
         out[name]=new LabelTypes[typename](name,options);
     }
     return out;

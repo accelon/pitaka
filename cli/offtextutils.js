@@ -1,6 +1,24 @@
-import {alphabetically0, bsearch} from 'pitaka/utils'
-import { openBasket } from '../index.js';
+import {alphabetically0} from '../utils/index.js'
+import {segmentText,initialize} from '../nlp/segmentator.js'
+import { prepareInput } from './input.js';
 import { parseOfftextLine } from '../offtext/parser.js';
+
+export const wordseg=async ()=>{
+    const [lines,word,wordfreq]=await prepareInput('entrysize');
+    console.time('init')
+
+    // initialize(word,wordfreq)
+    // 
+
+    lines.forEach(line=>{
+        if (line.substr(0,2)!=='^d') return;
+
+        const [text]=parseOfftextLine(line);
+        console.log(segmentText(text,word,wordfreq).join('|'));
+    })
+    console.timeEnd('init')
+}
+
 export const entrysort=()=>{
     const fn=process.argv[3]||'';
     if (!fn) {
@@ -75,31 +93,17 @@ export const group=()=>{
 }
 
 export const search=async ()=>{
-    const fn=process.argv[3];
-    const ptkname=process.argv[4];
-    const ptk=await openBasket(ptkname);
-    if (!ptk) throw "cannot open pitaka "+ptkname;
-    let lbl=ptk.getLabel('bk');
-    let arr=[];
-    if (!lbl) {
-        lbl=ptk.getLabel('e');
-        if (lbl) arr=lbl.idarr;
-    } else {
-        arr=lbl.names;
-    }
-    if (!lbl) throw "not a valid pitaka"
-    
-    const lines=fs.readFileSync(fn,'utf8').trimLeft().split(/\r?\n/);
-
+    const [lines,booknames,bookid]=await prepareInput();
     let notfound=0,touched=0;
     for (let i=0;i<lines.length;i++) {
         const line=lines[i];
         const items=line.split(/,/);
         
-        const at=arr.indexOf(items[0]);       
+        const at=booknames.indexOf(items[0]);       
         if (at>0) {
-            items[items.length]=lbl.idarr[at];
+            items[items.length]=bookid[at];
             lines[i]=items.join(',');
+            console.log(lines[i]);
             touched++;
         } else notfound++;
     }

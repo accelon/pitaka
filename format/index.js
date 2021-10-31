@@ -38,7 +38,7 @@ const default_typedef={
     'c':'LabelChapter'
 }
 const getFormatTypeDef=(config,opts)=>{
-    const def=config.labels||getFormat(format).def||default_typedef;
+    const def=config.labels||getFormat(config.format).def||default_typedef;
     return TypeDef( def, {config,...opts});
 }
 

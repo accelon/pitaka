@@ -1,4 +1,4 @@
-import JSZip from '../3rdparty/jszip.node.js' //need tailored version of jszip.
+import JSZip from '../3rdparty/jszip.js' //need tailored version of jszip.
 
 function readInt(buf,idx,size) {
     var result = 0,  i;

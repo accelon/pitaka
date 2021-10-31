@@ -1,3 +1,14 @@
+var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
+
+function createCommonjsModule(fn) {
+  var module = { exports: {} };
+	return fn(module, module.exports), module.exports;
+}
+
+function commonjsRequire (target) {
+	throw new Error('Could not dynamically require "' + target + '". Please configure the dynamicRequireTargets option of @rollup/plugin-commonjs appropriately for this require call to behave properly.');
+}
+
 /*!
 
 JSZip v3.7.1 - A JavaScript class for generating and reading zip files
@@ -13,8 +24,8 @@ https://github.com/nodeca/pako/blob/master/LICENSE
 
 */
 
-(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.JSZip = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-'use strict';
+var jszip = createCommonjsModule(function (module, exports) {
+(function(f){{module.exports=f();}})(function(){return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof commonjsRequire=="function"&&commonjsRequire;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r);}return n[o].exports}var i=typeof commonjsRequire=="function"&&commonjsRequire;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var utils = require('./utils');
 var support = require('./support');
 // private property
@@ -122,7 +133,6 @@ exports.decode = function(input) {
 };
 
 },{"./support":30,"./utils":32}],2:[function(require,module,exports){
-'use strict';
 
 var external = require("./external");
 var DataWorker = require('./stream/DataWorker');
@@ -198,7 +208,6 @@ CompressedObject.createWorkerFrom = function (uncompressedWorker, compression, c
 module.exports = CompressedObject;
 
 },{"./external":6,"./stream/Crc32Probe":25,"./stream/DataLengthProbe":26,"./stream/DataWorker":27}],3:[function(require,module,exports){
-'use strict';
 
 var GenericWorker = require("./stream/GenericWorker");
 
@@ -214,7 +223,6 @@ exports.STORE = {
 exports.DEFLATE = require('./flate');
 
 },{"./flate":7,"./stream/GenericWorker":28}],4:[function(require,module,exports){
-'use strict';
 
 var utils = require('./utils');
 
@@ -293,7 +301,6 @@ module.exports = function crc32wrapper(input, crc) {
 };
 
 },{"./utils":32}],5:[function(require,module,exports){
-'use strict';
 exports.base64 = false;
 exports.binary = false;
 exports.dir = false;
@@ -306,8 +313,6 @@ exports.unixPermissions = null;
 exports.dosPermissions = null;
 
 },{}],6:[function(require,module,exports){
-/* global Promise */
-'use strict';
 
 // load the global object first:
 // - it should be better integrated in the system (unhandledRejection in node)
@@ -327,7 +332,6 @@ module.exports = {
 };
 
 },{"lie":37}],7:[function(require,module,exports){
-'use strict';
 var USE_TYPEDARRAY = (typeof Uint8Array !== 'undefined') && (typeof Uint16Array !== 'undefined') && (typeof Uint32Array !== 'undefined');
 
 var pako = require("pako");
@@ -414,7 +418,6 @@ exports.uncompressWorker = function () {
 };
 
 },{"./stream/GenericWorker":28,"./utils":32,"pako":38}],8:[function(require,module,exports){
-'use strict';
 
 var utils = require('../utils');
 var GenericWorker = require('../stream/GenericWorker');
@@ -552,7 +555,7 @@ var generateZipParts = function(streamInfo, streamedContent, streamingEnded, off
         extFileAttr |= generateUnixExternalFileAttr(file.unixPermissions, dir);
     } else { // DOS or other, fallback to DOS
         versionMadeBy = 0x0014; // DOS, version 2.0
-        extFileAttr |= generateDosExternalFileAttr(file.dosPermissions, dir);
+        extFileAttr |= generateDosExternalFileAttr(file.dosPermissions);
     }
 
     // date
@@ -956,7 +959,6 @@ ZipFileWorker.prototype.lock = function () {
 module.exports = ZipFileWorker;
 
 },{"../crc32":4,"../signature":23,"../stream/GenericWorker":28,"../utf8":31,"../utils":32}],9:[function(require,module,exports){
-'use strict';
 
 var compressions = require('../compressions');
 var ZipFileWorker = require('./ZipFileWorker');
@@ -1015,7 +1017,6 @@ exports.generateWorker = function (zip, options, comment) {
 };
 
 },{"../compressions":3,"./ZipFileWorker":8}],10:[function(require,module,exports){
-'use strict';
 
 /**
  * Representation a of zip file in js
@@ -1072,7 +1073,6 @@ JSZip.external = require("./external");
 module.exports = JSZip;
 
 },{"./defaults":5,"./external":6,"./load":11,"./object":15,"./support":30}],11:[function(require,module,exports){
-'use strict';
 var utils = require('./utils');
 var external = require("./external");
 var utf8 = require('./utf8');
@@ -1166,7 +1166,6 @@ module.exports = function (data, options) {
 };
 
 },{"./external":6,"./nodejsUtils":14,"./stream/Crc32Probe":25,"./utf8":31,"./utils":32,"./zipEntries":33}],12:[function(require,module,exports){
-"use strict";
 
 var utils = require('../utils');
 var GenericWorker = require('../stream/GenericWorker');
@@ -1242,7 +1241,6 @@ NodejsStreamInputAdapter.prototype.resume = function () {
 module.exports = NodejsStreamInputAdapter;
 
 },{"../stream/GenericWorker":28,"../utils":32}],13:[function(require,module,exports){
-'use strict';
 
 var Readable = require('readable-stream').Readable;
 
@@ -1286,7 +1284,6 @@ NodejsStreamOutputAdapter.prototype._read = function() {
 module.exports = NodejsStreamOutputAdapter;
 
 },{"../utils":32,"readable-stream":16}],14:[function(require,module,exports){
-'use strict';
 
 module.exports = {
     /**
@@ -1345,7 +1342,6 @@ module.exports = {
 };
 
 },{}],15:[function(require,module,exports){
-'use strict';
 var utf8 = require('./utf8');
 var utils = require('./utils');
 var GenericWorker = require('./stream/GenericWorker');
@@ -1747,7 +1743,6 @@ module.exports = out;
 module.exports = require("stream");
 
 },{"stream":undefined}],17:[function(require,module,exports){
-'use strict';
 var DataReader = require('./DataReader');
 var utils = require('../utils');
 
@@ -1806,7 +1801,6 @@ ArrayReader.prototype.readData = function(size) {
 module.exports = ArrayReader;
 
 },{"../utils":32,"./DataReader":18}],18:[function(require,module,exports){
-'use strict';
 var utils = require('../utils');
 
 function DataReader(data) {
@@ -1924,7 +1918,6 @@ DataReader.prototype = {
 module.exports = DataReader;
 
 },{"../utils":32}],19:[function(require,module,exports){
-'use strict';
 var Uint8ArrayReader = require('./Uint8ArrayReader');
 var utils = require('../utils');
 
@@ -1945,7 +1938,6 @@ NodeBufferReader.prototype.readData = function(size) {
 module.exports = NodeBufferReader;
 
 },{"../utils":32,"./Uint8ArrayReader":21}],20:[function(require,module,exports){
-'use strict';
 var DataReader = require('./DataReader');
 var utils = require('../utils');
 
@@ -1985,7 +1977,6 @@ StringReader.prototype.readData = function(size) {
 module.exports = StringReader;
 
 },{"../utils":32,"./DataReader":18}],21:[function(require,module,exports){
-'use strict';
 var ArrayReader = require('./ArrayReader');
 var utils = require('../utils');
 
@@ -2009,7 +2000,6 @@ Uint8ArrayReader.prototype.readData = function(size) {
 module.exports = Uint8ArrayReader;
 
 },{"../utils":32,"./ArrayReader":17}],22:[function(require,module,exports){
-'use strict';
 
 var utils = require('../utils');
 var support = require('../support');
@@ -2039,7 +2029,6 @@ module.exports = function (data) {
 };
 
 },{"../support":30,"../utils":32,"./ArrayReader":17,"./NodeBufferReader":19,"./StringReader":20,"./Uint8ArrayReader":21}],23:[function(require,module,exports){
-'use strict';
 exports.LOCAL_FILE_HEADER = "PK\x03\x04";
 exports.CENTRAL_FILE_HEADER = "PK\x01\x02";
 exports.CENTRAL_DIRECTORY_END = "PK\x05\x06";
@@ -2048,7 +2037,6 @@ exports.ZIP64_CENTRAL_DIRECTORY_END = "PK\x06\x06";
 exports.DATA_DESCRIPTOR = "PK\x07\x08";
 
 },{}],24:[function(require,module,exports){
-'use strict';
 
 var GenericWorker = require('./GenericWorker');
 var utils = require('../utils');
@@ -2076,7 +2064,6 @@ ConvertWorker.prototype.processChunk = function (chunk) {
 module.exports = ConvertWorker;
 
 },{"../utils":32,"./GenericWorker":28}],25:[function(require,module,exports){
-'use strict';
 
 var GenericWorker = require('./GenericWorker');
 var crc32 = require('../crc32');
@@ -2102,7 +2089,6 @@ Crc32Probe.prototype.processChunk = function (chunk) {
 module.exports = Crc32Probe;
 
 },{"../crc32":4,"../utils":32,"./GenericWorker":28}],26:[function(require,module,exports){
-'use strict';
 
 var utils = require('../utils');
 var GenericWorker = require('./GenericWorker');
@@ -2133,7 +2119,6 @@ module.exports = DataLengthProbe;
 
 
 },{"../utils":32,"./GenericWorker":28}],27:[function(require,module,exports){
-'use strict';
 
 var utils = require('../utils');
 var GenericWorker = require('./GenericWorker');
@@ -2251,7 +2236,6 @@ DataWorker.prototype._tick = function() {
 module.exports = DataWorker;
 
 },{"../utils":32,"./GenericWorker":28}],28:[function(require,module,exports){
-'use strict';
 
 /**
  * A worker that does nothing but passing chunks to the next one. This is like
@@ -2516,7 +2500,6 @@ GenericWorker.prototype = {
 module.exports = GenericWorker;
 
 },{}],29:[function(require,module,exports){
-'use strict';
 
 var utils = require('../utils');
 var ConvertWorker = require('./ConvertWorker');
@@ -2730,7 +2713,6 @@ StreamHelper.prototype = {
 module.exports = StreamHelper;
 
 },{"../base64":1,"../external":6,"../nodejs/NodejsStreamOutputAdapter":13,"../support":30,"../utils":32,"./ConvertWorker":24,"./GenericWorker":28}],30:[function(require,module,exports){
-'use strict';
 
 exports.base64 = true;
 exports.array = true;
@@ -2770,7 +2752,6 @@ try {
 }
 
 },{"readable-stream":16}],31:[function(require,module,exports){
-'use strict';
 
 var utils = require('./utils');
 var support = require('./support');
@@ -2878,7 +2859,7 @@ var utf8border = function(buf, max) {
 
 // convert array to string
 var buf2string = function (buf) {
-    var str, i, out, c, c_len;
+    var i, out, c, c_len;
     var len = buf.length;
 
     // Reserve max possible length (2 words per char)
@@ -3047,7 +3028,6 @@ Utf8EncodeWorker.prototype.processChunk = function (chunk) {
 exports.Utf8EncodeWorker = Utf8EncodeWorker;
 
 },{"./nodejsUtils":14,"./stream/GenericWorker":28,"./support":30,"./utils":32}],32:[function(require,module,exports){
-'use strict';
 
 var support = require('./support');
 var base64 = require('./base64');
@@ -3525,12 +3505,11 @@ exports.prepareContent = function(name, inputData, isBinary, isOptimizedBinarySt
 };
 
 },{"./base64":1,"./external":6,"./nodejsUtils":14,"./support":30,"set-immediate-shim":54}],33:[function(require,module,exports){
-'use strict';
 var readerFor = require('./reader/readerFor');
 var utils = require('./utils');
 var sig = require('./signature');
 var ZipEntry = require('./zipEntry');
-var utf8 = require('./utf8');
+require('./utf8');
 var support = require('./support');
 //  class ZipEntries {{{
 /**
@@ -3672,10 +3651,6 @@ ZipEntries.prototype = {
                 // We expected some records but couldn't find ANY.
                 // This is really suspicious, as if something went wrong.
                 throw new Error("Corrupted zip or bug: expected " + this.centralDirRecords + " records in central dir, got " + this.files.length);
-            } else {
-                // We found some records but not all.
-                // Something is wrong but we got something for the user: no error here.
-                // console.warn("expected", this.centralDirRecords, "records in central dir, got", this.files.length);
             }
         }
     },
@@ -3683,14 +3658,17 @@ ZipEntries.prototype = {
      * Read the end of central directory.
      */
     readEndOfCentral: function() {
+  
         var offset = this.reader.lastIndexOfSignature(sig.CENTRAL_DIRECTORY_END);
         if (offset < 0) {
+    
             // Check if the content is a truncated zip or complete garbage.
             // A "LOCAL_FILE_HEADER" is not required at the beginning (auto
             // extractible zip for example) but it can give a good hint.
             // If an ajax request was used without responseType, we will also
             // get unreadable data.
             var isGarbage = !this.isSignature(0, sig.LOCAL_FILE_HEADER);
+
 
             if (isGarbage) {
                 throw new Error("Can't find end of central directory : is this a zip file ? " +
@@ -3757,13 +3735,9 @@ ZipEntries.prototype = {
         }
 
         var extraBytes = endOfCentralDirOffset - expectedEndOfCentralDirOffset;
-
         if (extraBytes > 0) {
             // console.warn(extraBytes, "extra bytes at beginning or within zipfile");
-            if (this.isSignature(endOfCentralDirOffset, sig.CENTRAL_FILE_HEADER)) {
-                // The offsets seem wrong, but we have something at the specified offset.
-                // So… we keep it.
-            } else {
+            if (this.isSignature(endOfCentralDirOffset, sig.CENTRAL_FILE_HEADER)) ; else {
                 // the offset is wrong, update the "zero" of the reader
                 // this happens if data has been prepended (crx files for example)
                 this.reader.zero = extraBytes;
@@ -3792,7 +3766,6 @@ ZipEntries.prototype = {
 module.exports = ZipEntries;
 
 },{"./reader/readerFor":22,"./signature":23,"./support":30,"./utf8":31,"./utils":32,"./zipEntry":34}],34:[function(require,module,exports){
-'use strict';
 var readerFor = require('./reader/readerFor');
 var utils = require('./utils');
 var CompressedObject = require('./compressedObject');
@@ -4093,7 +4066,6 @@ ZipEntry.prototype = {
 module.exports = ZipEntry;
 
 },{"./compressedObject":2,"./compressions":3,"./crc32":4,"./reader/readerFor":22,"./support":30,"./utf8":31,"./utils":32}],35:[function(require,module,exports){
-'use strict';
 
 var StreamHelper = require('./stream/StreamHelper');
 var DataWorker = require('./stream/DataWorker');
@@ -4229,7 +4201,6 @@ module.exports = ZipObject;
 
 },{"./compressedObject":2,"./stream/DataWorker":27,"./stream/GenericWorker":28,"./stream/StreamHelper":29,"./utf8":31}],36:[function(require,module,exports){
 (function (global){
-'use strict';
 var Mutation = global.MutationObserver || global.WebKitMutationObserver;
 
 var scheduleDrain;
@@ -4299,9 +4270,8 @@ function immediate(task) {
   }
 }
 
-}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+}).call(this,typeof commonjsGlobal !== "undefined" ? commonjsGlobal : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {});
 },{}],37:[function(require,module,exports){
-'use strict';
 var immediate = require('immediate');
 
 /* istanbul ignore next */
@@ -4576,8 +4546,6 @@ function race(iterable) {
 }
 
 },{"immediate":36}],38:[function(require,module,exports){
-// Top level file is just a mixin of submodules & constants
-'use strict';
 
 var assign    = require('./lib/utils/common').assign;
 
@@ -4592,7 +4560,6 @@ assign(pako, deflate, inflate, constants);
 module.exports = pako;
 
 },{"./lib/deflate":39,"./lib/inflate":40,"./lib/utils/common":41,"./lib/zlib/constants":44}],39:[function(require,module,exports){
-'use strict';
 
 
 var zlib_deflate = require('./zlib/deflate');
@@ -4994,7 +4961,6 @@ exports.deflateRaw = deflateRaw;
 exports.gzip = gzip;
 
 },{"./utils/common":41,"./utils/strings":42,"./zlib/deflate":46,"./zlib/messages":51,"./zlib/zstream":53}],40:[function(require,module,exports){
-'use strict';
 
 
 var zlib_inflate = require('./zlib/inflate');
@@ -5414,7 +5380,6 @@ exports.inflateRaw = inflateRaw;
 exports.ungzip  = inflate;
 
 },{"./utils/common":41,"./utils/strings":42,"./zlib/constants":44,"./zlib/gzheader":47,"./zlib/inflate":49,"./zlib/messages":51,"./zlib/zstream":53}],41:[function(require,module,exports){
-'use strict';
 
 
 var TYPED_OK =  (typeof Uint8Array !== 'undefined') &&
@@ -5518,8 +5483,6 @@ exports.setTyped = function (on) {
 exports.setTyped(TYPED_OK);
 
 },{}],42:[function(require,module,exports){
-// String encode/decode helpers
-'use strict';
 
 
 var utils = require('./common');
@@ -5705,7 +5668,6 @@ exports.utf8border = function (buf, max) {
 };
 
 },{"./common":41}],43:[function(require,module,exports){
-'use strict';
 
 // Note: adler32 takes 12% for level 0 and 2% for level 6.
 // It doesn't worth to make additional optimizationa as in original.
@@ -5758,7 +5720,6 @@ function adler32(adler, buf, len, pos) {
 module.exports = adler32;
 
 },{}],44:[function(require,module,exports){
-'use strict';
 
 // (C) 1995-2013 Jean-loup Gailly and Mark Adler
 // (C) 2014-2017 Vitaly Puzrin and Andrey Tupitsin
@@ -5828,7 +5789,6 @@ module.exports = {
 };
 
 },{}],45:[function(require,module,exports){
-'use strict';
 
 // Note: we can't get significant speed boost here.
 // So write code to minimize size - no pregenerated tables
@@ -5889,7 +5849,6 @@ function crc32(crc, buf, len, pos) {
 module.exports = crc32;
 
 },{}],46:[function(require,module,exports){
-'use strict';
 
 // (C) 1995-2013 Jean-loup Gailly and Mark Adler
 // (C) 2014-2017 Vitaly Puzrin and Andrey Tupitsin
@@ -7765,7 +7724,6 @@ exports.deflateTune = deflateTune;
 */
 
 },{"../utils/common":41,"./adler32":43,"./crc32":45,"./messages":51,"./trees":52}],47:[function(require,module,exports){
-'use strict';
 
 // (C) 1995-2013 Jean-loup Gailly and Mark Adler
 // (C) 2014-2017 Vitaly Puzrin and Andrey Tupitsin
@@ -7825,7 +7783,6 @@ function GZheader() {
 module.exports = GZheader;
 
 },{}],48:[function(require,module,exports){
-'use strict';
 
 // (C) 1995-2013 Jean-loup Gailly and Mark Adler
 // (C) 2014-2017 Vitaly Puzrin and Andrey Tupitsin
@@ -8172,7 +8129,6 @@ module.exports = function inflate_fast(strm, start) {
 };
 
 },{}],49:[function(require,module,exports){
-'use strict';
 
 // (C) 1995-2013 Jean-loup Gailly and Mark Adler
 // (C) 2014-2017 Vitaly Puzrin and Andrey Tupitsin
@@ -9621,10 +9577,7 @@ function inflate(strm, flush) {
 
   if (state.wsize || (_out !== strm.avail_out && state.mode < BAD &&
                       (state.mode < CHECK || flush !== Z_FINISH))) {
-    if (updatewindow(strm, strm.output, strm.next_out, _out - strm.avail_out)) {
-      state.mode = MEM;
-      return Z_MEM_ERROR;
-    }
+    if (updatewindow(strm, strm.output, strm.next_out, _out - strm.avail_out)) ;
   }
   _in -= strm.avail_in;
   _out -= strm.avail_out;
@@ -9730,7 +9683,6 @@ exports.inflateUndermine = inflateUndermine;
 */
 
 },{"../utils/common":41,"./adler32":43,"./crc32":45,"./inffast":48,"./inftrees":50}],50:[function(require,module,exports){
-'use strict';
 
 // (C) 1995-2013 Jean-loup Gailly and Mark Adler
 // (C) 2014-2017 Vitaly Puzrin and Andrey Tupitsin
@@ -10075,7 +10027,6 @@ module.exports = function inflate_table(type, lens, lens_index, codes, table, ta
 };
 
 },{"../utils/common":41}],51:[function(require,module,exports){
-'use strict';
 
 // (C) 1995-2013 Jean-loup Gailly and Mark Adler
 // (C) 2014-2017 Vitaly Puzrin and Andrey Tupitsin
@@ -10109,7 +10060,6 @@ module.exports = {
 };
 
 },{}],52:[function(require,module,exports){
-'use strict';
 
 // (C) 1995-2013 Jean-loup Gailly and Mark Adler
 // (C) 2014-2017 Vitaly Puzrin and Andrey Tupitsin
@@ -11331,7 +11281,6 @@ exports._tr_tally = _tr_tally;
 exports._tr_align = _tr_align;
 
 },{"../utils/common":41}],53:[function(require,module,exports){
-'use strict';
 
 // (C) 1995-2013 Jean-loup Gailly and Mark Adler
 // (C) 2014-2017 Vitaly Puzrin and Andrey Tupitsin
@@ -11380,7 +11329,6 @@ function ZStream() {
 module.exports = ZStream;
 
 },{}],54:[function(require,module,exports){
-'use strict';
 module.exports = typeof setImmediate === 'function' ? setImmediate :
 	function setImmediate() {
 		var args = [].slice.apply(arguments);
@@ -11390,3 +11338,6 @@ module.exports = typeof setImmediate === 'function' ? setImmediate :
 
 },{}]},{},[10])(10)
 });
+});
+
+export default jszip;

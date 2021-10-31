@@ -9,12 +9,12 @@ export default [
         sourcemap: false,
         format: "umd",
         name: "lazip",
-        file: "lazip.js",
+        file: "lazip.min.js",
       },
       plugins: [
         resolve({ browser: true}),
         commonjs(),
-        // terser(),
+        terser(),
       ],
    }
 

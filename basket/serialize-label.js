@@ -1,4 +1,4 @@
-import {LabelType} from '../htll/index.js'
+import {LabelTypedefs} from '../htll/index.js'
 
 const serializeLabels=(ctx)=>{
     let pos=3;//labelNames,labelTypes,labelPoss
@@ -35,7 +35,10 @@ const deserializeLabels=(section,range,typedefs)=>{
     const lastLine=range[1];
     for (let i=0;i<labelNames.length;i++) {
         const name=labelNames[i];
-        const lt=new LabelType[labelTypes[i]](name, { lastLine, ...typedefs[name][1] });
+        const lbltype=LabelTypedefs[labelTypes[i]];
+        let opts={};
+        if (typedefs && typedefs[name]) opts=typedefs[name][1];
+        const lt=new lbltype(name, { lastLine, ...opts });
         const labelPayload=[];
         for (let j=labelPoss[i];j<(labelPoss[i+1]||section.length);j++ ) {
             labelPayload.push(section[j]);

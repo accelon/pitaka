@@ -1,10 +1,19 @@
-// const maxlen1=91
-// const maxlen2=91*91	   //8281
-// const maxlen3=91*91*91 //753571
-export const maxlen1=109
-export const maxlen2=109*109	   //11881
-export const maxlen3=109*109*109 //1295029
+export const maxlen1=113
+export const maxlen2=113*113	   //12769
+export const maxlen3=113*113*113 //1442897
+
 export const CodeStart=0x0E;
+
+export const BYTE_MAX=113;
+export const BYTE1_MAX=45                                       //delta
+export const BYTE2_MAX=45*BYTE_MAX+BYTE1_MAX                     //5085         45*113        //for year bc 2000~ad2280
+export const BYTE2_START=45;    
+export const BYTE3_START=90;         
+export const BYTE4_START=106;         
+export const BYTE3_MAX=16*BYTE_MAX*BYTE_MAX+BYTE2_MAX           // ~204304      16*113*113    //linepos for most cases 
+export const BYTE4_MAX=7 *BYTE_MAX*BYTE_MAX*BYTE_MAX+BYTE3_MAX  // ~10100279   7*113*113*113 //max linepos
+export const SEP2DITEM=0x7f
+export const SEPARATOR2D="\u007f"
 
 export const unpack3=str=>{
 	const arr=[];
@@ -39,29 +48,34 @@ export const unpack1=str=>{
 	}
 	return new Int32Array(arr);
 }
-//letiable  1or 3 bytes, maxlen2
-export const unpack=str=>{
+export const unpack=s=>{
 	const arr=[];
 	let o,i=0;
-	while (i<str.length) {
-		o=str.charCodeAt(i) -CodeStart;
-		if ( str[i]=='{' ) { // unpack2
-			o=(str.charCodeAt(i+1)-CodeStart)*maxlen1
-			+(str.charCodeAt(i+2)-CodeStart);
-			i+=2;
-		} else if (str[i]=='}') { // unpack3
-			o=(str.charCodeAt(i+1)-CodeStart)*maxlen1*maxlen1
-			+(str.charCodeAt(i+2)-CodeStart)*maxlen1
-			+(str.charCodeAt(i+3)-CodeStart);
-			i+=3;
-		}
+	while (i<s.length) {
+		o=s.charCodeAt(i) -CodeStart;
+		if (o<BYTE2_START) {
+			
+		} else if (o<BYTE3_START) {
+			const i1=s.charCodeAt(++i) - CodeStart;
+			o-=BYTE2_START;
+			o = o*BYTE_MAX + i1 + BYTE1_MAX;
+		} else if (o<BYTE4_START) {
+			const i2=s.charCodeAt(++i) - CodeStart;
+			const i1=s.charCodeAt(++i) - CodeStart;
+			o-=BYTE3_START;
+			o = o*BYTE_MAX*BYTE_MAX + i2*BYTE_MAX + i1 + BYTE2_MAX ;
+		} else if (o<SEP2DITEM) {
+			const i3=s.charCodeAt(++i) - CodeStart;
+			const i2=s.charCodeAt(++i) - CodeStart;
+			const i1=s.charCodeAt(++i) - CodeStart;
+			o-=BYTE4_START;
+			o = o*BYTE_MAX*BYTE_MAX*BYTE_MAX + i3*BYTE_MAX*BYTE_MAX + i2*BYTE_MAX + i1+BYTE3_MAX ;		
+		} else throw new Error("error packed integer",o);
 		arr.push(o);
 		i++;
 	}
 	return new Int32Array(arr);
 }
-
-
 export const unpack_delta=s=>{
 	const arr=unpack(s);
 	if (arr.length<2)return arr;
@@ -88,13 +102,13 @@ export const unpack_delta2d=s=>{
 
 export const unpack2d=s=>{
 	if (!s)return [];
-	const arr=s.split("|");
+	const arr=s.split(SEPARATOR2D);
 	if (arr.length==1) return [unpack(arr[0])];
 	return arr.map(itm=>unpack(itm));
 }
 export const unpack3_2d=s=>{
 	if (!s)return [];
-	const arr=s.split("|");
+	const arr=s.split(SEPARATOR2D);
 	if (arr.length==1) return [unpack3(arr[0])];
 	return arr.map(itm=>unpack3(itm));
 }

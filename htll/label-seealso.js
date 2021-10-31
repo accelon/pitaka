@@ -33,8 +33,8 @@ class LabelSeeAlso extends Label {
 
         this.seealso =reversify2(this.entries,this.targets);
     }
-    finalize(labeldefs){
-        const entries=labeldefs['e'];
+    finalize(ctx){
+        const entries=ctx.labeldefs['e'];
         for (let i in this._linkedBy ) {
             const at=bsearch(entries.idarr,i);
             if (at==-1) {

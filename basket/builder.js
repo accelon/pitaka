@@ -123,7 +123,11 @@ class Builder {
                 labeltype.action(tag,linetext,this.context);
                 if (labeltype.resets) {
                     const D=this.context.labeldefs;
-                    labeltype.resets.forEach(r=>D[r]&&D[r].reset(tag));
+                    if (typeof labeltype.resets==='string') {
+                        D[labeltype.resets].reset(tag);
+                    } else {
+                        labeltype.resets.forEach(r=>D[r]&&D[r].reset(tag));
+                    }
                 }
             } else {
                 if (!this.unknownLabel[tag.name]) {
