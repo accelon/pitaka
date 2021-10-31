@@ -16,7 +16,7 @@ const saveHeader=async (saver,header,payload)=>{
     +escapeTemplateString(payload)+'`)',0);
 }
 
-const saveJsonp=async(saver,chunk,name,start,L)=>{
+const saveJsonp=async(saver,chunk,name,start,L,compress=false)=>{
     let writeCount=0;
     
     const newcontent=prepareJSONP({chunk,name,start},L);
@@ -31,7 +31,7 @@ const saveJsonp=async(saver,chunk,name,start,L)=>{
         if (saver instanceof RawSaver) {
             await saver.writeChunk(L.join('\n'),chunk);
         } else {
-            await saver.writeChunk(newcontent,chunk);
+            await saver.writeChunk(newcontent,chunk,compress);
         }
         writeCount++;
     }
@@ -58,16 +58,17 @@ async function save(opts,extraheader={}){
     if (typeof this.payload!=='string') this.payload=this.payload.join('\n');
     await saveHeader(saver,header,this.payload);
 
-    let i=1,wc=1;
+    let i=1,wc=1,compress=true;
     const name=opts.name;
     while (i<chunkStarts.length) {
         const L=this._lines.slice( chunkStarts[i-1],chunkStarts[i]);
-        wc+=await saveJsonp(saver,i,name,chunkStarts[i-1],L)
+        compress=chunkStarts[i-1]+L.length<this.textEnd;
+        wc+=await saveJsonp(saver,i,name,chunkStarts[i-1],L,compress)
         i++;
     }
     const start=chunkStarts[chunkStarts.length-1];
-    const last=this._lines.slice(start,this._lines.length);
-    wc+=await saveJsonp(saver,chunkStarts.length, name, start,last )
+    const lastpart=this._lines.slice(start,this._lines.length);
+    wc+=await saveJsonp(saver,chunkStarts.length, name, start,lastpart ,compress)
 
     const rep={};
     rep.Number_of_chunk=chunkStarts.length+1;

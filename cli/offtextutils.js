@@ -1,22 +1,19 @@
 import {alphabetically0} from '../utils/index.js'
-import {segmentText,initialize} from '../nlp/segmentator.js'
+import {segmentText} from '../nlp/segmentator.js'
 import { prepareInput } from './input.js';
 import { parseOfftextLine } from '../offtext/parser.js';
 
 export const wordseg=async ()=>{
+    console.time('prepare')
     const [lines,word,wordfreq]=await prepareInput('entrysize');
-    console.time('init')
-
-    // initialize(word,wordfreq)
-    // 
-
+    console.timeEnd('prepare')
+    console.time('segmentation')
     lines.forEach(line=>{
         if (line.substr(0,2)!=='^d') return;
-
         const [text]=parseOfftextLine(line);
         console.log(segmentText(text,word,wordfreq).join('|'));
     })
-    console.timeEnd('init')
+    console.timeEnd('segmentation')
 }
 
 export const entrysort=()=>{

@@ -12,15 +12,16 @@ export const findPitakaFolder=name=>{
         const js000=pth+sep+name+sep+'000.js'
         const fnjs000=pth+sep+name+sep+name+sep+'000.js';
 
-        if (fs.existsSync(fn)) {
+        if (fs.existsSync(js000)){
             return pth+sep;
-        } else if (fs.existsSync(fnfn)) {
-            return pth+sep+name+sep;
         } else if (fs.existsSync(fnjs000)) {
             return pth+sep+name+sep;
-        } else if (fs.existsSync(js000)){
-            return pth+sep;
+        } else if (fs.existsSync(fn)) {
+            return fn;
+        } else if (fs.existsSync(fnfn)) {
+            return fn;
         }
+        
         const newpth=Path.resolve(pth,'..');
         if (newpth==pth) break;
         else pth=newpth;

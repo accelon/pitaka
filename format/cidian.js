@@ -8,6 +8,7 @@ const cidian={
     't':'LabelTransclusion',
     'se':'Label',
     'en':'Label',
+    'cf':'Label'
 };
 
 export default {def:cidian, tree:'e'};

@@ -58,16 +58,16 @@ class JSONPROM {
         this.context.loadedChunk[chunk]=true;
     }
     async openrom(){
-        
         if (this._loader==loadNodeJs || this._loader==loadNodeJsZip) {
-            const romfn=this.romfolder+this.name+'.ptk';
-            if (fs.existsSync(romfn)) {
+            const romfn=this.romfolder;//test if romfolder is a .ptk
+            if (fs.existsSync(romfn) && !fs.statSync(romfn).isDirectory()) {
                 const zip=await LaZip.default(romfn);
                 this.romzip=zip;
                 this._loader=loadNodeJsZip;
             }
             return;
         }
+
         const romfn='/'+this.header.name+ROMEXT;
         // const LaZip= (typeof JSZip!=='undefined' && JSZip) || lazip.JSZip; 
         const zip=await lazip(romfn);
