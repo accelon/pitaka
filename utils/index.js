@@ -12,6 +12,7 @@ export * from './es6.js'
 export * from './html.js'
 export * from './cnumber.js'
 export * from './device.js'
+export * from './cjk.js'
 
 export function linesOffset(lines){
     const out=[0];

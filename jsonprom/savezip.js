@@ -15,7 +15,7 @@ class ZipSaver {
         //prepand pitaka name as user might change name of zip
         //can store multiple pitaka in one zip
         //but for lazip, zip folder should be same as the name of zip 
-        const compression=compress?'DEFLATE':'';
+        const compression=compress?'DEFLATE':'STORE';
         this.zip.file(chunkjsfn(chunk,this.name), rawcontent, {compression});
     }
     pitakaPatchNodeJs(fn){ 
@@ -49,7 +49,7 @@ class ZipSaver {
     async done(){
         if (!this.file) return await this.doneNodeJs();
         let writable=await this.file.createWritable();
-        const zipcontent=await this.zip.generateAsync({type:"uint8array",compression:'DEFLATE'});
+        const zipcontent=await this.zip.generateAsync({type:"uint8array"});
 
         let sz=zipcontent.length;
         zipcontent[7]|=0x80;

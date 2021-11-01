@@ -1,19 +1,134 @@
-import {alphabetically0} from '../utils/index.js'
+import {alphabetically0,isCJK,sortObj} from '../utils/index.js'
 import {segmentText} from '../nlp/segmentator.js'
 import { prepareInput } from './input.js';
 import { parseOfftextLine } from '../offtext/parser.js';
 
+const segmentOffetxt=(lines,dict,freq,tokens,debug=false)=>{
+    const segmentated=[];
+    lines.forEach(line=>{
+        let prev=0;
+        line.replace(/([\u3400-\u9fff\ud400-\udfff]+)/g,(m,text,offset)=>{
+            const s=line.substring(prev,offset);
+            if (s) segmentated.push(s);
+            const [words,candidates]=segmentText(text,dict,freq,debug);
+            if (tokens) {
+                words.forEach(w=>{
+                    if (isCJK(w)) {
+                        if (!tokens[w]) tokens[w]=0;
+                        tokens[w]+= w.length>1? w.length*5:1;
+                    }
+                })
+                for (let c in candidates) {
+                    if (!tokens[c]) {
+                        tokens[c]= c.length>1?c.length*5:1;
+                    }
+                }
+            }
+            segmentated.push(...words);
+            prev=offset+m.length;
+        })
+        if (prev<line.length) segmentated.push(line.substr(prev));
+        segmentated.push('\n')
+    })
+    return segmentated;
+}
+
+const isBegin=ch=>{
+    return  ch=='笑'  || ch=='道' || ch=='這'
+    || ch=='那' || ch=='哪' || ch==='說'||ch==='云'||ch=='被'
+    ||ch=='向'||ch=='以'||ch==='某'||ch==='於'
+}
+const isEnd=ch=>{
+    return ch=='氏'||ch==='中'||ch==='後'||ch==='等'||ch==='個'
+}
+const isStopChar=ch=>{
+    return ch==='的' || ch=='了' || ch=='是'||ch==='之'||ch=='矣'||ch==='與'
+    // ||ch==='又'||ch==='也'||ch=='有'
+    // ||ch==='妳'|| ch==='你'||ch==='我'||ch==='曰'||ch==='與'||ch==='此'||ch==='汝'||ch==='吾'
+    // ||ch==='而'||ch==='在'||ch==='且'||ch==='或'||ch==='並'||ch=='矣'||ch==='裏'
+    // ||ch==='裡';
+}
+const possibleCombination=wordlist=>{
+    const out={};
+    let term='',total=0;
+    for (let i=0;i<wordlist.length;i++ ){
+        const w=wordlist[i];
+        if (w.length===1 && w.charCodeAt(0)>=0x3400&&w.charCodeAt(0)<=0x9fff
+        &&!isStopChar(w)) {
+            if (isBegin(w)) {
+                if (term.length>1) {
+                    if (!out[term]) out[term]=0;
+                    out[term]++;
+                    total++;
+                }
+                term='';
+            }
+            term+=w;
+            if (isEnd(w)) {
+                if (term.length>1) {
+                    if (!out[term]) out[term]=0;
+                    out[term]++;
+                    total++;
+                }
+                term='';
+            }
+            
+
+        } else {
+            if (term.length>1) {
+                if (!out[term]) out[term]=0;
+                out[term]++;
+                total++;
+            }
+            term='';
+        }
+    }
+    const arr=sortObj(out);
+    const average=total/arr.length;
+    const possible=arr.filter(it=>it[1]>average*2);
+    return possible;
+
+}
+const spacing=arr=>{
+    if (!arr.length)return '';
+    if (arr.length<1)return arr[0];
+
+    let out='',prev=arr[0];
+    for (let i=1;i<arr.length;i++) {
+        if (isCJK(prev[prev.length-1]) && isCJK(arr[i]) ) {
+            out+=' ';
+        }
+        prev=arr[i];
+        out+=prev;
+    }
+    return out;
+}
 export const wordseg=async ()=>{
     console.time('prepare')
-    const [lines,word,wordfreq]=await prepareInput('entrysize');
+    const [lines,dict,freq]=await prepareInput('entrysize');
     console.timeEnd('prepare')
-    console.time('segmentation')
-    lines.forEach(line=>{
-        if (line.substr(0,2)!=='^d') return;
-        const [text]=parseOfftextLine(line);
-        console.log(segmentText(text,word,wordfreq).join('|'));
-    })
-    console.timeEnd('segmentation')
+    let tokens={};
+    let segmentated=segmentOffetxt(lines,dict,freq,tokens);
+    // console.log('phrase1',segmentated.map(m=>m.join('│')).join('\n'))
+
+    const localdict=sortObj(tokens,alphabetically0);
+    let newdict=localdict.map(it=>it[0]);
+    let newfreq=localdict.map(it=>it[1]);
+    
+    tokens={};
+    segmentated=segmentOffetxt(lines,newdict,newfreq,tokens,true);
+
+    const possible=possibleCombination(segmentated,tokens);
+
+    //phrase 3
+    localdict.push(...possible);
+    localdict.sort(alphabetically0)
+    newdict=localdict.map(it=>it[0]);
+    newfreq=localdict.map(it=>it[1]);
+
+    segmentated=segmentOffetxt(lines,newdict,newfreq,tokens,true);
+    console.log(spacing(segmentated));
+    console.log('token count',sortObj(tokens).length);
 }
 
 export const entrysort=()=>{

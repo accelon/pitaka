@@ -14,6 +14,7 @@ const saveHeader=async (saver,header,payload)=>{
     if (saver instanceof RawSaver) return;   
     await saver.writeChunk('jsonp(0,'+JSON.stringify(header)+',`'
     +escapeTemplateString(payload)+'`)',0);
+    //do not compress header, need to load as fast as possible
 }
 
 const saveJsonp=async(saver,chunk,name,start,L,compress=false)=>{
@@ -58,21 +59,22 @@ async function save(opts,extraheader={}){
     if (typeof this.payload!=='string') this.payload=this.payload.join('\n');
     await saveHeader(saver,header,this.payload);
 
-    let i=1,wc=1,compress=true;
+    let i=1,filecount=1,compress;
     const name=opts.name;
     while (i<chunkStarts.length) {
         const L=this._lines.slice( chunkStarts[i-1],chunkStarts[i]);
-        compress=chunkStarts[i-1]+L.length<this.textEnd;
-        wc+=await saveJsonp(saver,i,name,chunkStarts[i-1],L,compress)
+        //do not deflate labels and postings, speed up loading 100%
+        compress=this.textEnd > chunkStarts[i-1]; 
+        filecount+=await saveJsonp(saver,i,name,chunkStarts[i-1],L,compress)
         i++;
     }
     const start=chunkStarts[chunkStarts.length-1];
     const lastpart=this._lines.slice(start,this._lines.length);
-    wc+=await saveJsonp(saver,chunkStarts.length, name, start,lastpart ,compress)
+    filecount+=await saveJsonp(saver,chunkStarts.length, name, start,lastpart ,compress)
 
     const rep={};
     rep.Number_of_chunk=chunkStarts.length+1;
-    rep.written_files=wc;
+    rep.written_files=filecount;
 
     await saver.done();
     return rep;

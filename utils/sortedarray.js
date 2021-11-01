@@ -2,7 +2,7 @@ const alphabetically=(a,b)=>a>b?1: ((a<b)?-1:0);
 const alphabetically0=(a,b)=>a[0]>b[0]?1: ((a[0]<b[0])?-1:0);
 const alphabetically1=(a,b)=>a[1]>b[1]?1: ((a[1]<b[1])?-1:0);
 const alphabetically2=(a,b)=>a[2]>b[2]?1: ((a[2]<b[2])?-1:0); 
-
+//rename to lexicographically 
 const length_alphabetically=(a,b)=> a.length==b.length?(a>b?1: ((a<b)?-1:0)):a.length-b.length;
 const length_alphabetically0=(a,b)=>a[0].length==b[0].length?(a[0]>b[0]?1: ((a[0]<b[0])?-1:0)):a[0].length-b[0].length;
 const length_alphabetically1=(a,b)=>a[1].length==b[1].length?(a[1]>b[1]?1: ((a[1]<b[1])?-1:0)):a[1].length-b[1].length;
@@ -59,7 +59,15 @@ const fromObj=(obj,cb=null)=>{
     }
     return arr;
 }
-
+const sortObj=(obj,func)=>{
+    const arr=[];
+    for (let key in obj) {
+            arr.push( [key,obj[key]] );
+    }
+    if (func) arr.sort(func);
+    else arr.sort((a,b)=>b[1]-a[1]);
+    return arr;
+}
 const fillGap=sorted_int_array=>{
     let prev=sorted_int_array[0]||0;
         
@@ -69,7 +77,7 @@ const fillGap=sorted_int_array=>{
     }
     return sorted_int_array;
 }
-export {unique,unique1,unique0,fromObj,fillGap,
+export {unique,unique1,unique0,fromObj,sortObj,fillGap,
     alphabetically, alphabetically1,alphabetically2,alphabetically0,
     length_alphabetically,length_alphabetically0,length_alphabetically1,
     statStrIntobject};

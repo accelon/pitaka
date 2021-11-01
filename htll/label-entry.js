@@ -1,5 +1,5 @@
 import Label from './label.js'
-import {pack_delta,pack3,unpack3,unpack_delta,packStrings,unpackStrings,bsearch} from'../utils/index.js';
+import {pack_delta,pack,unpack,unpack_delta,packStrings,unpackStrings,bsearch} from'../utils/index.js';
 class LabelEntry extends Label {
     constructor(name,opts={}) {
         super(name,opts)
@@ -52,7 +52,7 @@ class LabelEntry extends Label {
         out.push(JSON.stringify({attrs:this.attrs}));
         const hw=packStrings(this.idarr);
         out.push(hw);  //58ms 
-        out.push(pack3(this.entrysize));
+        out.push(pack(this.entrysize));
         out.push(pack_delta(this.linepos)); 
         for (let attr in this.attributes) {
             out.push( this.attributes[attr].join('\t'));
@@ -64,7 +64,7 @@ class LabelEntry extends Label {
         const header=JSON.parse(payload[at++]);payload[at-1]=''; 
 
         this.idarr=unpackStrings(payload[at++]);payload[at-1]=''; 
-        this.entrysize=unpack3(payload[at++]);payload[at-1]='';
+        this.entrysize=unpack(payload[at++]);payload[at-1]='';
         this.linepos=unpack_delta(payload[at++]);payload[at-1]='';
         this.attrs=header.attrs;
         this.attributes={};
@@ -95,7 +95,7 @@ class LabelEntry extends Label {
     finalize(ctx){
         const lastentrysize=ctx.linesOffset[ctx.lineCount]
                            -ctx.linesOffset[this.prevy-ctx.startY];
-        this.entrysize.push(lastentrysize);
+        this.entrysize.push(Math.floor(10*Math.log(0.01+lastentrysize)) );
     }
 }
 export default LabelEntry;
