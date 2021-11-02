@@ -109,7 +109,7 @@ class Builder {
         }
         await Promise.all(jobs);
         if (tocpage.length) {
-            this.addContent(tocpage[0],'offtext','index.html');//only take the bookname
+            this.addContent([tocpage[0]],'offtext','index.html');//only take the bookname
         }
         for (let i=0;i<files.length;i++) {
             this.addContent(contents[i], format, files[i]);
@@ -147,7 +147,7 @@ class Builder {
         try{
             const Formatter=getFormatter(format);
             const formatter=new Formatter(this.context,this.log);
-            const converted=fn.indexOf('.off');
+            const converted=fn.indexOf('.off')>0;
             const {text,tags,rawlines}=formatter.scan(rawcontent,converted);
 
             this.context.linesOffset=linesOffset(text);

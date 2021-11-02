@@ -49,6 +49,7 @@ class JSONPROMW {
     addSection(name,nocompression=false){
         this.header.sectionNames.push(name);
         this.header.sectionStarts.push(this.header.lineCount);
+        //do not compress label section
         if (nocompression) this.nocompressline=this.header.lineCount
     }
 }

@@ -25,6 +25,7 @@ function unreadyChunk(from,to){
 }
 async function prefetchLines(from,to){ //getLine is valid
     if (from>to) to+=from;
+    if (!to) to=from+1;
     const unready=this.unreadyChunk(from,to);
     const jobs=[];
     unready.forEach(ck=>jobs.push(this.load(ck)));

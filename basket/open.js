@@ -6,6 +6,7 @@ import paging from './paging.js';
 import entries from './entries.js';
 import pointers from './pointers.js';
 import mulus from './mulus.js';
+import inverted from './inverted.js';
 /*
    Basket is a read-only container
    of htll texts, prebuilt data-structure to facilitate fast access,
@@ -20,10 +21,12 @@ class Basket extends JSONPROM {
         this.foreign={};        //search backlinks here
         this.futureforeign={};  //not in pool yet, to be check on every new ptk added to pool.
         this.lblTransclusion=null;
+        this.inverted=null;
         for (let f in paging) this[f]=paging[f];
         for (let f in entries) this[f]=entries[f];
         for (let f in pointers) this[f]=pointers[f];
         for (let f in mulus) this[f]=mulus[f];
+        for (let f in inverted) this[f]=inverted[f];
     }
     async init(){
         const section='labels'
@@ -31,11 +34,11 @@ class Basket extends JSONPROM {
             await this.openrom();
             await this.load(0);
             await this.loadSection(section);
-            const labelsection=this.getSection(section);
-            const sectionRange=this.getSectionRange(section);
-   
-            this.labels=deserializeLabels(labelsection,sectionRange,this.header.labels);
+            const labelSection=this.getSection(section);
+            const labelSectionRange=this.getSectionRange(section);
+            this.labels=deserializeLabels(labelSection,labelSectionRange,this.header.labels);
             this.lblTransclusion=this.getLabel('t');
+            this.inverted=await this.loadInverted();
 
             return true;
         } catch(e){

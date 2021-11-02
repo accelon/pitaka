@@ -61,7 +61,7 @@ class JSONPROM {
         if (this._loader==loadNodeJs || this._loader==loadNodeJsZip) {
             const romfn=this.romfolder;//test if romfolder is a .ptk
             if (fs.existsSync(romfn) && !fs.statSync(romfn).isDirectory()) {
-                const zip=await LaZip.default(romfn);
+                const zip=await lazip(romfn);
                 this.romzip=zip;
                 this._loader=loadNodeJsZip;
             }
