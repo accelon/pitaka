@@ -5,7 +5,7 @@ const fileContent=async(fn,format,ctx)=>{
     let c;
     const F=getFormat(format);
     if (typeof fn=='string') {
-        if (F.parseFile) c= await F.parseFile(fn,ctx);
+        if (F.parseFile) c= (await F.parseFile(fn,ctx)).rawcontent;
         else            c=(await fs.promises.readFile(fn,'utf8')).replace(/\r?\n/g,'\n');
         
     } else {
@@ -14,7 +14,7 @@ const fileContent=async(fn,format,ctx)=>{
             if (F.parseBuffer) c=F.parseBuffer(raw,fn.name,ctx); 
             else              c=raw.replace(/\r?\n/g,'\n');
        } else {
-            if (F.parseFile) c = await F.parseFile(fn,ctx);
+            if (F.parseFile) c = await (F.parseFile(fn,ctx)).rawcontent;
             else            c =(await readTextFile(fn)).replace(/\r?\n/g,'\n');
        }
     }

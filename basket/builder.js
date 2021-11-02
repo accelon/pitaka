@@ -1,5 +1,6 @@
 import {getFormatter, getZipIndex, getFormatTypeDef, getFormatTree, fileContent} from '../format/index.js'
 import JSONPROMWriter from '../jsonprom/jsonpromw.js';
+import Inverter from '../fulltext/inverter.js';
 import {serializeLabels} from './serialize-label.js';
 import {linesOffset} from '../utils/index.js'
 class Builder {
@@ -18,6 +19,7 @@ class Builder {
             ,labeldefs:null
         };
         this.writer=new JSONPROMWriter(Object.assign({},opts,{context:this.context}));
+        this.inverter=new Inverter(Object.assign({},opts,{context:this.context}));
         this.finalized=false;
         this.log=opts.log || console.log;
         this.config=opts.config;
@@ -80,7 +82,7 @@ class Builder {
         if (typeof file!=='string' && 'name' in file) {
             fn=file.name;
         }
-        const jszip=new JSZip();
+        const jszip=new lazip.JSZip();
         let zip;
         if (typeof file=='string') {
             fn=(this.config.rootdir||'')+file;
@@ -145,7 +147,8 @@ class Builder {
         try{
             const Formatter=getFormatter(format);
             const formatter=new Formatter(this.context,this.log);
-            const {text,tags,rawlines}=formatter.scan(rawcontent);
+            const converted=fn.indexOf('.off');
+            const {text,tags,rawlines}=formatter.scan(rawcontent,converted);
 
             this.context.linesOffset=linesOffset(text);
             this.context.rawlinesOffset=linesOffset(rawlines);
@@ -156,6 +159,7 @@ class Builder {
             } else {
                 this.doTags(tags,text);
                 if (this.opts.raw) this.context.rawtags.push(...tags);
+                if (this.config.fulltext) this.inverter.append(rawlines);
                 this.writer.append(rawlines);
             }
             this.context.prevLineCount=text.length;
@@ -166,6 +170,9 @@ class Builder {
         }
     }
     async addFile(file,format){ //file=='string' nodejs , File browser local file, or a File in zip
+        if (typeof fs!=='undefined') {
+            console.log('adding',file)
+        }
         let fn=file;
         if (typeof file!=='string' && 'name' in file) {
             fn=file.name;
@@ -181,7 +188,6 @@ class Builder {
             return;
         }
         const rawcontent=await fileContent(file,format,this.context);
-
         this.addContent(rawcontent,format,fn);
     }
     save(opts){
@@ -189,12 +195,15 @@ class Builder {
             this.log('not finalized');
             return;
         }
-
         return this.writer.save(opts,this.config);
     }
     finalize(opts={}){
-        this.writer.addSection('labels');
-        const section=serializeLabels(this.context )
+        this.writer.addSection('inverted');
+        const inverted=this.inverter.serialize();
+        this.writer.append(inverted);
+
+        this.writer.addSection('labels',true);
+        const section=serializeLabels(this.context);
         this.writer.append(section);
 
         this.finalized=true;

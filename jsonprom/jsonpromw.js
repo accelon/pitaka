@@ -18,7 +18,7 @@ class JSONPROMW {
 
         const lines=[''];
         this._lines=lines;
-        this.textEnd=0;
+        this.nocompressline=0; //no compression from this line
         this.save=save;
         this.opts = Object.assign({ chunkSize: 128 * 1024 },opts);
         return this;
@@ -46,10 +46,10 @@ class JSONPROMW {
         const lines=fs.readFileSync(fn,format).split(/\r?\n/);
         this.append(lines);
     }
-    addSection(name){
+    addSection(name,nocompression=false){
         this.header.sectionNames.push(name);
         this.header.sectionStarts.push(this.header.lineCount);
-        if (!this.textEnd) this.textEnd=this.header.lineCount
+        if (nocompression) this.nocompressline=this.header.lineCount
     }
 }
 

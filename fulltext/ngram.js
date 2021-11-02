@@ -1,9 +1,11 @@
+const isStopChar=ch=>{
+    return ch==='的' || ch=='了' || ch=='是'||ch==='之'||ch=='矣'||ch==='與'||ch==='曰'||ch==='曰'
+}
 class nGram {
     constructor (opts) {
         this.gram=opts.gram;
         this.stockgram=opts.stockgram;
         this.ngram={};
-        this.minoccur=opts.minoccur||100;
     }
     add(content){
         for (let j=0;j<content.length;j++) {
@@ -11,7 +13,7 @@ class nGram {
             const line=content[j]            
             for (let i=0;i<line.length;i++) {
                 const cp=line.charCodeAt(i);
-                if (cp>=0x4e00 && cp<=0x9FFF) { //BMP CJK ONLY
+                if (cp>=0x3400 && cp<=0x9FFF) { //BMP CJK ONLY
                     if (prev) {
                         let pass=true;
                         if (this.stockgram) {
@@ -24,7 +26,7 @@ class nGram {
                         }
                     }
                     prev+=line[i];
-                    if (prev.length>this.gram) {
+                    if (prev.length>=this.gram) {
                         prev=prev.substr(1);
                     }
                 } else {
@@ -32,14 +34,16 @@ class nGram {
                 }
             }
         }
-
     }
     dump() {
-        let out=[];
+        let out=[],total=0;
         for (let g in this.ngram) {
             out.push([g,this.ngram[g]]);
+            total+=this.ngram[g];
         }
-        out=out.filter(a=>a[1]>this.minoccur)
+
+        const average=total/out.length;
+        out=out.filter(a=>a[1]>average*3 && a[1]>20);
         out.sort((a,b)=>b[1]-a[1]);
         return out;
     }

@@ -1,5 +1,6 @@
-export const isCJK=s=>{
+export const CJKRange=s=>{
     if (!s) return;
-    return (s.charCodeAt(0)>=0x3400 && s.charCodeAt(0)<=0x9fff)
-    || (s.charCodeAt(0)>=0xD400 && s.charCodeAt(0)<=0xDFFF)
+    if (s.charCodeAt(0)>=0x3400 && s.charCodeAt(0)<=0x9fff) return 1;
+    if (s.charCodeAt(0)>=0xD800 && s.charCodeAt(0)<=0xDFFF) return 2;
 }
+

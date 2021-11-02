@@ -38,10 +38,11 @@ class ZipSaver {
         const writable=fs.createWriteStream(zipfn);
 
         await new Promise(resolve=>{
-            this.zip.generateNodeStream()
-            .pipe(writable)
-            .on('finish', function () {
-                resolve();
+            this.zip.generateAsync({type:'uint8array'},function(status){               
+            }).then(function(out){
+                fs.promises.writeFile( zipfn,out).then(function(){
+                    resolve();
+                });
             });
         })
         this.pitakaPatchNodeJs(zipfn);

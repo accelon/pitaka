@@ -11,15 +11,13 @@ import kluer from './kluer.js' //copy from https://github.com/lukeed/kleur/
 const {blue,yellow,red,bgWhite} = kluer;
 import nodefs from '../platform/nodefs.js';
 await nodefs;
-import ltx from 'ltx'
-global.XML=ltx;
 import {existsSync,  readFileSync} from 'fs';
 import {buildPitaka} from './build.js'
 import {info} from './info.js';
 import quote from './quote.js';
 import pinpoint from './pinpoint.js';
 import nGram from '../fulltext/ngram.js';
-import {group,entrysort,search,wordseg} from './offtextutils.js'
+import {group,entrysort,search,wordseg,intersect} from './offtextutils.js'
 
 import validate from "./validate.js"
 import zip from "./zip.js"
@@ -70,7 +68,7 @@ const build=async (opts)=>{
         ngram=new nGram({gram:opts.ngram,stockgram});
         onContent=(fn,text)=>ngram.add(text)
     }
-    
+    // nosave=true;
     const builder=await buildPitaka( {config,nosave,onContent,raw:opts.raw,jsonp:opts.jsonp}  );
 
     if (ngram) {
@@ -89,7 +87,7 @@ const help=()=>{
     console.log(yellow('$ pitaka jsonp   '), 'build pitaka jsonp folder')
     console.log(yellow('$ pitaka raw     '), 'create *-raw.txt and *-raw.json')
     console.log(yellow('$ pitaka ngram   '), 'get ngram, default 2')
-    console.log(yellow('$ pitaka info    '), 'show information of pitaka')
+    // console.log(yellow('$ pitaka info    '), 'show information of pitaka')
     console.log(yellow('$ pitaka zip (regex)'), 'make a zip file')
     console.log(yellow('$ pitaka validate'), 'validate all htm files')
     console.log(yellow('$ pitaka quote   '), 'extract quote from a ptk or offtext file')
@@ -98,6 +96,7 @@ const help=()=>{
     console.log(yellow('$ pitaka entrysort fn'), 'sort entry in unicode order')
     console.log(yellow('$ pitaka search fn ptk'), 'search book/entry in pitaka file or a book list')
     console.log(yellow('$ pitaka wordseg fn words/dict_ptk'), 'word segmentation')
+    console.log(yellow('$ pitaka intersect f1 f2'), 'intersect stringlist')
 }
 
 try {
@@ -105,7 +104,7 @@ try {
         j:jsonp,jsonp,raw,r:raw, q:quote,quote, p:pinpoint,pinpoint,
         z:zip,zip,ngram,n:ngram,
         group,g:group,entrysort,e:entrysort,search,s:search,wordseg,w:wordseg,
-        '--help':help,'-h':help,i:info,info,build,b:build})[cmd]();
+        '--help':help,'-h':help,i:intersect,intersect,build,b:build})[cmd]();
 
 } catch(e) {
     console.log( kluer.red('error running command'),cmd)

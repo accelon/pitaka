@@ -1,4 +1,4 @@
-import {alphabetically0,isCJK,sortObj} from '../utils/index.js'
+import {alphabetically0,CJKRange,sortObj,groupArr,fromObj} from '../utils/index.js'
 import {segmentText} from '../nlp/segmentator.js'
 import { prepareInput } from './input.js';
 import { parseOfftextLine } from '../offtext/parser.js';
@@ -13,7 +13,7 @@ const segmentOffetxt=(lines,dict,freq,tokens,debug=false)=>{
             const [words,candidates]=segmentText(text,dict,freq,debug);
             if (tokens) {
                 words.forEach(w=>{
-                    if (isCJK(w)) {
+                    if (CJKRange(w)) {
                         if (!tokens[w]) tokens[w]=0;
                         tokens[w]+= w.length>1? w.length*5:1;
                     }
@@ -53,27 +53,24 @@ const possibleCombination=wordlist=>{
     let term='',total=0;
     for (let i=0;i<wordlist.length;i++ ){
         const w=wordlist[i];
-        if (w.length===1 && w.charCodeAt(0)>=0x3400&&w.charCodeAt(0)<=0x9fff
-        &&!isStopChar(w)) {
-            if (isBegin(w)) {
-                if (term.length>1) {
-                    if (!out[term]) out[term]=0;
-                    out[term]++;
-                    total++;
-                }
-                term='';
-            }
+        if (w.length===1 && w.charCodeAt(0)>=0x3400&&w.charCodeAt(0)<=0x9fff) {
+            // if (isBegin(w)) {
+            //     if (term.length>1) {
+            //         if (!out[term]) out[term]=0;
+            //         out[term]++;
+            //         total++;
+            //     }
+            //     term='';
+            // }
             term+=w;
-            if (isEnd(w)) {
-                if (term.length>1) {
-                    if (!out[term]) out[term]=0;
-                    out[term]++;
-                    total++;
-                }
-                term='';
-            }
-            
-
+            // if (isEnd(w)) {
+            //     if (term.length>1) {
+            //         if (!out[term]) out[term]=0;
+            //         out[term]++;
+            //         total++;
+            //     }
+            //     term='';
+            // }
         } else {
             if (term.length>1) {
                 if (!out[term]) out[term]=0;
@@ -95,7 +92,7 @@ const spacing=arr=>{
 
     let out='',prev=arr[0];
     for (let i=1;i<arr.length;i++) {
-        if (isCJK(prev[prev.length-1]) && isCJK(arr[i]) ) {
+        if (CJKRange(prev[prev.length-1]) && CJKRange(arr[i]) ) {
             out+=' ';
         }
         prev=arr[i];
@@ -103,13 +100,35 @@ const spacing=arr=>{
     }
     return out;
 }
+export const intersect=async ()=>{
+    let wl1=fs.readFileSync(process.argv[3],'utf8').split(/\r?\n/);
+    let wl2=fs.readFileSync(process.argv[4],'utf8').split(/\r?\n/);
+    wl1=(wl1.map(it=>it.split(',')[0]))
+
+    let out={};
+    wl1.forEach(item=>{
+        if (!out[item])out[item]=0;
+        out[item]++;
+    })
+
+    wl2=(wl2.map(it=>it.split(',')[0]))
+    wl2.forEach(item=>{
+        if (out[item])out[item]++;
+    })
+    // console.log(out)
+
+    const arr=sortObj(out).filter(item=>item[1]>1);
+    
+    // console.log(arr)
+}
 export const wordseg=async ()=>{
-    console.time('prepare')
-    const [lines,dict,freq]=await prepareInput('entrysize');
-    console.timeEnd('prepare')
+    // console.time('prepare')
+    const [lines,dict,freq,fn]=await prepareInput('entrysize');
+    // console.timeEnd('prepare')
+    console.time('wordseg')
     let tokens={};
     let segmentated=segmentOffetxt(lines,dict,freq,tokens);
-    // console.log('phrase1',segmentated.map(m=>m.join('│')).join('\n'))
+    // console.log('phrase1',segmentated.join('│'))
 
     const localdict=sortObj(tokens,alphabetically0);
     let newdict=localdict.map(it=>it[0]);
@@ -129,6 +148,9 @@ export const wordseg=async ()=>{
     segmentated=segmentOffetxt(lines,newdict,newfreq,tokens,true);
     console.log(spacing(segmentated));
     console.log('token count',sortObj(tokens).length);
+
+    fs.writeFileSync(fn+'-tokens.txt',groupArr(segmentated).filter(it=>CJKRange(it[0])).join('\n'),'utf8');
+    console.timeEnd('wordseg')
 }
 
 export const entrysort=()=>{

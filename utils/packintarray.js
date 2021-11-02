@@ -138,6 +138,15 @@ export const pack_delta2d=(arr2d,removeRepeat=false)=>{
 		return pack(arr);
 	}).join("|");
 }
-
+export const arrDelta=arr=>{
+	if (!arr)return [];
+	if (arr.length===1) return [arr[0]]
+	
+	const out=[arr[0]];
+	for (let i=1;i<arr.length;i++) {
+		out.push( arr[i]-arr[i-1]);
+	}
+	return out;
+}
 export const escapeStrWithQuote=str=>str.replace(/"/g,'\\"');
 export const escapePackedStr=str=>str.replace(/\\/g,"\\\\").replace(/`/g,"\\`").replace(/\$\{/g,'$\\{');

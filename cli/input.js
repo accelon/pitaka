@@ -30,6 +30,6 @@ export const prepareInput=async (labelfield)=>{
     }
     
     const lines=fs.readFileSync(fn,'utf8').trimLeft().split(/\r?\n/);
-    return [lines,names,idarr];
+    return [lines,names,idarr,fn,ptkname];
 }
 

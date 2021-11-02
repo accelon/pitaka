@@ -3,8 +3,6 @@ import {filesFromStringPattern} from 'pitaka/utils'
 import kluer from './kluer.js'
 const {yellow,red} = kluer;
 import {existsSync,readFileSync} from 'fs'
-import JSZip from 'jszip';
-global.JSZip=JSZip; //for ZipSaver
 
 export const indexHTMLFiles=(indexhtm='index.htm')=>{
     if (!existsSync(indexhtm)) {

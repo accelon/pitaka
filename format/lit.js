@@ -1,5 +1,7 @@
 import {extractChineseNumber} from 'pitaka/utils';
 import OffTextFormatter from '../offtext/formatter.js';
+import {readTextFile} from 'pitaka/platform'
+
 // import hotfixes from './lit-hotfix.js';
 const tidy=str=>str.replace(/<<([\d▉\u3400-\u9fff]+)>>/g,'《$1》')
            .replace(/<([\d▉\u3400-\u9fff]+)>/g,'〈$1〉');
@@ -17,7 +19,6 @@ class Formatter extends OffTextFormatter {
        
         const hotfix=this.context.errata[this.context.filename];
         if (hotfix) {
-            console.log(hotfix)
             for (let i=0;i<hotfix.length;i++) {
                 const fix=hotfix[i];
                 const newcontent=content.replace(fix[0],fix[1]);
@@ -42,7 +43,10 @@ class Formatter extends OffTextFormatter {
             return (str==='本書說明'?'^c0 ':'^c ')+str;
         }
     }
-    scan(content){
+    scan(content,converted){
+
+        if (converted) return super.scan(content.split('\n'))
+
         const out=[];
         const rawlines=tidy(this.applyfix(content)).split(/\r?\n/);
 
@@ -125,8 +129,9 @@ const parseFile=async (f,ctx)=>{
     if (typeof f.name==='string') fn=f.name;
     const ext=fn.match(/(\.\w+)$/)[1];
     if (ext!=='.zip') {
-        const rawlines=(await readTextFile(f)).split("\n");
-        return {lines:rawlines,rawlines,toclines:[]};
+        const rawcontent=await readTextFile(f)
+        const rawlines=rawcontent.split("\n");
+        return {lines:rawlines,rawlines,toclines:[],rawcontent};
     } else {
         const Zip= (typeof JSZip!=='undefined' && JSZip) || lazip.JSZip; 
         const jszip=new Zip();

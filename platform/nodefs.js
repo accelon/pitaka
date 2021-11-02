@@ -5,8 +5,8 @@ const nodefsready=new Promise(resolve=>{
             global.fs=fs;
             import('path').then(p=>{
                 global.Path=p;
-                import('./lazip.js').then(p=>{
-                    global.LaZip=p;
+                import('./lazip.js').then(p2=>{
+                    global.lazip=p2.default;
                     resolve(fs);
                 });
             })

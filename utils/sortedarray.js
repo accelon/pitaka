@@ -62,11 +62,19 @@ const fromObj=(obj,cb=null)=>{
 const sortObj=(obj,func)=>{
     const arr=[];
     for (let key in obj) {
-            arr.push( [key,obj[key]] );
+        arr.push( [key,obj[key]] );
     }
     if (func) arr.sort(func);
     else arr.sort((a,b)=>b[1]-a[1]);
     return arr;
+}
+const groupArr=arr=>{
+    const obj=[];
+    for (let i=0;i<arr.length;i++) {
+        if (!obj[arr[i]])obj[arr[i]]=0;
+        obj[arr[i]]++;
+    }
+    return sortObj(obj);
 }
 const fillGap=sorted_int_array=>{
     let prev=sorted_int_array[0]||0;
@@ -77,7 +85,7 @@ const fillGap=sorted_int_array=>{
     }
     return sorted_int_array;
 }
-export {unique,unique1,unique0,fromObj,sortObj,fillGap,
+export {unique,unique1,unique0,fromObj,sortObj,fillGap,groupArr,
     alphabetically, alphabetically1,alphabetically2,alphabetically0,
     length_alphabetically,length_alphabetically0,length_alphabetically1,
     statStrIntobject};

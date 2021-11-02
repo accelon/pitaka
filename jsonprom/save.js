@@ -64,12 +64,14 @@ async function save(opts,extraheader={}){
     while (i<chunkStarts.length) {
         const L=this._lines.slice( chunkStarts[i-1],chunkStarts[i]);
         //do not deflate labels and postings, speed up loading 100%
-        compress=this.textEnd > chunkStarts[i-1]; 
+        compress=this.nocompressline > chunkStarts[i-1]+L.length; 
         filecount+=await saveJsonp(saver,i,name,chunkStarts[i-1],L,compress)
         i++;
     }
     const start=chunkStarts[chunkStarts.length-1];
     const lastpart=this._lines.slice(start,this._lines.length);
+    compress=this.nocompressline > chunkStarts[i-1]+lastpart.length; 
+
     filecount+=await saveJsonp(saver,chunkStarts.length, name, start,lastpart ,compress)
 
     const rep={};

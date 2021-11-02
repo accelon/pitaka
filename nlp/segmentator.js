@@ -1,6 +1,6 @@
 /* algorithm from https://github.com/hermanschaaf/jieba-js */
 let min_freq = 0 ;//freq 是小於1對數，一定是負值
-import {bsearch,isCJK} from '../utils/index.js';
+import {bsearch,CJKRange} from '../utils/index.js';
 let sentanceDAG = function(sentence,dict,dictfreq,debug) { // 產生句子的 DAG 
     let N = sentence.length, DAG = {},
         i = 0, j = 0;
@@ -8,19 +8,23 @@ let sentanceDAG = function(sentence,dict,dictfreq,debug) { // 產生句子的 DA
     const candidates={};
     while (i < N && j<N) {
         const c = sentence[j];
-        if ( j+1<N && isCJK(c)) {
+        if ( j+1<N && CJKRange(c)) {
             let tf=c;
             let at=bsearch(dict,tf,true);
-            while (at>0 || tf.length==1 || ((at>0) && dict[at].substr(0,tf.length)==tf)) {
-                if (at>0) {//found in dictionary
+            
+            while ( at>0 || tf.length==1 || ((at>0) && dict[at].substr(0,tf.length)==tf)) {
+                // console.log(at,tf,dict[at].substr(0,tf.length))
+                if (at>0 && tf==dict[at]) {//found in dictionary
+                    // console.log('found',dict[at])
                     candidates[tf]=dictfreq[at];
                     if (!(DAG[i])) DAG[i] = [];
                     DAG[i].push(j);
                 }
                 j++;
-                if (!isCJK(sentence[j]))break;
+                if (tf.length>4) break;
+                if (!CJKRange(sentence[j]))break;
                 tf+=sentence[j];
-                at=bsearch(dict,tf);
+                at=bsearch(dict,tf,true);
             }
         }
         i += 1;
