@@ -35,7 +35,7 @@ class ZipSaver {
 
     async doneNodeJs() {
         const zipfn=this.name+'.ptk';
-        const writable=fs.createWriteStream(zipfn);
+        console.log('creating zip')
 
         await new Promise(resolve=>{
             this.zip.generateAsync({type:'uint8array'},function(status){               

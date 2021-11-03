@@ -1747,10 +1747,13 @@ var DataReader = require('./DataReader');
 var utils = require('../utils');
 
 function ArrayReader(data) {
-    DataReader.call(this, data);
-	for(var i = 0; i < this.data.length; i++) {
-		data[i] = data[i] & 0xFF;
-	}
+  DataReader.call(this, data);
+  /** very slow on big ptk, might be trigger copy on write, not required 
+   * reduce from 350ms to 5ms for 200MB taisho lazip
+	 for(var i = 0; i < this.data.length; i++) {
+		 data[i] = data[i] & 0xFF;
+	 }
+  */
 }
 utils.inherits(ArrayReader, DataReader);
 /**
@@ -3898,7 +3901,7 @@ ZipEntry.prototype = {
 
         this.readExtraFields(reader);
         this.parseZIP64ExtraField(reader);
-        this.fileComment = reader.readData(this.fileCommentLength);
+        if(this.fileCommentLength)this.fileComment = reader.readData(this.fileCommentLength);
     },
 
     /**

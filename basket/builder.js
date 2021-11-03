@@ -159,7 +159,7 @@ class Builder {
             } else {
                 this.doTags(tags,text);
                 if (this.opts.raw) this.context.rawtags.push(...tags);
-                if (this.config.fulltext) this.inverter.append(rawlines);
+                if (!this.config.textOnly) this.inverter.append(rawlines);
                 this.writer.append(rawlines);
             }
             this.context.prevLineCount=text.length;
@@ -191,18 +191,23 @@ class Builder {
         this.addContent(rawcontent,format,fn);
     }
     save(opts){
+        console.log('saving file')
         if (!this.finalized) {
             this.log('not finalized');
             return;
         }
+        
         return this.writer.save(opts,this.config);
     }
     finalize(opts={}){
-        this.writer.addSection('inverted');
+        console.log('finalizing inverted')
+        this.writer.addSection('inverted',true);
         const inverted=this.inverter.serialize();
         this.writer.append(inverted);
+        this.inverter=null;
 
-        this.writer.addSection('labels',true);
+        console.log('finalizing labels')
+        this.writer.addSection('labels');
         const section=serializeLabels(this.context);
         this.writer.append(section);
 

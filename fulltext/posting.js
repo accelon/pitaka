@@ -1,3 +1,5 @@
+let counter=0;
+/*inspired by https://github.com/Siderite/SortedArrayIntersect AcceleratingIntersercter*/
 export const plFind=(arr, p, v)=>{
     let speed = 1;
     let p2 = p + speed;
@@ -10,9 +12,11 @@ export const plFind=(arr, p, v)=>{
             speed=1;
         }
         p2 += speed;
+        counter++
     }
     return p2;
 }
+
 export const plAnd=(arr1,arr2,dist=1)=>{
     let p1 = 0, p2 = 0;
     let out =[];
@@ -32,6 +36,6 @@ export const plAnd=(arr1,arr2,dist=1)=>{
     return out;
 }
 
-
-
-export default {plAnd,plFind}
+export const getCounter=()=>counter;
+export const resetCounter=()=>counter=0;
+export default {plAnd,plFind,getCounter,resetCounter}

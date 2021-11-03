@@ -19,7 +19,6 @@ const fetchZIPEntries=async (f,zipbuf)=>{
 }
 const debug=false;
 const LaZip= async function(zipfn){
-    
     const handle=fs.openSync(zipfn,'r');
 
     const headbuf=new Uint8Array(16);
@@ -50,9 +49,8 @@ const LaZip= async function(zipfn){
         debug&&console.log('cannot fetch central entries')
         return;
     }
-    debug&&console.timeEnd('load entries')
+    debug&&console.timeEnd('load entries');
 
-    debugger
     debug&&console.time('loadAsync')
     const jszip=await JSZip.loadAsync(zipbuf,{lazyfetch:true});
     debug&&console.timeEnd('loadAsync')

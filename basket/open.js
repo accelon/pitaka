@@ -12,6 +12,7 @@ import inverted from './inverted.js';
    of htll texts, prebuilt data-structure to facilitate fast access,
    and optional full text index.
 */
+
 class Basket extends JSONPROM {
     constructor(opts) {
         super(opts)
@@ -37,6 +38,7 @@ class Basket extends JSONPROM {
             const labelSection=this.getSection(section);
             const labelSectionRange=this.getSectionRange(section);
             this.labels=deserializeLabels(labelSection,labelSectionRange,this.header.labels);
+
             this.lblTransclusion=this.getLabel('t');
             this.inverted=await this.loadInverted();
 

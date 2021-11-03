@@ -1,5 +1,5 @@
 import {unpack} from '../utils/index.js';
-let debug=false;
+
 export const unpackPosting=(raw,tk)=>{
     const out=[],arr=unpack(raw);
     let i=0,prevdoc=0;

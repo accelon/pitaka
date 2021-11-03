@@ -1,4 +1,4 @@
-import {unpackPosting,TOKENIZE_REGEX,forEachUTF32} from '../fulltext/index.js'
+import {unpackPosting,TOKENIZE_REGEX,forEachUTF32,splitUTF32} from '../fulltext/index.js'
 import {unpackStrings,bsearch} from '../utils/index.js'
 
 async function prepareToken(str){
@@ -41,7 +41,13 @@ async function loadInverted(){
     const [from,to]=this.getSectionRange(sectionName);
     await this.prefetchLines(from,from+3);
     const header=JSON.parse(this.getLine(from));
-    const tokens=unpackStrings(this.getLine(from+1));
+    let tokens;
+    if (header.bigram) {
+        tokens=unpackStrings(this.getLine(from+1));
+    } else {
+        tokens=splitUTF32(this.getLine(from+1)).map(cp=>String.fromCodePoint(cp));
+    }
+    this.deleteLine(from+1);
     
     return {header,tokens,postingStart:from+3,cache:{}}
 }
