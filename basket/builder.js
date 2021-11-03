@@ -204,13 +204,12 @@ class Builder {
         this.writer.addSection('inverted',true);
         const inverted=this.inverter.serialize();
         this.writer.append(inverted);
-        this.inverter=null;
 
         console.log('finalizing labels')
         this.writer.addSection('labels');
         const section=serializeLabels(this.context);
         this.writer.append(section);
-
+        
         this.finalized=true;
         return this.context;
     }

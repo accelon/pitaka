@@ -1,5 +1,6 @@
 import {maxlen1,maxlen2,maxlen3,CodeStart, SEPARATOR2D,
-	BYTE_MAX,BYTE1_MAX, BYTE2_MAX,BYTE3_MAX, BYTE4_MAX,BYTE2_START,BYTE3_START,BYTE4_START} from './unpackintarray.js';
+	BYTE_MAX,BYTE1_MAX, BYTE2_MAX,BYTE3_MAX, BYTE4_MAX,BYTE5_MAX,
+	BYTE2_START,BYTE3_START,BYTE4_START,BYTE5_START} from './unpackintarray.js';
 export const pack1=(arr,esc)=>{
 	let s="";
 	for (let i=0;i<arr.length;i++) {
@@ -86,7 +87,7 @@ export const pack=(arr,esc)=>{
 			s+=String.fromCharCode(i3+BYTE3_START+CodeStart)
 			+String.fromCharCode(i2+CodeStart)
 			+String.fromCharCode(i1+CodeStart);
-		} else if (i<BYTE4_MAX) {
+		} else if (int<BYTE4_MAX) {
 			int-=BYTE3_MAX;
 			let i1,i2,i3,i4;
 			i1=int % BYTE_MAX;
@@ -100,7 +101,24 @@ export const pack=(arr,esc)=>{
 			+String.fromCharCode(i3+CodeStart)
 			+String.fromCharCode(i2+CodeStart)
 			+String.fromCharCode(i1+CodeStart);
-		} else throw new Error('exist 4 byte boundary '+BYTE4_MAX);
+		} else if (int<BYTE5_MAX) {
+			int-=BYTE4_MAX;
+			let i1,i2,i3,i4,i5;
+			i1=int % BYTE_MAX;
+			int=Math.floor(int/BYTE_MAX);
+			i2=int % BYTE_MAX
+			int=Math.floor(int/BYTE_MAX);
+			i3=int % BYTE_MAX
+			int=Math.floor(int/BYTE_MAX);
+			i4=int % BYTE_MAX
+
+			i5=Math.floor(int/BYTE_MAX);
+			s+=String.fromCharCode(i5+BYTE5_START+CodeStart)
+			+String.fromCharCode(i4+CodeStart)
+			+String.fromCharCode(i3+CodeStart)
+			+String.fromCharCode(i2+CodeStart)
+			+String.fromCharCode(i1+CodeStart);
+		} else throw new Error('exist max int boundary '+BYTE5_MAX);
 	}
 	if (esc) s=escapePackedStr(s); 
 	return s;

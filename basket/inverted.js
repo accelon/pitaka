@@ -1,5 +1,5 @@
 import {unpackPosting,TOKENIZE_REGEX,forEachUTF32,splitUTF32} from '../fulltext/index.js'
-import {unpackStrings,bsearch} from '../utils/index.js'
+import {unpackStrings,bsearch,unpack_delta} from '../utils/index.js'
 
 async function prepareToken(str){
     const tokenposting=[], I=this.inverted;
@@ -38,7 +38,7 @@ async function prepareToken(str){
 }
 const sectionName='inverted'
 async function loadInverted(){
-    const [from,to]=this.getSectionRange(sectionName);
+    const [from]=this.getSectionRange(sectionName);
     await this.prefetchLines(from,from+3);
     const header=JSON.parse(this.getLine(from));
     let tokens;
@@ -47,8 +47,9 @@ async function loadInverted(){
     } else {
         tokens=splitUTF32(this.getLine(from+1)).map(cp=>String.fromCodePoint(cp));
     }
+    const linetokenpos=unpack_delta(this.getLine(from+2));
     this.deleteLine(from+1);
-    
-    return {header,tokens,postingStart:from+3,cache:{}}
+    this.deleteLine(from+2);
+    return {header,tokens,linetokenpos,postingStart:from+3,cache:{}}
 }
 export default {prepareToken,loadInverted}

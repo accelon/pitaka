@@ -6,12 +6,14 @@ export const CodeStart=0x0E;
 
 export const BYTE_MAX=113;
 export const BYTE1_MAX=45                                       //delta
-export const BYTE2_MAX=45*BYTE_MAX+BYTE1_MAX                     //5085         45*113        //for year bc 2000~ad2280
+export const BYTE2_MAX=44*BYTE_MAX+BYTE1_MAX                     //5017      //for year bc 2000~ad2280
 export const BYTE2_START=45;    
-export const BYTE3_START=90;         
-export const BYTE4_START=106;         
-export const BYTE3_MAX=16*BYTE_MAX*BYTE_MAX+BYTE2_MAX           // ~204304      16*113*113    //linepos for most cases 
-export const BYTE4_MAX=7 *BYTE_MAX*BYTE_MAX*BYTE_MAX+BYTE3_MAX  // ~10100279   7*113*113*113 //max linepos
+export const BYTE3_START=89;         
+export const BYTE4_START=105;         
+export const BYTE5_START=112;
+export const BYTE3_MAX=16*BYTE_MAX*BYTE_MAX+BYTE2_MAX                     // ~204304     
+export const BYTE4_MAX=6 *BYTE_MAX*BYTE_MAX*BYTE_MAX+BYTE3_MAX            // ~10100279   
+export const BYTE5_MAX=2 *BYTE_MAX*BYTE_MAX*BYTE_MAX*BYTE_MAX+BYTE4_MAX  // 326094722
 export const SEP2DITEM=0x7f
 export const SEPARATOR2D="\u007f"
 
@@ -52,9 +54,9 @@ export const unpack=s=>{
 	const arr=[];
 	let o,i=0;
 	while (i<s.length) {
-		o=s.charCodeAt(i) -CodeStart;
+		o=s.charCodeAt(i) - CodeStart;
 		if (o<BYTE2_START) {
-			
+			//single byte
 		} else if (o<BYTE3_START) {
 			const i1=s.charCodeAt(++i) - CodeStart;
 			o-=BYTE2_START;
@@ -64,13 +66,24 @@ export const unpack=s=>{
 			const i1=s.charCodeAt(++i) - CodeStart;
 			o-=BYTE3_START;
 			o = o*BYTE_MAX*BYTE_MAX + i2*BYTE_MAX + i1 + BYTE2_MAX ;
-		} else if (o<SEP2DITEM) {
+		} else if (o<BYTE5_START) {
 			const i3=s.charCodeAt(++i) - CodeStart;
 			const i2=s.charCodeAt(++i) - CodeStart;
 			const i1=s.charCodeAt(++i) - CodeStart;
 			o-=BYTE4_START;
 			o = o*BYTE_MAX*BYTE_MAX*BYTE_MAX + i3*BYTE_MAX*BYTE_MAX + i2*BYTE_MAX + i1+BYTE3_MAX ;		
-		} else throw new Error("error packed integer",o);
+		} else if (o<SEP2DITEM) {
+			const i4=s.charCodeAt(++i) - CodeStart;
+			const i3=s.charCodeAt(++i) - CodeStart;
+			const i2=s.charCodeAt(++i) - CodeStart;
+			const i1=s.charCodeAt(++i) - CodeStart;
+			o-=BYTE5_START;
+			o = o*BYTE_MAX*BYTE_MAX*BYTE_MAX*BYTE_MAX
+			+ i4*BYTE_MAX*BYTE_MAX*BYTE_MAX+i3*BYTE_MAX*BYTE_MAX 
+			+ i2*BYTE_MAX + i1+BYTE3_MAX ;		
+		} else {
+			throw new Error("exit max integer 0x7f,"+ o);
+		}
 		arr.push(o);
 		i++;
 	}

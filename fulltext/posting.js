@@ -5,7 +5,7 @@ export const plFind=(arr, p, v)=>{
     let p2 = p + speed;
     while (p2 < arr.length )  {
         if (arr[p2] < v) {
-            speed++;
+            speed=Math.floor(speed*1.5);
         } else  {
             if (speed <= 1) break;
             p2 -= speed;
