@@ -41,7 +41,6 @@ export const fibIntersect=(arr1,arr2)=>{
 
     const at=fibSearch(arr2,v);
     if (v==0x674f) {//26447
-      debugger
       console.log('杏',at,arr2[at],arr2[0])
     }
     if (arr2[at]==v) out.push(v);

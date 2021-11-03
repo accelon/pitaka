@@ -147,7 +147,7 @@ class Builder {
         try{
             const Formatter=getFormatter(format);
             const formatter=new Formatter(this.context,this.log);
-            const converted=fn.indexOf('.off')>0;
+            const converted=fn.endsWith('.off');
             const {text,tags,rawlines}=formatter.scan(rawcontent,converted);
 
             this.context.linesOffset=linesOffset(text);

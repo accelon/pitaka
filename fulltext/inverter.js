@@ -48,11 +48,12 @@ class Inverter {
     indexLine(line,ndoc){
         const [text]=parseOfftextLine(line);
         let tokencount=0;
-        text.replace(TOKENIZE_REGEX,(m,m1)=>{
-            if (m1.charCodeAt(0)>0x2000) { //chinese
-                tokencount=this.indexCJK(m1,tokencount,ndoc);
+        text.replace(TOKENIZE_REGEX,(m,m1,offset)=>{
+            tokencount++;//a gap
+            if (m.charCodeAt(0)>0x2000) { //chinese
+                tokencount=this.indexCJK(m,tokencount,ndoc);
             } else { //western languages
-                tokencount++;
+                // tokencount++;
             }
         })
     }

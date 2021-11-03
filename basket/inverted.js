@@ -2,13 +2,23 @@ import {unpackPosting,TOKENIZE_REGEX,forEachUTF32} from '../fulltext/index.js'
 import {unpackStrings,bsearch} from '../utils/index.js'
 
 async function prepareToken(str){
-    const tokenposting=[];
+    const tokenposting=[], I=this.inverted;
+    const loaded={};
     str.replace(TOKENIZE_REGEX,(m,m1)=>{
-        forEachUTF32(m1,(ch,i)=>tokenposting.push({token:ch,id:0,posting:null}));
+        forEachUTF32(m1,(ch,i)=>{
+            if (loaded[ch])return;
+            loaded[ch]=true;
+            const tk=I.cache[ch] || {token:ch,id:-1,posting:null};
+            tokenposting.push(tk);
+        });
     })
-    const jobs=[], Tokens=this.inverted.tokens , postingStart=this.inverted.postingStart;
+   
+    const jobs=[],  postingStart=this.inverted.postingStart;
     tokenposting.forEach(tk=>{
-        const at=bsearch(Tokens,tk.token);
+        if (tk.id>-1) {
+            return; //already in cache
+        }
+        const at=bsearch(I.tokens,tk.token);
         if (at>-1) {
             jobs.push( this.prefetchLines(postingStart+at));
             tk.id=at;
@@ -17,10 +27,14 @@ async function prepareToken(str){
     await Promise.all(jobs);
     for (let i=0;i<tokenposting.length;i++) {
         const tk=tokenposting[i];
-        tk.posting = unpackPosting(this.getLine(postingStart+tk.id));
-        this.inverted.cache[tk.token]=tk;
+        if (!tk.posting) {
+            tk.posting = unpackPosting(this.getLine(postingStart+tk.id),tk.token);
+            
+            this.deleteLine(postingStart+tk.id);
+            this.inverted.cache[tk.token]=tk;    
+        }
     }
-    console.log(tokenposting)
+    return tokenposting;
 }
 const sectionName='inverted'
 async function loadInverted(){

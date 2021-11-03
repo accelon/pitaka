@@ -42,6 +42,7 @@ class JSONPROM {
         this.prefetchChunks=prefetchChunks;
         this.unreadyChunk=unreadyChunk;
         this.getLine=i=>lines[i];
+        this.deleteLine=i=>lines[i]='';
         return this;
     }
     setChunk(chunk,header,payload){

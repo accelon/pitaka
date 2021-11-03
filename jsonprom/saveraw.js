@@ -2,7 +2,7 @@ class RawSaver {
     constructor (opts) {
         this.name=opts.name;
         this.context=opts.context;
-        this.txthandle=fs.openSync(opts.name+'-raw.txt','w');
+        this.txthandle=fs.openSync(opts.name+'-raw.off','w');
     }
     async init(){
 
@@ -13,8 +13,6 @@ class RawSaver {
         })
     }
     async done(){
-        fs.writeFileSync(this.name+'-raw.json', this.context.rawtags.map(item=>
-            JSON.stringify(item)).join('\n'),'utf8');
         await fs.close(this.txthandle);
     }
 }

@@ -1,5 +1,6 @@
 import {unpack} from '../utils/index.js';
-export const unpackPosting=raw=>{
+let debug=false;
+export const unpackPosting=(raw,tk)=>{
     const out=[],arr=unpack(raw);
     let i=0,prevdoc=0;
     while (i<arr.length) {
@@ -16,8 +17,9 @@ export const unpackPosting=raw=>{
                 a[j]=arr[i+j]+arr[i+j-1];
             }
             out[ndoc]=a;
+            i+=v;
         }
-        prevdoc=ndoc+1;
+        prevdoc=ndoc;
     }
     return out;
 }

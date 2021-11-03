@@ -85,7 +85,7 @@ const help=()=>{
     console.log('\nUsage: ')
     console.log(yellow('$ pitaka build   '), 'build pitaka rom file')
     console.log(yellow('$ pitaka jsonp   '), 'build pitaka jsonp folder')
-    console.log(yellow('$ pitaka raw     '), 'create *-raw.txt and *-raw.json')
+    console.log(yellow('$ pitaka raw     '), 'create *-raw.off')
     console.log(yellow('$ pitaka ngram   '), 'get ngram, default 2')
     // console.log(yellow('$ pitaka info    '), 'show information of pitaka')
     console.log(yellow('$ pitaka zip (regex)'), 'make a zip file')
