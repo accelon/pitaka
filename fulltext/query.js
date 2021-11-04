@@ -1,7 +1,6 @@
-import {plAnd,getCounter} from './posting.js';
+import {plAnd,getCounter, getSpeed} from './posting.js';
 export const phraseQuery=async (ptk,phrase)=>{
     console.time('prepare')
-
     const tokens=await ptk.prepareToken(phrase);
     console.timeEnd('prepare')
 
@@ -12,7 +11,7 @@ export const phraseQuery=async (ptk,phrase)=>{
         out=plAnd(pl1,tokens[i].posting,i);
     }
     console.timeEnd('phrase')
-    console.log('match counter',getCounter())
+    console.log('match counter',getCounter(),'max speed',getSpeed())
     return out;
 };
 

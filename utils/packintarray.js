@@ -48,10 +48,10 @@ export const pack3=(arr,esc=false)=>{
 
 
 //might be two dimensional,separated by | 
-export const pack2d=(arr,esc)=>{
+export const pack2d=(arr,delta=false)=>{
 	const o=[];
 	for (let i=0;i<arr.length;i++) {
-		o.push(pack(arr[i]||[],esc));
+		o.push(pack(arr[i]||[],delta));
 	}
 	return o.join(SEPARATOR2D);
 }
@@ -62,10 +62,11 @@ export const pack3_2d=(arr,esc)=>{
 	}
 	return o.join(SEPARATOR2D);
 }
-export const pack=(arr,esc)=>{
-	let s="";
-	for (let i=0;i<arr.length;i++) {
-		let int=arr[i];
+export const pack=(arr,delta=false)=>{
+	let s="", int=arr.length, prev=0;
+	if (arr.length==0) return s;
+
+	for (let i=0;i<=arr.length;i++) {
 		if (isNaN(int)) new Error('not an integer at'+i);
 		if (int<0) new Error('negative value at'+i+' value'+int);
 		if (int<BYTE1_MAX) {			
@@ -119,43 +120,19 @@ export const pack=(arr,esc)=>{
 			+String.fromCharCode(i2+CodeStart)
 			+String.fromCharCode(i1+CodeStart);
 		} else throw new Error('exist max int boundary '+BYTE5_MAX);
+		int=delta? arr[i]-prev: arr[i];
+		prev=arr[i];
 	}
-	if (esc) s=escapePackedStr(s); 
 	return s;
 }
-export const pack_delta=(arr,removeRepeat=false)=>{
-	if (arr.length<1)return "";
-	if (!arr[0]) arr[0]=0;
-	let now=arr[0];
-
-	for (let i=1;i<arr.length;i++) {
-		const p=arr[i];
-		if (now>arr[i]) console.log("negative value",i,arr[i]);
-		else if (removeRepeat&&arr[i]==0) arr[i]=Number.MIN_VALUE;
-
-		arr[i]=arr[i]-now;
-		now=p;
-	}
-	return pack(arr);
+export const pack_delta=arr=>{
+	return pack(arr,true);
 }
 
-export const pack_delta2d=(arr2d,removeRepeat=false)=>{
-	return arr2d.map(arr=>{
-		if (arr.length<1)return "";
-		if (!arr[0]) arr[0]=0;
-		let now=arr[0];
-		for (let i=1;i<arr.length;i++) {
-			const p=arr[i];
-			if (removeRepeat&&arr[i]==now) arr[i]=Number.MIN_VALUE;
-			else if (now>arr[i]) {
-				console.log("negative value at ",i,arr[i],"prev",now);
-			}
-			arr[i]=arr[i]-now;
-			now=p;
-		}
-		return pack(arr);
-	}).join("|");
+export const pack_delta2d=(arr2d)=>{
+	return pack2d(arr2d,true);
 }
+
 export const arrDelta=arr=>{
 	if (!arr)return [];
 	if (arr.length===1) return [arr[0]]

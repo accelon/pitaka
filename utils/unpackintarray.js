@@ -27,7 +27,7 @@ export const unpack3=str=>{
 		i1=str.charCodeAt(i*3+2) -CodeStart;
 		arr.push( maxlen1*maxlen1*i3 +maxlen1*i2+i1 );
 	}
-	return new Int32Array(arr);
+	return new Uint32Array(arr);
 }
 export const unpack2=str=>{
 	const arr=[];
@@ -38,7 +38,7 @@ export const unpack2=str=>{
 		i1=str.charCodeAt(i*3+1) -CodeStart;
 		arr.push(maxlen1*i2+i1 );
 	}
-	return new Int32Array(arr);
+	return new Uint32Array(arr);
 }
 export const unpack1=str=>{
 	const arr=[];
@@ -48,11 +48,11 @@ export const unpack1=str=>{
 		i1=str.charCodeAt(i*3) -CodeStart;
 		arr.push( i1 );
 	}
-	return new Int32Array(arr);
+	return new Uint32Array(arr);
 }
-export const unpack=s=>{
-	const arr=[];
-	let o,i=0;
+export const unpack=(s,delta=false)=>{
+	let arr;
+	let o,i=0,c=0,prev=0;
 	while (i<s.length) {
 		o=s.charCodeAt(i) - CodeStart;
 		if (o<BYTE2_START) {
@@ -84,40 +84,31 @@ export const unpack=s=>{
 		} else {
 			throw new Error("exit max integer 0x7f,"+ o);
 		}
-		arr.push(o);
+		if (arr) {
+			arr[c]= o + (delta?prev:0);
+			prev=arr[c];
+			c++;
+		} else {
+			arr=new Uint32Array(o);
+		}
 		i++;
 	}
-	return new Int32Array(arr);
+	return arr;
 }
 export const unpack_delta=s=>{
-	const arr=unpack(s);
-	if (arr.length<2)return arr;
-	for (let i=1;i<arr.length;i++) {
-		arr[i]+=arr[i-1];
-	}	
-	return new Int32Array(arr);
+	return unpack(s,true);
 }
 
 export const unpack_delta2d=s=>{
 	if (!s)return [];
-	const arr2d=unpack2d(s);
-	if (arr2d.length==1) {
-		return [unpack_delta(s)];
-	}
-	return arr2d.map( arr=> {
-		if (arr.length<2)return arr;
-		for (let i=1;i<arr.length;i++) {
-			arr[i]+=arr[i-1];
-		}	
-		return new Int32Array(arr);
-	});
+	return unpack2d(s,true);
 }
 
-export const unpack2d=s=>{
+export const unpack2d=(s,delta=false)=>{
 	if (!s)return [];
 	const arr=s.split(SEPARATOR2D);
 	if (arr.length==1) return [unpack(arr[0])];
-	return arr.map(itm=>unpack(itm));
+	return arr.map(itm=>unpack(itm,delta));
 }
 export const unpack3_2d=s=>{
 	if (!s)return [];
