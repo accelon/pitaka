@@ -18,7 +18,7 @@ class JSONPROM {
         this.name=opts.name||'noname';
         this.header= {
             name:this.name,
-            lineCount:1,
+            lastTextLine:0,
             chunkStarts:[1],
             sectionNames:['txt'],
             sectionStarts:[1],
@@ -94,6 +94,7 @@ class JSONPROM {
     }
     getSectionRange(name){
         const {sectionNames,sectionStarts,lineCount}=this.header;
+        
         const i=sectionNames.indexOf(name);
         if (i<0) return [0,0];
         const from=sectionStarts[i];

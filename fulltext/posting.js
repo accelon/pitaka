@@ -2,7 +2,7 @@ let counter=0,maxspeed=0;
 /*inspired by https://github.com/Siderite/SortedArrayIntersect AcceleratingIntersercter*/
 export const plFind=(arr, v, p=0)=>{
     let speed = 1;
-    let p2 = p + speed;
+    let p2 = p;
     while (p2 < arr.length )  {
         if (v>arr[p2]) {
             speed++;
@@ -54,8 +54,26 @@ export const plCount=(pl,plgroup)=>{
     }
     return out;
 }
+//calculate the contribution of each token by length of posting
+//all tokens sum up to 1
+export const weightToken=tokens=>{ //array of {token, posting=[] }
+    const totalfreq=tokens.reduce((p,v)=>p+v.posting.length,0);
+    const arr=tokens.map(it=> [it.token,Math.log(totalfreq/it.posting.length)  , it.posting]);
+    const min=0.8/tokens.length;
 
+    const totalweight=arr.reduce((p,v)=>p+v[1],0);
+    //remove common characters
+    let out=arr.map(it=>[it[0], it[1]/totalweight, it[2]]).filter(it=>it[1]>min);
+
+    const totalweight2=out.reduce((p,v)=>p+v[1],0);
+    out=out.map(it=>[it[0], it[1]/totalweight2, it[2]]);
+
+    return out;
+}
+export const scoreLines=weightToken=>{
+
+}
 export const getCounter=()=>counter;
 export const getSpeed=()=>maxspeed;
 export const resetCounter=()=>counter=0;
-export default {plAnd,plFind,getCounter,resetCounter}
+export default {plAnd,plFind,getCounter,resetCounter,weightToken,scoreLines}

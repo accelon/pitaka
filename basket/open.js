@@ -37,6 +37,7 @@ class Basket extends JSONPROM {
             await this.loadSection(section);
             const labelSection=this.getSection(section);
             const labelSectionRange=this.getSectionRange(section);
+            console.log(section,labelSectionRange)
             this.labels=deserializeLabels(labelSection,labelSectionRange,this.header.labels);
 
             this.lblTransclusion=this.getLabel('t');

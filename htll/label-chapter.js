@@ -45,8 +45,8 @@ class LabelChapter extends Label {
     }
     find(tofind,near=false){
     }
-    finalize() {
-        // this.log('finalize chapter')
+    finalize(ctx) {
+
     }
 }
 export default LabelChapter;

@@ -10,7 +10,12 @@ const serializeLabels=(ctx)=>{
         finalizing.unshift(lt);
     }
     
-    finalizing.forEach(lt=>lt.finalize(ctx));
+    finalizing.forEach(lbl=>{
+        lbl.finalize(ctx)
+        if (lbl.linepos) {
+            lbl.linepos.push(ctx.lastTextLine);
+        }
+    });
 
     for (let name in ctx.labeldefs) { 
         const lt=ctx.labeldefs[name];
@@ -27,7 +32,7 @@ const serializeLabels=(ctx)=>{
     return section;
 }
 
-const deserializeLabels=(section,range,typedefs)=>{
+const deserializeLabels=(section,range,typedefs,lastTextLine)=>{
     const labelNames=section[0].split(',');
     const labelTypes=section[1].split(',');
     const labelPoss=JSON.parse('['+section[2]+']');
@@ -43,7 +48,7 @@ const deserializeLabels=(section,range,typedefs)=>{
         for (let j=labelPoss[i];j<(labelPoss[i+1]||section.length);j++ ) {
             labelPayload.push(section[j]);
         }
-        lt.deserialize(labelPayload);
+        lt.deserialize(labelPayload,lastTextLine);
         out.push(lt);
     }
     return out;

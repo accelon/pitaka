@@ -13,6 +13,7 @@ class JSONPROMW {
             sectionStarts:[1],
             fileStarts:[],
             sectionNames:['txt'],
+            lastTextLine:0,
             buildtime:(new Date()).toISOString()
         }
 
@@ -23,15 +24,16 @@ class JSONPROMW {
         this.opts = Object.assign({ chunkSize: 128 * 1024 },opts);
         return this;
     }
-    append(lines,isSourceFile=true){
+    append(lines,newChunk=false){
         if (typeof lines=='string') lines=lines.split(/\r?\n/);
         const header=this.header;
         let acc=this.accLength||0;
-        if (isSourceFile) header.fileStarts.push(header.lineCount);
+        if (!newChunk) header.fileStarts.push(header.lineCount);
 
         for (let i=0;i<lines.length;i++) {
             acc+=lines[i].length;
-            if (acc>=this.opts.chunkSize) {
+            if (acc>=this.opts.chunkSize || newChunk) {
+                newChunk=false;
                 header.chunkStarts.push(i+header.lineCount);
                 acc=0;
             }
@@ -39,18 +41,19 @@ class JSONPROMW {
         }
         this.accLength=acc;
         header.lineCount+=lines.length;
-        
         header.appendCount++;
     }
     appendFile(fn,format='utf8'){
         const lines=fs.readFileSync(fn,format).split(/\r?\n/);
         this.append(lines);
     }
-    addSection(name,stopcompression=false){
+    addSection(name){
         this.header.sectionNames.push(name);
         this.header.sectionStarts.push(this.header.lineCount);
-        //do not compress label section
-        if (stopcompression) this.nocompressline=this.header.lineCount
+    }
+    setEndOfText(){
+        this.header.lastTextLine=this.header.lineCount;
+        return this.header.lastTextLine;
     }
 }
 

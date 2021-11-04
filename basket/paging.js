@@ -34,28 +34,36 @@ function locate(y){
     }
     return out;
 }
+function getLabelLineRange(lbl,n){
+    if (typeof lbl==='string') {
+        lbl=this.getLabel('bk');
+    }
+    return [lbl.linepos[n],lbl.linepos[n+1]]
+}
 function getPageRange(addr){
     const thetree=(this.header.tree||DEFAULT_TREE).split(PATHSEP);
     if (!addr && thetree[0]=='e') return [0,0];
     const pths=(addr||'').split(PATHSEP).filter(i=>!!i);
     const arr=pths.map((item,idx)=>{
         let pth=pths[idx];
-        let id=pth;
+        let id=pth,dy=0;
         let lbl=thetree[idx];
-        const m=pth.lastIndexOf(DELTASEP);
-        let dy=m>1?parseInt(pth.substr(m+1)):0;
-        if (m>1 && !isNaN(dy) ) {
-            pth=pth.substr(0,m);
-        }
+
         const eq=id.indexOf('#');
         if (eq>0) {
             const [labelname,attrs]=parseOffTag(id.substr(0,eq)+id.substr(eq+1));
             id=attrs.n;
             lbl=labelname;
+        } else {
+            const m=pth.lastIndexOf(DELTASEP);
+            dy=m>1?parseInt(pth.substr(m+1)):0;
+            if (m>1 && !isNaN(dy) ) {
+                pth=pth.substr(0,m);
+            }
         }
         return {lbl, id , dy}
     })
-    const nextlbl=thetree[pths.length];
+    const nextlbl=thetree[pths.length]||'';
     return [...this.narrowDown(arr) ,  nextlbl ] ;
 }
 function pageAt(y0,toString=false){
@@ -201,4 +209,5 @@ function childCount(loc){
     if (!label) return 0;
     return label.countRange(from,to);
 }
-export default {pageAt,getTocTree,getNChild,childCount,fetchPage,fetchToc,getPageRange,narrowDown,locate}
+export default {pageAt,getTocTree,getNChild,childCount,
+    fetchPage,fetchToc,getPageRange,narrowDown,locate,getLabelLineRange}

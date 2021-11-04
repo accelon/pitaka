@@ -20,21 +20,24 @@ const saveHeader=async (saver,header,payload)=>{
 const saveJsonp=async(saver,chunk,name,start,L,compress=false)=>{
     let writeCount=0;
     
-    const newcontent=prepareJSONP({chunk,name,start},L);
-    if (saver instanceof JsonpSaver ) { //need node js
-        const fn=chunkjsfn(chunk,name);
-        //write only touched file
-        if (!fs.existsSync(fn) || fs.readFileSync(fn,'utf8')!==newcontent) {
-            await saver.writeChunk(newcontent,chunk);
+    if (saver instanceof RawSaver) {
+        if (compress) {
+            await saver.writeChunk(L.join('\n')+'\n',chunk); //only save the text section( compress)
             writeCount++;
         }
     } else {
-        if (saver instanceof RawSaver) {
-            if (compress) await saver.writeChunk(L.join('\n'),chunk); //only save the text section( compress)
+        const newcontent=prepareJSONP({chunk,name,start},L);
+        if (saver instanceof JsonpSaver ) { //need node js
+            const fn=chunkjsfn(chunk,name);
+            //write only touched file
+            if (!fs.existsSync(fn) || fs.readFileSync(fn,'utf8')!==newcontent) {
+                await saver.writeChunk(newcontent,chunk);
+                writeCount++;
+            }
         } else {
             await saver.writeChunk(newcontent,chunk,compress);
+            writeCount++;
         }
-        writeCount++;
     }
     return writeCount;
 }
@@ -64,13 +67,13 @@ async function save(opts,extraheader={}){
     while (i<chunkStarts.length) {
         const L=this._lines.slice( chunkStarts[i-1],chunkStarts[i]);
         //do not deflate labels and postings, speed up loading 100%
-        compress=this.nocompressline > chunkStarts[i-1]+L.length; 
+        compress=this.header.lastTextLine > chunkStarts[i-1]; 
         filecount+=await saveJsonp(saver,i,name,chunkStarts[i-1],L,compress)
         i++;
     }
     const start=chunkStarts[chunkStarts.length-1];
     const lastpart=this._lines.slice(start,this._lines.length);
-    compress=this.nocompressline > chunkStarts[i-1]+lastpart.length; 
+    compress=this.header.lastTextLine > chunkStarts[i-1]; 
 
     filecount+=await saveJsonp(saver,chunkStarts.length, name, start,lastpart ,compress)
 

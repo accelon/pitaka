@@ -6,10 +6,11 @@ async function prepareToken(str){
     const loaded={};
     str.replace(TOKENIZE_REGEX,(m,m1)=>{
         forEachUTF32(m1,(ch,i)=>{
+            let tk;
             if (loaded[ch])return;
+            tk=I.cache[ch] || {token:ch,id:-1,posting:null};
             loaded[ch]=true;
-            const tk=I.cache[ch] || {token:ch,id:-1,posting:null};
-            tokenposting.push(tk);
+            tokenposting.push(tk);    
         });
     })
    
@@ -32,7 +33,7 @@ async function prepareToken(str){
             
             this.deleteLine(postingStart+tk.id);
             this.inverted.cache[tk.token]=tk;    
-        }
+        } 
     }
     return tokenposting;
 }
@@ -52,28 +53,6 @@ async function loadInverted(){
     this.deleteLine(from+2);
     return {header,tokens,linetokenpos,postingStart:from+3,cache:{}}
 }
-function txFromLinepos(linepos){
-    if (!linepos) return [];
-    const out=[];
-    const linetokenpos=this.inverted.linetokenpos;
-    for (let i=0;i<linepos.length-1;i++) {
-        const y=linepos[i]-1, nexty=linepos[i+1]-1; //linepos is 1-base
-        out.push( [ y>0?linetokenpos[ y ]:0 , linetokenpos[nexty]] );
-    }
-    return out;
-}
-function txFromLabel(lbl){
-    if (typeof lbl==='string') {
-        lbl=this.getLabel(lbl);
-    }
-    return this.txFromLinepos(lbl.linepos);
-}
-function txToLinepos(tokenpos) {
-    const linetokenpos=this.inverted.linetokenpos;
-    const out=[];
-    for (let i=0;i<tokenpos.length;i++) {
-        out.push(bsearch(linetokenpos, tokenpos[i],true)+1);
-    }
-    return out;
-}
-export default {prepareToken,loadInverted, txFromLinepos,txFromLabel,txToLinepos}
+
+
+export default {prepareToken,loadInverted}

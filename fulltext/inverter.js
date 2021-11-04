@@ -1,6 +1,6 @@
 import {fileContent} from '../format/index.js'
 import {parseOfftextLine} from '../offtext/parser.js';
-import {tokenize,TOKEN_CJK,TOKEN_ROMANIZE} from '../fulltext/index.js'
+import {tokenize,TOKEN_CJK,TOKEN_ROMANIZE,scoreRange} from '../fulltext/index.js'
 import {arrDelta,alphabetically0,CJKRange,packStrings,pack_delta} from '../utils/index.js'
 class Inverter {
     constructor(opts) {
@@ -9,7 +9,7 @@ class Inverter {
         this.bigram={};
         this.tokens={};
         this.romanized={};
-        this.linetokenpos=[];
+        this.linetokenpos=[];  //last item is the last token count
         this.tokenCount=0;
         const self=this;
         if (this.config.bigram) fileContent(this.config.bigram).then(content=>{
@@ -69,6 +69,7 @@ class Inverter {
         }
     }
     serialize(){
+        this.linetokenpos.push(this.tokenCount); //last Token
         const inverted=[],section=[];
         const addPostings=(tk,postings)=>{        
             inverted.push([tk,postings]);

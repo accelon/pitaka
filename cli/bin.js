@@ -35,9 +35,12 @@ const report=(builder)=>{
     out.push(' '+yellow((files.length+' files').padEnd(10,' ')+':')
       +showfile.join(',')
       +(files.length>maxshow?'...':''));
+    out.push(yellow(' last text :')+writer.header.lastTextLine);
     out.push(yellow(' last line :')+writer.header.lineCount);
+    out.push(yellow(' sections  :')+writer.header.sectionStarts.join('|') +' '+writer.header.sectionNames.join('|'));
     out.push(yellow(' max chunk :')+writer.header.chunkStarts.length.toString().padStart(3,'0')+'.js');
     out.push(yellow(' build time:')+writer.header.buildtime);
+    
     
     return out.join('\n');
 }

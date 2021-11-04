@@ -59,13 +59,14 @@ class LabelEntry extends Label {
         }
         return out;
     }
-    deserialize(payload){
+    deserialize(payload,lastTextLine){
         let at=super.deserialize(payload);
         const header=JSON.parse(payload[at++]);payload[at-1]=''; 
 
         this.idarr=unpackStrings(payload[at++]);payload[at-1]=''; 
         this.entrysize=unpack(payload[at++]);payload[at-1]='';
         this.linepos=unpack_delta(payload[at++]);payload[at-1]='';
+        this.linepos.push(lastTextLine);
         this.attrs=header.attrs;
         this.attributes={};
         for (let i=0;i<this.attrs.length;i++) {

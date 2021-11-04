@@ -158,7 +158,6 @@ class Builder {
                 this.opts.onContent(fn,text,tags,rawlines);
             } else {
                 this.doTags(tags,text);
-                if (this.opts.raw) this.context.rawtags.push(...tags);
                 if (!this.config.textOnly) this.inverter.append(rawlines);
                 this.writer.append(rawlines);
             }
@@ -200,15 +199,17 @@ class Builder {
         return this.writer.save(opts,this.config);
     }
     finalize(opts={}){
+        this.context.lastTextLine=this.writer.setEndOfText();
         console.log('finalizing inverted')
-        this.writer.addSection('inverted',true);
+        this.writer.addSection('inverted',true);                
         const inverted=this.inverter.serialize();
-        this.writer.append(inverted);
+        this.writer.append(inverted,true); //force new chunk
 
         console.log('finalizing labels')
         this.writer.addSection('labels');
         const section=serializeLabels(this.context);
         this.writer.append(section);
+        
         
         this.finalized=true;
         return this.context;

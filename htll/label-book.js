@@ -87,7 +87,7 @@ class LabelBook extends Label {
         out.push(...labelsout)
         return out;
     }
-    deserialize(payload){
+    deserialize(payload,lastTextLine){
         let at=super.deserialize(payload);
         const options=JSON.parse(payload[at++]);payload[at-1]='';
         this.names=unpackStrings(payload[at++]);payload[at-1]='';
