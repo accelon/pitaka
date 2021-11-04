@@ -48,7 +48,7 @@ class Inverter {
         const tokens=tokenize(text);
         for (let i=0;i<tokens.length;i++) {
             const [offset,w,ty]=tokens[i];
-            if (ty==TOKEN_CJK) tokenpos=this.indexCJK(w,tokenpos,tokencount);
+            if (ty==TOKEN_CJK) tokenpos=this.indexCJK(w,tokenpos,tokencount)+1; //multiple punc or western words = gap 1
             else{
                 tokenpos++; //even space char get advance
                 if (ty==TOKEN_ROMANIZE) {

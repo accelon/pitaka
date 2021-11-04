@@ -27,7 +27,7 @@ export const unpack3=str=>{
 		i1=str.charCodeAt(i*3+2) -CodeStart;
 		arr.push( maxlen1*maxlen1*i3 +maxlen1*i2+i1 );
 	}
-	return new Uint32Array(arr);
+	return new Int32Array(arr);
 }
 export const unpack2=str=>{
 	const arr=[];
@@ -38,7 +38,7 @@ export const unpack2=str=>{
 		i1=str.charCodeAt(i*3+1) -CodeStart;
 		arr.push(maxlen1*i2+i1 );
 	}
-	return new Uint32Array(arr);
+	return new Int32Array(arr);
 }
 export const unpack1=str=>{
 	const arr=[];
@@ -48,7 +48,7 @@ export const unpack1=str=>{
 		i1=str.charCodeAt(i*3) -CodeStart;
 		arr.push( i1 );
 	}
-	return new Uint32Array(arr);
+	return new Int32Array(arr);
 }
 export const unpack=(s,delta=false)=>{
 	let arr;
@@ -89,7 +89,7 @@ export const unpack=(s,delta=false)=>{
 			prev=arr[c];
 			c++;
 		} else {
-			arr=new Uint32Array(o);
+			arr=new Int32Array(o); //Uint32Array might convert to double
 		}
 		i++;
 	}

@@ -1,9 +1,7 @@
-
+import {bsearch} from '../utils/bsearch.js';
 const chunkOfLine=(line,chunkStarts)=>{
-    for (let i=1;i<chunkStarts.length;i++) {
-        if (chunkStarts[i]>line) return i;
-    }
-    return chunkStarts.length;
+    if (line>=chunkStarts[chunkStarts.length-1]) return chunkStarts.length;
+    return bsearch(chunkStarts,line,true);
 }
 function unreadyChunk(from,to){
     if (from<1) {
@@ -24,15 +22,25 @@ function unreadyChunk(from,to){
     return unready;
 }
 async function prefetchLines(from,to){ //getLine is valid
-    if (from>to) to+=from;
-    if (!to) to=from+1;
-    const unready=this.unreadyChunk(from,to);
+    let unready;
+    if (Array.isArray(from)) {
+        const notready={};
+        for (let i=0;i<from.length;i++) {
+            notready[chunkOfLine(from[i],this.header.chunkStarts)]=true;
+        }
+        unready=Object.keys(notready).map(it=>parseInt(it));
+    } else {
+        if (from>to) to+=from;
+        if (!to) to=from+1;
+        unready=this.unreadyChunk(from,to);    
+    }
     const jobs=[];
     unready.forEach(ck=>jobs.push(this.load(ck)));
     if (jobs.length) await Promise.all(jobs);
 }
 async function prefetchChunks(chunks){
     const jobs=[];
+
     chunks.forEach(ck=>jobs.push(this.load(ck)));
     if (jobs.length) await Promise.all(jobs);
 }

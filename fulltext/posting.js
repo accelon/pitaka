@@ -1,10 +1,10 @@
 let counter=0,maxspeed=0;
 /*inspired by https://github.com/Siderite/SortedArrayIntersect AcceleratingIntersercter*/
-export const plFind=(arr, p, v)=>{
+export const plFind=(arr, v, p=0)=>{
     let speed = 1;
     let p2 = p + speed;
     while (p2 < arr.length )  {
-        if (arr[p2] < v) {
+        if (v>arr[p2]) {
             speed++;
             if (speed>maxspeed)maxspeed=speed;
         } else  {
@@ -18,25 +18,41 @@ export const plFind=(arr, p, v)=>{
     return p2;
 }
 
-export const plAnd=(arr1,arr2,dist=1)=>{
+export const plAnd=(pl1,pl2,dist=1)=>{
     let p1 = 0, p2 = 0 , c=0;
-    if (arr1.length==0 ||arr2.length==0) return [];
-    const sz=Math.min(arr1.length,arr2.length);
-    let out=new Uint32Array(sz);
+    if (pl1.length==0 ||pl2.length==0) return [];
+    const sz=Math.min(pl1.length,pl2.length);
+    let out=new Int32Array(sz);
 
-    while (p1 < arr1.length && p2 < arr2.length)  {
-        var v1 = arr1[p1]+dist;
-        let v2 = arr2[p2];
+    while (p1 < pl1.length && p2 < pl2.length)  {
+        var v1 = pl1[p1]+dist;
+        let v2 = pl2[p2];
         if (v1>v2) {
-            p2 = plFind(arr2, p2, v1);
+            p2 = plFind(pl2, v1, p2);
         } else if (v2>v1) {
-            p1 = plFind(arr1, p1, v2);
+            p1 = plFind(pl1, v2, p1);
         } else {
             out[c++]=v1-dist;
             p1++;p2++;
         }
     }
-    return new Uint32Array( out.slice(0,c));
+    return new Int32Array( out.slice(0,c));
+}
+export const plCount=(pl,plgroup)=>{
+    let p=0,start=0,end=0;
+    const out=[];
+    for (let i=0;i<plgroup.length;i++) {
+        const [from,to]=plgroup[i];
+        start=p;
+        if (from>pl[p]) start=plFind(pl,from,p);
+        end=start;
+        while (pl[end]<to && end<pl.length) end++; 
+        if (end>start) {
+            out.push([i,end-start]) ;
+        }
+        p=end;
+    }
+    return out;
 }
 
 export const getCounter=()=>counter;

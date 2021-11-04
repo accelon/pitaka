@@ -30,7 +30,7 @@ const saveJsonp=async(saver,chunk,name,start,L,compress=false)=>{
         }
     } else {
         if (saver instanceof RawSaver) {
-            await saver.writeChunk(L.join('\n'),chunk);
+            if (compress) await saver.writeChunk(L.join('\n'),chunk); //only save the text section( compress)
         } else {
             await saver.writeChunk(newcontent,chunk,compress);
         }
