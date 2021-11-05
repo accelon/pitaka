@@ -9,7 +9,7 @@ class Inverter {
         this.bigram={};
         this.tokens={};
         this.romanized={};
-        this.linetokenpos=[];  //last item is the last token count
+        this.linetokenpos=[0];  //last item is the last token count
         this.tokenCount=0;
         const self=this;
         if (this.config.bigram) fileContent(this.config.bigram).then(content=>{
@@ -63,7 +63,7 @@ class Inverter {
         let ndoc=this.context.startY;
         for (let i=0;i<lines.length;i++) {
             this.tokenCount=this.indexLine(lines[i],this.tokenCount); //10 to split paragraph
-            this.linetokenpos[ndoc]=this.tokenCount;
+            this.linetokenpos[ndoc+1]=this.tokenCount;
             this.tokenCount+=5;//gap between lines
             ndoc++;
         }

@@ -59,15 +59,13 @@ export const plCount=(pl,plgroup)=>{
 export const weightToken=tokens=>{ //array of {token, posting=[] }
     const totalfreq=tokens.reduce((p,v)=>p+v.posting.length,0);
     const arr=tokens.map(it=> [it.token,Math.log(totalfreq/it.posting.length)  , it.posting]);
-    const min=0.8/tokens.length;
-
+    const min=0.9/tokens.length;
     const totalweight=arr.reduce((p,v)=>p+v[1],0);
     //remove common characters
-    let out=arr.map(it=>[it[0], it[1]/totalweight, it[2]]).filter(it=>it[1]>min);
-
+    let out=arr.map(it=>[it[0], it[1]/totalweight, it[2]])
+    if (out.length>10) out=out.filter(it=>it[1]>min);
     const totalweight2=out.reduce((p,v)=>p+v[1],0);
-    out=out.map(it=>[it[0], it[1]/totalweight2, it[2]]);
-
+    out=out.map(it=>[it[0], it[1]/totalweight2,it[2] ]); //last item is current ptr
     return out;
 }
 export const scoreLines=weightToken=>{
