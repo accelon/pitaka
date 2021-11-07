@@ -1,6 +1,6 @@
 import {fileContent} from '../format/index.js'
 import {parseOfftextLine} from '../offtext/parser.js';
-import {tokenize,TOKEN_CJK,TOKEN_ROMANIZE,scoreRange} from '../fulltext/index.js'
+import {tokenize,TOKEN_SEARCHABLE,scoreRange,TOKEN_CJK_BMP,TK_NAME,TK_TYPE} from '../fulltext/index.js'
 import {arrDelta,alphabetically0,CJKRange,packStrings,pack_delta} from '../utils/index.js'
 class Inverter {
     constructor(opts) {
@@ -23,38 +23,20 @@ class Inverter {
         if (!tbl[ch]) tbl[ch]=[];
         tbl[ch].push(ntoken);
     }
-    indexCJK(text,ntoken,ndoc){
-        let i=0,prev='';
-        while (i<text.length) {
-            ntoken++;
-            const code=text.codePointAt(i);
-            const ch=String.fromCodePoint(code);
-            if (this.config.bigram && this.bigram[prev+ch]) {
-                this.addPosting(prev+ch,ntoken-1,this.bigram);
-            }
-            this.addPosting(ch,ntoken);
-            prev=ch;
-            i++;
-            if (code>0xffff) {
-                i++;
-                prev='';
-            }
-        }
-        return ntoken;
-    }
     indexLine(line,tokencount){
         const [text]=parseOfftextLine(line);
-        let tokenpos=tokencount;
+        let tokenpos=tokencount,prev='';
         const tokens=tokenize(text);
         for (let i=0;i<tokens.length;i++) {
-            const [offset,w,ty]=tokens[i];
-            if (ty==TOKEN_CJK) tokenpos=this.indexCJK(w,tokenpos,tokencount)+1; //multiple punc or western words = gap 1
-            else{
-                tokenpos++; //even space char get advance
-                if (ty==TOKEN_ROMANIZE) {
-                    // this.addPosting(w,ntoken,this.romanized);
+            let tk=tokens[i];
+            if (tk[TK_TYPE]>=TOKEN_SEARCHABLE) {
+                if (this.config.bigram && prev&&this.bigram[prev+tk[TK_NAME]]) {
+                    this.addPosting(prev+tk[TK_NAME],tokenpos-1,this.bigram);
                 }
+                prev=(TK_TYPE===TOKEN_CJK_BMP)?  prev=tk[TK_NAME]:'';
+                this.addPosting(tk[TK_NAME],tokenpos);
             }
+            tokenpos++;
         }
         return tokenpos;
     }

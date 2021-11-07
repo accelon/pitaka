@@ -19,7 +19,7 @@ export const findPitakaFolder=name=>{
         } else if (fs.existsSync(fn)) {
             return fn;
         } else if (fs.existsSync(fnfn)) {
-            return fn;
+            return fnfn;
         }
         
         const newpth=Path.resolve(pth,'..');

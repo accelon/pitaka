@@ -1,41 +1,54 @@
-import {unpackPosting,TOKENIZE_REGEX,forEachUTF32,splitUTF32} from '../fulltext/index.js'
+import {unpackPosting,TOKENIZE_REGEX,forEachUTF32,splitUTF32,tokenize,TOKEN_SEARCHABLE,
+    TK_NAME,TK_TYPE,TK_POSTING} from '../fulltext/index.js'
+
 import {unpackStrings,bsearch,unpack_delta} from '../utils/index.js'
 
 async function prepareToken(str){
-    const tokenposting=[], I=this.inverted;
-    const loaded={};
-    str.replace(TOKENIZE_REGEX,(m,m1)=>{
-        forEachUTF32(m1,(ch,i)=>{
-            let tk;
-            if (loaded[ch])return;
-            tk=I.cache[ch] || {token:ch,id:-1,posting:null};
-            loaded[ch]=true;
-            tokenposting.push(tk);    
-        });
-    })
-   
+    const loading={}, I=this.inverted;
+    const tokens=tokenize(str); //ch, offset, type, id , postings
+    for (let i=0;i<tokens.length;i++) {
+        const tk=tokens[i];
+        if (tk[TK_TYPE]<TOKEN_SEARCHABLE) continue;
+        const at=bsearch(I.tokens,tk[TK_NAME]);
+        if (at>-1) {
+            tokens[i][TK_POSTING] = I.cache[tk[TK_NAME]];
+        } else {
+            tokens[i][TK_POSTING] = -1; //loading
+        }
+    }
     const jobs=[],  postingStart=this.inverted.postingStart;
-    tokenposting.forEach(tk=>{
-        if (tk.id>-1) {
+    tokens.forEach(tk=>{
+        if ((tk[TK_POSTING]&&tk[TK_POSTING]!==-1) || tk[TK_TYPE]<TOKEN_SEARCHABLE ) {
+            if (!tk[TK_POSTING]) tk[TK_POSTING]=[];  //weightToken doesn't accept null value
             return; //already in cache
         }
-        const at=bsearch(I.tokens,tk.token);
+        const at=bsearch(I.tokens,tk[TK_NAME])
         if (at>-1) {
-            jobs.push( this.prefetchLines(postingStart+at));
-            tk.id=at;
+            tk[TK_POSTING]=at;
+            if (!loading[at]) {
+                loading[at]=true;
+                jobs.push( this.prefetchLines(postingStart+at));
+            }
         }
     });
+
     await Promise.all(jobs);
-    for (let i=0;i<tokenposting.length;i++) {
-        const tk=tokenposting[i];
-        if (!tk.posting) {
-            tk.posting = unpackPosting(this.getLine(postingStart+tk.id),tk.token);
-            
-            this.deleteLine(postingStart+tk.id);
-            this.inverted.cache[tk.token]=tk;    
-        } 
+
+    for (let i=0;i<tokens.length;i++) {
+        const tk=tokens[i];
+        if (typeof tk[TK_POSTING]==='number') {
+            const y=postingStart+tk[TK_POSTING];
+            const linetext=this.getLine(y);
+            if (linetext) {
+                tk[TK_POSTING] = unpackPosting(linetext,tk[TK_NAME]);
+                this.deleteLine(y);
+                this.inverted.cache[tk[TK_NAME]]=tk[TK_POSTING]    
+            } else {
+                tk[TK_POSTING]=this.inverted.cache[tk[TK_NAME]] || [];
+            }
+        }
     }
-    return tokenposting;
+    return tokens;
 }
 const sectionName='inverted'
 async function loadInverted(){

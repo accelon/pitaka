@@ -2,20 +2,37 @@ import {fetchLoc} from 'pitaka';
 import { makeHook } from '../offtext/hook.js';
 import {extractChineseNumber} from '../utils/cnumber.js';
 import {similarity} from './similarity.js'
+import {diffCJK,printDiff} from 'pitaka/utils' 
+import {weightToken,scoreRange,convolute,getNthTokenX} from '../fulltext/index.js'
 
-export const fuzzyMatchPhrase=async (loc,quote)=>{
-    let sim,hook,error='';
-    const [ptk,content]=await fetchLoc(loc,1);
-    if (!content) {
-        return {error:'wrong loc '+loc}
+export const fuzzyMatchQuote=async (bkobj,q)=>{
+    const ptk=bkobj.ptk;
+    const tokens=(await ptk.prepareToken(q));
+    const qlen=tokens.length*1.3;
+
+    const weighted=weightToken(tokens) 
+
+    const scores=scoreRange(weighted,ptk.inverted.linetokenpos,{minscore:0.8}).slice(0,3);
+    
+    await ptk.prefetchLines( scores.map(it=>it[0]) );
+
+    for (let i=0;i<scores.length;i++) { 
+        const y=scores[i][0];
+        const src=ptk.getLine(y);   
+        const from=ptk.inverted.linetokenpos[y-1],to=ptk.inverted.linetokenpos[y];
+        const at=convolute(weighted,qlen,from,to);
+    
+        const x=getNthTokenX(src, at-from); 
+        const [diff, adjx, adjw , sim]=diffCJK(q,src,x, q.length*1.5);//.filter(it=>q.length*2>it.value.length);
+        
+        if (adjw==0) continue; 
+
+        const hook=makeHook(src,adjx,adjw);
+
+        return {ptk,y,hook,sim, diff};
     }
-    for (let i=0;i<content.length;i++) {
-        const res=pinpointPhrase(content[i][1],quote);
-        if (res && res.sim>0.8) {
-            return {ptk,y:content[i][0],hook:res.hook,sim:res.sim}
-        }
-    }
-    return {error:'no match'};
+
+    return {};
 }
 
 const pinpointPhrase=(linetext,q)=>{

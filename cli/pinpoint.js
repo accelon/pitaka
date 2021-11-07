@@ -1,47 +1,63 @@
-const quotefile=process.argv[3];
-const ptkname=process.argv[4];
 
-import {loadOfftextChunk} from '../offtext/chunker.js'
 import {existsSync, fstat, readFileSync, writeFileSync} from 'fs';
-import { locatePhrase ,fuzzyMatchPhrase} from '../fulltext/pinpoint.js'
+import { locatePhrase ,fuzzyMatchQuote} from '../fulltext/pinpoint.js'
 import { openBasket, PATHSEP, useBasket } from '../index.js';
+import {extractChineseNumber} from '../utils/index.js'
 
-export default async function(){
-    if (!quotefile || !ptkname) {
-        console.log('pitaka p quote.off pitaka');
-        return;
-    }
+export default async function(config){
+    const quotefile=process.argv[3]||config.files.split(',')[0];
+
     if (!existsSync(quotefile)) {
         console.log('quote not found',quotefile);
         return;
     }
-    if (!ptkname) {
-        console.log('missing pitaka');
-        return;
+
+    const ptks=(typeof config.connect==='string')?config.connect.split(','):config.connect;
+    const Booknames={};
+    for (let i=0;i<ptks.length;i++) {
+        const ptk=await openBasket(ptks[i]);
+        const bks=ptk.getBooks();
+        bks.forEach(bk=>Booknames[bk.name]={...bk,ptk});
     }
 
-    const ptk=await openBasket(ptkname)
     const lines=readFileSync(quotefile,'utf8').trim().split(/\r?\n/);
     let hit=0,total=0;
     for (let i=0;i<lines.length;i++) {
         let line=lines[i],quotes=[];
-        line.replace(/\^q\[loc=([^\]]+)\]：「([^」]+)」/g,(m,loc,quote,offset)=>{
-            quotes.push([loc,quote,m.length,offset])
-        });
-        for (let j=quotes.length-1;j>=0;j--) {
-            const [ loc,quote,len,offset]=quotes[j];
-            const {ptk,sim,error,hook,y}=await fuzzyMatchPhrase(loc,quote);
-            if (hook) {
-                const addr='@'+PATHSEP+ptk+PATHSEP+useBasket(ptk).pageAt(y,true)+hook;
-                line=line.substr(0,offset)+'^t['+addr+line.substr(offset+3+loc.length+4);
+        
+        line.replace(/《([^》]+)》：「([^」]+)」/g,(m,bookchapter,quote,offset)=>{
+            const bkcp=bookchapter.split('．');
+            const bkname=bkcp[0];
+            let chapter=0;
+            if (bkcp[1]) chapter=extractChineseNumber(bkcp[1]);
+            const bkobj=Booknames[bkname];
+            if (bkobj) {
+                quotes.push([bkobj,chapter,quote,m.length,offset,bookchapter.length+4])
             }
+        });
+
+        if (!quotes.length) continue;
+        for (let j=quotes.length-1;j>=0;j--) {
+            const [ bkobj,chapter,quote,qlen,offset,bkchlen]=quotes[j];
+            const {sim,error,hook,y}=await fuzzyMatchQuote(bkobj,quote);
+
+
+            
+            //const {ptkname,sim,error,hook,y}=await fuzzyMatchQuote(loc,quote);
+            if (hook) {
+                const addr='@'+PATHSEP+bkobj.ptk.name+PATHSEP+bkobj.ptk.pageAt(y,true)+hook+']';
+                // const loc=bkobj.ptk.locate(y).join(PATHSEP);
+                line=line.substr(2,offset+bkchlen-4)+'^t['+addr+line.substr(offset+bkchlen-1);
+            }
+            
         }
-        if (quotes.length) total++;
-        if (quotes.length&&line!==lines[i]) {
+        total+=quotes.length;
+        if(line!==lines[i]) {
             lines[i]=line;
             hit++;
         }
+        process.stdout.write( '\r'+hit+'/'+total+'     ');
     }
     console.log('total',total,'hit',hit);
-    fs.writeFileSync(quotefile+'.pinpoint',lines.join('\n'),'utf8')  
+    // fs.writeFileSync(quotefile+'.pinpoint',lines.join('\n'),'utf8')  
 }

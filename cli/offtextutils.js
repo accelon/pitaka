@@ -121,9 +121,9 @@ export const intersect=async ()=>{
     
     // console.log(arr)
 }
-export const wordseg=async ()=>{
+export const wordseg=async (config)=>{
     // console.time('prepare')
-    const [lines,dict,freq,fn]=await prepareInput('entrysize');
+    const [lines,dict,freq,fn]=await prepareInput(config,'entrysize');
     // console.timeEnd('prepare')
     console.time('wordseg')
     let tokens={};
@@ -226,8 +226,8 @@ export const group=()=>{
     console.log(out.join('\n'))
 }
 
-export const search=async ()=>{
-    const [lines,booknames,bookid]=await prepareInput();
+export const search=async (config)=>{
+    const [lines,booknames,bookid]=await prepareInput(config);
     let notfound=0,touched=0;
     for (let i=0;i<lines.length;i++) {
         const line=lines[i];
@@ -245,7 +245,7 @@ export const search=async ()=>{
     console.log('total',lines.length,'not found',notfound)
     if (touched) {
         const outfn=fn+'.found';
-        fs.writeFileSync(outfn,lines.join('\n'),'utf8');
+        // fs.writeFileSync(outfn,lines.join('\n'),'utf8');
         console.log('written to',outfn)
     }
 }

@@ -1,8 +1,8 @@
 import { openBasket } from '../index.js';
 
-export const prepareInput=async (labelfield)=>{ 
-    const fn=process.argv[3];
-    const ptkname=process.argv[4];
+export const prepareInput=async (config,labelfield)=>{ 
+    const fn=process.argv[3]||config.files.split(',')[0];
+    const ptkname=process.argv[4]||config.connect;
     let names=[],idarr=[];
     if (fs.existsSync(ptkname) && !fs.statSync(ptkname).isDirectory()) {
         const lines=fs.readFileSync(ptkname,'utf8').split(/\r?\n/);

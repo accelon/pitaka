@@ -1,9 +1,12 @@
-export const scoreRange=(weightedToken, plRange)=>{
+import {TK_WEIGHT, TK_NAME,TK_POSTING} from './tokenizer.js'
 
+export const scoreRange=(weightedToken, plRange, opts)=>{
     //a little bit faster than deconstruction inside loop
-    const scores=weightedToken.map(it=>it[1]);
-    const PL=weightedToken.map(it=>it[2]);
+    const scores=weightedToken.map(it=>it[TK_WEIGHT]);
+    const PL=weightedToken.map(it=>it[TK_POSTING]);
     const ptr=new Array(weightedToken.length);
+    opts=opts||{};
+    const minscore=opts.minscore||0.7;
     ptr.fill(0);
     let out=[],i=0;
     while (i<plRange.length-1) {
@@ -21,23 +24,24 @@ export const scoreRange=(weightedToken, plRange)=>{
             }
             if (nearest>v) nearest=v;
         }
-        if (rangescore>0.7) out.push([i+1,rangescore]);//y is 1 base
+        if (rangescore>=minscore) out.push([i+1,rangescore]);//y is 1 base
         i++;
         while (nearest>plRange[i+1]) i++;
     }
-    return out.sort((a,b)=>b[1]-a[1]);
+    out=out.sort((a,b)=>b[1]-a[1]);
+    return out;
 }
 export const convolute=(weightedToken,len,from,to)=>{
     const out=[]
-    console.log(from,to)
     const ptr=new Array(weightedToken.length);
     ptr.fill(0);
     for (let i=from;i<to;i++) {
         let segmentscore=0;
         for (let j=0;j<weightedToken.length;j++) {
-            const [tk,score,pl]=weightedToken[j];
+            const score=weightedToken[j][TK_WEIGHT];
+            const pl=weightedToken[j][TK_POSTING];
             let v=pl[ptr[j]];
-            while (v<from&&ptr[j]<pl.length) {
+            while (i>=v&&ptr[j]<pl.length) {
                 ptr[j]++
                 v=pl[ptr[j]]; 
             }
@@ -45,10 +49,9 @@ export const convolute=(weightedToken,len,from,to)=>{
                 segmentscore+=score;
             }
         }
-        out.push([i,segmentscore]);
+        if (segmentscore>0.7) out.push([i,segmentscore]);
     }
     out.sort((a,b)=>b[1]-a[1]);
-    console.log(out.slice(0,5))
     return out.length?out[0][0]:from;
 }
 export default {scoreRange,convolute};

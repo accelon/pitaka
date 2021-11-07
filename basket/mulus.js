@@ -45,5 +45,13 @@ function getMulu(from,to){ //本頁目錄加上 前後科文
     }
     return out;
 }
-
-export default {getMulu};
+export function getBooks(){
+    const out=[];
+    const lblbk=this.getLabel('bk');
+    for (let j=0;j<lblbk.names.length;j++) {
+        const from=lblbk.linepos[j],to=lblbk.linepos[j+1];
+        out.push( {name:lblbk.names[j],id:lblbk.idarr[j], from,to}  )
+    }
+    return out;
+}
+export default {getMulu,getBooks};

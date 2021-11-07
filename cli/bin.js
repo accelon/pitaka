@@ -22,7 +22,7 @@ import {group,entrysort,search,wordseg,intersect} from './offtextutils.js'
 import validate from "./validate.js"
 import zip from "./zip.js"
 const pitakajson='pitaka.json';
-
+const config=JSON.parse(readFileSync(pitakajson,'utf8').trim());
 const jsonp=()=>build({jsonp:true});
 const raw=()=>build({raw:true});
 const ngram=()=>build( {ngram:parseInt(arg)||2});
@@ -52,7 +52,7 @@ const build=async (opts)=>{
         console.log(red('pitaka.json not found'));
         return; 
     }
-    const config=JSON.parse(readFileSync(pitakajson,'utf8').trim());
+    
 
     let ngram,onContent=null,nosave=false;
 
@@ -94,10 +94,10 @@ const help=()=>{
     console.log(yellow('$ pitaka zip (regex)'), 'make a zip file')
     console.log(yellow('$ pitaka validate'), 'validate all htm files')
     console.log(yellow('$ pitaka quote   '), 'extract quote from a ptk or offtext file')
-    console.log(yellow('$ pitaka pinpoint fn ptk'), 'pinpoint a citation by quote and source book')
+    console.log(yellow('$ pitaka pinpoint fn'), 'pinpoint a citation by quote and source book')
     console.log(yellow('$ pitaka group fn [pat]'), 'grouping string matching pattern, each line as item if no pat')
     console.log(yellow('$ pitaka entrysort fn'), 'sort entry in unicode order')
-    console.log(yellow('$ pitaka search fn ptk'), 'search book/entry in pitaka file or a book list')
+    console.log(yellow('$ pitaka search fn'), 'search book/entry in pitaka file or a book list')
     console.log(yellow('$ pitaka wordseg fn words/dict_ptk'), 'word segmentation')
     console.log(yellow('$ pitaka intersect f1 f2'), 'intersect stringlist')
 }
@@ -107,7 +107,7 @@ try {
         j:jsonp,jsonp,raw,r:raw, q:quote,quote, p:pinpoint,pinpoint,
         z:zip,zip,ngram,n:ngram,
         group,g:group,entrysort,e:entrysort,search,s:search,wordseg,w:wordseg,
-        '--help':help,'-h':help,i:intersect,intersect,build,b:build})[cmd]();
+        '--help':help,'-h':help,i:intersect,intersect,build,b:build})[cmd](config);
 
 } catch(e) {
     console.log( kluer.red('error running command'),cmd)
