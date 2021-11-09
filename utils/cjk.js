@@ -5,3 +5,6 @@ export const CJKRange=s=>{
     if (s.charCodeAt(0)>=0xE000 && s.charCodeAt(0)<=0xFADF) return 3;
 }
 
+export const trimPunc=str=>{
+    return str.replace(/^[『「！。，：？]+/,'').replace(/[」？』。！：）｝〕；，]+$/,'');
+}

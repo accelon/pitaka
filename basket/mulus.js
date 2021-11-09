@@ -1,25 +1,33 @@
-import {extractOfftag} from 'pitaka/offtext'
-import {bsearch} from 'pitaka/utils'
-
+import {extractOfftag} from '../offtext/index.js'
+import {bsearch} from '../utils/index.js'
+import TLabelMulu from '../htll/label-mulu.js'
 function getMulu(from,to){ //本頁目錄加上 前後科文
     const out=[];
     let firstlevel=0;
+    let mtag;
+    for (let i=0;i<this.labels.length;i++) {
+        if (this.labels[i] instanceof TLabelMulu) {
+            mtag=this.labels[i].name;
+            break;
+        }
+    }
+    if (!mtag) return out;
     for (let i=from;i<to;i++) {
         const linetext=this.getLine(i);
         if (!linetext)continue;
-        if (linetext.indexOf('^mu')>0) {
-            const otags=extractOfftag(linetext,'mu\\d+');
-            otags.forEach(o=>{
-                const n=parseInt(o.n);
+        if (linetext.indexOf('^'+mtag)>0) {
+            const otags=extractOfftag(linetext,mtag+'\\d*');
+            otags.forEach(([o,putback])=>{
+                const n=parseInt(o.n) || 1;
                 if (!firstlevel) firstlevel=n;
-                n&&out.push([n,o.t, i]);
+                n&&out.push([n,o.t||putback , i]);
             }) 
         }
     }
     let lastlevel=(out.length)?out[0][0]:0;
     //往上找父節點
-    const mu=this.getLabel('mu');
-    if (!mu) return out;
+    const mu=this.getLabel(mtag);
+    if (!mu || !mu.level) return out;
     let i=bsearch(mu.linepos,from,true);
     let lvl=firstlevel-1;
     if (lvl>0) {

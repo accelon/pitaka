@@ -49,7 +49,7 @@ export const extractOfftag=(str,namepat)=>{  //namepat== label name+ optional co
     str.replace(re,(m,rawName,rawA)=>{
         let [m2, tagName, compactAttr]=rawName.match(/([A-Za-z_]*)(.*)/);
         const [attrs,putback]=parseAttrs(rawA,compactAttr);
-        out.push(attrs);
+        out.push([attrs,putback]);
     })
     return out;
 }

@@ -11,15 +11,17 @@ class LabelMulu extends Label {
         this.chunkStarts=[]; //beginning y of each page
         this.trimlocal=opts.trimlocal; 
         this.context=opts.context;
+        this.n=opts.n;
         return this;
     }
     action( tag ,linetext){
-        const {y}=tag;
-        const n=parseInt(tag.attrs.n);
+        const {x,w,y}=tag;
+        const n=parseInt(tag.attrs.n)||this.n;
         if (n>0) {
-            this.names.push(tag.attrs.t.trim());
+            const t= tag.attrs.t? tag.attrs.t.trim() : linetext.substr(x,w);
+            this.names.push(t);
             this.level.push(n);
-            this.linepos.push(y);    
+            this.linepos.push(y);
         } else {
             throw 'invalid level '+n+' at '+y+' '+linetext;
         }
@@ -28,13 +30,13 @@ class LabelMulu extends Label {
         this.names.push('');
         this.level.push(0); //impossible value
         this.linepos.push(parenttag.y);
-        // console.log(parenttag)
     }
     serialize(){
         const out=super.serialize();
-        out.push(this.names.join("\t"));  
+        out.push(this.names.join("\t"));
+        console.log(this.names,this.linepos)
         out.push(pack_delta(this.linepos)); 
-        out.push(pack(this.level));  
+        out.push(pack(this.level));
         return out;
     }
     deserialize(payload){
