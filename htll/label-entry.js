@@ -9,7 +9,7 @@ class LabelEntry extends Label {
         this.textual=true;
         this.prevy=0;
         this.rankBySize=[];//1表示top 1% 
-        this.entrysize=[];
+        // this.entrysize=[];
 
         this.attrs=(opts.attrs||'').split(',').filter(it=>!!it);
         this.attributes={};
@@ -21,8 +21,8 @@ class LabelEntry extends Label {
         let hw=linetext.substr(pos);
         if (hw==this.prevhw) return;
         ctx.entry=hw;
-        const lastentrysize=ctx.linesOffset[y-ctx.startY]-ctx.linesOffset[this.prevy-ctx.startY];
-        if (this.prevy) this.entrysize.push(lastentrysize);
+        // const lastentrysize=ctx.linesOffset[y-ctx.startY]-ctx.linesOffset[this.prevy-ctx.startY];
+        // if (this.prevy) this.entrysize.push(lastentrysize);
         this.idarr.push(hw);
         this.prevhw=hw;
         this.linepos.push(y);
@@ -52,7 +52,7 @@ class LabelEntry extends Label {
         out.push(JSON.stringify({attrs:this.attrs}));
         const hw=packStrings(this.idarr);
         out.push(hw);  //58ms 
-        out.push(pack(this.entrysize));
+        // out.push(pack(this.entrysize));
         out.push(pack_delta(this.linepos)); 
         for (let attr in this.attributes) {
             out.push( this.attributes[attr].join('\t'));
@@ -62,11 +62,9 @@ class LabelEntry extends Label {
     deserialize(payload,lastTextLine){
         let at=super.deserialize(payload);
         const header=JSON.parse(payload[at++]);payload[at-1]=''; 
-
         this.idarr=unpackStrings(payload[at++]);payload[at-1]=''; 
-        this.entrysize=unpack(payload[at++]);payload[at-1]='';
+        // this.entrysize=unpack(payload[at++]);payload[at-1]='';
         this.linepos=unpack_delta(payload[at++]);payload[at-1]='';
-        this.linepos.push(lastTextLine);
         this.attrs=header.attrs;
         this.attributes={};
         for (let i=0;i<this.attrs.length;i++) {
@@ -94,9 +92,9 @@ class LabelEntry extends Label {
         return bsearch(this.idarr,tofind,near);
     }
     finalize(ctx){
-        const lastentrysize=ctx.linesOffset[ctx.lineCount]
-                           -ctx.linesOffset[this.prevy-ctx.startY];
-        this.entrysize.push(Math.floor(10*Math.log(0.01+lastentrysize)) );
+        // const lastentrysize=ctx.linesOffset[ctx.lineCount]
+        //                   -ctx.linesOffset[this.prevy-ctx.startY];
+        //this.entrysize.push(Math.floor(10*Math.log(0.01+lastentrysize)) );
     }
 }
 export default LabelEntry;

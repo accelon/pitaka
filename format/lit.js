@@ -1,6 +1,6 @@
 import {extractChineseNumber} from 'pitaka/utils';
 import OffTextFormatter from '../offtext/formatter.js';
-import {readTextFile} from 'pitaka/platform'
+import {readTextFile} from '../platform/inputfiles.js'
 
 // import hotfixes from './lit-hotfix.js';
 const tidy=str=>str.replace(/<<([\d▉\u3400-\u9fff]+)>>/g,'《$1》')

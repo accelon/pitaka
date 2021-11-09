@@ -1,6 +1,7 @@
 export const headerWithNumber = [
-    /第([一二三四五六七八九十百○零]+)[回章卷品節]/,
+    /第([一二三四五六七八九十百○零]+)[回章卷品節]*/,
     /卷([一二三四五六七八九十百○零]+)/,
+    /卷第([一二三四五六七八九十百○零]+)/,
 ]
 
 export const fromChineseNumber=str=>{

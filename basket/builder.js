@@ -1,4 +1,5 @@
-import {getFormatter, getZipIndex, getFormatTypeDef, getFormatTree, fileContent} from '../format/index.js'
+import {getFormatter, getZipIndex, getFormatTypeDef, getFormatTree, fileContent} 
+from '../format/index.js'
 import JSONPROMWriter from '../jsonprom/jsonpromw.js';
 import Inverter from '../fulltext/inverter.js';
 import {serializeLabels} from './serialize-label.js';
@@ -77,6 +78,21 @@ class Builder {
             }
         }
     }
+    adjustChapter(files){
+        let out=[],touch=false;
+        for (let i=0;i<files.length;i++) {
+            const fn=files[i];
+            const newpos=this.context.errata['*'+fn]
+            if (typeof newpos==='number') {
+                out.splice(newpos,0,fn);
+                touch=true;
+            } else {
+                out.push(fn);
+            }
+        }
+        // if (touch) console.log(out)
+        return out;
+    }
     async addZip(file,format){
         let fn=file;       
         if (typeof file!=='string' && 'name' in file) {
@@ -91,13 +107,17 @@ class Builder {
                 else return;
             }
             const data=await fs.promises.readFile(fn);
+            console.log('adding',file,'size',data.length)
             zip=await jszip.loadAsync(data);
         } else {
             zip=await jszip.loadAsync(file.getFile());
         }
         this.context.error=0;
-        const {files,tocpage}=await getZipIndex(zip,format,fn); //pitaka not using tocpage
+        let {files,tocpage}=await getZipIndex(zip,format,fn); //pitaka not using tocpage
         
+        if (this.context.errata) files=this.adjustChapter(files);
+
+
         const jobs=[];
         const contents=new Array(files.length); //save the contents in order
         for (let i=0;i<files.length;i++) {
@@ -169,9 +189,7 @@ class Builder {
         }
     }
     async addFile(file,format){ //file=='string' nodejs , File browser local file, or a File in zip
-        if (typeof fs!=='undefined') {
-            console.log('adding',file)
-        }
+
         let fn=file;
         if (typeof file!=='string' && 'name' in file) {
             fn=file.name;

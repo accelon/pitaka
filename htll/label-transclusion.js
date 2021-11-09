@@ -1,6 +1,7 @@
 import Label from './label.js'
 import {parsePointer} from '../offtext/pointers.js'
 import {pack3,unpack3,pack_delta,unpack_delta,bsearch} from'../utils/index.js';
+import { DELTASEP } from '../platform/constants.js';
 
 class LabelTransclusion extends Label {
     constructor(name,opts={}) {
@@ -13,7 +14,7 @@ class LabelTransclusion extends Label {
         this.chunks=[];           //name of chunks
         this.chunks_start=[];     // starting quote number
         this.hooks=[];           // the target hooks of each quotes, sorted by target ptk/bk/c
-        this.linepos=[];         // the line pos of each quotes
+        this.ypos=[];           // this is not in order, should not use the name of linepos
         return this;
     }
     action(tag){
@@ -40,7 +41,7 @@ class LabelTransclusion extends Label {
                     this.Q[basket][bk][c].sort((a,b)=>a[0]==b[0]?a[1]-b[1]:a[0]-b[0] );// sort by source line pos, then dy
                     for (let i=0;i<this.Q[basket][bk][c].length;i++) {
                         const [srcy, dy, hook] = this.Q[basket][bk][c][i];
-                        this.linepos.push(srcy);
+                        this.ypos.push(srcy); 
                         this.hooks.push(dy+'^'+hook);   
                     }
                 }
@@ -59,7 +60,7 @@ class LabelTransclusion extends Label {
         out.push(pack_delta(this.chunks_start));
 
         out.push(this.hooks.join("\t"));  //compress same dy
-        out.push(pack3(this.linepos)); 
+        out.push(pack3(this.ypos)); 
         return out;
     }
     deserialize(payload){
@@ -74,7 +75,7 @@ class LabelTransclusion extends Label {
         this.chunks_start=unpack_delta(payload[at++]);payload[at-1]='';
 
         this.hooks=payload[at++].split('\t');payload[at-1]='';
-        this.linepos=unpack3(payload[at++]);payload[at-1]='';
+        this.ypos=unpack3(payload[at++]);payload[at-1]='';
     }
     countBacklinks(str) {
         let ptr=str;
@@ -82,9 +83,9 @@ class LabelTransclusion extends Label {
         if (!ptr) return 0;
 
         const {bk,c} = ptr;
-        const last=this.linepos.length-1;
+        const last=this.ypos.length-1;
         let at=this.books.indexOf(bk);
-        if (at==-1) return res;
+        if (at==-1) return 0;
         let start=this.books_start[at];
         let end = this.books_start[at+1] || last;
         if (!c) return end-start;
@@ -101,22 +102,27 @@ class LabelTransclusion extends Label {
         if (typeof str=='string') ptr=parsePointer(str);
         if (!ptr) return res;
         const {bk,c} = ptr;
-        const last=this.linepos.length-1;
+        const last=this.ypos.length-1;
         let at=this.books.indexOf(bk);
         if (at==-1) return res;
         let start=this.books_start[at];
 
+        let i,end;
         at = bsearch(this.chunks_start,start,true);
-        at = this.chunks.indexOf( c ,at);
-        let i = this.chunks_start[at];
-        const end = this.chunks_start[at+1] || last;
-
+        if (c[0]===DELTASEP) {
+            i=this.chunks_start[parseInt(c.substr(1))]
+            end=this.chunks_start[parseInt(c.substr(1))+1] || last;
+        } else {
+            at = this.chunks.indexOf( c ,at);
+            i = this.chunks_start[at];
+            end = this.chunks_start[at+1] || last;
+        }
         while (i<end) {
             const arr=this.hooks[i].split('^');
             const dy=parseInt(arr[0]);
             const hook=arr[1];
             if (!res[dy+ystart]) res[dy+ystart]=[];
-            res[dy+ystart].push([hook, this.linepos[i] ]);
+            res[dy+ystart].push([hook, this.ypos[i] ]);
             i++;
         }
         return res;

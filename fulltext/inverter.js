@@ -1,7 +1,7 @@
 import {fileContent} from '../format/index.js'
 import {parseOfftextLine} from '../offtext/parser.js';
-import {tokenize,TOKEN_SEARCHABLE,scoreRange,TOKEN_CJK_BMP,TK_NAME,TK_TYPE} from '../fulltext/index.js'
-import {arrDelta,alphabetically0,CJKRange,packStrings,pack_delta} from '../utils/index.js'
+import {tokenize,TOKEN_SEARCHABLE,TOKEN_CJK_BMP,TK_NAME,TK_TYPE} from '../fulltext/index.js'
+import {alphabetically0,packStrings,pack_delta} from '../utils/index.js'
 class Inverter {
     constructor(opts) {
         this.context=opts.context;
@@ -19,9 +19,10 @@ class Inverter {
             })
         });
     }
-    addPosting(ch,ntoken,tbl=this.tokens) {
-        if (!tbl[ch]) tbl[ch]=[];
-        tbl[ch].push(ntoken);
+    addPosting(tk,ntoken,tbl=this.tokens) {
+        if (tk.charCodeAt(0)<0x2000)tk=tk.toLowerCase();
+        if (!tbl[tk]) tbl[tk]=[];
+        tbl[tk].push(ntoken);
     }
     indexLine(line,tokencount){
         const [text]=parseOfftextLine(line);
@@ -60,17 +61,16 @@ class Inverter {
         for (let tk in this.bigram) this.bigram[tk] && addPostings(tk,this.bigram[tk]);
         
         inverted.sort(alphabetically0);
+
+        // console.log(inverted.slice(0,20).map(tk=>tk[0]+tk[1].length))
         const terms=inverted.map(it=>it[0]);
         const postings=inverted.map(it=>it[1]);
         const bigram=!!this.config.bigram;
 
         const header={'inverted_version':1, termcount:terms.length,bigram};
         section.push(JSON.stringify(header));
-        if (bigram) {
-            section.push(packStrings(terms));
-        } else {
-            section.push(terms.join(''));
-        }
+
+        section.push(packStrings(terms));
         section.push(pack_delta(this.linetokenpos));
         for (let i=0;i<postings.length;i++) {
             section.push(pack_delta(postings[i]));

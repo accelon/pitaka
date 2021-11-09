@@ -3,7 +3,7 @@ import {PATHSEP} from '../platform/constants.js'
 
 function findTransclusion(srcptk,ptr){
     if (!this.lblTransclusion)return {};
-    const [startfrom]=srcptk.getPage(ptr);
+    const [startfrom]=srcptk.getPageRange(ptr);
     const backlinks = this.lblTransclusion.getBacklinks(ptr,startfrom);
     for (let y in backlinks) {  //translate source y to loc
         backlinks[y]=backlinks[y].map(item=>{

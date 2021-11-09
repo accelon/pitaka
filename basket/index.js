@@ -3,7 +3,7 @@ import {dereferencing,parsePointer} from '../offtext/pointers.js';
 import {validateConfig} from './config.js'
 import pool from './pool.js';
 import Builder from './builder.js';
-import { PATHSEP } from '../index.js';
+import { PATHSEP } from '../platform/constants.js';
 
 const opened=()=>pool.getAll();
 const useBasket=name=>pool.get(name);
@@ -95,5 +95,7 @@ function bestEntries(tf){
     })
     return out;
 }
+
+
 export {openBasket,pool,opened,useBasket,readLines,Builder,validateConfig
 ,fetchHooks,fetchLoc,bestEntries};

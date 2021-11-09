@@ -19,45 +19,51 @@ export default async function(config){
         const bks=ptk.getBooks();
         bks.forEach(bk=>Booknames[bk.name]={...bk,ptk});
     }
+    if (config.bookalias) {
+        for (let abk in config.bookalias) {
+            if (Booknames[config.bookalias[abk]]) {
+                Booknames[abk]=Booknames[config.bookalias[abk]];
+            }
+        }
+    }
 
     const lines=readFileSync(quotefile,'utf8').trim().split(/\r?\n/);
     let hit=0,total=0;
     for (let i=0;i<lines.length;i++) {
         let line=lines[i],quotes=[];
         
-        line.replace(/《([^》]+)》：「([^」]+)」/g,(m,bookchapter,quote,offset)=>{
-            const bkcp=bookchapter.split('．');
+        line.replace(/《([^》]+)》([^「]+)「([^」]+)」/g,(m,bkch,extra,quote,offset)=>{
+            const bkcp=bkch.split('．');
             const bkname=bkcp[0];
             let chapter=0;
             if (bkcp[1]) chapter=extractChineseNumber(bkcp[1]);
             const bkobj=Booknames[bkname];
             if (bkobj) {
-                quotes.push([bkobj,chapter,quote,m.length,offset,bookchapter.length+4])
+                quotes.push([bkobj,chapter,quote,m.length,bkch,extra,offset])
             }
         });
 
         if (!quotes.length) continue;
         for (let j=quotes.length-1;j>=0;j--) {
-            const [ bkobj,chapter,quote,qlen,offset,bkchlen]=quotes[j];
+            const [ bkobj,chapter,quote,qlen,bkch,extra,offset]=quotes[j];
             const {sim,error,hook,y}=await fuzzyMatchQuote(bkobj,quote);
 
+            // if (chapter!==) warn 引用回數錯誤
 
-            
-            //const {ptkname,sim,error,hook,y}=await fuzzyMatchQuote(loc,quote);
             if (hook) {
-                const addr='@'+PATHSEP+bkobj.ptk.name+PATHSEP+bkobj.ptk.pageAt(y,true)+hook+']';
-                // const loc=bkobj.ptk.locate(y).join(PATHSEP);
-                line=line.substr(2,offset+bkchlen-4)+'^t['+addr+line.substr(offset+bkchlen-1);
+                const insertat=offset+extra.length+bkch.length+2;
+                const loc=bkobj.ptk.pageAt(y,true);
+                const addr='@'+PATHSEP+bkobj.ptk.name+PATHSEP+loc+hook+']';
+                line=line.substr(0,insertat)+'^t['+addr+line.substr(insertat);
             }
-            
         }
         total+=quotes.length;
         if(line!==lines[i]) {
             lines[i]=line;
             hit++;
         }
-        process.stdout.write( '\r'+hit+'/'+total+'     ');
+        if (total%32===0) process.stdout.write( '\r'+hit+'/'+total+ ' '+(hit/total).toFixed(3)+'     ');
     }
     console.log('total',total,'hit',hit);
-    // fs.writeFileSync(quotefile+'.pinpoint',lines.join('\n'),'utf8')  
+    fs.writeFileSync(quotefile+'-pinpoint',lines.join('\n'),'utf8')  
 }

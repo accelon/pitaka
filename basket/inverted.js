@@ -1,7 +1,7 @@
-import {unpackPosting,TOKENIZE_REGEX,forEachUTF32,splitUTF32,tokenize,TOKEN_SEARCHABLE,
+import {unpackPosting,tokenize,TOKEN_SEARCHABLE,
     TK_NAME,TK_TYPE,TK_POSTING} from '../fulltext/index.js'
 
-import {unpackStrings,bsearch,unpack_delta} from '../utils/index.js'
+import {unpackStrings,bsearch,unpack_delta,splitUTF32} from '../utils/index.js'
 
 async function prepareToken(str){
     const loading={}, I=this.inverted;
@@ -56,11 +56,11 @@ async function loadInverted(){
     await this.prefetchLines(from,from+3);
     const header=JSON.parse(this.getLine(from));
     let tokens;
-    if (header.bigram) {
-        tokens=unpackStrings(this.getLine(from+1));
-    } else {
-        tokens=splitUTF32(this.getLine(from+1)).map(cp=>String.fromCodePoint(cp));
-    }
+    // if (header.bigram) {
+    tokens=unpackStrings(this.getLine(from+1));
+    // } else {
+    // tokens=splitUTF32(this.getLine(from+1)).map(cp=>String.fromCodePoint(cp));
+    // }
     const linetokenpos=unpack_delta(this.getLine(from+2));
     this.deleteLine(from+1);
     this.deleteLine(from+2);

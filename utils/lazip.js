@@ -1,4 +1,5 @@
 import JSZip from '../3rdparty/jszip.js' //need tailored version of jszip.
+
 function readInt(buf,idx,size) {
     var result = 0,  i;
     for (i = idx + size - 1; i >= idx; i--) {

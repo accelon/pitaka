@@ -1,8 +1,9 @@
 import {diffChars} from 'diff';
-import {CJKWordEnd_Reg} from '../fulltext/index.js' 
-import {kluer} from 'pitaka/cli'
-const {green,red} = kluer;
+// import {CJKWordEnd_Reg} from '../fulltext/index.js' 
 
+import kluer from '../cli/kluer.js'
+const {green,red} = kluer;
+const CJKWordEnd_Reg=/([\u2e80-\u2fd5\u3400-\u9fff\ud400-\udfff\ue000\ufadf]+$)/;
 export const diffCJK=(qstr, source, x,w)=>{ //source text is longer than qstr
     let qsrc=source.substr(x,w), adjusted=false;
     let d=diffChars(qstr, qsrc);

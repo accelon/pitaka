@@ -35,7 +35,10 @@ const getZipIndex=async (zip,format,fn)=>{
 }
 const default_typedef={
     'bk':['LabelBook',{resets:'c'}],
-    'c':'LabelChapter'
+    'c':'LabelChapter',
+    'b':'Label',
+    'u':'Label',
+    'i':'Label'
 }
 const getFormatTypeDef=(config,opts)=>{
     const def=config.labels||getFormat(config.format).def||default_typedef;

@@ -59,6 +59,9 @@ export const tokenize=text=>{
 
 //計算每個token 的權重(加起來為1)，加到第一個元素，其餘不變
 export const weightToken=tokens=>{ 
+    //最單純的權重分配，成功率高86%
+    return tokens.map(it=>[1/tokens.length,...it.slice(1)]);
+    //成功率約83%  國語詞典找四大名著
     const totalfreq=tokens.reduce((p,v)=>p+v[TK_POSTING].length,0);
     const arr=tokens.map(it=> [ it[TK_POSTING].length&&Math.log(totalfreq/it[TK_POSTING].length), ...it.slice(1)]);
 
@@ -67,7 +70,6 @@ export const weightToken=tokens=>{
     // console.log()
     let out=arr.map(it=>[(it[TK_WEIGHT]||0)/totalweight, ...it.slice(1)]);
     //去掉常用字
- 
     if (out.length>10) out=out.filter(it=>it[TK_WEIGHT]>min);   
     const totalweight2=out.reduce((p,v)=>p+v[TK_WEIGHT],0);
     out=out.map(it=>[it[TK_WEIGHT]/totalweight2, ...it.slice(1)]); 
@@ -80,10 +82,10 @@ export const getNthTokenX=(str,n)=>{ //get char offset of nth Searchble token
     let i=0;
     while (i<tokens.length&&n>0) {
         if (tokens[i][TK_TYPE]>=TOKEN_SEARCHABLE) n--;
-        if (n==0) return tokens[i][TK_OFFSET];        
+        if (n===0) return tokens[i][TK_OFFSET];        
         i++;
     }
 
-    return tokens[i][TK_OFFSET];
+    return tokens[tokens.length-1][TK_OFFSET];
 }
 export default {tokenize,TOKEN_CJK,TOKEN_ROMANIZE,getNthTokenX,weightToken}

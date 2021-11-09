@@ -76,6 +76,7 @@ function pageAt(y0,toString=false){
         if (at<1) break;
         const from=bsearch(label.linepos,parentat,true);
         const id=label.idarr?(label.idarr[at-1] ): at-from;
+
         out.push([id, (i===thetree.length-1)?y0-label.linepos[at-1]:0 ]);
         parentat=label.linepos[at-1];
     }

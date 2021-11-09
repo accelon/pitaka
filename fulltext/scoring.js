@@ -6,10 +6,11 @@ export const scoreRange=(weightedToken, plRange, opts)=>{
     const PL=weightedToken.map(it=>it[TK_POSTING]);
     const ptr=new Array(weightedToken.length);
     opts=opts||{};
+
     const minscore=opts.minscore||0.7;
     ptr.fill(0);
-    let out=[],i=0;
-    while (i<plRange.length-1) {
+    let out=[],i=opts.from||0, till=opts.to||plRange.length-1;
+    while (i<till) {
         let rangescore=0,nearest=plRange[plRange.length-1];
         const from=plRange[i], to=plRange[i+1];
         for (let j=0;j<PL.length;j++) {

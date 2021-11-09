@@ -68,10 +68,23 @@ class JSONPROM {
             }
             return;
         }
+        const tries=[
+            this.header.name+ROMEXT,
+            this.header.name+'/'+this.header.name+ROMEXT
+        ]
 
-        const romfn='/'+this.header.name+ROMEXT;
-        // const LaZip= (typeof JSZip!=='undefined' && JSZip) || lazip.JSZip; 
-        const zip=await lazip(romfn);
+        //check if development mode 
+        if (typeof location!=='undefined' && location.port==="5001") {
+            const t=tries[0]; 
+            tries[0]=tries[1];
+            tries[1]=t;
+        }
+        let zip,romfn;
+        for (let i=0;i<tries.length;i++) {
+            romfn=tries[i];
+            zip=await lazip(romfn);
+            if(zip && Object.keys(zip.jszip.fileEntries).length) break;
+        }
 
         if (zip &&Object.keys(zip.jszip.fileEntries).length) {
             this.romzip=zip;

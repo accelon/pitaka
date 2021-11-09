@@ -2,17 +2,17 @@ import {fetchLoc} from 'pitaka';
 import { makeHook } from '../offtext/hook.js';
 import {extractChineseNumber} from '../utils/cnumber.js';
 import {similarity} from './similarity.js'
-import {diffCJK,printDiff} from 'pitaka/utils' 
-import {weightToken,scoreRange,convolute,getNthTokenX} from '../fulltext/index.js'
+import {diffCJK,printDiff,} from 'pitaka/utils' 
+import {weightToken,scoreRange,convolute,getNthTokenX,CJKWordEnd_Reg} from '../fulltext/index.js'
 
 export const fuzzyMatchQuote=async (bkobj,q)=>{
-    const ptk=bkobj.ptk;
+    const {ptk,from,to}=bkobj;
     const tokens=(await ptk.prepareToken(q));
     const qlen=tokens.length*1.3;
 
     const weighted=weightToken(tokens) 
 
-    const scores=scoreRange(weighted,ptk.inverted.linetokenpos,{minscore:0.8}).slice(0,3);
+    const scores=scoreRange(weighted,ptk.inverted.linetokenpos,{from,to,minscore:0.8}).slice(0,3);
     
     await ptk.prefetchLines( scores.map(it=>it[0]) );
 
@@ -23,10 +23,13 @@ export const fuzzyMatchQuote=async (bkobj,q)=>{
         const at=convolute(weighted,qlen,from,to);
     
         const x=getNthTokenX(src, at-from); 
-        const [diff, adjx, adjw , sim]=diffCJK(q,src,x, q.length*1.5);//.filter(it=>q.length*2>it.value.length);
+        let [diff, adjx, adjw , sim]=diffCJK(q,src,x, q.length*1.5);//.filter(it=>q.length*2>it.value.length);
         
         if (adjw==0) continue; 
 
+        while ( adjw>0 &&!src.substr(adjx,adjw).match(CJKWordEnd_Reg)) {
+            adjw--;
+        }
         const hook=makeHook(src,adjx,adjw);
 
         return {ptk,y,hook,sim, diff};
