@@ -3,3 +3,6 @@
 *.html
 test
 test-data
+node_modules
+*.min.js
+*.old

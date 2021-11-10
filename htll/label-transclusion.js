@@ -110,8 +110,8 @@ class LabelTransclusion extends Label {
         let i,end;
         at = bsearch(this.chunks_start,start,true);
         if (c[0]===DELTASEP) {
-            i=this.chunks_start[parseInt(c.substr(1))]
-            end=this.chunks_start[parseInt(c.substr(1))+1] || last;
+            i=this.chunks_start[at+parseInt(c.substr(1))]
+            end=this.chunks_start[at+parseInt(c.substr(1))+1] || last;
         } else {
             at = this.chunks.indexOf( c ,at);
             i = this.chunks_start[at];

@@ -1,6 +1,6 @@
 {
   "name": "pitaka",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Backend for progressive corpus",
   "type":"module",
   "exports" :{
@@ -17,7 +17,8 @@
     "./format":"./format/index.js",
 	  "./offtext":"./offtext/index.js",
 	  "./xmlparser":"./xmlparser/index.js",
-	  "./nlp":"./nlp/index.js"
+	  "./nlp":"./nlp/index.js",
+	  "./fulltext":"./fulltext/index.js"
   },
   "bin":"cli/bin.js",
   "main": "./index.js",
@@ -34,5 +35,9 @@
   "bugs": {
     "url": "https://github.com/yapcheahshen/pitaka/issues"
   },
-  "homepage": "https://github.com/yapcheahshen/pitaka#readme"
+  "homepage": "https://github.com/yapcheahshen/pitaka#readme",
+  "dependencies": {
+	"diff":"^5.0.0",
+    "lossless-simplified-chinese":"^0.0.8"
+  }
 }
