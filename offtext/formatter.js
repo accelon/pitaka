@@ -4,9 +4,9 @@ class Formatter_OffText {
     constructor (context){
         this.context=context;
     }
-    scan(rawlines){
-        const {text,tags}=parseOfftext(rawlines,this.context.ptkline);
-        return {text,tags,rawlines};    
+    scan(rawtext){
+        const {text,tags}=parseOfftext(rawtext,this.context.ptkline);
+        return {text,tags,rawtext};    
     }
 }
 export default Formatter_OffText;

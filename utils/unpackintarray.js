@@ -52,6 +52,7 @@ export const unpack1=str=>{
 }
 export const unpack=(s,delta=false)=>{
 	let arr;
+	if (!s) return [];
 	let o,i=0,c=0,prev=0;
 	while (i<s.length) {
 		o=s.charCodeAt(i) - CodeStart;

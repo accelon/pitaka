@@ -34,6 +34,7 @@ async function prefetchLines(from,to){ //getLine is valid
         if (!to) to=from+1;
         unready=this.unreadyChunk(from,to);    
     }
+
     const jobs=[];
     unready.forEach(ck=>jobs.push(this.load(ck)));
     if (jobs.length) await Promise.all(jobs);

@@ -97,7 +97,7 @@ class LabelBook extends Label {
         if (options.keywords) {
             const keylabels=payload[at++].split('\t') ;payload[at-1]='';
             for (let i=0;i<keylabels.length;i++) {
-                const arr=unpack(payload[at++]);payload[at-1]='';
+                const arr=unpack(payload[at++])||[];payload[at-1]='';
                 let out=[];
                 let nbk=0,j=0;
                 while (j<arr.length) {

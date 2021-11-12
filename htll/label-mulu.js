@@ -11,6 +11,7 @@ class LabelMulu extends Label {
         this.chunkStarts=[]; //beginning y of each page
         this.trimlocal=opts.trimlocal; 
         this.context=opts.context;
+        this.compact=opts.compact;
         this.n=opts.n;
         return this;
     }
@@ -18,7 +19,7 @@ class LabelMulu extends Label {
         const {x,w,y}=tag;
         const n=parseInt(tag.attrs.n)||this.n;
         if (n>0) {
-            const t= tag.attrs.t? tag.attrs.t.trim() : linetext.substr(x,w);
+            const t= (!this.compact&&tag.attrs.t)? tag.attrs.t.trim() : linetext.substr(x,w);
             this.names.push(t);
             this.level.push(n);
             this.linepos.push(y);
@@ -34,7 +35,6 @@ class LabelMulu extends Label {
     serialize(){
         const out=super.serialize();
         out.push(this.names.join("\t"));
-        console.log(this.names,this.linepos)
         out.push(pack_delta(this.linepos)); 
         out.push(pack(this.level));
         return out;

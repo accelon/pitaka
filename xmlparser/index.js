@@ -52,4 +52,39 @@ const xpath=(root,p)=>{
     return el;
 }
 
-export {DOMFromString,JSONify,xpath,Sax};
+const XML2OffText = (el,teictx,H={},CH={}) =>{
+    if (typeof el=='string') {                     // a string node arrives
+        let s=el.trimRight();
+        if (teictx.hide) {
+            if (teictx.compact) {
+                teictx.compact=false;
+                return ' ';
+            }
+            return '';
+        }
+
+        if (teictx.compact && s.charCodeAt(0)<0x7f) { // a compact offtag is emitted just now
+            s=' '+s;                               // use blank to separate tag ]
+            teictx.compact=false;
+        }
+        if (s) teictx.snippet=s;
+        return teictx.started?s:'';
+    }
+    let out='';
+    const handler= H[el.name];
+    if (handler) {
+        const out2 = handler(el,teictx);
+        if (typeof out2=='string') out=out2;
+    }
+
+    if (el.children && el.children.length) {
+        out+=el.children.map(e=>XML2OffText(e,teictx,H,CH)).join('');
+    }
+
+    if (CH) {
+        const closehandler= CH[el.name];
+        if (closehandler) out+=closehandler(el,teictx)||'';    
+    }
+    return out;
+}
+export {DOMFromString,JSONify,xpath,Sax,XML2OffText};

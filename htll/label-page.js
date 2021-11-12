@@ -6,11 +6,12 @@ const debug=false;
 class LabelPage extends Label {
     constructor(name,opts={}) {
         super(name,opts)
-        this.linepos=[];
+        this.linepos=[0];
         this.cols=opts.cols || 1;
         this._prevy=0;
         this._prevpage=-1;
         this.pagestart=0;
+        this.autoreset=!!opts.autoreset;
         return this;
     }
     reset(){
@@ -19,6 +20,9 @@ class LabelPage extends Label {
     }
     action(tag,linetext){
         let page=parseInt(tag.attrs.n,10);
+        if (this.autoreset&&page==1&&this._prevpage!==-1) {
+            this.reset();
+        }
 
         if (this.cols>1) {
             const cols=tag.attrs.n.charCodeAt(tag.attrs.n.length-1)-0x61;
@@ -28,6 +32,7 @@ class LabelPage extends Label {
             }
             page=(page-1)*this.cols+cols+1;
         }
+
         if (this._prevpage>=page) {
             throw 'page no in order '+tag.attrs.n+' '+this._prevpage+' '+page+' '+linetext;
         }
@@ -49,10 +54,9 @@ class LabelPage extends Label {
         out.push( pack_delta(this.linepos));
         return out;
     }
-    deserialize(payload,lastTextLine){
+    deserialize(payload){
         let at=super.deserialize(payload);
         this.linepos=unpack_delta(payload[at]);payload[at]='';
-        this.linepos.push(lastTextLine);
     }
 }
 export default LabelPage;

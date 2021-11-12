@@ -8,7 +8,7 @@ class JSONPROM {
     constructor(opts) {
         this.context = {
             accLength:0,
-            loadedChunk:[],
+            loadedChunk:[]
         };
         this.romzip=null;
         this.romfolder=findPitakaFolder(opts.name);
@@ -97,7 +97,7 @@ class JSONPROM {
     async load(_chunk=0){
         let res;
         if (!this.context.loadedChunk[_chunk]) {
-            this.context.loadedChunk[_chunk]=true; //assuming loading is ok, prevent multiple load
+            // this.context.loadedChunk[_chunk]=true; //assuming loading is ok, prevent multiple load
             res = await this._loader(this.header.name,_chunk,this);
             if (res) this.setChunk(_chunk,res.header,res.payload);
             else {

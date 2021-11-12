@@ -136,12 +136,12 @@ const readHaodoo=buf=>{
  }
 const parseBuffer=(buf,ctx)=>{
     const blocks=readHaodoo(buf);
-    const rawlines=[], toclines={} ; //從目錄頁指到每一章的起始行
+    const rawtext=[], toclines={} ; //從目錄頁指到每一章的起始行
     blocks.forEach( (block,idx)=>{
-        toclines[idx]=rawlines.length;
-        rawlines.push(... block.split(/\n+/) );
+        toclines[idx]=rawtext.length;
+        rawtext.push(... block.split(/\n+/) );
     });
-    return {rawlines,toclines};
+    return {rawtext,toclines};
 }
 const parseFile=async( f,ctx)=>{
     let fn=f;
@@ -149,8 +149,8 @@ const parseFile=async( f,ctx)=>{
 
     const ext=fn.match(/(\.\w+)$/)[1];
     if (ext!=='.updb') {
-        const rawlines=(await readTextFile(f)).split("\n");
-        return {lines:rawlines,rawlines,toclines:[]};
+        const rawtext=(await readTextFile(f)).split("\n");
+        return {lines:rawtext,rawtext,toclines:[]};
     } else {
         const buf=await readBLOBFile(f);
 

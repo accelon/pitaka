@@ -119,9 +119,13 @@ export const pack=(arr,delta=false)=>{
 			+String.fromCharCode(i3+CodeStart)
 			+String.fromCharCode(i2+CodeStart)
 			+String.fromCharCode(i1+CodeStart);
-		} else throw new Error('exist max int boundary '+BYTE5_MAX);
-		int=delta? arr[i]-prev: arr[i];
-		prev=arr[i];
+		} else {
+			// console.log(arr)
+			// console.log('neighbor of arr',i,delta,arr.slice(i,10),arr.length, prev)
+			throw new Error('exist max int boundary '+BYTE5_MAX+ ' i'+i+',val:'+arr[i]+' int'+int);
+		}
+		int=(delta? arr[i]-prev: arr[i] ) ||0;
+		prev=arr[i]||0;
 	}
 	return s;
 }

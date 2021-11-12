@@ -1,41 +1,8 @@
 import OffTextFormatter from '../offtext/formatter.js';
 import {handlers,closeHandlers} from './tei.js'
-import {DOMFromString,xpath} from '../xmlparser/index.js';
+import {DOMFromString,xpath,XML2OffText} from '../xmlparser/index.js';
 import { alphabetically } from '../utils/sortedarray.js';
 
-const XML2OffText = (el,ctx) =>{
-    if (typeof el=='string') {                     // a string node arrives
-        let s=el.trimRight();
-        if (ctx.hide) {
-            if (ctx.compact) {
-                ctx.compact=false;
-                return ' ';
-            }
-            return '';
-        }
-
-        if (ctx.compact && s.charCodeAt(0)<0x7f) { // a compact offtag is emitted just now
-            s=' '+s;                               // use blank to separate tag ]
-            ctx.compact=false;
-        }
-        if (s) ctx.snippet=s;
-        return ctx.started?s:'';
-    }
-    let out='';
-    const handler= handlers[el.name];
-    if (handler) {
-        const out2= handler(el,ctx);
-        if (typeof out2=='string') out=out2;
-    }
-
-    if (el.children && el.children.length) {
-        out+=el.children.map(e=>XML2OffText(e,ctx)).join('');
-    }
-
-    const closehandler= closeHandlers[el.name];
-    if (closehandler) out+=closehandler(el,ctx)||'';
-    return out;
-}
 
 const buildChapmap=(charDecl)=>{
     const res={};
@@ -51,30 +18,11 @@ const buildChapmap=(charDecl)=>{
     }
     return res;
 }
-const parseBuffer=(buf,fn='',ctx)=>{
-    if (fn) process.stdout.write('\r processing'+fn+'    ');
-
-    const el=DOMFromString(buf);
-    const body=xpath(el,'text/body');
-    const charmap=buildChapmap(xpath(el,'teiHeader/encodingDesc/charDecl'));
-
-    let m=fn.match(/n([\dabcdefABCDEF]+)_(\d+)/);
-    let bk='',bkno='',chunk='';
-
-    const sutraNo=m[1].replace('_'+m[2],'').toLowerCase();
-    let sutraline=ctx.catalog[sutraNo].trim();
-    bkno=sutraNo.replace(/^0+/,'');
-
-    const at=sutraline.indexOf(' ^');
-    if (at>-1) {
-        sutraline=sutraline.substr(0,at)+']'+sutraline.substr(at);
-    } else sutraline+=']'
-
-    if (m[2]=='001') {
+const fixJuanT=(bkno,juan,sutraline)=>{
+    let bk='';
+    if (juan===1) {
         bk='^bk[n='+bkno+' '+sutraline;
     }
-
-    let juan=parseInt(m[2]);
 
     if (bkno==='946') {
         if (juan>=4) juan--; //946 其實只有四卷, 缺檔 _003
@@ -98,9 +46,40 @@ const parseBuffer=(buf,fn='',ctx)=>{
         bk='^bk[n='+bkno+' '+sutraline;
         juan=1;
     }
-    chunk='^c'+juan+'\n';
+    return [bk,juan]
+}
 
-    let content=bk+chunk+XML2OffText(body,{lbcount:0,hide:0,snippet:'',div:0,charmap,fn,started:false});
+const parseBuffer=(buf,fn='',ctx)=>{
+    // if (fn) process.stdout.write('\r processing'+fn+'    ');
+    ctx.rawContent=buf;
+    const el=DOMFromString(buf);
+    const body=xpath(el,'text/body');
+    const charmap=buildChapmap(xpath(el,'teiHeader/encodingDesc/charDecl'));
+
+    let m=fn.match(/n([\dabcdefABCDEF]+)_(\d+)/);
+    let bk='',bkno='',chunk='';
+    
+    const sutraNo=m[1].replace('_'+m[2],'').toLowerCase();
+    let sutraline=ctx.catalog[sutraNo].trim();
+    bkno=sutraNo.replace(/^0+/,'');
+
+    const at=sutraline.indexOf(' ^');
+    if (at>-1) {
+        sutraline=sutraline.substr(0,at)+']'+sutraline.substr(at);
+    } else sutraline+=']'
+
+    let juan=parseInt(m[2]);
+    
+    if (fn[0]=='T') {
+        [bk,juan]=fixJuanT(bkno,juan,sutraline);
+    } else if (juan===1) {
+        bk='^bk[n='+bkno+' '+sutraline;
+    }
+
+    chunk='^c'+juan+'\n';
+    const teictx={defs:ctx.labeldefs,lbcount:0,hide:0,snippet:'',
+    div:0,charmap,fn,started:false,transclusion:ctx.transclusion};
+    let content=bk+chunk+XML2OffText(body,teictx,handlers,closeHandlers);
     content=content.replace(/\^r\n/g,'\n');
     return content;
 }
@@ -126,6 +105,13 @@ const getZipFileToc=async (zip,zipfn)=>{
     zipfiles.sort(alphabetically);
     return {files:zipfiles, tocpage};
 }
-
-export default {Formatter:OffTextFormatter,
+export const translatePointer=str=>{
+    const m=str.match(/([A-Z])(\d\d)n(\d{4}[abcde]*)_p(\d\d\d\d)([abcdef])/);
+    if (m) {
+        const [mm,zj,vol,sutrano,page,col]=m;
+        return '/cb-'+zj.toLowerCase()+'/v#'+vol.replace(/^0/,'')+'/p#'+page.replace(/^0+/,'')+col;
+    }
+    return ''
+}
+export default {Formatter:OffTextFormatter,translatePointer,
     parseFile,parseBuffer,getZipFileToc}

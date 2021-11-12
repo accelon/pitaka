@@ -96,6 +96,21 @@ function bestEntries(tf){
     return out;
 }
 
+async function fetchRange(url,opts={}){
+    const ptr=parsePointer(url);
+    let ptk=opts.ptk;
+    const extra=opts.extra||0;
+    if (!ptk) ptk=await openBasket(ptr.basket);
+    const [from,to]=ptk.getPageRange(ptr.loc);
+    await ptk.prefetchLines(from,to+1+extra); 
+    
+    const lines=[];
+    for (let i=from;i<to+1+extra;i++) {
+        lines.push(ptk.getLine(i));
+    }
+
+    return {from,lines,loc:ptr.loc,ptk}
+}
 
 export {openBasket,pool,opened,useBasket,readLines,Builder,validateConfig
-,fetchHooks,fetchLoc,bestEntries};
+,fetchHooks,fetchLoc,bestEntries,fetchRange};

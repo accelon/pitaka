@@ -28,14 +28,14 @@ export const getWorkingDirectory=()=>{
     return m[1].toLowerCase();
 }
 export const  buildPitaka=async ({config, nosave=false,
-    onContent=null,raw,jsonp,
+    onContent=null,raw,jsonp,exec,
     PickedFiles=null , log=console.log})=>{
     let {name,files,title,format}=config;
 
 	if (!name) name=getWorkingDirectory();
     if (!files) [files,title]=indexHTMLFiles();
-    
-    const builder=new Builder({name,title,config,onContent}); //core chinese text
+
+    const builder=new Builder({name,title,config,onContent,exec}); //core chinese text
 
     if (typeof files=='string') {
         files=filesFromStringPattern(files,config.rootdir);
@@ -45,7 +45,7 @@ export const  buildPitaka=async ({config, nosave=false,
     for (let i=0;i<files.length;i++){ 
         await builder.addFile(files[i],format);
     }
-    builder.finalize();
+    builder.finalize({raw,exec});
 
     if (!nosave) builder.save({raw,jsonp});
     return builder;

@@ -129,18 +129,18 @@ const parseFile=async (f,ctx)=>{
     const ext=fn.match(/(\.\w+)$/)[1];
     if (ext!=='.zip') {
         const rawcontent=await readTextFile(f)
-        const rawlines=rawcontent.split("\n");
-        return {lines:rawlines,rawlines,toclines:[],rawcontent};
+        const rawtext=rawcontent.split("\n");
+        return {lines:rawtext,rawtext,toclines:[],rawcontent};
     } else {
         const Zip= (typeof JSZip!=='undefined' && JSZip) || lazip.JSZip; 
         const jszip=new Zip();
         const zip=await jszip.loadAsync(f.getFile());
 
         const lines=[] ,toclines=[0];
-        const jobs=[], rawlines=[] ;
+        const jobs=[], rawtext=[] ;
         const { files,tocpage}=await getZipFileToc(zip,fn);
         lines.push(...tocpage);
-        rawlines.push(...tocpage);
+        rawtext.push(...tocpage);
         const context={filename:fn};
         const formatter=new Formatter(context);
         
@@ -155,10 +155,10 @@ const parseFile=async (f,ctx)=>{
             const out=formatter.scan(chunks[i]);
             toclines[i+1]=lines.length;
             lines.push(...out.text);
-            rawlines.push(...out.rawlines);
+            rawtext.push(...out.rawtext);
         }
 
-        return {lines,toclines,rawlines};
+        return {lines,toclines,rawtext};
     }
 }
 

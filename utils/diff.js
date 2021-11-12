@@ -1,6 +1,6 @@
 import {diffChars} from 'diff';
-// import {CJKWordEnd_Reg} from '../fulltext/index.js' 
 
+import {isPunc} from './cjk.js'
 import kluer from '../cli/kluer.js'
 const {green,red} = kluer;
 const CJKWordEnd_Reg=/([\u2e80-\u2fd5\u3400-\u9fff\ud400-\udfff\ue000\ufadf]+$)/;
@@ -10,7 +10,7 @@ export const diffCJK=(qstr, source, x,w)=>{ //source text is longer than qstr
 
     if (d[0].removed || d[0].added) { //開頭有差異
         let trimcount=d[0].value.length;
-        if (d[1].added) {
+        if (d[1]&&d[1].added) {
             const m=d[1].value.match(CJKWordEnd_Reg); //往左到第一個非中文字。
             if (m && m[1].length<d[1].value.length) {
                 trimcount=d[1].value.length-m[1].length;
@@ -33,11 +33,12 @@ export const diffCJK=(qstr, source, x,w)=>{ //source text is longer than qstr
     const same=d.filter(dd=> (!dd.added && !dd.removed)).reduce( (p,dd)=>dd.value.length+p,0);
     const sim=same/qstr.length;
     if (sim<0.7) return [d,0,0]; //no equal  太多字不同
+    if (!source[x+w] ||x+w>source.length) w=source.length-x-1;
+    while (w&&isPunc(source[x+w-1],source.substr(x,w))) w--;
     if (adjusted) {
         qsrc=source.substr(x,w);
-        d=diffChars(qstr,qsrc);    
+        d=diffChars(qstr,qsrc);
     }
-    
     return [d,x,w,sim]
 }
 export const printDiff=(d,caption)=>{

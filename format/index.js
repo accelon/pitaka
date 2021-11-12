@@ -54,6 +54,10 @@ const getFormatter=format=>{
     const fm=getFormat(format);
     return fm.Formatter;
 }
+const translatePointer=(ptr,format)=>{
+    const fm=getFormat(format);
+    return fm.translatePointer?fm.translatePointer(ptr):ptr;
+}
 
 const fileLines=async fn=>{
     const content=await fileContent(fn);
@@ -61,4 +65,4 @@ const fileLines=async fn=>{
     return lines;
  }
 
-export {readFormatFile, fileContent,getFormatter,fileLines,getZipIndex,getFormatTypeDef,getFormatTree};
+export {readFormatFile, fileContent,translatePointer,getFormatter,fileLines,getZipIndex,getFormatTypeDef,getFormatTree};

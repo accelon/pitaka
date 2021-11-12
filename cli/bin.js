@@ -26,6 +26,19 @@ const config=JSON.parse(readFileSync(pitakajson,'utf8').trim());
 const jsonp=()=>build({jsonp:true});
 const raw=()=>build({raw:true});
 const ngram=()=>build( {ngram:parseInt(arg)||2});
+const exec=config=>{
+    const jsfn=process.argv[3];
+    if (!fs.existsSync(jsfn)) {
+        console.log('missing js file');
+        return;
+    }
+    let dir=process.cwd();
+    const f='file://'+dir+Path.sep +jsfn;
+    import(f).then(cb=>{
+        build({exec:cb});
+    });
+}
+
 const report=(builder)=>{
     const {writer,files}=builder;
     const out=[], maxshow=5;
@@ -71,8 +84,9 @@ const build=async (opts)=>{
         ngram=new nGram({gram:opts.ngram,stockgram});
         onContent=(fn,text)=>ngram.add(text)
     }
+    if (opts.exec) nosave=true;
     // nosave=true;
-    const builder=await buildPitaka( {config,nosave,onContent,raw:opts.raw,jsonp:opts.jsonp}  );
+    const builder=await buildPitaka( {config,exec:opts.exec,nosave,onContent,raw:opts.raw,jsonp:opts.jsonp}  );
 
     if (ngram) {
         const s=ngram.dump();
@@ -94,9 +108,10 @@ const help=()=>{
     console.log(yellow('$ pitaka zip (regex)'), 'make a zip file')
     console.log(yellow('$ pitaka validate'), 'validate all htm files')
     console.log(yellow('$ pitaka quote   '), 'extract quote from a ptk or offtext file')
+    console.log(yellow('$ pitaka exec [.js] '), 'exec external js on every source file')
     console.log(yellow('$ pitaka pinpoint fn'), 'pinpoint a citation by quote and source book')
     console.log(yellow('$ pitaka group fn [pat]'), 'grouping string matching pattern, each line as item if no pat')
-    console.log(yellow('$ pitaka entrysort fn'), 'sort entry in unicode order')
+    console.log(yellow('$ pitaka entrYsort fn'), 'sort entry in unicode order')
     console.log(yellow('$ pitaka search fn'), 'search book/entry in pitaka file or a book list')
     console.log(yellow('$ pitaka wordseg fn words/dict_ptk'), 'word segmentation')
     console.log(yellow('$ pitaka intersect f1 f2'), 'intersect stringlist')
@@ -105,8 +120,8 @@ const help=()=>{
 try {
     await ({v:validate,validate,
         j:jsonp,jsonp,raw,r:raw, q:quote,quote, p:pinpoint,pinpoint,
-        z:zip,zip,ngram,n:ngram,
-        group,g:group,entrysort,e:entrysort,search,s:search,wordseg,w:wordseg,
+        z:zip,zip,ngram,n:ngram,exec,e:exec,
+        group,g:group,entrysort,y:entrysort,search,s:search,wordseg,w:wordseg,
         '--help':help,'-h':help,i:intersect,intersect,build,b:build})[cmd](config);
 
 } catch(e) {

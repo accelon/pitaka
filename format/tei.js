@@ -1,9 +1,10 @@
 const unhide=ctx=>{ (ctx.hide?ctx.hide--:0) };
-
+import {translatePointer} from './cbeta.js'
 export const closeHandlers={
     'cb:div': (el,ctx)=>{ctx.div--},
     'cb:tt':(el,ctx)=>unhide(ctx),
     'cb:mulu':(el,ctx)=>{
+        unhide(ctx);
         if (ctx.mulu && ctx.started) {
             ctx.mulu=false;
             return '"]';
@@ -29,13 +30,26 @@ const getPali=pi=>{
 const pb=(el,ctx)=>{
     ctx.lbcount=0;
     ctx.compact=true;
-    let vol='';
-    
-    if (el.attrs.n==='0001a') {
-        vol='^v'+parseInt(el.attrs['xml:id'].substr(1,2));
+    let out='', pn=el.attrs.n.replace(/^0+/,'');
+    if (ctx.fn[0]==='Y') {
+        if (pn.charCodeAt(0)>0x40){ 
+            out='^pg['+pn.substr(0,pn.length-1)+']';
+            ctx.compact=false;
+        } else if (pn[pn.length-1]!=='a') {//多欄 y21-009 0131b
+            out='^pg['+pn+']';
+            ctx.compact=false;
+        } else {
+            out='^p'+pn.substr(0,pn.length-1);
+        }
+        if (el.attrs.type==='old') return '';
+    } else {
+        let vol='';
+        if (el.attrs.n==='0001a') {
+            vol='^v'+parseInt(el.attrs['xml:id'].substr(1,2));
+        }
+        out=vol+'^p'+ pn;
     }
-    const pn=el.attrs.n.replace(/^0+/,'');
-    let out=vol+'^p'+ pn;
+    
     return out;
 }
 const g=(el,ctx)=>{
@@ -48,9 +62,12 @@ const g=(el,ctx)=>{
     }
 }
 const lb=(el,ctx)=>{
+    if (ctx.transclusion[ctx.fn] && el.attrs.type!=='old') {
+        ctx.ptr=ctx.transclusion[ctx.fn][el.attrs.n];
+    }
     ctx.lbcount++;
     if (ctx.lbcount>1) {
-        ctx.compact=true;
+        // ctx.compact=true;
         return ''  //^r';
     }
 }
@@ -77,26 +94,52 @@ const cbtt=(el,ctx)=>{
     ctx.hide++;
     return s;
 }
+
+
 export const handlers={
     pb,g,lb,byline,'cb:tt':cbtt,
     milestone:(el,ctx)=>{ctx.started=true;},//skip the redundant mulu before milestone, see T30n1579_037
     note:(el,ctx)=>{  ctx.hide++;return ''},
     lg:(el,ctx)=>{ctx.compact=true; return '\n^lg'},
     lem:(el,ctx)=>{ ctx.hide+=1},//just keep the rdg
-
+    quote:(el,ctx)=>{
+        if (ctx.ptr) {
+            const ptr=ctx.ptr;
+            ctx.ptr='';
+            return '^t[@'+ptr+']';
+        }
+    },    
     p: (el,ctx)=>'\n',
     'cb:mulu':(el,ctx)=>{
         if (!ctx.started)return;
         if (el.attrs.level) {// T01 0001b08 , skip cb:mulu without level 
-            ctx.mulu=true;
-            return '^mu'+el.attrs.level+'[t="';
+            if (ctx.defs.mu && ctx.defs.mu.compact) {
+                ctx.hide++;
+                ctx.compact=true;
+                return '^mu'+el.attrs.level;
+            } else {
+                ctx.mulu=true;
+                return '^mu'+el.attrs.level+'[t="';    
+            }
         }        
     },
     'cb:div': (el,ctx)=>{
         ctx.div++;
-        ctx.compact=true;
-        return '\n^h[o='+el.attrs.type+']';
+        // ctx.compact=true;
+        return ctx.fn[0]==='Y'?'\n':'\n^h[o='+el.attrs.type+']';
     },
+    'ref':(el,ctx)=>{
+        if (el.attrs.target && el.attrs.type) {
+            const ty=el.attrs.type;
+            if (ty==='taisho') {
+                const m=el.attrs.target.match(/#vol:(\d+);page:p(\d+[abc])/);
+                if (m) {
+                    return '^q[loc=/cb-t/v#'+m[1]+'/p#'+m[2]+']';
+                }
+            }
+            // console.log(el.attrs.target)
+        }
+    }
     // deal with app inside cb:tt <app n="0002008">  t01n0001_001
     /*
     app:(el,ctx)=>{

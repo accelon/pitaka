@@ -13,7 +13,6 @@ class LabelLinePos extends Label {
     action( tag ,linetext){
         const {y}=tag;
         const n=parseInt(tag.attrs.n)||0;
-
         if (this.sequencial) {
             if (n!==this.prevn+1){
                 console.log(tag,linetext, n, this.prevn+1)

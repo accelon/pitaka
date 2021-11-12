@@ -11,6 +11,7 @@ class Builder {
             ,EUDC:null    //external eudc mapping
             ,errata:{}  
             ,catalog:{} 
+            ,transclusion:{} //resolved translcusion
             ,nchapter:0,rawtags:[] 
             ,filename:'',ptkline:0
             ,entry:'' //dictionary entry
@@ -18,6 +19,7 @@ class Builder {
             ,lineCount:0 //y0 at the end of parsing content
             ,prevLineCount:0 //line count of previously parsed content
             ,labeldefs:null
+            ,rawContent:null //e.g xml before parsing
         };
         this.writer=new JSONPROMWriter(Object.assign({},opts,{context:this.context}));
         this.inverter=new Inverter(Object.assign({},opts,{context:this.context}));
@@ -26,12 +28,14 @@ class Builder {
         this.config=opts.config;
         this.config.tree=this.config.tree||getFormatTree(this.config.format);
         this.opts=opts;
+        this.exec=opts.exec;
         this.unknownLabel={};
         this.context.labeldefs=getFormatTypeDef(this.config,{context:this.context,log:this.log});
         this.files=[];
         if (this.config.eudc) this.addJSON(this.config.eudc,'EUDC');
         if (this.config.errata) this.addErrata(this.config.errata);
         if (this.config.catalog) this.addJSON(this.config.catalog,'catalog');
+        if (this.config.transclusion) this.addJSON(this.config.transclusion,'transclusion');
         return this;
     }
     addJSON(fn,key) {
@@ -107,7 +111,7 @@ class Builder {
                 else return;
             }
             const data=await fs.promises.readFile(fn);
-            console.log('adding',file,'size',data.length)
+            console.log(file,'length',data.length);
             zip=await jszip.loadAsync(data);
         } else {
             zip=await jszip.loadAsync(file.getFile());
@@ -120,19 +124,24 @@ class Builder {
 
         const jobs=[];
         const contents=new Array(files.length); //save the contents in order
+        const rawContents=new Array(files.length);
+
         for (let i=0;i<files.length;i++) {
             jobs.push(new Promise( async resolve=>{
                 const c=await fileContent({name:files[i],zip},format,this.context);
                 contents[i]=c;
+                rawContents[i]=this.context.rawContent;  //backup the rawcontent
                 resolve();
             }));
         }
         await Promise.all(jobs);
         if (tocpage.length) {
-            this.addContent([tocpage[0]],'offtext','index.html');//only take the bookname
+            this.context.rawContent=rawContents[i]; //get the rawcontent back
+            await this.addContent([tocpage[0]],'offtext','index.html');//only take the bookname
         }
         for (let i=0;i<files.length;i++) {
-            this.addContent(contents[i], format, files[i]);
+            this.context.rawContent=rawContents[i];
+            await this.addContent(contents[i], format, files[i]);
         }
         if (this.context.error) this.log(fn,'has',this.context.error,'errors')
     }
@@ -140,8 +149,8 @@ class Builder {
         for (let i=0;i<tags.length;i++) {
             const tag=tags[i];
             const labeltype=this.context.labeldefs[tag.name];
+            const linetext=text[tag.y - this.context.ptkline ];
             if (labeltype) {
-                const linetext=text[tag.y - this.context.ptkline ];
                 labeltype.action(tag,linetext,this.context);
                 if (labeltype.resets) {
                     const D=this.context.labeldefs;
@@ -159,7 +168,7 @@ class Builder {
             }
         }
     }
-    addContent(rawcontent,format,fn) {
+    async addContent(rawcontent,format,fn) {
         //for multiple content, keep starting
         this.context.startY+=this.context.prevLineCount;
         this.context.filename=fn;
@@ -168,18 +177,24 @@ class Builder {
             const Formatter=getFormatter(format);
             const formatter=new Formatter(this.context,this.log);
             const converted=fn.endsWith('.off');
-            const {text,tags,rawlines}=formatter.scan(rawcontent,converted);
+            const {text,tags,rawtext}=formatter.scan(rawcontent,converted);
 
             this.context.linesOffset=linesOffset(text);
-            this.context.rawlinesOffset=linesOffset(rawlines);
+            this.context.rawlinesOffset=linesOffset(rawtext);
             this.context.lineCount=text.length;
             
-            if (this.opts.onContent) {
-                this.opts.onContent(fn,text,tags,rawlines);
+            if (this.exec) {
+                const {onContent,onRawContent}= this.exec;
+                if(onRawContent) await onRawContent(fn,rawcontent,this.context);
+                if(onContent) await onContent(fn,text,tags,this.context)
             } else {
-                this.doTags(tags,text);
-                if (!this.config.textOnly) this.inverter.append(rawlines);
-                this.writer.append(rawlines);
+                if (this.opts.onContent) {
+                    await this.opts.onContent(fn,text,tags,this.context);
+                } else {
+                    this.doTags(tags,text);
+                    if (!this.config.textOnly) this.inverter.append(rawtext);
+                    this.writer.append(rawtext);
+                }    
             }
             this.context.prevLineCount=text.length;
         } catch(e){
@@ -189,7 +204,6 @@ class Builder {
         }
     }
     async addFile(file,format){ //file=='string' nodejs , File browser local file, or a File in zip
-
         let fn=file;
         if (typeof file!=='string' && 'name' in file) {
             fn=file.name;
@@ -205,7 +219,7 @@ class Builder {
             return;
         }
         const rawcontent=await fileContent(file,format,this.context);
-        this.addContent(rawcontent,format,fn);
+        await this.addContent(rawcontent,format,fn);
     }
     save(opts){
         console.log('saving file')
@@ -213,22 +227,24 @@ class Builder {
             this.log('not finalized');
             return;
         }
-        
         return this.writer.save(opts,this.config);
     }
     finalize(opts={}){
         this.context.lastTextLine=this.writer.setEndOfText();
-        console.log('finalizing inverted')
-        this.writer.addSection('inverted',true);                
-        const inverted=this.inverter.serialize();
-        this.writer.append(inverted,true); //force new chunk
-
-        console.log('finalizing labels')
-        this.writer.addSection('labels');
-        const section=serializeLabels(this.context);
-        this.writer.append(section);
-        
-        
+        if (!opts.raw && !opts.exec) {
+            console.log('finalizing inverted')
+            this.writer.addSection('inverted',true);                
+            const inverted=this.inverter.serialize();
+            this.writer.append(inverted,true); //force new chunk
+    
+            console.log('finalizing labels')
+            this.writer.addSection('labels');
+            const section=serializeLabels(this.context);
+            this.writer.append(section);
+        }
+        if (opts.exec && opts.exec.onFinalize) {
+            opts.exec.onFinalize(opts);
+        }
         this.finalized=true;
         return this.context;
     }

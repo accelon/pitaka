@@ -5,6 +5,12 @@ export const CJKRange=s=>{
     if (s.charCodeAt(0)>=0xE000 && s.charCodeAt(0)<=0xFADF) return 3;
 }
 
+export const isPunc=(str,full)=>{
+    if (!str) return false;
+    const cp=str.charCodeAt(0);
+    // console.log(cp,str,full)
+    return ((cp>=0x3001&&cp<=0x301f) || cp>0xff00)
+}
 export const trimPunc=str=>{
     return str.replace(/^[『「！。，：？]+/,'').replace(/[」？』。！：）｝〕；，]+$/,'');
 }
