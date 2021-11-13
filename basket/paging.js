@@ -15,7 +15,7 @@ function narrowDown(branches){
             if (at==-1) break;
         } else {
             const id2=id.substr(id[0]==DELTASEP?1:0);
-            at=startfrom+(label.indexOf?label.indexOf(id2):parseInt(id2));
+            at=startfrom+(label.indexOf?label.indexOf(id2):parseInt(id2)-1); //without DELTASEP is 1 base
         }
         from=label.linepos[at]  + dy;
         to=label.linepos[at+1] || to;
@@ -30,7 +30,8 @@ function locate(y){
         const lbl=this.getLabel(thetree[i]);
         const at=bsearch(lbl.linepos, y , true);
         const dy= (i===thetree.length-1)?(y-lbl.linepos[at-1]):0 ; //dy for last tree node
-        out.push(lbl.idarr[at-1]+(dy? DELTASEP+dy:''));
+        const id=lbl.idarr?lbl.idarr[at-1]:at; //if idarr is missing , at is 1-base nth chapter
+        out.push(id+(dy ? DELTASEP+dy:'') ) ;
     }
     return out;
 }
@@ -75,7 +76,7 @@ function pageAt(y0,toString=false){
         const at=bsearch(label.linepos,y0+1,true);
         if (at<1) break;
         const from=bsearch(label.linepos,parentat,true);
-        const id=label.idarr?(label.idarr[at-1] ): at-from;
+        const id=label.idarr?(label.idarr[at-1] ): (at-from) ;
 
         out.push([id, (i===thetree.length-1)?y0-label.linepos[at-1]:0 ]);
         parentat=label.linepos[at-1];

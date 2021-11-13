@@ -14,3 +14,19 @@ export const isPunc=(str,full)=>{
 export const trimPunc=str=>{
     return str.replace(/^[『「！。，：？]+/,'').replace(/[」？』。！：）｝〕；，]+$/,'');
 }
+
+const quotebrackets={
+    '「':'」',
+    '『':'』'
+}
+export const findCloseBracket=(str,from)=>{
+    for (let qopen in quotebrackets) {
+        const qclose=quotebrackets[qopen];
+        if (str[from]==qopen || str[from+1]==qopen) {
+            const at=str.indexOf(qclose,from+1);
+            if (at>0) {
+                return at+qclose.length;               
+            }
+        }
+    }
+}

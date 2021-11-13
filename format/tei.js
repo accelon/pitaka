@@ -1,5 +1,5 @@
 const unhide=ctx=>{ (ctx.hide?ctx.hide--:0) };
-import {translatePointer} from './cbeta.js'
+
 export const closeHandlers={
     'cb:div': (el,ctx)=>{ctx.div--},
     'cb:tt':(el,ctx)=>unhide(ctx),
