@@ -1,4 +1,13 @@
 import {chunkjsfn} from '../utils/index.js'
+const toUint8Array=content=>{
+    const out=new Uint8Array(content.length);
+    for (let i=0;i<content.length;i++) {
+        const cp=content.charCodeAt(i);
+        if (cp>127) return content;
+        out[i]=cp;
+    }
+    return out;
+}
 class ZipSaver {
     constructor(opts){
         this.name=opts.name;
@@ -11,11 +20,16 @@ class ZipSaver {
     async init(){
 
     }
+
     async writeChunk(rawcontent,chunk,compress=false){
         //prepand pitaka name as user might change name of zip
         //can store multiple pitaka in one zip
         //but for lazip, zip folder should be same as the name of zip 
         const compression=compress?'DEFLATE':'STORE';
+        const m=rawcontent.match(/[\u000e-\u001f]/u);
+        if (m && !compress) {
+            rawcontent=toUint8Array(rawcontent);// packed integer is not memory efficient
+        }
         this.zip.file(chunkjsfn(chunk,this.name), rawcontent, {compression});
     }
     pitakaPatchNodeJs(fn){ 
@@ -35,7 +49,7 @@ class ZipSaver {
 
     async doneNodeJs() {
         const zipfn=this.name+'.ptk';
-        console.log('creating zip')
+        console.log('creating zip');
 
         await new Promise(resolve=>{
             this.zip.generateAsync({type:'uint8array'},function(status){               

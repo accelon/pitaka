@@ -53,7 +53,7 @@ class LabelEntry extends Label {
         const hw=packStrings(this.idarr);
         out.push(hw);  //58ms 
         // out.push(pack(this.entrysize));
-        out.push(pack_delta(this.linepos)); 
+        out.push(this.linepos); 
         for (let attr in this.attributes) {
             out.push( this.attributes[attr].join('\t'));
         }

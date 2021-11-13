@@ -231,20 +231,23 @@ class Builder {
     }
     finalize(opts={}){
         this.context.lastTextLine=this.writer.setEndOfText();
+
         if (!opts.raw && !opts.exec) {
-            console.log('finalizing inverted')
+
             this.writer.addSection('inverted',true);                
             const inverted=this.inverter.serialize();
             this.writer.append(inverted,true); //force new chunk
-    
             console.log('finalizing labels')
             this.writer.addSection('labels');
             const section=serializeLabels(this.context);
             this.writer.append(section);
         }
+
         if (opts.exec && opts.exec.onFinalize) {
             opts.exec.onFinalize(opts);
         }
+
+        console.log('memory usage',process.memoryUsage())
         this.finalized=true;
         return this.context;
     }

@@ -81,7 +81,7 @@ class LabelBook extends Label {
         const out=[];
         out.push(JSON.stringify({keywords:keylabels.length,maxkeyword:this._maxkeyword}) );
         out.push(packStrings(this.names));
-        out.push(pack_delta(this.linepos)); 
+        out.push(this.linepos);
         out.push(packStrings(this.idarr));
         out.push(keylabels.join('\t'));
         out.push(...labelsout)

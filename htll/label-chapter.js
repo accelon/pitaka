@@ -31,7 +31,7 @@ class LabelChapter extends Label {
     serialize(){
         const out=super.serialize();
         out.push(this.names.join('\t'));  
-        out.push(pack_delta(this.linepos)); 
+        out.push(this.linepos); 
         out.push(this.idarr.join('\t'));  
         return out;
     }

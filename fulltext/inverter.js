@@ -1,7 +1,7 @@
 import {fileContent} from '../format/index.js'
 import {parseOfftextLine} from '../offtext/parser.js';
 import {tokenize,TOKEN_SEARCHABLE,TOKEN_CJK_BMP,TK_NAME,TK_TYPE} from '../fulltext/index.js'
-import {alphabetically0,packStrings,pack_delta} from '../utils/index.js'
+import {alphabetically0,packStrings,pack,pack_delta} from '../utils/index.js'
 class Inverter {
     constructor(opts) {
         this.context=opts.context;
@@ -52,6 +52,9 @@ class Inverter {
         }
     }
     serialize(){
+        if ('gc' in global) { //need --expose-gc flag in pitaka.cmd
+            global.gc();
+        }
         this.linetokenpos.push(this.tokenCount); //last Token
         const inverted=[],section=[];
         const addPostings=(tk,postings)=>{        
@@ -68,22 +71,16 @@ class Inverter {
         const bigram=!!this.config.bigram;
 
         const header={'inverted_version':1, termcount:terms.length,bigram};
+
         section.push(JSON.stringify(header));
 
         section.push(packStrings(terms));
-        section.push(pack_delta(this.linetokenpos));
+        section.push(this.linetokenpos);
+
         for (let i=0;i<postings.length;i++) {
-            section.push(pack_delta(postings[i]));
-        }
-        this.postings=null;
-        this.bigram=null;
-        this.tokens=null;
-        this.linetokenpos=null;
-        this.romanized=null;
-        
-        if ('gc' in global) { //need --expose-gc flag in pitaka.cmd
-            console.log('reclaim memory used by inverted');
-            global.gc();
+            // const packed=pack_delta(postings[i]); 
+            // keeping packed string in section use alow of memory
+            section.push(postings[i]);
         }
         return section;
     }

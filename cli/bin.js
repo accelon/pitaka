@@ -85,7 +85,7 @@ const build=async (opts)=>{
         onContent=(fn,text)=>ngram.add(text)
     }
     if (opts.exec) nosave=true;
-    // nosave=true;
+
     const builder=await buildPitaka( {config,exec:opts.exec,nosave,onContent,raw:opts.raw,jsonp:opts.jsonp}  );
 
     if (ngram) {

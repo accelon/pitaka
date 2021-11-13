@@ -2,7 +2,7 @@ import ZipSaver from './savezip.js';
 import JsonpSaver from './savejsonp.js';
 import CacheSaver from './savecache.js';
 import RawSaver from './saveraw.js';
-import {chunkjsfn} from '../utils/index.js';
+import {chunkjsfn,pack_delta} from '../utils/index.js';
 const escapeTemplateString=str=>str.replace(/\\/g,"\\\\").replace(/`/g,"\\`").replace(/\$\{/g,'$\\{');
 
 const prepareJSONP=({chunk,name,start},lines)=>{
@@ -41,7 +41,14 @@ const saveJsonp=async(saver,chunk,name,start,L,compress=false)=>{
     }
     return writeCount;
 }
-
+function compressChunk(chk){
+    const out=[];
+    for (let i=0;i<chk.length;i++) {
+        if (typeof chk[i]==='string') out.push(chk[i]);
+        else out.push(pack_delta(chk[i]));
+    } 
+    return out;
+}
 async function save(opts,extraheader={}){
     opts=Object.assign({},opts,this.opts);
     let saver=null;
@@ -65,14 +72,14 @@ async function save(opts,extraheader={}){
     let i=1,filecount=1,compress;
     const name=opts.name;
     while (i<chunkStarts.length) {
-        const L=this._lines.slice( chunkStarts[i-1],chunkStarts[i]);
+        const L=compressChunk(this._lines.slice( chunkStarts[i-1],chunkStarts[i]));
         //do not deflate labels and postings, speed up loading 100%
         compress=this.header.lastTextLine > chunkStarts[i-1]; 
         filecount+=await saveJsonp(saver,i,name,chunkStarts[i-1],L,compress)
         i++;
     }
     const start=chunkStarts[chunkStarts.length-1];
-    const lastpart=this._lines.slice(start,this._lines.length);
+    const lastpart=compressChunk(this._lines.slice(start,this._lines.length));
     compress=this.header.lastTextLine > chunkStarts[i-1]; 
 
     filecount+=await saveJsonp(saver,chunkStarts.length, name, start,lastpart ,compress)
