@@ -83,11 +83,11 @@ export const serializePointer=(ptk,y_loc,hook='')=>{
     if (!ptk)return '';
     let loc=y_loc;
     if (typeof y_loc=='number') {
-        loc=ptk.locate(y_loc).join(PATHSEP);
+        loc=ptk.pageAt(y_loc,true);
     }
     let ptkname=ptk;
     if (typeof ptk.name=='string') ptkname=ptk.name;
-    return PATHSEP+ptkname+PATHSEP+loc+(hook?(PATHSEP+hook):'');
+    return PATHSEP+ptkname+PATHSEP+loc+hook;
 }
 
 

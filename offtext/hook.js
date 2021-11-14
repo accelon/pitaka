@@ -70,3 +70,5 @@ export const parseHook=(str_arr,linetext,y=0)=>{
 
     return {y,x,w:x2-x+e.length,s,nos,e,noe}
 }
+
+export default {parseHook,makeHook}

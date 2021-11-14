@@ -8,7 +8,7 @@ function findTransclusion(srcptk,ptr){
     for (let y in backlinks) {  //translate source y to loc
         backlinks[y]=backlinks[y].map(item=>{
             const [hook,srcy]=item;
-            const srcptr=this.locate(srcy).join(PATHSEP);
+            const srcptr=this.pageAt(srcy,true);
             return [hook,PATHSEP+this.name+PATHSEP+srcptr+PATHSEP+hook];
         })
     }

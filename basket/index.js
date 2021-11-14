@@ -93,6 +93,7 @@ function bestEntries(tf){
             out.push({ptk:ptk.name, ...entries[0] } );
         }
     })
+    out.sort((a,b)=>b.e.length-a.e.length)
     return out;
 }
 

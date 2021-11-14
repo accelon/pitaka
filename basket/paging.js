@@ -23,6 +23,7 @@ function narrowDown(branches){
     if (!to|| to==-1) y1=this.lastTextLine();
     return [from,to];
 }
+/*  use pageAt
 function locate(y){
     const thetree=(this.header.tree||DEFAULT_TREE).split(PATHSEP);
     const out=[];
@@ -35,6 +36,7 @@ function locate(y){
     }
     return out;
 }
+*/
 function getLabelLineRange(lbl,n){
     if (typeof lbl==='string') {
         lbl=this.getLabel('bk');
@@ -180,7 +182,7 @@ function fetchPage(loc){
         return this.fetchToc(loc);
     } else {
         for (let i=y0;i<y1;i++) {
-            out.push({key:i});
+            out.push({key:i,backlinks:null,usernotes:null});
         }
     }
     return out;
@@ -212,4 +214,4 @@ function childCount(loc){
     return label.countRange(from,to);
 }
 export default {pageAt,getTocTree,getNChild,childCount,
-    fetchPage,fetchToc,getPageRange,narrowDown,locate,getLabelLineRange}
+    fetchPage,fetchToc,getPageRange,narrowDown,getLabelLineRange}
