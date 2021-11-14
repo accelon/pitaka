@@ -182,7 +182,7 @@ function fetchPage(loc){
         return this.fetchToc(loc);
     } else {
         for (let i=y0;i<y1;i++) {
-            out.push({key:i,backlinks:null,usernotes:null});
+            out.push({key:i,backlinks:null});
         }
     }
     return out;
