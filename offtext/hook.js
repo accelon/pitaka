@@ -21,7 +21,10 @@ export const makeHook=(linetext,x,w)=>{
 
     if (occur==0) {
         at=linetext.indexOf(lead.substr(0,1));
-        if (at==x) lead=lead.substr(0,1);//one char is enough
+        if (at==x) {
+            lead=lead.substr(0,1);//one char is enough
+            if (!end) end=linetext.substr(x+w-1,1);
+        }
     }
 
     let hook=lead+(occur?DELTASEP+occur:'');
