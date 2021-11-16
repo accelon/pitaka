@@ -1,4 +1,4 @@
-import {PATHSEP,DELTASEP,DEFAULT_TREE} from '../platform/constants.js'
+import {PATHSEP,DELTASEP,DEFAULT_TREE,NAMESEP} from '../platform/constants.js'
 import {parseOffTag} from '../offtext/index.js'
 import { bsearch } from "../utils/bsearch.js" ;
 
@@ -96,7 +96,7 @@ function pageAt(y0,toString=false){
 }
 function getTocTree(addr){
     if (!addr) addr='';
-    const out=[{ptr:'/',name:this.header.title }];
+    const out=[{ptr:'/',name:this.header.shorttitle }];
     if (!addr.trim())return out;
     const thetree=(this.header.tree||DEFAULT_TREE).split(PATHSEP);
     const parents=addr.split(PATHSEP);
@@ -113,7 +113,8 @@ function getTocTree(addr){
             if (i==parents.length-1 && thetree.length==parents.length && next+1<label.idarr.length) next++;
             
             let name=label.names?label.names[at]:label.idarr[at];
-
+            const at2=name.indexOf(NAMESEP);
+            if (at2>0) name=name.substr(at2+1);
             out.push({name, n: at, ptr})
             ptr=ptr+(ptr?PATHSEP:'')+(label.idarr[next].trim()||(DELTASEP+next));
         } else {
@@ -166,7 +167,10 @@ function fetchToc(loc){
                 }
             }
             const id=label.idarr?label.idarr[i]:'';
-            out.push({key:(i+1),id,text:label.names?label.names[i]:(':'+chunk),ptr,childcount,keywords});
+            let text=label.names?label.names[i]:(':'+chunk);
+            const at2=text.indexOf(NAMESEP);
+            if (at2>0) text=text.substr(0,at2);
+            out.push({key:(i+1),id,text,ptr,childcount,keywords});
         } else break;
     }        
     return out;

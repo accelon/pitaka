@@ -29,7 +29,7 @@ export const parsePointer=str=>{
         }
     }
     res.c=c;
-    res.dy=parseInt(dy);
+    res.dy=parseInt(dy)||0;
     res.hook=pths.join(PATHSEP);
     res.loc=res.bk+PATHSEP+res.c;
     return res;
@@ -79,7 +79,7 @@ export const dereferencing=async (arr,ptk=null)=>{
     return out.map(i=>i[0]);
 }
 
-export const serializePointer=(ptk,y_loc,hook='')=>{
+export const serializePointer=(ptk,y_loc,hook='',dy=0)=>{
     if (!ptk)return '';
     let loc=y_loc;
     if (typeof y_loc=='number') {
@@ -87,7 +87,7 @@ export const serializePointer=(ptk,y_loc,hook='')=>{
     }
     let ptkname=ptk;
     if (typeof ptk.name=='string') ptkname=ptk.name;
-    return PATHSEP+ptkname+PATHSEP+loc+hook;
+    return PATHSEP+ptkname+PATHSEP+loc+(dy?DELTASEP+dy:'')+hook;
 }
 
 

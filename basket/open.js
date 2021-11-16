@@ -1,7 +1,7 @@
 import JSONPROM from "../jsonprom/jsonprom.js";
 import pool from './pool.js';
 import {deserializeLabels} from './serialize-label.js';
-
+import {NAMESEP} from '../platform/constants.js';
 import paging from './paging.js';
 import entries from './entries.js';
 import pointers from './pointers.js';
@@ -42,6 +42,13 @@ class Basket extends JSONPROM {
             this.lblTransclusion=this.getLabel('t');
             this.inverted=await this.loadInverted();
 
+            const at=this.header.title.indexOf(NAMESEP);
+            if (at>0) {
+                this.header.shorttitle=this.header.title.substr(at+1);
+                this.header.title=this.header.title.substr(0,at);
+            } else {
+                this.header.shorttitle=this.header.title.substr(0,2);
+            }
             return true;
         } catch(e){
             console.error(e)
