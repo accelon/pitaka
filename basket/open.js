@@ -23,6 +23,7 @@ class Basket extends JSONPROM {
         this.futureforeign={};  //not in pool yet, to be check on every new ptk added to pool.
         this.lblTransclusion=null;
         this.inverted=null;
+        this.loadtime=0;
         for (let f in paging) this[f]=paging[f];
         for (let f in entries) this[f]=entries[f];
         for (let f in pointers) this[f]=pointers[f];
@@ -32,6 +33,7 @@ class Basket extends JSONPROM {
     async init(){
         const section='labels'
         try{
+            this.loadtime=new Date();
             await this.openrom();
             await this.load(0);
             await this.loadSection(section);
@@ -49,6 +51,7 @@ class Basket extends JSONPROM {
             } else {
                 this.header.shorttitle=this.header.title.substr(0,2);
             }
+            this.loadtime=new Date() - this.loadtime;
             return true;
         } catch(e){
             console.error(e)
