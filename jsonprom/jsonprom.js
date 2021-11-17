@@ -120,9 +120,9 @@ class JSONPROM {
         for (let i=from;i<to;i++) out.push(this.getLine(i));
         return out;
     }
-    async loadSection(name){
+    loadSection(name,cb){
         const [from,to]=this.getSectionRange(name)
-        await this.prefetchLines(from,to);
+        this.prefetchLines(from,to).then(cb);
     }
 }
 export default JSONPROM;

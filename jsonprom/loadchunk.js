@@ -1,4 +1,3 @@
-const unescapeTemplateString=str=>str.replace(/\\\\/g,"\\").replace(/\\`/g,"`").replace(/\$\\\{/g,'${');
 const chunkfilename=chunk=>chunk.toString().padStart(3,'0')+'.js';
 
 const makeChunkURI=(name,chunk,rom)=>{
@@ -9,8 +8,14 @@ const makeChunkURI=(name,chunk,rom)=>{
 const parseChunk=str=>{
     const start=str.indexOf('{');
     const end=str.indexOf('},`')+1;
-    return {header:JSON.parse(str.substring(start,end)),
-        payload:unescapeTemplateString(str.substring(end+2,str.length-2)).split(/\r?\n/) }
+    let payload=str.substring(end+2,str.length-2);
+    
+    //indexOf is much faster than regex, replace only when needed
+    if (payload.indexOf("\\\\")>-1) payload=payload.replace(/\\\\/g,"\\");
+    if (payload.indexOf("\\`")>-1)  payload=payload.replace(/\\\\/g,"\\");
+    if (payload.indexOf("$\\{")>-1) payload=payload.replace(/\$\\\{/g,'${');
+    
+    return {header:JSON.parse(str.substring(start,end)), payload:payload.split("\n") }
 }
 //import {promises} from 'fs';
 export async function loadNodeJs (name,chunk,rom){

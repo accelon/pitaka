@@ -51,21 +51,31 @@ async function prepareToken(str){
     return tokens;
 }
 const sectionName='inverted'
-async function loadInverted(){
+function setupInverted(cb){
+    let now=new Date();
     const [from]=this.getSectionRange(sectionName);
-    await this.prefetchLines(from,from+3);
-    const header=JSON.parse(this.getLine(from));
-    let tokens;
-    // if (header.bigram) {
-    tokens=unpackStrings(this.getLine(from+1));
-    // } else {
-    // tokens=splitUTF32(this.getLine(from+1)).map(cp=>String.fromCodePoint(cp));
-    // }
-    const linetokenpos=unpack_delta(this.getLine(from+2));
-    this.deleteLine(from+1);
-    this.deleteLine(from+2);
-    return {header,tokens,linetokenpos,postingStart:from+3,cache:{}}
+    const self=this;
+    this.prefetchLines(from,from+3).then(function(){
+        self.loadtime.prefetchinverted=new Date()-now; now= new Date();
+        const header=JSON.parse(self.getLine(from));
+        let tokens;
+    
+        tokens=unpackStrings(self.getLine(from+1));
+        self.loadtime.unpacktokens=new Date()-now; now= new Date();
+    
+        const linetokenpos=unpack_delta(self.getLine(from+2));
+        self.loadtime.linetokenpos=new Date()-now; now= new Date();
+        self.loadtime.linetokenposlength=linetokenpos.length
+    
+        self.deleteLine(from+1);
+        self.deleteLine(from+2);
+        self.loadtime.deleteline=new Date()-now; now= new Date();
+    
+        self.inverted={header,tokens,linetokenpos,postingStart:from+3,cache:{}}
+        cb&&cb(true);
+    });
+
 }
 
 
-export default {prepareToken,loadInverted}
+export default {prepareToken,setupInverted}

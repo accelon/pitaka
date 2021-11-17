@@ -23,39 +23,43 @@ class Basket extends JSONPROM {
         this.futureforeign={};  //not in pool yet, to be check on every new ptk added to pool.
         this.lblTransclusion=null;
         this.inverted=null;
-        this.loadtime=0;
+        this.loadtime={};
         for (let f in paging) this[f]=paging[f];
         for (let f in entries) this[f]=entries[f];
         for (let f in pointers) this[f]=pointers[f];
         for (let f in mulus) this[f]=mulus[f];
         for (let f in inverted) this[f]=inverted[f];
     }
-    async init(){
+    init(){
         const section='labels'
-        try{
-            this.loadtime=new Date();
-            await this.openrom();
-            await this.load(0);
-            await this.loadSection(section);
-            const labelSection=this.getSection(section);
-            const labelSectionRange=this.getSectionRange(section);
-            this.labels=deserializeLabels(labelSection,labelSectionRange,this.header.labels);
-
-            this.lblTransclusion=this.getLabel('t');
-            this.inverted=await this.loadInverted();
-
-            const at=this.header.title.indexOf(NAMESEP);
-            if (at>0) {
-                this.header.shorttitle=this.header.title.substr(at+1);
-                this.header.title=this.header.title.substr(0,at);
-            } else {
-                this.header.shorttitle=this.header.title.substr(0,2);
-            }
-            this.loadtime=new Date() - this.loadtime;
-            return true;
-        } catch(e){
-            console.error(e)
-        }
+        const self=this;
+        let now=new Date();
+        const promise=new Promise(resolve=>{
+            self.openrom().then(function(){
+                self.load(0).then(function(){
+                    const at=self.header.title.indexOf(NAMESEP);
+                    if (at>0) {
+                        self.header.shorttitle=self.header.title.substr(at+1);
+                        self.header.title=self.header.title.substr(0,at);
+                    } else {
+                        self.header.shorttitle=self.header.title.substr(0,2);
+                    }
+                    self.loadtime.open=new Date()-now; now= new Date();
+                    self.loadSection(section,function(){
+                        const labelSection=self.getSection(section);
+                        const labelSectionRange=self.getSectionRange(section);
+                        self.labels=deserializeLabels(labelSection,labelSectionRange,self.header.labels);
+                        self.lblTransclusion=self.getLabel('t');
+                        self.loadtime.labels=new Date()-now; now= new Date();
+                        resolve(true); //resolve earlier, need to check if inverted ready
+                        self.setupInverted(function(){
+                            self.loadtime.inverted=new Date()-now;
+                        });  
+                    });
+                });
+            })
+        });
+        return promise;
     }
     contentCount() {
         let lbl=this.getLabel('bk');
@@ -99,10 +103,14 @@ export async function openBasket(name){
         return pool.get(name);
     }
     const basket= new Basket({name});
-    const success=await basket.init();
-    if (success) { //a new pitaka is added to pool
-        pool.add(name,basket);
-        pool.getAll().forEach( ptk=>ptk.connect()); //tell other pitaka 
+    try {
+        const success=await basket.init();
+        if (success) { //a new pitaka is added to pool
+            pool.add(name,basket);
+            pool.getAll().forEach( ptk=>ptk.connect()); //tell other pitaka 
+        }
+    } catch(e) {
+        console.error(e)
     }
     return basket;
 }
