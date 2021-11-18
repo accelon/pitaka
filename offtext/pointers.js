@@ -6,7 +6,17 @@ import {parseOfftextLine} from './parser.js';
 
 export const parsePointer=str=>{
     if (!str) return {};
-    const res={basket:'',bk:'',c:'',dy:0,hook:'',loc:''};
+    const res={basket:'',bk:'',c:'',dy:0,hook:'',loc:'',attrs:{}};
+    const at=str.indexOf('{');
+    if (at>0) {
+        const attrs=str.substr(at).replace(/\'/g,'\"').replace(/([A-Za-z\d_]+):/g,'"$1":');
+        str=str.substr(0,at);
+        try{
+            res.attrs=JSON.parse(attrs);
+        } catch(e){
+            console.error(e);
+        }
+    }
     const pths=str.split(PATHSEP);
     if (str[0]=='/') {
         pths.shift();
@@ -79,7 +89,7 @@ export const dereferencing=async (arr,ptk=null)=>{
     return out.map(i=>i[0]);
 }
 
-export const serializePointer=(ptk,y_loc,hook='',dy=0)=>{
+export const serializePointer=(ptk,y_loc,hook='',dy=0,attrs={})=>{
     if (!ptk)return '';
     let loc=y_loc;
     if (typeof y_loc=='number') {
@@ -87,7 +97,10 @@ export const serializePointer=(ptk,y_loc,hook='',dy=0)=>{
     }
     let ptkname=ptk;
     if (typeof ptk.name=='string') ptkname=ptk.name;
-    return PATHSEP+ptkname+PATHSEP+loc+(dy?DELTASEP+dy:'')+hook;
+    let sattr=JSON.stringify(attrs);
+    if (sattr=='{}') sattr='';
+    sattr=sattr.replace(/"([A-Za-z\d]+)":/g,'$1:').replace(/"/g,"'");//prevent url to encode
+    return PATHSEP+ptkname+PATHSEP+loc+(dy?DELTASEP+dy:'')+hook+sattr;
 }
 
 

@@ -18,6 +18,7 @@ class JSONPROM {
         this.name=opts.name||'noname';
         this.header= {
             name:this.name,
+            title:'',shorttitle:'',
             lastTextLine:0,
             chunkStarts:[1],
             sectionNames:['txt'],
