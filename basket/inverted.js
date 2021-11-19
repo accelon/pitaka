@@ -4,6 +4,7 @@ import {unpackPosting,tokenize,TOKEN_SEARCHABLE,
 import {unpackStrings,bsearch,unpack_delta,splitUTF32} from '../utils/index.js'
 
 async function prepareToken(str){
+    if (!this.inverted) await this.setupInverted();
     const loading={}, I=this.inverted;
     const tokens=tokenize(str); //ch, offset, type, id , postings
     for (let i=0;i<tokens.length;i++) {
@@ -51,29 +52,27 @@ async function prepareToken(str){
     return tokens;
 }
 const sectionName='inverted'
-function setupInverted(cb){
+async function setupInverted(cb){
     let now=new Date();
     const [from]=this.getSectionRange(sectionName);
-    const self=this;
-    this.prefetchLines(from,from+3).then(function(){
-        self.loadtime.prefetchinverted=new Date()-now; now= new Date();
-        const header=JSON.parse(self.getLine(from));
-        let tokens;
-    
-        tokens=unpackStrings(self.getLine(from+1));
-        self.loadtime.unpacktokens=new Date()-now; now= new Date();
-    
-        const linetokenpos=unpack_delta(self.getLine(from+2));
-        self.loadtime.linetokenpos=new Date()-now; now= new Date();
-        self.loadtime.linetokenposlength=linetokenpos.length
-    
-        self.deleteLine(from+1);
-        self.deleteLine(from+2);
-        self.loadtime.deleteline=new Date()-now; now= new Date();
-    
-        self.inverted={header,tokens,linetokenpos,postingStart:from+3,cache:{}}
-        cb&&cb(true);
-    });
+    await this.prefetchLines(from,from+3);
+
+    this.loadtime.prefetchinverted=new Date()-now; now= new Date();
+    const header=JSON.parse(this.getLine(from));
+    let tokens;
+
+    tokens=unpackStrings(this.getLine(from+1));
+    this.loadtime.unpacktokens=new Date()-now; now= new Date();
+
+    const linetokenpos=unpack_delta(this.getLine(from+2));
+    this.loadtime.linetokenpos=new Date()-now; now= new Date();
+    this.loadtime.linetokenposlength=linetokenpos.length
+
+    this.deleteLine(from+1);
+    this.deleteLine(from+2);
+    this.loadtime.deleteline=new Date()-now; now= new Date();
+
+    this.inverted={header,tokens,linetokenpos,postingStart:from+3,cache:{}}
 
 }
 

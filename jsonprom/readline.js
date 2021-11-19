@@ -22,6 +22,7 @@ function unreadyChunk(from,to){
     return unready;
 }
 async function prefetchLines(from,to){ //getLine is valid
+
     let unready;
     if (Array.isArray(from)) {
         const notready={};

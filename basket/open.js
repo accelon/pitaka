@@ -52,15 +52,13 @@ class Basket extends JSONPROM {
                         self.lblTransclusion=self.getLabel('t');
                         self.loadtime.labels=new Date()-now; now= new Date();
                         resolve(true); //resolve earlier, need to check if inverted ready
-                        self.setupInverted(function(){
-                            self.loadtime.inverted=new Date()-now;
-                        });  
                     });
                 });
             })
         });
         return promise;
     }
+
     contentCount() {
         let lbl=this.getLabel('bk');
         if (!lbl) {
