@@ -3,13 +3,14 @@ import pool from '../basket/pool.js';
 import {PATHSEP,DELTASEP,DEFAULT_TREE} from '../platform/constants.js'
 import {makeHook, parseHook} from './hook.js';
 import {parseOfftextLine} from './parser.js';
+import {unpackJSONString,packJSONString} from 'pitaka/utils';
 
 export const parsePointer=str=>{
     if (!str) return {};
     const res={basket:'',bk:'',c:'',dy:0,hook:'',loc:'',attrs:{}};
     const at=str.indexOf('{');
     if (at>0) {
-        const attrs=str.substr(at).replace(/\'/g,'\"').replace(/([A-Za-z\d_]+):/g,'"$1":');
+        const attrs=unpackJSONString(str.substr(at));
         str=str.substr(0,at);
         try{
             res.attrs=JSON.parse(attrs);
@@ -97,9 +98,8 @@ export const serializePointer=(ptk,y_loc,hook='',dy=0,attrs={})=>{
     }
     let ptkname=ptk;
     if (typeof ptk.name=='string') ptkname=ptk.name;
-    let sattr=JSON.stringify(attrs);
+    let sattr=packJSONString(JSON.stringify(attrs));
     if (sattr=='{}') sattr='';
-    sattr=sattr.replace(/"([A-Za-z\d]+)":/g,'$1:').replace(/"/g,"'");//prevent url to encode
     return PATHSEP+ptkname+PATHSEP+loc+(dy?DELTASEP+dy:'')+hook+sattr;
 }
 
