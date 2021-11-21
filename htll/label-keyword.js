@@ -56,5 +56,12 @@ class LabelKeyword extends Label {
         const master=ctx.labeldefs[this.master];
         master.addKeywords(this.name,keywords);
     }
+    query(tofind){
+        const at=this.keys.indexOf(tofind);
+        if (at>-1) {
+            return {tofind, caption:this.caption, linepos: this.lineposs[at], count:linepos.length };
+        }
+        return {tofind, caption:this.caption,count:0};
+    }
 }
 export default LabelKeyword;

@@ -7,6 +7,7 @@ import entries from './entries.js';
 import pointers from './pointers.js';
 import mulus from './mulus.js';
 import inverted from './inverted.js';
+import querymethods from './querymethods.js';
 /*
    Basket is a read-only container
    of htll texts, prebuilt data-structure to facilitate fast access,
@@ -24,11 +25,14 @@ class Basket extends JSONPROM {
         this.lblTransclusion=null;
         this.inverted=null;
         this.loadtime={};
+        this.querymethods={};   
         for (let f in paging) this[f]=paging[f];
         for (let f in entries) this[f]=entries[f];
         for (let f in pointers) this[f]=pointers[f];
         for (let f in mulus) this[f]=mulus[f];
         for (let f in inverted) this[f]=inverted[f];
+        for (let f in querymethods) this[f]=querymethods[f];
+        this.querys={};
     }
     init(){
         const section='labels'
@@ -51,6 +55,8 @@ class Basket extends JSONPROM {
                         self.labels=deserializeLabels(labelSection,labelSectionRange,self.header.labels);
                         self.lblTransclusion=self.getLabel('t');
                         self.loadtime.labels=new Date()-now; now= new Date();
+
+                        self.registerQueryMethods();
                         resolve(true); //resolve earlier, need to check if inverted ready
                     });
                 });
