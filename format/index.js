@@ -68,5 +68,9 @@ const getQuickPointerParser=format=>{
     const fm=getFormat(format);
     return fm.parseQuickPointer;
 }
+const getQuickPointerSyntax=format=>{
+    const fm=getFormat(format);
+    return fm.QuickPointerSyntax;
+}
 export {readFormatFile, fileContent,translatePointer,getFormatter,
-    fileLines,getZipIndex,getFormatTypeDef,getQuickPointerParser,getFormatTree};
+    fileLines,getZipIndex,getFormatTypeDef,getQuickPointerParser,getQuickPointerSyntax,getFormatTree};

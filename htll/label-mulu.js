@@ -13,6 +13,7 @@ class LabelMulu extends Label {
         this.trimlocal=opts.trimlocal; 
         this.context=opts.context;
         this.compact=opts.compact;
+        this.notquickpointer=true;
         this.n=opts.n;
         return this;
     }

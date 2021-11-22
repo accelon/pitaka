@@ -4,7 +4,7 @@ import {pack,unpack,pack_delta,unpack_delta,packStrings,unpackStrings} from'../u
 class LabelBook extends Label {
     constructor(name,opts={}) {
         super(name,opts);
-        this.caption=opts.caption||'書名';
+        this.caption=opts.caption||'代號';
         this.names=[];
         this.idarr=[];
         this.linepos=[];

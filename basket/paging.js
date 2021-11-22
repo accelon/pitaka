@@ -69,29 +69,29 @@ function getPageRange(addr){
     const nextlbl=thetree[pths.length]||'';
     return [...this.narrowDown(arr) ,  nextlbl ] ;
 }
-function locOf(y){
+function locOf(y,full=false){
     const arr=this.closest(y,(this.header.tree||DEFAULT_TREE).split(PATHSEP));
     let s='',parentat=0;
     for (let i=0;i<arr.length;i++) {
         let id=arr[i].id,delta=0;
         if (i) {
-            const label=this.getLabel(arr[i].name);
-            const from=bsearch(label.linepos,parentat,true); //最接近 parent 的相同標籤
-            id=label.idarr?(label.idarr[ arr[i].idx - 1]): (arr[i].idx-from) ; 
-            delta=y-from;
+            delta=y-arr[i].line;
+            if (delta) delta--;
         }
 
         s+= id+ (delta?DELTASEP+delta:'')+PATHSEP;
         parentat=arr[i].line;
     }
-    return s;
+    return full?PATHSEP+this.name+PATHSEP+s:s;
 }
 function closest(y0,labels){
-    const out=[];
+    let out=[];
+    if (!y0) return [];
+
     if (!labels) {
     	labels=[];
     	this.labels.forEach(lbl=>{
-    		if (lbl.linepos) {
+    		if (lbl.linepos && !lbl.notquickpointer) {
     			labels.push(lbl.name);
     		}
     	});
@@ -99,12 +99,36 @@ function closest(y0,labels){
     for (let i=0;i<labels.length;i++){
         const label=this.getLabel(labels[i]);
         const idx=bsearch(label.linepos,y0,true);
-        if (idx<1) break;
-        const id=label.idarr?label.idarr[idx-1]:'';
+
+        if (idx<0) break;
+        
+        const id=label.idarr?label.idarr[idx-1]:idx;
         const line=label.linepos[idx-1];
-        out.push({id,idx,caption:label.caption,name:labels[i], 
-            line});
+        const name=label.names?label.names[idx-1]:'';
+        //line is smaller than y0
+        out.push({id,idx,delta:0,caption:label.caption,lblname:labels[i], name, y0,line});
     }
+    
+    
+    for (let i=0;i<out.length;i++) {
+        const label=this.getLabel(labels[i]);
+        if (label.resets) {
+            label.resets.forEach(l=>{
+                const at=labels.indexOf(l);
+                if (at===-1) return;
+                const reseting=this.getLabel(labels[at]);
+                const firstChild=bsearch(reseting.linepos, out[i].line,true  ); //找最近 bk 的 c
+                let delta=out[at].idx-firstChild;
+                out[at].id=delta;
+                if (reseting.cols>1) { //reverse operation of LabelPage.npage
+                    if(delta)delta--; //delta might be 0
+                    const col=(delta % reseting.cols)
+                    out[at].id=(Math.floor( delta / reseting.cols)+1) + String.fromCharCode(0x61+col);
+                }
+            })
+        }
+    }
+    
     return out;
 }
 function getTocTree(addr){
