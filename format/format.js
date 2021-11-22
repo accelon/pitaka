@@ -17,3 +17,4 @@ export const getFormat=format=>{
     const F=formats[format];
     return Object.assign({tree:DEFAULT_TREE,Formatter},F);
 }
+

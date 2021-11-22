@@ -94,7 +94,7 @@ export const serializePointer=(ptk,y_loc,hook='',dy=0,attrs={})=>{
     if (!ptk)return '';
     let loc=y_loc;
     if (typeof y_loc=='number') {
-        loc=ptk.pageAt(y_loc,true);
+        loc=ptk.locOf(y_loc);
     }
     let ptkname=ptk;
     if (typeof ptk.name=='string') ptkname=ptk.name;
@@ -127,7 +127,7 @@ export const referencing=async (arr, ptk=null)=>{
             y=from;
         } else {
             if (!y) y=0;
-            p=ptk.pageAt(y||0).join(PATHSEP);
+            p=ptk.locOf(y||0);
         }
         const unready=ptk.unreadyChunk(from,to-from);
 

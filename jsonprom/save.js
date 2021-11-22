@@ -3,11 +3,13 @@ import JsonpSaver from './savejsonp.js';
 import CacheSaver from './savecache.js';
 import RawSaver from './saveraw.js';
 import {chunkjsfn,pack_delta} from '../utils/index.js';
-const escapeTemplateString=str=>str.replace(/\\/g,"\\\\").replace(/`/g,"\\`").replace(/\$\{/g,'$\\{');
+const escapeTemplateString=str=>str.replace(/\\/g,"\\\\")
+.replace(/`/g,"\\`").replace(/\$\{/g,'$\\{');
 
-const prepareJSONP=({chunk,name,start},lines)=>{
+const prepareJSONP=({chunk,name,start},lines,esc=false)=>{
+    const payload=lines.join('\n');
     return 'jsonp('+chunk+',{"name":"'+name+'","start":'+start
-    +'},`'+escapeTemplateString(lines.join('\n'))+'`)';
+    +'},`'+escapeTemplateString(payload)+'`)';
 }
 
 const saveHeader=async (saver,header,payload)=>{ 
@@ -82,7 +84,7 @@ async function save(opts,extraheader={}){
     const lastpart=compressChunk(this._lines.slice(start,this._lines.length));
     compress=this.header.lastTextLine > chunkStarts[i-1]; 
 
-    filecount+=await saveJsonp(saver,chunkStarts.length, name, start,lastpart ,compress)
+    filecount+=await saveJsonp(saver,chunkStarts.length, name, start,lastpart ,compress, !!opts.jsonp);
 
     const rep={};
     rep.Number_of_chunk=chunkStarts.length+1;

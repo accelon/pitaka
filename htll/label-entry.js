@@ -3,13 +3,13 @@ import {pack_delta,pack,unpack,unpack_delta,packStrings,unpackStrings,bsearch} f
 class LabelEntry extends Label {
     constructor(name,opts={}) {
         super(name,opts)
+        this.caption=opts.caption||'詞條';
         this.idarr=[];
         this.linepos=[];
         this.prevhw='';
         this.textual=true;
         this.prevy=0;
         this.rankBySize=[];//1表示top 1% 
-        // this.entrysize=[];
 
         this.attrs=(opts.attrs||'').split(',').filter(it=>!!it);
         this.attributes={};
@@ -90,6 +90,16 @@ class LabelEntry extends Label {
     }
     find(tofind,near=false){
         return bsearch(this.idarr,tofind,near);
+    }
+    query(tofind){
+        const matches=[];
+        for (let i=0;i<this.idarr.length;i++) {
+            const at=this.idarr[i].indexOf(tofind);
+            if (at>-1) {
+                matches.push({id:this.idarr[i], linepos:this.linepos[i]});
+            }
+        }
+        return { tofind, caption:this.caption, matches, count:matches.length};
     }
     finalize(ctx){
         // const lastentrysize=ctx.linesOffset[ctx.lineCount]

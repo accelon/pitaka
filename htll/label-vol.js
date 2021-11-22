@@ -5,6 +5,7 @@ import Label from './label.js'
 class LabelVol extends Label {
     constructor(name,opts={}) {
         super(name,opts);
+        this.caption=opts.caption||"冊";
         this.linepos=[];
         return this;
     }

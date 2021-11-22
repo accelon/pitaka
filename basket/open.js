@@ -32,7 +32,7 @@ class Basket extends JSONPROM {
         for (let f in mulus) this[f]=mulus[f];
         for (let f in inverted) this[f]=inverted[f];
         for (let f in querymethods) this[f]=querymethods[f];
-        this.querys={};
+        this.querystore=null; //query result store 
     }
     init(){
         const section='labels'
@@ -73,6 +73,11 @@ class Basket extends JSONPROM {
         if (!lbl)return 0;
         return lbl.linepos.length;
     }
+    chapterCount() {
+        let lbl=this.getLabel('c');
+        if (!lbl)return 0;
+        return lbl.linepos.length;
+    }
     isDictionary(){
         return this.header.tree=='e'
     }
@@ -85,6 +90,11 @@ class Basket extends JSONPROM {
                 return r;
             }
         }
+    }
+    findLabelType(labeltype) {
+        for (let i=0;i<this.labels.length;i++) {
+            if (this.labels[i] instanceof labeltype) return this.labels[i];
+        }  
     }
     getLabel(name){
         for (let i=0;i<this.labels.length;i++) {

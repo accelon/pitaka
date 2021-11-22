@@ -4,7 +4,8 @@ import {trimInnerMulu} from './trimmulu.js';
 
 class LabelMulu extends Label {
     constructor(name,opts={}) {
-        super(name,opts)
+        super(name,opts);
+        this.caption=opts.caption||'目錄';
         this.names=[];
         this.level=[];
         this.linepos=[];

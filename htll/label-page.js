@@ -5,7 +5,8 @@ import Label from './label.js'
 const debug=false;
 class LabelPage extends Label {
     constructor(name,opts={}) {
-        super(name,opts)
+        super(name,opts);
+        this.caption=opts.caption||'頁碼';
         this.linepos=[0];
         this.cols=opts.cols || 1;
         this._prevy=0;
@@ -18,19 +19,22 @@ class LabelPage extends Label {
         this.pagestart+=this._prevpage;
         this._prevpage=-1;
     }
-    action(tag,linetext){
-        let page=parseInt(tag.attrs.n,10);
-        if (this.autoreset&&page==1&&this._prevpage!==-1) {
-            this.reset();
-        }
-
+    npage(str) {//convert string to npage
+        let page=parseInt(str,10);
         if (this.cols>1) {
-            const cols=tag.attrs.n.charCodeAt(tag.attrs.n.length-1)-0x61;
+            const cols=str.charCodeAt(str.length-1)-0x61;
             if (cols>2) { //超過 c 欄 ，不輸出頁碼
-                // console.log('more than '+this.cols+' cols',tag.attrs.n);
+                // console.log('more than '+this.cols+' cols',strn);
                 return;
             }
             page=(page-1)*this.cols+cols+1;
+        }
+        return page;
+    }
+    action(tag,linetext){
+        const page=this.npage(tag.attrs.n);
+        if (this.autoreset&&page==1&&this._prevpage!==-1) {
+            this.reset();
         }
 
         if (this._prevpage>=page) {

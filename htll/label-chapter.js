@@ -4,6 +4,7 @@ import {pack,unpack,pack_delta,unpack_delta,packStrings,unpackStrings,bsearch} f
 class LabelChapter extends Label {
     constructor(name,opts={}) {
         super(name,opts)
+        this.caption=opts.caption||'章';
         this.names=[];
         this.idarr=[];
         this.linepos=[];

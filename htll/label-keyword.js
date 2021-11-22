@@ -59,7 +59,8 @@ class LabelKeyword extends Label {
     query(tofind){
         const at=this.keys.indexOf(tofind);
         if (at>-1) {
-            return {tofind, caption:this.caption, linepos: this.lineposs[at], count:linepos.length };
+            const linepos=this.lineposs[at];
+            return {tofind, caption:this.caption, linepos, count:linepos.length };
         }
         return {tofind, caption:this.caption,count:0};
     }

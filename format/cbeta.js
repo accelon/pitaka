@@ -113,5 +113,9 @@ export const translatePointer=str=>{
     }
     return ''
 }
+// export const parseQuickPointer=(ptk,ptr)=>{
+//     console.log('parsing quick pointer',ptr);
+//     return {valid:true,ptr};
+// }
 export default {Formatter:OffTextFormatter,translatePointer,
     parseFile,parseBuffer,getZipFileToc}

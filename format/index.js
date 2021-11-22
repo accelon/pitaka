@@ -64,5 +64,9 @@ const fileLines=async fn=>{
     const lines=content.split('\n');
     return lines;
  }
-
-export {readFormatFile, fileContent,translatePointer,getFormatter,fileLines,getZipIndex,getFormatTypeDef,getFormatTree};
+const getQuickPointerParser=format=>{
+    const fm=getFormat(format);
+    return fm.parseQuickPointer;
+}
+export {readFormatFile, fileContent,translatePointer,getFormatter,
+    fileLines,getZipIndex,getFormatTypeDef,getQuickPointerParser,getFormatTree};

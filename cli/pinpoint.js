@@ -52,7 +52,7 @@ export default async function(config){
 
             if (hook) {
                 const insertat=offset+extra.length+bkch.length+2;
-                const loc=bkobj.ptk.pageAt(y,true);
+                const loc=bkobj.ptk.locOf(y);
                 const addr='@'+PATHSEP+bkobj.ptk.name+PATHSEP+loc+hook+']';
                 line=line.substr(0,insertat)+'^t['+addr+line.substr(insertat);
             }
