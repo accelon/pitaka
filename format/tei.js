@@ -31,7 +31,7 @@ const pb=(el,ctx)=>{
     ctx.lbcount=0;
     ctx.compact=true;
     let out='', pn=el.attrs.n.replace(/^0+/,'');
-    if (ctx.fn[0]==='Y') {
+    if (ctx.fn.match(/Y\d\dn\d/)) {
         if (pn.charCodeAt(0)>0x40){ 
             out='^pg['+pn.substr(0,pn.length-1)+']';
             ctx.compact=false;
@@ -49,7 +49,6 @@ const pb=(el,ctx)=>{
         }
         out=vol+'^p'+ pn;
     }
-    
     return out;
 }
 const g=(el,ctx)=>{

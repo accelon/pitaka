@@ -50,7 +50,7 @@ const fixJuanT=(bkno,juan,sutraline)=>{
 }
 
 const parseBuffer=(buf,fn='',ctx)=>{
-    // if (fn) process.stdout.write('\r processing'+fn+'    ');
+    // if (fn) process.stdout.write('\r processing'+fn+'    '+buf.length);
     ctx.rawContent=buf;
     const el=DOMFromString(buf);
     const body=xpath(el,'text/body');
@@ -90,7 +90,8 @@ const parseFile=async (f,ctx)=>{
     const ext=fn.match(/(\.\w+)$/)[1];
     if (ext=='.xml') {
         const xmlcontent=await fs.promises.readFile(f,'utf8');
-        return parseBuffer(xmlcontent,fn,ctx);
+        const parsed=parseBuffer(xmlcontent,fn,ctx);
+        return parsed;
     } else {
         throw "unknown extension "+ext
     }

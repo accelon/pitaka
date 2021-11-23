@@ -5,8 +5,9 @@ const fileContent=async(fn,format,ctx)=>{
     let c;
     const F=getFormat(format);
     if (typeof fn=='string') {
-        if (F.parseFile) c= (await F.parseFile(fn,ctx)).rawcontent;
+        if (F.parseFile) c= (await F.parseFile(fn,ctx));
         else            c=(await fs.promises.readFile(fn,'utf8')).replace(/\r?\n/g,'\n');
+        if (c.rawcontent) c=c.rawcontent;
         
     } else {
        if (fn.zip) {

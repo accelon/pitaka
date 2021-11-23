@@ -44,7 +44,7 @@ const toHtmlTag=(content,tags)=>{
     })
     return T;
 }
-const htmlAttrs=attrs=>{
+const htmlAttrs=(attrs,sim=0)=>{
     if (!attrs)return '';
     let s='';
     for (let name in attrs) {
@@ -52,7 +52,8 @@ const htmlAttrs=attrs=>{
         if (name=='#') aname='id';
         if (name=='@') aname='hook'; //link
         if (name=='~') continue;
-        s+=' '+aname+'="'+attrs[name]+'"';
+        const val=attrs[name];
+        s+=' '+aname+'="'+((sim&&aname===name)?toSim(val):val)+'"';//do not convert @,#
     }
     return s;
 }
@@ -161,11 +162,11 @@ export const composeSnippet=(snippet,lineidx,sim=0)=>{
     let out='';
     if (open && open.empty) {
         out+=open.extra+'<'+open.empty+(open.i?' i="'+open.i+'" ':'')
-            +' x="'+open.x+'" '+' y="'+(lineidx+open.y)+'" '+htmlAttrs(open.attrs)+'/>';
+            +' x="'+open.x+'" '+' y="'+(lineidx+open.y)+'" '+htmlAttrs(open.attrs,sim)+'/>';
     } else {
         if (!open) out+=toSim(text,sim);
         else out+=
-        '<t'+ htmlAttrs(open.attrs)
+        '<t'+ htmlAttrs(open.attrs,sim)
                 +(open.clss&&open.clss.length?' class="'+open.clss.join(' ')+'"':'')
                 +' x="'+open.x+'"'+' y="'+(lineidx+open.y)+'"'
                 + (open.w?' w="'+(open.w)+'"':'')

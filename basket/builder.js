@@ -121,7 +121,6 @@ class Builder {
         
         if (this.context.errata) files=this.adjustChapter(files);
 
-
         const jobs=[];
         const contents=new Array(files.length); //save the contents in order
         const rawContents=new Array(files.length);
@@ -203,15 +202,35 @@ class Builder {
             throw '';
         }
     }
+    async addFolder(folder,format) {
+        const files=fs.readdirSync((this.config.rootdir||'')+folder);
+        for (let i=0;i<files.length;i++){
+            process.stdout.write('\r'+files[i]+'        ');
+            const fn=folder+'/'+ files[i];
+            if (!(fn.endsWith('.xml') || fn.endsWith('.off') ||fn.endsWith('.txt'))) {
+                console.log('skip',fn);
+                continue;
+            }
+            await this.addFile((this.config.rootdir||'')+fn,format) ;
+        }
+    }
     async addFile(file,format){ //file=='string' nodejs , File browser local file, or a File in zip
         let fn=file;
         if (typeof file!=='string' && 'name' in file) {
             fn=file.name;
         }
+        let rootdir='';
+        if (typeof fs!=='undefined' && this.config.rootdir) {
+            rootdir=this.config.rootdir||'';
+        }
         if (fn.endsWith('.zip')) {
             return await this.addZip(file,format);
         } else if (fn.endsWith('.lst')) {
             return await this.addLst(file,format);
+        } else if (typeof fs!=='undefined' 
+        &&fs.existsSync(rootdir+fn)&&fs.statSync(rootdir+fn).isDirectory()) {
+            // console.log('is folder',fn)
+            return await this.addFolder(file,format);
         }
 
         if (this.finalized) {

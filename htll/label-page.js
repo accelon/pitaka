@@ -33,12 +33,14 @@ class LabelPage extends Label {
     }
     action(tag,linetext){
         const page=this.npage(tag.attrs.n);
+        
         if (this.autoreset&&page==1&&this._prevpage!==-1) {
             this.reset();
         }
 
         if (this._prevpage>=page) {
-            throw 'page no in order '+tag.attrs.n+' '+this._prevpage+' '+page+' '+linetext;
+            throw 'page no in order, current:'+JSON.stringify(tag)
+            +' prev:'+this._prevpage+' computed:'+page+' \n'+linetext;
         }
         this._prevpage=page;
         this.linepos[this.pagestart+page]=tag.y;
