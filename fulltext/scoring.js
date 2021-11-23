@@ -1,5 +1,6 @@
 import {TK_WEIGHT, TK_NAME,TK_POSTING} from './tokenizer.js'
 
+
 export const scoreRange=(weightedToken, plRange, opts)=>{
     //a little bit faster than deconstruction inside loop
     const scores=weightedToken.map(it=>it[TK_WEIGHT]);
@@ -8,10 +9,11 @@ export const scoreRange=(weightedToken, plRange, opts)=>{
     opts=opts||{};
 
     const minscore=opts.minscore||0.7;
+    const plRangeLast=plRange[plRange.length-1];
     ptr.fill(0);
     let out=[],i=opts.from||0, till=opts.to||plRange.length-1;
     while (i<till) {
-        let rangescore=0,nearest=plRange[plRange.length-1];
+        let rangescore=0,nearest=plRangeLast;
         const from=plRange[i], to=plRange[i+1];
         for (let j=0;j<PL.length;j++) {
             const pl=PL[j];

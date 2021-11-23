@@ -5,6 +5,7 @@ import {similarity} from './similarity.js'
 import {diffCJK,printDiff,} from 'pitaka/utils' 
 import {weightToken,scoreRange,convolute,getNthTokenX,CJKWordEnd_Reg} from '../fulltext/index.js'
 
+
 export const fuzzyMatchQuote=async (bkobj,q)=>{
     const {ptk,from,to}=bkobj;
     const tokens=(await ptk.prepareToken(q));
