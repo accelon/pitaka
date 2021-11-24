@@ -5,19 +5,18 @@ import { bsearch } from "../utils/bsearch.js" ;
 function narrowDown(branches){
     let from=0,to=this.lastTextLine();
     for (let i=0;i<branches.length;i++){
-        const {lbl, id , dy}=branches[i];
+        const {lbl, id }=branches[i];
         const label=this.getLabel(lbl);
-        if (!label) return [];
+        if (!label) break;
         const startfrom=bsearch(label.linepos,from,true);
         let at;
-        if (label.idarr && id[0]!==DELTASEP) {  // leading : go to nth child
+        if (label.idarr) {  // leading : go to nth child
             at=label.idarr.indexOf(id, startfrom);
             if (at==-1) break;
         } else {
-            const id2=id.substr(id[0]==DELTASEP?1:0);
-            at=startfrom+(label.indexOf?label.indexOf(id2):parseInt(id2)-1); //without DELTASEP is 1 base
+            at=startfrom+(label.indexOf?label.indexOf(id):parseInt(id)-1); //without DELTASEP is 1 base
         }
-        from=label.linepos[at]  + dy;
+        from=label.linepos[at] ;
         to=label.linepos[at+1] || to;
     }
     if (!to|| to==-1) y1=this.lastTextLine();
@@ -49,7 +48,7 @@ function getPageRange(addr){
     const pths=(addr||'').split(PATHSEP).filter(i=>!!i);
     const arr=pths.map((item,idx)=>{
         let pth=pths[idx];
-        let id=pth,dy=0;
+        let id=pth;
         let lbl=thetree[idx];
 
         const eq=id.indexOf('#');
@@ -57,14 +56,14 @@ function getPageRange(addr){
             const [labelname,attrs]=parseOffTag(id.substr(0,eq)+id.substr(eq+1));
             id=attrs.n;
             lbl=labelname;
-        } else {
-            const m=pth.lastIndexOf(DELTASEP);
-            dy=m>1?parseInt(pth.substr(m+1)):0;
-            if (m>1 && !isNaN(dy) ) {
-                pth=pth.substr(0,m);
-            }
+        // } else {
+        //     const m=pth.lastIndexOf(DELTASEP);
+        //     dy=m>1?parseInt(pth.substr(m+1)):0;
+        //     if (m>1 && !isNaN(dy) ) {
+        //         pth=pth.substr(0,m);
+        //     }
         }
-        return {lbl, id , dy}
+        return {lbl, id }
     })
     const nextlbl=thetree[pths.length]||'';
     return [...this.narrowDown(arr) ,  nextlbl ] ;
@@ -78,11 +77,10 @@ function locOf(y,full=false){
             delta=y-arr[i].line;
             if (delta) delta--;
         }
-
-        s+= id+ (delta?DELTASEP+delta:'')+PATHSEP;
+        s+= id+ (delta?PATHSEP+delta:'')+PATHSEP;
         parentat=arr[i].line;
     }
-    return full?PATHSEP+this.name+PATHSEP+s:s;
+    return full?this.name+PATHSEP+s:s;
 }
 function closest(y0,labels){
     let out=[];
@@ -131,7 +129,7 @@ function closest(y0,labels){
     
     return out;
 }
-function getTocTree(addr){
+function getTocTree(addr,locOnly=false){
     if (!addr) addr='';
     const out=[{ptr:'/',name:this.header.shorttitle }];
     if (!addr.trim())return out;
@@ -163,6 +161,7 @@ function getTocTree(addr){
         }
         
     }
+    if (locOnly) out.shift();
     return out;
 }
 

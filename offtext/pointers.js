@@ -5,6 +5,27 @@ import {makeHook, parseHook} from './hook.js';
 import {parseOfftextLine} from './parser.js';
 import {unpackJSONString,packJSONString} from 'pitaka/utils';
 
+export const parseAddress=str=>{
+    if (!str) return {}; 
+    const res={basket:'',loc:[]};
+    const arr=str.split(PATHSEP);
+    res.basket = arr.shift();
+    let key='loc', v=[] ;
+    res.loc=[arr.shift()];
+    while (arr.length) {
+        const it=arr.shift();
+        const at=it.indexOf('=');
+        if (at>0) {
+            res[key]=res[key].join(PATHSEP)
+            key=it.substr(0,at);
+            v.push(it.substr(at+1));
+        } else {
+            res[key].push(it);
+        }
+    }
+    res[key]=res[key].join(PATHSEP)
+    return res;
+}
 export const parsePointer=str=>{
     if (!str) return {};
     const res={basket:'',bk:'',c:'',dy:0,hook:'',loc:'',attrs:{}};
@@ -100,7 +121,7 @@ export const serializePointer=(ptk,y_loc,hook='',dy=0,attrs={})=>{
     if (typeof ptk.name=='string') ptkname=ptk.name;
     let sattr=packJSONString(JSON.stringify(attrs));
     if (sattr=='{}') sattr='';
-    return PATHSEP+ptkname+PATHSEP+loc+(dy?DELTASEP+dy:'')+hook+sattr;
+    return ptkname+PATHSEP+loc+(dy?PATHSEP+dy:'')+hook+sattr;
 }
 
 
