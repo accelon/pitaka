@@ -3,7 +3,7 @@ import pool from '../basket/pool.js';
 import {PATHSEP,DELTASEP,DEFAULT_TREE} from '../platform/constants.js'
 import {makeHook, parseHook} from './hook.js';
 import {parseOfftextLine} from './parser.js';
-import {unpackJSONString,packJSONString} from 'pitaka/utils';
+import { useBasket } from '../index.js';
 
 export const parseAddress=str=>{
     if (!str) return {}; 
@@ -11,34 +11,24 @@ export const parseAddress=str=>{
     const arr=str.split(PATHSEP);
     res.basket = arr.shift();
     let key='loc', v=[] ;
-    res.loc=[arr.shift()];
     while (arr.length) {
         const it=arr.shift();
         const at=it.indexOf('=');
         if (at>0) {
-            res[key]=res[key].join(PATHSEP)
+            res[key]=v.join(PATHSEP);
             key=it.substr(0,at);
+            v=[];
             v.push(it.substr(at+1));
         } else {
-            res[key].push(it);
+            v.push(it);
         }
     }
-    res[key]=res[key].join(PATHSEP)
+    res[key]=v.join(PATHSEP)
     return res;
 }
 export const parsePointer=str=>{
     if (!str) return {};
-    const res={basket:'',bk:'',c:'',dy:0,hook:'',loc:'',attrs:{}};
-    const at=str.indexOf('{');
-    if (at>0) {
-        const attrs=unpackJSONString(str.substr(at));
-        str=str.substr(0,at);
-        try{
-            res.attrs=JSON.parse(attrs);
-        } catch(e){
-            console.error(e);
-        }
-    }
+    const res={basket:'',bk:'',c:'',dy:0,hook:'',loc:''};
     const pths=str.split(PATHSEP);
     if (str[0]=='/') {
         pths.shift();
@@ -111,17 +101,20 @@ export const dereferencing=async (arr,ptk=null)=>{
     return out.map(i=>i[0]);
 }
 
-export const serializePointer=(ptk,y_loc,hook='',dy=0,attrs={})=>{
-    if (!ptk)return '';
+export const serializePointer=(basket_ptk,y_loc,hook='',dy=0)=>{
+    if (!basket_ptk)return '';
+    let ptk=basket_ptk;
+    if (typeof basket_ptk=='string')ptk=useBasket(basket_ptk);
     let loc=y_loc;
     if (typeof y_loc=='number') {
         loc=ptk.locOf(y_loc);
+    } else {
+        loc=ptk.pageLoc(y_loc);
+        if (dy) loc+=PATHSEP+dy;
     }
     let ptkname=ptk;
     if (typeof ptk.name=='string') ptkname=ptk.name;
-    let sattr=packJSONString(JSON.stringify(attrs));
-    if (sattr=='{}') sattr='';
-    return ptkname+PATHSEP+loc+(dy?PATHSEP+dy:'')+hook+sattr;
+    return ptkname+PATHSEP+loc+hook;
 }
 
 

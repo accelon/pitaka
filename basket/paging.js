@@ -1,6 +1,7 @@
 import {PATHSEP,DELTASEP,DEFAULT_TREE,NAMESEP} from '../platform/constants.js'
 import {parseOffTag} from '../offtext/index.js'
 import { bsearch } from "../utils/bsearch.js" ;
+import { parseAddress } from '../offtext/pointers.js';
 
 function narrowDown(branches){
     let from=0,to=this.lastTextLine();
@@ -70,17 +71,24 @@ function getPageRange(addr){
 }
 function locOf(y,full=false){
     const arr=this.closest(y,(this.header.tree||DEFAULT_TREE).split(PATHSEP));
-    let s='',parentat=0;
-    for (let i=0;i<arr.length;i++) {
-        let id=arr[i].id,delta=0;
-        if (i) {
-            delta=y-arr[i].line;
-            if (delta) delta--;
-        }
-        s+= id+ (delta?PATHSEP+delta:'')+PATHSEP;
-        parentat=arr[i].line;
-    }
+    const out=arr.map(it=>it.id);
+    const delta=y-arr[arr.length-1].line;
+    if (delta>1) out.push(delta-1);
+    const s=out.join(PATHSEP);
     return full?this.name+PATHSEP+s:s;
+}
+function pageLoc(y_loc){ //loc without line delta and ptkname
+    let loc='';
+    if (typeof y_loc==='number') {
+        const arr=this.closest(y,(this.header.tree||DEFAULT_TREE).split(PATHSEP));
+        loc=arr.map(it=>it.id).join(PATHSEP);
+    } else {
+        const arr=y_loc.split(PATHSEP);
+        const thetree=(this.header.tree||DEFAULT_TREE).split(PATHSEP);
+        arr.length=thetree.length;
+        loc=arr.join(PATHSEP);
+    }
+    return loc;
 }
 function closest(y0,labels){
     let out=[];
@@ -253,5 +261,5 @@ function childCount(loc){
     if (!label) return 0;
     return label.countRange(from,to);
 }
-export default {closest,getTocTree,getNChild,childCount,locOf,
+export default {closest,getTocTree,getNChild,childCount,locOf,pageLoc,
     fetchPage,fetchToc,getPageRange,narrowDown,getLabelLineRange}

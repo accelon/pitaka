@@ -15,6 +15,6 @@ export const phraseQuery=async (ptk,phrase)=>{
 };
 
 export const validateTofind=str=>{
-    return (str||'').replace(/\^/g,'').trim();
+    return (str||'').replace(/[\[\]&%$#@\/\^]/g,'').trim();
 }
 export default {phraseQuery,validateTofind};

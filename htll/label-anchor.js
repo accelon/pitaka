@@ -6,7 +6,7 @@ import {addHref,addAName} from './anchor-handler.js'; //分別處理 <a href> , 
 /*
   TODO check if href has valid target (no broken link)
 */
-import {parseAddress} from './address.js';
+import {parseAnchor} from './address.js';
 class LabelAnchor extends Label {
     constructor(name,opts={}) {
         super(name,opts)

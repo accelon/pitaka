@@ -12,7 +12,8 @@ const nLineOfFirstKey=nsobj=>{
     const nol=nsobj['.'].nol;
     return nol.val(nol.key(1));
 }
-export const parseAddress=(namespaces,titles,header,addr)=>{
+
+export const parseAnchor=(namespaces,titles,header,addr)=>{
     let [ns,id]=addr.split('#');
     let nsobj=namespaces[ns];
     const {title,nsnline}=header;
