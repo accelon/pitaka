@@ -1,13 +1,13 @@
 import Label from './label.js'
-import {pack,unpack,pack_delta,unpack_delta,packStrings,unpackStrings,bsearch} from'../utils/index.js';
+import {pack_delta,unpack_delta} from'../utils/index.js';
 
 class LabelKeyword extends Label {
     constructor(name,opts={}) {
         super(name,opts)
         this.keys=[];
-        this.lineposs=[];
         this.context=opts.context;
-        this.master=opts.master;
+        this.master=opts.master; //master tag
+        this.positions=[];       //出現此keyword 的 nth master
         this.caption=opts.caption;
         //build time only
         this._keywords={};
@@ -42,7 +42,7 @@ class LabelKeyword extends Label {
         this.caption=payload[at++];payload[at-1]='';
         this.keys=payload[at++].split('\t');payload[at-1]='';
         for (let i=0;i<this.keys.length;i++) {
-            this.lineposs[i]=unpack_delta(payload[at++]);payload[at-1]='';
+            this.positions[i]=unpack_delta(payload[at++]);payload[at-1]='';
         }
     }
     finalize(ctx) {
@@ -59,8 +59,8 @@ class LabelKeyword extends Label {
     query(tofind){
         const at=this.keys.indexOf(tofind);
         if (at>-1) {
-            const linepos=this.lineposs[at];
-            return {tofind, caption:this.caption, linepos, count:linepos.length };
+            const positions=[... (this.positions[at]) ];
+            return {tofind, caption:this.caption, positions, count:positions.length };
         }
         return {tofind, caption:this.caption,count:0};
     }

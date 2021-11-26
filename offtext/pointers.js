@@ -3,8 +3,18 @@ import pool from '../basket/pool.js';
 import {PATHSEP,DELTASEP,DEFAULT_TREE} from '../platform/constants.js'
 import {makeHook, parseHook} from './hook.js';
 import {parseOfftextLine} from './parser.js';
-import { useBasket } from '../index.js';
 
+export const stringifyAddress=attrs=>{
+    const out=[];
+    out.push(attrs.basket||'');
+    if (attrs.loc)out.push(attrs.loc||'');
+    for (let key in attrs ) {
+        if (key!=='loc' && key!=='basket' && attrs[key]) {
+            out.push(key+'='+attrs[key]);
+        }
+    }
+    return out.join(PATHSEP);
+}
 export const parseAddress=str=>{
     if (!str) return {}; 
     const res={basket:'',loc:[]};
@@ -104,7 +114,7 @@ export const dereferencing=async (arr,ptk=null)=>{
 export const serializePointer=(basket_ptk,y_loc,hook='',dy=0)=>{
     if (!basket_ptk)return '';
     let ptk=basket_ptk;
-    if (typeof basket_ptk=='string')ptk=useBasket(basket_ptk);
+    if (typeof basket_ptk=='string')ptk=pool.get(basket_ptk);
     let loc=y_loc;
     if (typeof y_loc=='number') {
         loc=ptk.locOf(y_loc);
@@ -134,7 +144,7 @@ export const referencing=async (arr, ptk=null)=>{
             if (p[0]==PATHSEP) {
                 const pths=p.split(PATHSEP);
                 pths.shift();
-                ptk=useBasket(pths.shift());
+                ptk=pool.get(pths.shift());
                 p=pths.join(PATHSEP)
             }
             [from,to]=ptk.getPage(p);

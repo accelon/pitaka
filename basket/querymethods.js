@@ -1,8 +1,12 @@
 import { fromSim } from "lossless-simplified-chinese";
 import { phraseQuery } from "../fulltext/index.js";
-async function fulltextSearch(tofind,opts={}){
+export async function fulltextSearch(tofind,opts={}){
     const ptk=this;
-    const posting=await phraseQuery(ptk,tofind);
+    let posting=await phraseQuery(ptk,tofind);
+    if (!posting.length && opts.tosim) {
+        tofind=fromSim(tofind);
+        posting=await phraseQuery(ptk,tofind);
+    }
     let scoredLine=[];
     const PL=[posting];
     const scores=[1];
@@ -64,4 +68,4 @@ export async function runAllQuery(tofind,opts){
     return out;
 }
 
-export default {registerQueryMethods,runAllQuery,runQuery};
+export default {registerQueryMethods,runAllQuery,runQuery,fulltextSearch};

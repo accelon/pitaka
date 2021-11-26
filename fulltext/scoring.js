@@ -22,8 +22,14 @@ export const scoreRange=(weightedToken, plRange, opts)=>{
                 ptr[j]++
                 v=pl[ptr[j]];
             }
-            if (v>=from&&v<to) {
-                rangescore+=scores[j];
+            if (v>=from&&v<to) { 
+                let score=scores[j];
+                while (v>=from && v<to) {
+                    rangescore+=score;
+                    score/=4;  //重覆出現的效用遞減
+                    ptr[j]++
+                    v=pl[ptr[j]];
+                }
             }
             if (nearest>v) nearest=v;
         }
