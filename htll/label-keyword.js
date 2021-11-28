@@ -11,6 +11,7 @@ class LabelKeyword extends Label {
         this.caption=opts.caption;
         //build time only
         this._keywords={};
+        this.sort=opts.sort;
         this._sortedKeywords=[];
         return this;
     }
@@ -50,11 +51,16 @@ class LabelKeyword extends Label {
         for (let k in this._keywords) {
             keywords.push([k,this._keywords[k]]);
         }
-        keywords.sort((a,b)=>b[1].length-a[1].length);
+        if (this.sort) keywords.sort((a,b)=>b[1].length-a[1].length);
 
         this._sortedKeywords=keywords;
         const master=ctx.labeldefs[this.master];
         master.addKeywords(this.name,keywords);
+    }
+    positionOf(n) {
+        const  at=(typeof n=='string')?this.keys.indexOf(n):n;
+        const positions=[... (this.positions[at]) ];
+        return positions;
     }
     query(tofind){
         const at=this.keys.indexOf(tofind);

@@ -22,7 +22,12 @@ import {group,entrysort,search,wordseg,intersect} from './offtextutils.js'
 import validate from "./validate.js"
 import zip from "./zip.js"
 const pitakajson='pitaka.json';
-const config=JSON.parse(readFileSync(pitakajson,'utf8').trim());
+let config={};
+if (!existsSync(pitakajson) ){
+    console.log(red("missing pitaka.json"));
+} else {
+    config=JSON.parse(readFileSync(pitakajson,'utf8').trim());
+}
 const jsonp=()=>build({jsonp:true});
 const raw=()=>build({raw:true});
 const ngram=()=>build( {ngram:parseInt(arg)||2});

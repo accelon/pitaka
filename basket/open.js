@@ -48,6 +48,8 @@ class Basket extends JSONPROM {
                     } else {
                         self.header.shorttitle=self.header.title.substr(0,2);
                     }
+
+
                     self.loadtime.open=new Date()-now; now= new Date();
                     self.loadSection(section,function(){
                         const labelSection=self.getSection(section);
@@ -56,6 +58,13 @@ class Basket extends JSONPROM {
                         self.lblTransclusion=self.getLabel('t');
                         self.loadtime.labels=new Date()-now; now= new Date();
 
+                        
+                    if (!self.header.cluster) {
+                        if (self.getLabel('bk')) self.header.cluster='bk';
+                        else if (self.getLabel('e')) self.header.cluster='e';
+                        else throw "no cluster label (bk or e)"
+                    }
+                    
                         self.registerQueryMethods();
                         resolve(true); //resolve earlier, need to check if inverted ready
                     });
@@ -100,6 +109,9 @@ class Basket extends JSONPROM {
         for (let i=0;i<this.labels.length;i++) {
             if (this.labels[i].name==name) return this.labels[i];
         }
+    }
+    getClusterLabel() {
+        return this.getLabel(this.header.cluster||'bk')
     }
     find(label,tofind,near) {
         const lbl=this.getLabel(label);

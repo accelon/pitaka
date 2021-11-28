@@ -31,6 +31,14 @@ class Builder {
         this.exec=opts.exec;
         this.unknownLabel={};
         this.context.labeldefs=getFormatTypeDef(this.config,{context:this.context,log:this.log});
+
+        if (!this.config.cluster) {
+            if (this.context.labeldefs.bk) this.config.cluster='bk';
+            else if (this.context.labeldefs.e) this.config.cluster='e';
+            else throw "no cluster label (bk or e)"
+        } else if (!this.context.labeldefs[ this.config.cluster]) {
+            throw "cluster label "+this.config.cluster+"not defined";
+        }
         this.files=[];
         if (this.config.eudc) this.addJSON(this.config.eudc,'EUDC');
         if (this.config.errata) this.addErrata(this.config.errata);

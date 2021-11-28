@@ -69,6 +69,11 @@ function getPageRange(addr){
     const nextlbl=thetree[pths.length]||'';
     return [...this.narrowDown(arr) ,  nextlbl ] ;
 }
+function clusterOf(y){
+    const cl=this.getClusterLabel();
+    const at=bsearch(cl.linepos,y,true)-1;
+    return {id:cl.idarr[at], at};
+}
 function locOf(y,full=false){
     const arr=this.closest(y,(this.header.tree||DEFAULT_TREE).split(PATHSEP));
     const out=arr.map(it=>it.id);
@@ -261,5 +266,5 @@ function childCount(loc){
     if (!label) return 0;
     return label.countRange(from,to);
 }
-export default {closest,getTocTree,getNChild,childCount,locOf,pageLoc,
+export default {closest,getTocTree,getNChild,childCount,locOf,clusterOf,pageLoc,
     fetchPage,fetchToc,getPageRange,narrowDown,getLabelLineRange}
