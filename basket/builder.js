@@ -169,7 +169,7 @@ class Builder {
                 }
             } else {
                 if (!this.unknownLabel[tag.name]) {
-                    this.log('undefined tag',tag.name, tag.y);
+                    this.log('undefined tag',tag.name, tag.y, linetext);
                     this.unknownLabel[tag.name]=1;
                 } else this.unknownLabel[tag.name]++;
             }

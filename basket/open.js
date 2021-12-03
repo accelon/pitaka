@@ -8,6 +8,7 @@ import pointers from './pointers.js';
 import mulus from './mulus.js';
 import inverted from './inverted.js';
 import querymethods from './querymethods.js';
+import parallels from './parallels.js';
 /*
    Basket is a read-only container
    of htll texts, prebuilt data-structure to facilitate fast access,
@@ -32,6 +33,7 @@ class Basket extends JSONPROM {
         for (let f in mulus) this[f]=mulus[f];
         for (let f in inverted) this[f]=inverted[f];
         for (let f in querymethods) this[f]=querymethods[f];
+        for (let f in parallels) this[f]=parallels[f];
         this.querystore=null; //query result store 
     }
     init(){
@@ -49,7 +51,9 @@ class Basket extends JSONPROM {
                         self.header.shorttitle=self.header.title.substr(0,2);
                     }
 
-
+                    if (self.header.parallels && typeof self.header.parallels=='string') {
+                        self.header.parallels=self.header.parallels.split(',');
+                    }
                     self.loadtime.open=new Date()-now; now= new Date();
                     self.loadSection(section,function(){
                         const labelSection=self.getSection(section);
@@ -57,13 +61,13 @@ class Basket extends JSONPROM {
                         self.labels=deserializeLabels(labelSection,labelSectionRange,self.header.labels);
                         self.lblTransclusion=self.getLabel('t');
                         self.loadtime.labels=new Date()-now; now= new Date();
-
                         
-                    if (!self.header.cluster) {
-                        if (self.getLabel('bk')) self.header.cluster='bk';
-                        else if (self.getLabel('e')) self.header.cluster='e';
-                        else throw "no cluster label (bk or e)"
-                    }
+                        if (!self.header.cluster) {
+                            if (self.getLabel('bk')) self.header.cluster='bk';
+                            else if (self.getLabel('e')) self.header.cluster='e';
+                            else throw "no cluster label (bk or e)"
+                        }
+                        
                     
                         self.registerQueryMethods();
                         resolve(true); //resolve earlier, need to check if inverted ready

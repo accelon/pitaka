@@ -142,6 +142,9 @@ function closest(y0,labels){
     
     return out;
 }
+function getTocTreeDef(){
+    return (this.header.tree||DEFAULT_TREE).split(PATHSEP);
+}
 function getTocTree(addr,locOnly=false){
     if (!addr) addr='';
     const out=[{ptr:'/',name:this.header.shorttitle }];
@@ -172,7 +175,6 @@ function getTocTree(addr,locOnly=false){
             }            
             out.push({name:parents[i], n: i, ptr})
         }
-        
     }
     if (locOnly) out.shift();
     return out;
@@ -266,5 +268,5 @@ function childCount(loc){
     if (!label) return 0;
     return label.countRange(from,to);
 }
-export default {closest,getTocTree,getNChild,childCount,locOf,clusterOf,pageLoc,
+export default {closest,getTocTreeDef,getTocTree,getNChild,childCount,locOf,clusterOf,pageLoc,
     fetchPage,fetchToc,getPageRange,narrowDown,getLabelLineRange}

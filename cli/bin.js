@@ -15,6 +15,7 @@ import {existsSync,  readFileSync} from 'fs';
 import {buildPitaka} from './build.js'
 import {info} from './info.js';
 import quote from './quote.js';
+import longline from './longline.js';
 import pinpoint from './pinpoint.js';
 import nGram from '../fulltext/ngram.js';
 import {group,entrysort,search,wordseg,intersect} from './offtextutils.js'
@@ -118,6 +119,7 @@ const help=()=>{
     console.log(yellow('$ pitaka group fn [pat]'), 'grouping string matching pattern, each line as item if no pat')
     console.log(yellow('$ pitaka entrYsort fn'), 'sort entry in unicode order')
     console.log(yellow('$ pitaka search fn'), 'search book/entry in pitaka file or a book list')
+    console.log(yellow('$ pitaka longline fn'), 'find out long length')
     console.log(yellow('$ pitaka wordseg fn words/dict_ptk'), 'word segmentation')
     console.log(yellow('$ pitaka intersect f1 f2'), 'intersect stringlist')
 }
@@ -125,7 +127,7 @@ const help=()=>{
 try {
     await ({v:validate,validate,
         j:jsonp,jsonp,raw,r:raw, q:quote,quote, p:pinpoint,pinpoint,
-        z:zip,zip,ngram,n:ngram,exec,e:exec,
+        z:zip,zip,ngram,n:ngram,exec,e:exec,l:longline,longline,
         group,g:group,entrysort,y:entrysort,search,s:search,wordseg,w:wordseg,
         '--help':help,'-h':help,i:intersect,intersect,build,b:build})[cmd](config);
 
