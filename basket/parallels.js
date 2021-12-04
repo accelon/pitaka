@@ -1,3 +1,4 @@
+import { PATHSEP } from "..";
 import { parseAddress } from "../offtext";
 export function getParallelLinks(y_loc){
     let loc=y_loc;
@@ -12,9 +13,12 @@ export function getParallelLinks(y_loc){
         for (let i=0;i<this.header.parallels.length;i++) {
             const par=this.header.parallels[i];
             if ('.'+par!==m[1]) {
-                out.push(loc.replace(m[1],'.'+par));
+                const newloc= addr.loc.replace(m[1],'.'+par);
+                out.push({ par, basket: this.name,loc:newloc,address:this.name+PATHSEP+newloc});
             }
         }
     }
+    return out;
 }
+
 export default {getParallelLinks};

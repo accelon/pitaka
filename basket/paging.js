@@ -78,9 +78,20 @@ function locOf(y,full=false){
     const arr=this.closest(y,(this.header.tree||DEFAULT_TREE).split(PATHSEP));
     const out=arr.map(it=>it.id);
     const delta=y-arr[arr.length-1].line;
-    if (delta>1) out.push(delta-1);
+    if (delta>0) out.push(delta);
     const s=out.join(PATHSEP);
     return full?this.name+PATHSEP+s:s;
+}
+function dyOf(y_loc) {
+    if (typeof y_loc==='string') {
+        const arr=y_loc.split(PATHSEP);
+        const tree=(this.header.tree||DEFAULT_TREE).split(PATHSEP)
+        return (arr.length>tree.length)?parseInt(arr[tree.length]):0;
+    } else if (typeof y_loc==='number') {
+        const page=pageLoc(y_loc);
+        const [from]=getPageRange(page);
+        return y_loc-from;    
+    }
 }
 function pageLoc(y_loc){ //loc without line delta and ptkname
     let loc='';
@@ -109,7 +120,7 @@ function closest(y0,labels){
     }
     for (let i=0;i<labels.length;i++){
         const label=this.getLabel(labels[i]);
-        const idx=bsearch(label.linepos,y0,true);
+        const idx=bsearch(label.linepos,y0+1,true);
 
         if (idx<0) break;
         
@@ -152,14 +163,20 @@ function getTocTree(addr,locOnly=false){
     const thetree=(this.header.tree||DEFAULT_TREE).split(PATHSEP);
     const parents=addr.split(PATHSEP);
     let ptr=''; //pointer to next juan
+    let parentfrom=0;
     for (let i=0;i<parents.length-1;i++){
         const label=this.getLabel(thetree[i]);
         if (label.idarr) {
             let id=parents[i],at;
             if (id[0]!==DELTASEP) {
-                at=label.idarr.indexOf(id);
+                let from=0;
+                if (parentfrom) {
+                    from=bsearch(label.linepos,parentfrom,true);
+                }
+                at=label.idarr.indexOf(id,from);
             } else at=parseInt(id.substr(1));
             if (at==-1) break;
+            parentfrom=label.linepos[at];
             let next=at;
             if (i==parents.length-1 && thetree.length==parents.length && next+1<label.idarr.length) next++;
             
@@ -268,5 +285,5 @@ function childCount(loc){
     if (!label) return 0;
     return label.countRange(from,to);
 }
-export default {closest,getTocTreeDef,getTocTree,getNChild,childCount,locOf,clusterOf,pageLoc,
+export default {closest,getTocTreeDef,getTocTree,getNChild,childCount,dyOf,locOf,clusterOf,pageLoc,
     fetchPage,fetchToc,getPageRange,narrowDown,getLabelLineRange}
