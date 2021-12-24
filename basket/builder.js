@@ -4,6 +4,7 @@ import JSONPROMWriter from '../jsonprom/jsonpromw.js';
 import Inverter from '../fulltext/inverter.js';
 import {serializeLabels} from './serialize-label.js';
 import {linesOffset} from '../utils/index.js'
+import Preprocessors from './preprocessors.js'
 class Builder {
     constructor(opts) {
         this.context={
@@ -175,7 +176,23 @@ class Builder {
             }
         }
     }
+    preprocess(content,fn) {
+        if (!this.config.preprocess) return content;
+        for (let i in this.config.preprocess) {
+            const pat=this.config.preprocess[i];
+            if (fn.indexOf(pat)>-1 ) {
+                const preprocessor=Preprocessors[i];
+                if (!preprocessor) {
+                    console.error("missing preprocessor",i);
+                    return content;
+                }
+                return preprocessor(content);
+            }
+        }
+        return content;
+    }
     async addContent(rawcontent,format,fn) {
+        rawcontent=this.preprocess(rawcontent,fn);
         //for multiple content, keep starting
         this.context.startY+=this.context.prevLineCount;
         this.context.filename=fn;

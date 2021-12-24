@@ -1,5 +1,5 @@
-import { PATHSEP } from "..";
-import { parseAddress } from "../offtext";
+import { PATHSEP } from "../platform/constants.js";
+import { parseAddress } from "../offtext/pointers.js";
 export function getParallelLinks(y_loc){
     let loc=y_loc;
     if (typeof loc==='number') {

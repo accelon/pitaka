@@ -43,6 +43,12 @@ const default_typedef={
 }
 const getFormatTypeDef=(config,opts)=>{
     const def=config.labels||getFormat(config.format).def||default_typedef;
+    if (config.label) {
+        const labels=(typeof config.label==='string')?config.label.split(','):config.label;
+        for (let i=0;i<labels.length;i++) {
+            def[labels[i]]="Label";
+        }
+    }
     return TypeDef( def, {config,...opts});
 }
 
