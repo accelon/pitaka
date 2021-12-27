@@ -1,7 +1,6 @@
 import {PATHSEP,DELTASEP,DEFAULT_TREE,NAMESEP} from '../platform/constants.js'
 import {parseOffTag} from '../offtext/index.js'
 import { bsearch } from "../utils/bsearch.js" ;
-import { parseAddress } from '../offtext/pointers.js';
 
 function narrowDown(branches){
     let from=0,to=this.lastTextLine();

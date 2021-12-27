@@ -9,6 +9,7 @@ import mulus from './mulus.js';
 import inverted from './inverted.js';
 import querymethods from './querymethods.js';
 import parallels from './parallels.js';
+import LabelLang from "../htll/label-lang.js";
 /*
    Basket is a read-only container
    of htll texts, prebuilt data-structure to facilitate fast access,
@@ -27,6 +28,7 @@ class Basket extends JSONPROM {
         this.inverted=null;
         this.loadtime={};
         this.querymethods={};   
+        this.labelLang=null;
         for (let f in paging) this[f]=paging[f];
         for (let f in entries) this[f]=entries[f];
         for (let f in pointers) this[f]=pointers[f];
@@ -62,6 +64,7 @@ class Basket extends JSONPROM {
                         self.lblTransclusion=self.getLabel('t');
                         self.loadtime.labels=new Date()-now; now= new Date();
                         
+                        self.labelLang=self.findLabelType(LabelLang);
                         if (!self.header.cluster) {
                             if (self.getLabel('bk')) self.header.cluster='bk';
                             else if (self.getLabel('e')) self.header.cluster='e';

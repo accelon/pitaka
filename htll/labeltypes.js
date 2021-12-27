@@ -18,9 +18,10 @@ import LabelSection from './label-section.js'
 import LabelAnchor from './label-anchor.js'
 
 import LabelTransclusion from './label-transclusion.js'
+import LabelLang from './label-lang.js'
 
 const LabelTypes = {Label,LabelHeader,LabelEntry,LabelVol,LabelPage,LabelLinePos
-    ,LabelKeyword,LabelKeynumber,LabelYear,LabelYearSpan,LabelSeeAlso,
+    ,LabelKeyword,LabelKeynumber,LabelYear,LabelYearSpan,LabelSeeAlso,LabelLang,
     LabelBook,LabelChapter,LabelMulu,LabelSection,LabelAnchor,LabelTransclusion}
 
 export default LabelTypes;

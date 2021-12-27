@@ -20,5 +20,12 @@ export function getParallelLinks(y_loc){
     }
     return out;
 }
-
-export default {getParallelLinks};
+export function langOf(y_loc) {
+    if (!this.labelLang) return DEFAULT_LANGUAGE;
+    let y=y_loc;
+    if (typeof y_loc!=='number') {
+        y=this.getPageRange(y_loc)[0];
+    }
+    return this.labelLang.langOf(y);
+}
+export default {getParallelLinks,langOf};

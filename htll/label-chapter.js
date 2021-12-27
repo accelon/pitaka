@@ -1,6 +1,5 @@
 import Label from './label.js'
-import {pack,unpack,pack_delta,unpack_delta,packStrings,unpackStrings,bsearch} from'../utils/index.js';
-
+import {unpack_delta} from'../utils/index.js';
 class LabelChapter extends Label {
     constructor(name,opts={}) {
         super(name,opts)
