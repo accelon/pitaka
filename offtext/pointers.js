@@ -111,20 +111,16 @@ export const dereferencing=async (arr,ptk=null)=>{
     return out.map(i=>i[0]);
 }
 
-export const serializePointer=(basket_ptk,y_loc,hook='',dy=0)=>{
-    if (!basket_ptk)return '';
-    let ptk=basket_ptk;
-    if (typeof basket_ptk=='string')ptk=pool.get(basket_ptk);
-    let loc=y_loc;
-    if (typeof y_loc=='number') {
-        loc=ptk.locOf(y_loc);
-    } else {
-        loc=ptk.pageLoc(y_loc);
-        if (dy) loc+=PATHSEP+dy;
+export const serializePointer=obj=>{
+    let ptk=obj.ptk;
+    if (!ptk && typeof obj.basket=='string') ptk=pool.get(obj.basket);
+    let s=ptk.name+PATHSEP+obj.loc+ (obj.dy?PATHSEP+'dy='+obj.dy:'');
+
+    for (let key in obj) {
+        if (key=='basket' || key=='ptk' || key=='loc' || key=='dy') continue;
+        s+= PATHSEP+ key+'='+obj[key];
     }
-    let ptkname=ptk;
-    if (typeof ptk.name=='string') ptkname=ptk.name;
-    return ptkname+PATHSEP+loc+hook;
+    return s;
 }
 
 
