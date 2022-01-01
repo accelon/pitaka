@@ -180,7 +180,7 @@ function getTocTree(addr,locOnly=false){
             if (i==parents.length-1 && thetree.length==parents.length && next+1<label.idarr.length) next++;
             
             let name=label.names?label.names[at]:label.idarr[at];
-            const at2=name.indexOf(NAMESEP);
+            const at2=name?name.indexOf(NAMESEP):0;
             if (at2>0) name=name.substr(at2+1);
             out.push({name, n: at, ptr})
             ptr=ptr+(ptr?PATHSEP:'')+(label.idarr[next].trim()||(DELTASEP+next));

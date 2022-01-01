@@ -8,7 +8,7 @@
  *             若為文字，則會搜尋，並以該文字的結尾作為標記的終點。
  **/
 const QUOTEPREFIX='\u001a', QUOTEPAT=/\u001a(\d+)/g ;                // 抽取字串的前綴，之後是序號
-import {OffTag,ALLOW_EMPTY, ALWAYS_EMPTY,
+import {OffTag, ALWAYS_EMPTY,
     OFFTAG_LEADBYTE,OFFTAG_ATTRS, OFFTAG_REGEX_G,QSTRING_REGEX_G} from './def.js'
 import {findCloseBracket} from '../utils/cjk.js'
 const parseCompactAttr=str=>{  //              序號和長度和標記名 簡寫情形，未來可能有 @ 
@@ -34,12 +34,12 @@ const resolveTagWidth=(line,tags)=>{
             } else tag.w=0;
             delete tag.attrs['~'];
         } else if ( 0 > tag.w ) {  //負值轉換為正值（從標記起算)
-            if (!ALLOW_EMPTY[[tag.name]] && tag.w==-1) {
-                tag.w=0; //空標籤自動延至至行尾
-            } else {
+            // if ( tag.w==-1) {
+            //     tag.w=0; //空標籤自動延至至行尾
+            // } else {
                 tag.w= tag.w +line.length+1; 
                 if (tag.w<0) tag.w=0;    
-            }
+            // }
         }
         if (tag.name=='t' && !tag.w) { //找到下一個括號結束點
             const closebracket=findCloseBracket(line,tag.x);
@@ -125,7 +125,7 @@ export const parseOfftextLine=(str,idx=0)=>{
         }
         width=putback.length?putback.length:width;
 
-        if (width==0 && !ALLOW_EMPTY[tagName]) width=-1;
+        // if (width==0 ) width=-1;
 
         textoffset+= offset-prevoff;            //目前文字座標，做為標記的起點
         tags.push( new OffTag(tagName, attrs, idx, textoffset, width) );

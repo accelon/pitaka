@@ -1,4 +1,4 @@
-import {ALLOW_EMPTY, ALWAYS_EMPTY,OffTag} from './def.js';
+import {AUTO_TILL_END,ALWAYS_EMPTY,OffTag} from './def.js';
 import {parseOfftextLine} from './parser.js'
 import {toSim} from 'lossless-simplified-chinese'
 function HTMLTag (x,closing,name,attrs,y,w,tempclose=false) {
@@ -23,7 +23,7 @@ const toHtmlTag=(content,tags)=>{
         while (ntag<tags.length && tag) {
             let w=tag.w;
             if (tag.y!==y) break;           //tag beyond in this line
-            if (w==0 && !ALLOW_EMPTY[tag.name]) w=line.length-tag.x; // 從行末倒數
+            if (w==0 && AUTO_TILL_END[tag.name]) w=line.length-tag.x; // 自動標記到行尾
 
             T.push( new HTMLTag(offset+tag.x,0,tag.name, tag.attrs,y,w) );  //open tag
             tagcount++;
@@ -215,7 +215,7 @@ export const OfftextToSnippet =(linetext , extra=[] , renderInlinetag=true)=>{
     }
     tags.sort((a,b)=>a.x==b.x?b.w-a.w:a.x-b.x);
     const snippets= renderSnippet(text,tags);
-    
+    // if (linetext.indexOf('^f1')>0) console.log(snippets)
     return snippets;
 }
 
