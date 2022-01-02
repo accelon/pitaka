@@ -9,7 +9,6 @@ class LabelMulu extends Label {
         this.names=[];
         this.level=[];
         this.linepos=[];
-        this.chunkStarts=[]; //beginning y of each page
         this.trimlocal=opts.trimlocal; 
         this.context=opts.context;
         this.compact=opts.compact;

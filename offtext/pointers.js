@@ -40,9 +40,9 @@ export const parsePointer=str=>{
     if (!str) return {};
     const res={basket:'',bk:'',c:'',dy:0,hook:'',loc:''};
     const pths=str.split(PATHSEP);
-    if (str[0]=='/') {
-        pths.shift();
+    if (str[0]!=='/') {
         res.basket=pths.shift();
+        // res.basket=pths.shift();
     }
     
     res.bk=pths.shift();

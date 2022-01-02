@@ -1,5 +1,5 @@
 import {openBasket} from './open.js';
-import {dereferencing,parsePointer} from '../offtext/pointers.js';
+import {dereferencing,parsePointer,parseAddress} from '../offtext/pointers.js';
 import {validateConfig} from './config.js'
 import pool from './pool.js';
 import Builder from './builder.js';
@@ -55,7 +55,6 @@ async function fetchLoc(loc,extraline=0){ //fetch a page
     }
     return [ptkname,rawlines];
 }
-
 async function fetchHooks(hooks){
     if (typeof hooks=='string') hooks=[hooks];
     const out=[];
@@ -83,6 +82,7 @@ async function fetchHooks(hooks){
     }
     return out;
 }
+
 function bestEntries(tf){
     const ptks=pool.getAll();
     const out=[];

@@ -9,7 +9,11 @@ const TypeDef =(json,opts)=>{
             [typename,_opts]=json[name];
             options={...opts,..._opts}
         }
-        out[name]=new LabelTypes[typename](name,options);
+        if (!LabelTypes[typename]) {
+            throw "label type not found "+typename;
+        } else {
+            out[name]=new LabelTypes[typename](name,options);
+        }
     }
     return out;
 }

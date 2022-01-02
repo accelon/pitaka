@@ -1,5 +1,5 @@
 import {PATHSEP,DELTASEP,DEFAULT_TREE,NAMESEP} from '../platform/constants.js'
-import {parseOffTag} from '../offtext/index.js'
+import {parseOffTag,parseAddress,stringifyAddress} from '../offtext/index.js'
 import { bsearch } from "../utils/bsearch.js" ;
 
 function narrowDown(branches){
@@ -50,7 +50,12 @@ function getPageRange(addr){
         let pth=pths[idx];
         let id=pth;
         let lbl=thetree[idx];
-
+        const eq=id.indexOf('=');
+        if (eq>0) {
+            lbl=id.substr(0,eq);
+            id=id.substr(eq+1);
+        }
+        /*
         const eq=id.indexOf('#');
         if (eq>0) {
             const [labelname,attrs]=parseOffTag(id.substr(0,eq)+id.substr(eq+1));
@@ -63,6 +68,7 @@ function getPageRange(addr){
         //         pth=pth.substr(0,m);
         //     }
         }
+        */
         return {lbl, id }
     })
     const nextlbl=thetree[pths.length]||'';
@@ -77,7 +83,7 @@ function locOf(y,full=false){
     const arr=this.closest(y,(this.header.tree||DEFAULT_TREE).split(PATHSEP));
     const out=arr.map(it=>it.id);
     const delta=y-arr[arr.length-1].line;
-    if (delta>0) out.push(delta);
+    if (delta>0) out.push('dy='+delta);
     const s=out.join(PATHSEP);
     return full?this.name+PATHSEP+s:s;
 }
@@ -284,5 +290,18 @@ function childCount(loc){
     if (!label) return 0;
     return label.countRange(from,to);
 }
+async function fetchFootnote(y0,fn){
+    let loc=parseAddress(this.locOf(y0,true)).loc;
+    loc=loc.replace(PATHSEP,'-footnote'+PATHSEP)+PATHSEP+'fn='+fn;
+    //TODO 同頁/同卷注
+
+    const ranges=this.getPageRange(loc);
+    
+    let hlines=await this.readLines(ranges[0],ranges[1]-ranges[0]);
+    const out=hlines.map(it=>{ return {key: it[0], text:it[1]} });
+    console.log(out)
+    return out;
+}
+
 export default {closest,getTocTreeDef,getTocTree,getNChild,childCount,dyOf,locOf,clusterOf,pageLoc,
-    fetchPage,fetchToc,getPageRange,narrowDown,getLabelLineRange}
+    fetchPage,fetchToc,fetchFootnote,getPageRange,narrowDown,getLabelLineRange}
