@@ -32,7 +32,7 @@ class LabelYearSpan extends Label {
         if (year<0 || yearend<0) {
             throw "out of year span start:"+y1+' end'+y2;
         }
-
+        this.count++;
         if (!this.years[year])this.years[year]=[yearend,[]];
         this.years[year][1].push(tag.y);
     }

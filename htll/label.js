@@ -12,6 +12,7 @@ class Label {
         return this;
     }
     action(){
+        this.count++;
     }
     find(){
         

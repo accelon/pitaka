@@ -26,6 +26,7 @@ class LabelBook extends Label {
 
         this._idarr[id]=y;
         this.idarr.push(id);
+        this.count++;
     }
     addKeywords(name,keywords){ // keywords:[array of book id] from LabelKeyword 
         this.keywords[name]=[];

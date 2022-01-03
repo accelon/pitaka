@@ -25,6 +25,7 @@ class LabelTransclusion extends Label {
             if (!this.Q[basket][bk])this.Q[basket][bk]={};
             if (!this.Q[basket][bk][c])this.Q[basket][bk][c]=[];
             this.Q[basket][bk][c].push([tag.y,dy,hook]);
+            this.count++;
         }
     }
     serialize(){

@@ -27,7 +27,7 @@ class LabelEntry extends Label {
         this.prevhw=hw;
         this.linepos.push(y);
         this.prevy=y;
-
+        this.count++;
         //build language attributes
         if (this.attrs.length) {
             for (let key in this.attributes) {

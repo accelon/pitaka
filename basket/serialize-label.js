@@ -19,6 +19,7 @@ const serializeLabels=(ctx)=>{
 
     for (let name in ctx.labeldefs) { 
         const lt=ctx.labeldefs[name];
+        if (!lt.count) continue; //empty label not serialized
         labelNames.push(name);
         labelPoss.push(pos);
         labelTypes.push(lt.constructor.name);

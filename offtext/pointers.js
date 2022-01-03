@@ -71,29 +71,35 @@ export const dereferencing=async (arr,ptk=null)=>{
     const out=[],jobs=[];
     for (let i=0;i<arr.length;i++) {
         const ptr={ptk:null, p:'',h:null};
-        if (ptk) ptr.ptk=ptk.name;
+        if (ptk) ptr.ptk=pool.get(ptk.name);
         const pths=arr[i].split(PATHSEP);
-        if (arr[i][0]==PATHSEP) {
+        if (arr[i][0]!==PATHSEP) {
             pths.shift(); //drop leading PATHSEP
             ptk=pool.get(pths.shift());
             ptr.ptk=ptk.name;
         }
-        const thetree=(ptk.header.tree||DEFAULT_TREE).split(PATHSEP);
-        const branches=[];
-        for (let j=0;j<thetree.length;j++) {
-            let pth=pths.shift();
-            const m=pth.lastIndexOf(DELTASEP);
-            let delta=m>-1?parseInt(pth.substr(m+1)):0;
-            if (m>-1 && !isNaN(delta) ) {
-                pth=pth.substr(0,m);
-            }
-            branches.push({lbl:thetree[j], id:pth , dy:delta});
-            ptr.p += (ptr.p?PATHSEP:'')+ pth+(delta?DELTASEP+delta:'');
+
+        const addr=pths.join(PATHSEP);
+        const [from,to]=ptk.getPageRange(addr);
+
+        // const thetree=(ptk.header.tree||DEFAULT_TREE).split(PATHSEP);
+        // const branches=[];
+
+        // parseAddress()
+        // for (let j=0;j<thetree.length;j++) {
+        //     let pth=pths.shift();
+        //     const m=pth.lastIndexOf(DELTASEP);
+        //     let delta=m>-1?parseInt(pth.substr(m+1)):0;
+        //     if (m>-1 && !isNaN(delta) ) {
+        //         pth=pth.substr(0,m);
+        //     }
+        //     branches.push({lbl:thetree[j], id:pth , dy:delta});
+        //     ptr.p += (ptr.p?PATHSEP:'')+ pth+(delta?DELTASEP+delta:'');
         
-        }
-        const [from,to]=ptk.narrowDown(branches);
-        ptr.b=branches;
-        ptr.y=from-branches[branches.length-1].dy; //starting of the chunk
+        // }
+        // const [from,to]=ptk.narrowDown(branches);
+        // ptr.b=branches;
+        // ptr.y=from-branches[branches.length-1].dy; //starting of the chunk
         const chunks=ptk.unreadyChunk(from,to)
         if (chunks.length) jobs.push( ptk.prefetchChunks(chunks));
         out.push([ptr, pths, from, to]);
@@ -102,8 +108,7 @@ export const dereferencing=async (arr,ptk=null)=>{
 
     for (let i=0;i<out.length;i++) {
         const [ptr,pths, y, to]=out[i];
-        const ptk=pool.get(ptr.ptk);
-        const linetext= ptk.getLine(y);
+        const linetext= ptr.ptk.getLine(y);
         ptr.next=to;
         ptr.h=parseHook(pths,linetext,y);
     }
@@ -122,8 +127,6 @@ export const serializePointer=obj=>{
     }
     return s;
 }
-
-
 
 //serialize array of pointers
 export const referencing=async (arr, ptk=null)=>{

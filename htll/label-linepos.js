@@ -19,6 +19,7 @@ class LabelLinePos extends Label {
                 throw 'linepos not in order, '+tag.attrs.n+' prev '+this.prevn+' at '+y ;
             }
         }
+        this.count++;
         this.prevn=n;
         this.linepos.push(y);
     }

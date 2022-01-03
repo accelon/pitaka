@@ -19,6 +19,7 @@ class LabelSeeAlso extends Label {
         const keyword=linetext.substr(tag.x,tag.w);
         if (!this._linkedBy[keyword]) this._linkedBy[keyword]=[];
         this._linkedBy[keyword].push(ctx.entry);
+        this.count++;
     }
     serialize(){
         const out=super.serialize();

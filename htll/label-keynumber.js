@@ -22,6 +22,7 @@ class LabelKeynumber extends Label {
         }
         if (!this.linepos[kn]) this.linepos[kn]=[];
         this.lineposs[kn].push(tag.y);
+        this.count++;
     }
     reset() {
     }

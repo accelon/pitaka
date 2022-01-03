@@ -26,7 +26,7 @@ class LabelYear extends Label {
         }
 
         if (this.type=='bc') year=-year;
-
+        this.count++;
         year+=YEARPLUS;
         if (!this.years[year])this.years[year]=[];
         this.years[year].push(tag.y);

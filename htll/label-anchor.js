@@ -44,6 +44,7 @@ class LabelAnchor extends Label {
         if (tag.closing) return;
         if (!tag.ele) throw 'empty element name'
         if (!tag.attrs) throw 'wrong ele '+text;
+        this.count++;
         const {name,href}=tag.attrs;
         const ns=this.namespaceObject(context);
         name?addAName(tag,ns,context,name,nline,text):addHref(tag,href,this.hrefs,nline,text);

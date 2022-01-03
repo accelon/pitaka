@@ -45,6 +45,7 @@ class LabelPage extends Label {
         this._prevpage=page;
         this.linepos[this.pagestart+page]=tag.y;
         this._prevy=tag.y;
+        this.count++;
     }
     indexOf(pg){
         let co=0;

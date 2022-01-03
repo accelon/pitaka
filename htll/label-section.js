@@ -40,6 +40,7 @@ class LabelSection extends LabelBook {
             this._sectionCount++;
             this.sectionLinePos.push(nline);
         }
+        this.count++;
     }
     finalize(){
         this.sectionCount.push(this.sectionCount);

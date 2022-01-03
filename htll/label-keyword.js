@@ -19,7 +19,7 @@ class LabelKeyword extends Label {
         const {x,w}=tag;
         const kw=linetext.substr(x,w);
         if (!this._keywords[kw]) this._keywords[kw]=[];
-
+        this.count++;
         const master=ctx.labeldefs[this.master];
         if (master.linepos&&master.linepos.length) {
             this._keywords[kw].push(master.linepos.length-1 );

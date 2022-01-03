@@ -19,7 +19,7 @@ class LabelChapter extends Label {
             console.log(tag,linetext)
             throw 'repeated chunk id, '+id+' at '+y ;
         }
-
+        this.count++;
         this._idarr[id]=true;
         this.names.push(linetext.replace(/\r?\n/g,' ')|| ' ');
         this.idarr.push(id||'_');

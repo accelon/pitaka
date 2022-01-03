@@ -24,6 +24,7 @@ class LabelMulu extends Label {
             this.names.push(t);
             this.level.push(n);
             this.linepos.push(y);
+            this.count++;
         } else {
             throw 'invalid level '+n+' at '+y+' '+linetext;
         }

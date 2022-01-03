@@ -6,6 +6,7 @@ class LabelParagraph extends Label {
     }
     action( {tag ,nline,text}){
         // this.log('processing p')
+        this.count++;
     }
     serialize(){
     }

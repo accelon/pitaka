@@ -34,19 +34,34 @@ const getZipIndex=async (zip,format,fn)=>{
     if (fm.getZipFileToc) return await fm.getZipFileToc(zip,fn);
     else return {files:zip.files,tocpage:[]};
 }
-const default_typedef={
+const builtin_typedef={
     'bk':['LabelBook',{resets:'c'}],
+    'ch':'LabelChapter',
     'c':'LabelChapter',
     'b':'Label',
+    'lang':'LabelLang',    
+    'kai':'Label',
     'u':'Label',
-    'i':'Label'
+    'i':'Label',
+    'mu':'LabelMulu',
+    't':'LabelTransclusion',
+    'k':'LabelLink',
+    "f":["Label", {"caption":"注"}],
+    "fn":["LabelFootnote", {"caption":"注釋"}],
+    //general versioning
+    'cut':'Label','paste':'Label','del':'Label','add':'Label','edit':'Label','corr':'Label'
 }
+
 const getFormatTypeDef=(config,opts)=>{
-    const def=config.labels||getFormat(config.format).def||default_typedef;
-    if (config.label) {
+    const def=Object.assign(builtin_typedef,config.labels||getFormat(config.format).def);
+    if (config.label) { //additional custom label
         const labels=(typeof config.label==='string')?config.label.split(','):config.label;
         for (let i=0;i<labels.length;i++) {
-            def[labels[i]]="Label";
+            if (def[labels[i]]) {
+                console.error('label already defined',labels[i])
+            } else {
+                def[labels[i]]="Label";
+            }
         }
     }
     return TypeDef( def, {config,...opts});

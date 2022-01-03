@@ -15,6 +15,7 @@ class LabelLang extends Label {
         const id=tag.attrs['#']||tag.attrs.id||DEFAULT_LANGUAGE;
         this.langarr.push(id);
         this.linepos.push(y);
+        this.count++;
     }
     reset() {
     }

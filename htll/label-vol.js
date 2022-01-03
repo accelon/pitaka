@@ -11,6 +11,7 @@ class LabelVol extends Label {
     }
     action(tag){
         const vol=parseInt(tag.attrs.n)-1;
+        this.count++;
         this.linepos[vol]=tag.y;
     }
     indexOf(vol) {

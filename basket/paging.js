@@ -140,6 +140,7 @@ function closest(y0,labels){
     for (let i=0;i<out.length;i++) {
         const label=this.getLabel(labels[i]);
         if (label.resets) {
+            if (typeof label.resets=='string') label.resets=[label.resets];
             label.resets.forEach(l=>{
                 const at=labels.indexOf(l);
                 if (at===-1) return;
@@ -292,14 +293,13 @@ function childCount(loc){
 }
 async function fetchFootnote(y0,fn){
     let loc=parseAddress(this.locOf(y0,true)).loc;
-    loc=loc.replace(PATHSEP,'-footnote'+PATHSEP)+PATHSEP+'fn='+fn;
+    loc=loc.replace(PATHSEP,'-fn'+PATHSEP)+PATHSEP+'fn='+fn;
     //TODO 同頁/同卷注
 
     const ranges=this.getPageRange(loc);
     
     let hlines=await this.readLines(ranges[0],ranges[1]-ranges[0]);
     const out=hlines.map(it=>{ return {key: it[0], text:it[1]} });
-    console.log(out)
     return out;
 }
 

@@ -19,7 +19,7 @@ class LabelHeader extends Label {
         
         if (!this.headerLinePos[level])this.headerLinePos[level]=[];
         this.headerLinePos[level].push(nline);
-
+        this.count++;
     }
     serialize(){
         let out=this.headerLinePos.map(pack_delta);

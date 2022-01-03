@@ -16,6 +16,7 @@ class LabelFootnote extends Label {
         if (n>0) {
             this.fnarr.push(n);
             this.linepos.push(y);
+            this.count++;
         } else {
             throw 'invalid id '+tag.attrs.n+' at '+y+' '+linetext;
         }
