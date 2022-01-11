@@ -293,7 +293,10 @@ function childCount(loc){
 }
 async function fetchFootnote(y0,fn){
     let loc=parseAddress(this.locOf(y0,true)).loc;
-    loc=loc.replace(PATHSEP,'-fn'+PATHSEP)+PATHSEP+'fn='+fn;
+    if (loc.indexOf('-fn')==-1) {
+        loc=loc.replace(PATHSEP,'-fn'+PATHSEP);
+    } 
+    loc+=PATHSEP+'fn='+fn;
     //TODO 同頁/同卷注
 
     const ranges=this.getPageRange(loc);

@@ -17,6 +17,7 @@ import {info} from './info.js';
 import quote from './quote.js';
 import iast from './provident.js';
 import longline from './longline.js';
+import dictwords from './dictwords.js';
 import pinpoint from './pinpoint.js';
 import nGram from '../fulltext/ngram.js';
 import {group,entrysort,search,wordseg,intersect} from './offtextutils.js'
@@ -122,16 +123,17 @@ const help=()=>{
     console.log(yellow('$ pitaka search fn'), 'search book/entry in pitaka file or a book list')
     console.log(yellow('$ pitaka longline fn'), 'find out long length')
     console.log(yellow('$ pitaka wordseg fn words/dict_ptk'), 'word segmentation')
-    console.log(yellow('$ pitaka intersect f1 f2'), 'intersect stringlist')
+    // console.log(yellow('$ pitaka intersect f1 f2'), 'intersect stringlist')
     console.log(yellow('$ pitaka iast fn'), 'convert IAST to provident')
+    console.log(yellow('$ pitaka dictwords fn headword.txt'), 'words found in dictionary headword');
 }
 
 try {
     await ({v:validate,validate,
         j:jsonp,jsonp,raw,r:raw, q:quote,quote, p:pinpoint,pinpoint,
         z:zip,zip,ngram,n:ngram,exec,e:exec,l:longline,longline,iast,
-        group,g:group,entrysort,y:entrysort,search,s:search,wordseg,w:wordseg,
-        '--help':help,'-h':help,i:intersect,intersect,build,b:build})[cmd](config);
+        group,g:group,entrysort,y:entrysort,search,s:search,wordseg,w:wordseg, dictwords,d:dictwords,
+        '--help':help,'-h':help,build,b:build})[cmd](config);
 
 } catch(e) {
     console.log( kluer.red('error running command'),cmd)
