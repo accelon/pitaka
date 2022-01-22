@@ -97,7 +97,7 @@ const parseFirstRecord=(buf,start,len,decoder)=>{ //special care with mix ule-16
       Table-of-content (one line per chapter)
 
 */
-const readHaodoo=buf=>{
+export const readHaodoo=buf=>{
     if (typeof Buffer!=='undefined'&& buf instanceof Buffer) {
         buf=buf.buffer;
     }

@@ -71,7 +71,7 @@ const XML2OffText = (el,teictx,H={},CH={}) =>{
         return teictx.started?s:'';
     }
     let out='';
-    const handler= H[el.name];
+    const handler= H[el.name] || H["*"];
     if (handler) {
         const out2 = handler(el,teictx);
         if (typeof out2=='string') out=out2;
@@ -82,7 +82,7 @@ const XML2OffText = (el,teictx,H={},CH={}) =>{
     }
 
     if (CH) {
-        const closehandler= CH[el.name];
+        const closehandler= CH[el.name] || CH["*"];
         if (closehandler) out+=closehandler(el,teictx)||'';    
     }
     return out;

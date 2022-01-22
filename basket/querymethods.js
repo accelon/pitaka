@@ -62,7 +62,7 @@ export async function runQuery(method,tofind,opts) {
 export async function runAllQuery(tofind,opts){
     const out=[];
     for (let method in this.querymethods){
-        const r=await runQuery(method,tofind,opts);
+        const r=await runQuery.call(this,method,tofind,opts);
         out.push(r);
     }
     return out;
