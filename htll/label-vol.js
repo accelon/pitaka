@@ -10,7 +10,7 @@ class LabelVol extends Label {
         return this;
     }
     action(tag){
-        const vol=parseInt(tag.attrs.n)-1;
+        const vol=parseInt(tag.attrs.id)-1;
         this.count++;
         this.linepos[vol]=tag.y;
     }

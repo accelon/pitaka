@@ -1,5 +1,5 @@
 import {openBasket} from './open.js';
-import {dereferencing,parsePointer,parseAddress} from '../offtext/pointers.js';
+import {dereferencing,parsePointer} from '../offtext/pointers.js';
 import {validateConfig} from './config.js'
 import pool from './pool.js';
 import Builder from './builder.js';

@@ -1,6 +1,6 @@
 //unpack array of serialized pointer
 import pool from '../basket/pool.js';
-import {PATHSEP,DELTASEP,DEFAULT_TREE} from '../platform/constants.js'
+import {PATHSEP,DELTASEP,DEFAULT_ADDRESSING} from '../platform/constants.js'
 import {makeHook, parseHook} from './hook.js';
 import {parseOfftextLine} from './parser.js';
 
@@ -82,7 +82,7 @@ export const dereferencing=async (arr,ptk=null)=>{
         const addr=pths.join(PATHSEP);
         const [from,to]=ptk.getPageRange(addr);
 
-        // const thetree=(ptk.header.tree||DEFAULT_TREE).split(PATHSEP);
+        // const thetree=(ptk.header.addressing||DEFAULT_ADDRESSING).split(PATHSEP);
         // const branches=[];
 
         // parseAddress()

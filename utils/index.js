@@ -14,7 +14,9 @@ export * from './cnumber.js'
 export * from './device.js'
 export * from './cjk.js'
 export * from './diff.js'
-
+export * from './pattern.js'
+export * from './errata.js'
+export * from './base26.js'
 export function linesOffset(lines){
     const out=[0];
     let acc=0;
@@ -32,38 +34,5 @@ export function chunkjsfn(chunk,folder){
 export function dedup(arr) {
     const out=[];
     arr.forEach(item=>out.indexOf(item)==-1?out.push(item):null);
-    return out;
-}
-export function filesFromStringPattern(pat,rootdir){
-    let out=[];
-
-    if ((pat.indexOf('\\')>0 || pat.indexOf('+')>0)  ||pat.indexOf('[')>0 ) {
-        const files=fs.readdirSync(rootdir);
-        const reg=new RegExp(pat);
-        for (let i=0;i<files.length;i++) {
-            if (files[i].match(reg)) {
-                out.push(files[i]);
-            }
-        }
-        out.sort((a,b)=>a>b?1: ((a<b)?-1:0));
-        return out;
-    }
-
-    if (pat.indexOf(';')>0 || pat.indexOf(',')>0) {
-        out=pat.split(/[;,]/);
-    } else {       
-        const RANGE_REGEX=/\[(\d+):(\d+)\]/;
-        const RANGE_REGEX_REPLACE=/(\[\d+:\d+\])/;
-        const range=pat.match(RANGE_REGEX);
-        if (range) {
-            let [m,from,to]=range;
-            from=parseInt(from),to=parseInt(to);
-            for (let i=from ;i<=to;i++) {
-                out.push(pat.replace(RANGE_REGEX_REPLACE,i));
-            }
-        } else {
-            out=[pat];
-        }
-    }
     return out;
 }

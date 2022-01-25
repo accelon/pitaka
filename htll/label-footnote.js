@@ -7,21 +7,23 @@ class LabelFootnote extends Label {
         this.caption=opts.caption||'注釋';
         this.fnarr=[];
         this.linepos=[];
+        this.idarr={};
         this.context=opts.context;
         return this;
     }
     action( tag ,linetext){
         const {x,w,y}=tag;
-        const n=parseInt(tag.attrs.n)||this.n;
-        if (n>0) {
-            this.fnarr.push(n);
-            this.linepos.push(y);
-            this.count++;
+        const id=tag.attrs.id;
+        if (idarr[id]) {
+        	console.log("repeated footnote id",id);
         } else {
-            throw 'invalid id '+tag.attrs.n+' at '+y+' '+linetext;
-        }
+	        this.fnarr.push(id);
+	        this.linepos.push(y);
+	        this.count++;
+        }	
     }
     reset(parenttag) {
+    	this._idarr={};
     }
     serialize(){
         const out=super.serialize();

@@ -17,7 +17,7 @@ class LabelKeynumber extends Label {
         const kw=linetext.substr(x,w);
         let kn=praseInt(kw);
         if (this.cols>1) {
-            const colnumber=tag.attrs.n.charCodeAt(tag.attrs.n.length-1)-0x61;
+            const colnumber=tag.attrs.id.charCodeAt(tag.attrs.id.length-1)-0x61;
             kn=kw.substr(kw.length-1)*colnumer;
         }
         if (!this.linepos[kn]) this.linepos[kn]=[];

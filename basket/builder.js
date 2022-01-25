@@ -1,4 +1,4 @@
-import {getFormatter, getZipIndex, getFormatTypeDef, getFormatTree, fileContent} 
+import {getFormatter, getZipIndex, getFormatTypeDef, getFormatAddressing, fileContent} 
 from '../format/index.js'
 import JSONPROMWriter from '../jsonprom/jsonpromw.js';
 import Inverter from '../fulltext/inverter.js';
@@ -26,7 +26,8 @@ class Builder {
         this.finalized=false;
         this.log=opts.log || console.log;
         this.config=opts.config;
-        this.config.tree=this.config.tree||getFormatTree(this.config.format);
+        //.tree is old name
+        this.config.addressing=this.config.addressing||this.config.tree||getFormatAddressing(this.config.format);
         this.opts=opts;
         this.exec=opts.exec;
         this.unknownLabel={};
@@ -224,6 +225,12 @@ class Builder {
     }
     async addFile(file,format){ //file=='string' nodejs , File browser local file, or a File in zip
         let fn=file;
+        if (this.finalized) {
+            this.log("cannot addFile, finalized");
+            return;
+        }
+        let rawcontent=null;
+
         if (typeof file!=='string' && 'name' in file) {
             fn=file.name;
         }
@@ -235,17 +242,16 @@ class Builder {
             return await this.addZip(file,format);
         } else if (fn.endsWith('.lst')) {
             return await this.addLst(file,format);
-        } else if (typeof fs!=='undefined' 
-        &&fs.existsSync(rootdir+fn)&&fs.statSync(rootdir+fn).isDirectory()) {
+        } else if (typeof fs!=='undefined' && rootdir){
+            if (fs.existsSync(rootdir+fn)&&fs.statSync(rootdir+fn).isDirectory()) {
             // console.log('is folder',fn)
-            return await this.addFolder(file,format);
+                return await this.addFolder(file,format);
+            } else if (!fs.existsSync(fn) &&fs.existsSync(rootdir+fn)) {
+               rawcontent=await fileContent(rootdir+fn,format,this.context);
+            }
         }
 
-        if (this.finalized) {
-            this.log("cannot addFile, finalized");
-            return;
-        }
-        const rawcontent=await fileContent(file,format,this.context);
+        if (!rawcontent) rawcontent=await fileContent(file,format,this.context);
         await this.addContent(rawcontent,format,fn);
     }
     save(opts){

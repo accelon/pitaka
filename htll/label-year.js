@@ -14,7 +14,7 @@ class LabelYear extends Label {
         return this;
     }
     action( tag ,linetext){
-        let year=parseInt(tag.attrs.n);
+        let year=parseInt(tag.attrs.id);
         if (!year) {
             console.log(tag,linetext)
         }

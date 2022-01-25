@@ -32,7 +32,7 @@ class LabelPage extends Label {
         return page;
     }
     action(tag,linetext){
-        const page=this.npage(tag.attrs.n);
+        const page=this.npage(tag.attrs.id);
         
         if (this.autoreset&&page==1&&this._prevpage!==-1) {
             this.reset();

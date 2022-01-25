@@ -16,7 +16,7 @@ class LabelBook extends Label {
     }
     action(tag ,linetext){
         let {y,x,w}=tag;
-        const id=(tag.attrs.id||tag.attrs.n)||' ';
+        const id=(tag.attrs.id)||' ';
         if (w==0) w=linetext.length;
         const bkname=linetext.substr(x,w);
         

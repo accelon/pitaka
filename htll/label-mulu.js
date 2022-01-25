@@ -13,16 +13,16 @@ class LabelMulu extends Label {
         this.context=opts.context;
         this.compact=opts.compact;
         this.notquickpointer=true;
-        this.n=opts.n;
+        this.id=opts.id;
         return this;
     }
     action( tag ,linetext){
         const {x,w,y}=tag;
-        const n=parseInt(tag.attrs.n)||this.n;
+        const n=parseInt(tag.attrs.id)||this.id;
         if (n>0) {
             const t= (!this.compact&&tag.attrs.t)? tag.attrs.t.trim() : linetext.substr(x,w);
             this.names.push(t);
-            this.level.push(n);
+            this.level.push(id);
             this.linepos.push(y);
             this.count++;
         } else {

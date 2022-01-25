@@ -3,7 +3,7 @@ import cbeta from './cbeta.js';
 import cidian from './cidian.js';
 import haodoo from './haodoo.js';
 import Formatter from '../offtext/formatter.js'; //default formatter
-import { DEFAULT_TREE } from '../platform/constants.js';
+import { DEFAULT_ADDRESSING} from '../platform/constants.js';
 
 
 const formats={
@@ -15,6 +15,6 @@ const formats={
 
 export const getFormat=format=>{
     const F=formats[format];
-    return Object.assign({tree:DEFAULT_TREE,Formatter},F);
+    return Object.assign({addressing:DEFAULT_ADDRESSING,Formatter},F);
 }
 

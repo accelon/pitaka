@@ -16,9 +16,9 @@ const parseCompactAttr=str=>{  //              序號和長度和標記名 簡�
     while (arr.length) {
         const v=arr.shift();
         // if      (v==='~') out['~']=arr.shift();  
-        if (v==='#') out['#']=arr.shift();  // n  or id
-        else if (v==='@') out['@']=arr.shift();  // a hook
-        else if (v.trim()) out.n=v.trim();
+        // if (v==='#') out['#']=arr.shift();  // n  or id
+        if (v==='@') out['@']=arr.shift();  // a hook
+        else if (v.trim()) out.id=v.trim();   // n is alphanumeric 
     }
     return out;
 }

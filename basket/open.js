@@ -70,7 +70,10 @@ class Basket extends JSONPROM {
                             else if (self.getLabel('e')) self.header.cluster='e';
                             else throw "no cluster label (bk or e)"
                         }
-                        
+                        //compatible code
+                        if (!self.header.addressing && self.header.tree) {
+                        	self.header.addressing=self.header.tree;
+                        }
                     
                         self.registerQueryMethods();
                         resolve(true); //resolve earlier, need to check if inverted ready
@@ -95,7 +98,7 @@ class Basket extends JSONPROM {
         return lbl.linepos.length;
     }
     isDictionary(){
-        return this.header.tree=='e'
+        return this.header.addressing=='e'
     }
     parse(str){
         for (let i=0;i<this.labels.length;i++) {

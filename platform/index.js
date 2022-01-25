@@ -1,5 +1,6 @@
 import chromefs from './chromefs.js'
 import nodefs from './nodefs.js'
+
 import {readFiles,readTextFile,readBLOBFile} from './inputfiles.js'
 
 const cacheStorageReady=(function(){

@@ -1,5 +1,12 @@
 import Label from './label.js'
 import {unpack_delta} from'../utils/index.js';
+/*
+  support multiple level,    num/alpha/num/alpha, e.g
+  ^c0s56b2  mula(1 for att,2 for tik) samyutta 56 , second vagga , 2 sutta tathāgatasuttaṃ
+  ^c[id=s56b2] longer
+  cluster id must be unique
+*/
+
 class LabelChapter extends Label {
     constructor(name,opts={}) {
         super(name,opts)
@@ -13,11 +20,12 @@ class LabelChapter extends Label {
     }
     action( tag ,linetext){
         const {y}=tag;
-        const id=(tag.attrs.id||tag.attrs.n)||' ';
+        const id=(tag.attrs.id)||' ';
 
-        if (this._idarr[id]) {
+        if (this._idarr[id]||!id) { //missing 
             console.log(tag,linetext)
-            throw 'repeated chunk id, '+id+' at '+y ;
+            if (!id) id=='<NULL>';
+            throw "repeated cluster id "+id+" at "+y ;
         }
         this.count++;
         this._idarr[id]=true;

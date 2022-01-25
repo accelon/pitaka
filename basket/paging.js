@@ -1,4 +1,4 @@
-import {PATHSEP,DELTASEP,DEFAULT_TREE,NAMESEP} from '../platform/constants.js'
+import {PATHSEP,DELTASEP,DEFAULT_ADDRESSING,NAMESEP} from '../platform/constants.js'
 import {parseOffTag,parseAddress,stringifyAddress} from '../offtext/index.js'
 import { bsearch } from "../utils/bsearch.js" ;
 
@@ -24,7 +24,7 @@ function narrowDown(branches){
 }
 /*  use pageAt
 function locate(y){
-    const thetree=(this.header.tree||DEFAULT_TREE).split(PATHSEP);
+    const thetree=(this.header.addressing||DEFAULT_ADDRESSING).split(PATHSEP);
     const out=[];
     for (let i=0;i<thetree.length;i++) {
         const lbl=this.getLabel(thetree[i]);
@@ -43,7 +43,7 @@ function getLabelLineRange(lbl,n){
     return [lbl.linepos[n],lbl.linepos[n+1]]
 }
 function getPageRange(addr){
-    const thetree=(this.header.tree||DEFAULT_TREE).split(PATHSEP);
+    const thetree=(this.header.addressing||DEFAULT_ADDRESSING).split(PATHSEP);
     if (!addr && thetree[0]=='e') return [0,0];
     const pths=(addr||'').split(PATHSEP).filter(i=>!!i);
     const arr=pths.map((item,idx)=>{
@@ -80,7 +80,7 @@ function clusterOf(y){
     return {id:cl.idarr[at], at};
 }
 function locOf(y,full=false){
-    const arr=this.closest(y,(this.header.tree||DEFAULT_TREE).split(PATHSEP));
+    const arr=this.closest(y,(this.header.addressing||DEFAULT_ADDRESSING).split(PATHSEP));
     const out=arr.map(it=>it.id);
     const delta=y-arr[arr.length-1].line;
     if (delta>0) out.push('dy='+delta);
@@ -90,7 +90,7 @@ function locOf(y,full=false){
 function dyOf(y_loc) {
     if (typeof y_loc==='string') {
         const arr=y_loc.split(PATHSEP);
-        const tree=(this.header.tree||DEFAULT_TREE).split(PATHSEP)
+        const tree=(this.header.addressing||DEFAULT_ADDRESSING).split(PATHSEP)
         return (arr.length>tree.length)?parseInt(arr[tree.length]):0;
     } else if (typeof y_loc==='number') {
         const page=pageLoc(y_loc);
@@ -101,11 +101,11 @@ function dyOf(y_loc) {
 function pageLoc(y_loc){ //loc without line delta and ptkname
     let loc='';
     if (typeof y_loc==='number') {
-        const arr=this.closest(y,(this.header.tree||DEFAULT_TREE).split(PATHSEP));
+        const arr=this.closest(y,(this.header.addressing||DEFAULT_ADDRESSING).split(PATHSEP));
         loc=arr.map(it=>it.id).join(PATHSEP);
     } else {
         const arr=y_loc.split(PATHSEP);
-        const thetree=(this.header.tree||DEFAULT_TREE).split(PATHSEP);
+        const thetree=(this.header.addressing||DEFAULT_ADDRESSING).split(PATHSEP);
         arr.length=thetree.length;
         loc=arr.join(PATHSEP);
     }
@@ -160,13 +160,13 @@ function closest(y0,labels){
     return out;
 }
 function getTocTreeDef(){
-    return (this.header.tree||DEFAULT_TREE).split(PATHSEP);
+    return (this.header.addressing||DEFAULT_ADDRESSING).split(PATHSEP);
 }
 function getTocTree(addr,locOnly=false){
     if (!addr) addr='';
     const out=[{ptr:'/',name:this.header.shorttitle }];
     if (!addr.trim())return out;
-    const thetree=(this.header.tree||DEFAULT_TREE).split(PATHSEP);
+    const thetree=(this.header.addressing||DEFAULT_ADDRESSING).split(PATHSEP);
     const parents=addr.split(PATHSEP);
     let ptr=''; //pointer to next juan
     let parentfrom=0;
@@ -208,7 +208,7 @@ function fetchToc(loc){
     if (!loc) loc='';
     let [y0,y1] = this.getPageRange(loc);
     
-    const thetree=(this.header.tree||DEFAULT_TREE).split(PATHSEP);
+    const thetree=(this.header.addressing||DEFAULT_ADDRESSING).split(PATHSEP);
     const parents=loc.split(PATHSEP).filter(i=>!!i);
 
     const label=this.getLabel(thetree[parents.length]);
@@ -254,7 +254,7 @@ function fetchPage(loc){
     const out=[];
     let [y0,y1] = this.getPageRange(loc);
 
-    const thetree=(this.header.tree||DEFAULT_TREE).split(PATHSEP);
+    const thetree=(this.header.addressing||DEFAULT_ADDRESSING).split(PATHSEP);
     const parents=loc.split(PATHSEP).filter(i=>!!i);
     if (parents.length<thetree.length) {
         return this.fetchToc(loc);
@@ -280,7 +280,7 @@ function getNChild(loc,n){
 function childCount(loc){
     if (!loc)return 0;
     const pths=loc.split(PATHSEP);
-    const thetree=(this.header.tree||DEFAULT_TREE).split(PATHSEP);
+    const thetree=(this.header.addressing||DEFAULT_ADDRESSING).split(PATHSEP);
     if (pths.length>=thetree.length) { //up one level 
         pths.pop();
         loc=pths.join(PATHSEP);
