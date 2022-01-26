@@ -121,7 +121,7 @@ class Basket extends JSONPROM {
         }
     }
     getClusterLabel() {
-        return this.getLabel(this.header.cluster||'bk')
+        return this.getLabel(this.header.cluster.split('/')[0]||'bk')
     }
     find(label,tofind,near) {
         const lbl=this.getLabel(label);

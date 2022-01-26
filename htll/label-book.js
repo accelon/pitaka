@@ -19,10 +19,11 @@ class LabelBook extends Label {
         const id=(tag.attrs.id)||' ';
         if (w==0) w=linetext.length;
         const bkname=linetext.substr(x,w);
-        
         this.names.push(bkname);
         this.linepos.push(y);
-        if (this._idarr[id]) throw 'repeated bk id, '+id+' at '+linetext;
+        if (this._idarr[id]) {
+     	   throw 'repeated bk id, '+id+' at ';
+    	}
 
         this._idarr[id]=y;
         this.idarr.push(id);

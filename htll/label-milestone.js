@@ -1,7 +1,7 @@
 import Label from './label.js'
 import {pack,unpack,pack_delta,unpack_delta,packStrings,unpackStrings,bsearch} from'../utils/index.js';
 
-class LabelLinePos extends Label {
+class LabelMilestone extends Label {
     constructor(name,opts={}) {
         super(name,opts)
         this.linepos=[];
@@ -50,4 +50,4 @@ class LabelLinePos extends Label {
     finalize() {
     }
 }
-export default LabelLinePos;
+export default LabelMilestone;

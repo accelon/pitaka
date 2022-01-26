@@ -21,7 +21,7 @@ const buildChapmap=(charDecl)=>{
 const fixJuanT=(bkno,juan,sutraline)=>{
     let bk='';
     if (juan===1) {
-        bk='^bk[n='+bkno+' '+sutraline;
+        bk='^bk[id='+bkno+' '+sutraline;
     }
 
     if (bkno==='946') {
@@ -30,20 +30,20 @@ const fixJuanT=(bkno,juan,sutraline)=>{
         if (juan===3) juan=2;
     } else if (bkno==='2805') {
         if (juan===5) {
-            bk='^bk[n='+bkno+' '+sutraline;
+            bk='^bk[id='+bkno+' '+sutraline;
             juan=1;
         } else if (juan===7) juan=2; 
     } else if (bkno==='2139') {
         if (juan===10) juan=2; //workaround 老子西昇化胡經
     } else if (bkno==='2772') {
         if (juan===3) {
-            bk='^bk[n='+bkno+' '+sutraline;
+            bk='^bk[id='+bkno+' '+sutraline;
             juan=1;
         } else if (juan===6) juan=2; 
     } else if (bkno==='2748'||bkno==='2754'||bkno==='2757'
     ||bkno==='2764b'||bkno==='2769'||bkno==='2803'||bkno=='2809'
     ||bkno==='2820') { //only 1 juan
-        bk='^bk[n='+bkno+' '+sutraline;
+        bk='^bk[id='+bkno+' '+sutraline;
         juan=1;
     }
     return [bk,juan]
@@ -63,7 +63,7 @@ const parseBuffer=(buf,fn='',ctx)=>{
     let sutraline=ctx.catalog[sutraNo].trim();
     bkno=sutraNo.replace(/^0+/,'');
 
-    const at=sutraline.indexOf(' ^');
+    const at=sutraline.indexOf('^');
     if (at>-1) {
         sutraline=sutraline.substr(0,at)+']'+sutraline.substr(at);
     } else sutraline+=']'
@@ -73,7 +73,7 @@ const parseBuffer=(buf,fn='',ctx)=>{
     if (fn[0]=='T') {
         [bk,juan]=fixJuanT(bkno,juan,sutraline);
     } else if (juan===1) {
-        bk='^bk[n='+bkno+' '+sutraline;
+        bk='^bk[id='+bkno+' '+sutraline;
     }
 
     chunk='^c'+juan+'\n';

@@ -120,7 +120,6 @@ class Builder {
                 else return;
             }
             const data=await fs.promises.readFile(fn);
-            console.log(file,'length',data.length);
             zip=await jszip.loadAsync(data);
         } else {
             zip=await jszip.loadAsync(file.getFile());

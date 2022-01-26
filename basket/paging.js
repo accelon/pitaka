@@ -81,7 +81,7 @@ function clusterOf(y){
     const cl=this.getClusterLabel();
     const at=bsearch(cl.linepos,y+1,true)-1;
     const id=cl.idarr[at];
-    const address=this.header.cluster+'='+id;
+    const address=this.header.cluster.split('/')[0]+'='+id;
     return {id, at, dy:y-cl.linepos[at], address};
 }
 function locOf(y,full=false){

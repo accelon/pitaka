@@ -4,7 +4,7 @@ import LabelPage from './label-page.js'
 import LabelBook from './label-book.js'
 import LabelChapter from './label-chapter.js'
 import LabelMulu from './label-mulu.js'
-import LabelLinePos from './label-linepos.js'
+import LabelMilestone from './label-milestone.js'
 import LabelKeyword from './label-keyword.js'
 import LabelKeynumber from './label-keynumber.js'
 import LabelYear from './label-year.js'
@@ -22,7 +22,7 @@ import LabelLink from './label-link.js'
 import LabelLang from './label-lang.js'
 import LabelFootnote from './label-footnote.js'
 
-const LabelTypes = {Label,LabelHeader,LabelEntry,LabelVol,LabelPage,LabelLinePos
+const LabelTypes = {Label,LabelHeader,LabelEntry,LabelVol,LabelPage,LabelMilestone
     ,LabelKeyword,LabelKeynumber,LabelYear,LabelYearSpan,LabelSeeAlso,LabelLang,LabelFootnote,
     LabelBook,LabelChapter,LabelMulu,LabelSection,LabelAnchor,LabelTransclusion,LabelLink}
 
