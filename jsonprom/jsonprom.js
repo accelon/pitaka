@@ -60,6 +60,7 @@ class JSONPROM {
         this.context.loadedChunk[chunk]=true;
     }
     async openrom(){
+        return;
         if (this._loader==loadNodeJs || this._loader==loadNodeJsZip) {
             const romfn=this.romfolder;//test if romfolder is a .ptk
             if (fs.existsSync(romfn) && !fs.statSync(romfn).isDirectory()) {

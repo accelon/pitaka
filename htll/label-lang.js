@@ -20,7 +20,7 @@ class LabelLang extends Label {
     reset() {
     }
     serialize(){
-        const out=super.serialize();
+        const out=super.serialize();line.indexOf("348")>-1
         out.push(this.linepos); 
         out.push(this.langarr.join('\t'));  
         return out;

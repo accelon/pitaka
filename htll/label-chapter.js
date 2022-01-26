@@ -20,7 +20,7 @@ class LabelChapter extends Label {
     }
     action( tag ,linetext){
         const {y}=tag;
-        const id=(tag.attrs.id)||' ';
+        const id=tag.attrs.id;
 
         if (this._idarr[id]||!id) { //missing 
             console.log(tag,linetext)
@@ -29,7 +29,8 @@ class LabelChapter extends Label {
         }
         this.count++;
         this._idarr[id]=true;
-        this.names.push(linetext.replace(/\r?\n/g,' ')|| ' ');
+        const text=tag.w?linetext.substr(tag.x,tag.w):linetext;
+        this.names.push(text.replace(/\r?\n/g,' ')|| ' ');
         this.idarr.push(id||'_');
         this.linepos.push(y);
     }

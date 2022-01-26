@@ -1,5 +1,6 @@
 import {AUTO_TILL_END,ALWAYS_EMPTY,OffTag} from './def.js';
 import {parseOfftextLine} from './parser.js'
+import {offtext2indic} from 'provident-pali'
 import {toSim} from 'lossless-simplified-chinese'
 function HTMLTag (x,closing,name,attrs,y,w,tempclose=false) {
     return {
@@ -157,14 +158,18 @@ export const renderSnippet=(lines=[],tags=[])=>{
     
     return units;
 }
-export const composeSnippet=(snippet,lineidx,sim=0)=>{
+
+export const composeSnippet=(snippet,lineidx,sim=0,script)=>{
     const {text,open,close}=snippet;
+    let t=text;
+    if (script) t=offtext2indic(text,script);
+    else if (parseInt(sim)) t=toSim(text,sim)
     let out='';
     if (open && open.empty) {
         out+=open.extra+'<'+open.empty+(open.i?' i="'+open.i+'" ':'')
             +' x="'+open.x+'" '+' y="'+(lineidx+open.y)+'" '+htmlAttrs(open.attrs,sim)+'/>';
     } else {
-        if (!open) out+=toSim(text,sim);
+        if (!open) out+=t;
         else out+=
         '<t'+ htmlAttrs(open.attrs,sim)
                 +(open.clss&&open.clss.length?' class="'+open.clss.join(' ')+'"':'')
@@ -172,7 +177,7 @@ export const composeSnippet=(snippet,lineidx,sim=0)=>{
                 + (open.w?' w="'+(open.w)+'"':'')
                 +(open.i?' i="'+open.i+'" ':'')
                 +'>'
-        +toSim(text,sim)
+        +t
         +'</t'+(close&&close.i?' i="'+close.i+'" ':'')+'>';
     }
     return out;

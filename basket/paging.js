@@ -42,6 +42,9 @@ function getLabelLineRange(lbl,n){
     }
     return [lbl.linepos[n],lbl.linepos[n+1]]
 }
+function getLocY(addr){
+    return this.getPageRange(addr)[0];
+}
 function getPageRange(addr){
     const thetree=(this.header.addressing||DEFAULT_ADDRESSING).split(PATHSEP);
     if (!addr && thetree[0]=='e') return [0,0];
@@ -76,8 +79,10 @@ function getPageRange(addr){
 }
 function clusterOf(y){
     const cl=this.getClusterLabel();
-    const at=bsearch(cl.linepos,y,true)-1;
-    return {id:cl.idarr[at], at};
+    const at=bsearch(cl.linepos,y+1,true)-1;
+    const id=cl.idarr[at];
+    const address=this.header.cluster+'='+id;
+    return {id, at, dy:y-cl.linepos[at], address};
 }
 function locOf(y,full=false){
     const arr=this.closest(y,(this.header.addressing||DEFAULT_ADDRESSING).split(PATHSEP));
@@ -87,6 +92,7 @@ function locOf(y,full=false){
     const s=out.join(PATHSEP);
     return full?this.name+PATHSEP+s:s;
 }
+
 function dyOf(y_loc) {
     if (typeof y_loc==='string') {
         const arr=y_loc.split(PATHSEP);
@@ -307,4 +313,4 @@ async function fetchFootnote(y0,fn){
 }
 
 export default {closest,getTocTreeDef,getTocTree,getNChild,childCount,dyOf,locOf,clusterOf,pageLoc,
-    fetchPage,fetchToc,fetchFootnote,getPageRange,narrowDown,getLabelLineRange}
+    fetchPage,fetchToc,fetchFootnote,getPageRange,narrowDown,getLabelLineRange,getLocY}

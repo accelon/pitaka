@@ -21,7 +21,7 @@ export function getParallelLinks(y_loc){
     return out;
 }
 export function langOf(y_loc) {
-    if (!this.labelLang) return DEFAULT_LANGUAGE;
+    if (!this.labelLang) return this.header.lang||DEFAULT_LANGUAGE;
     let y=y_loc;
     if (typeof y_loc!=='number') {
         y=this.getPageRange(y_loc)[0];
