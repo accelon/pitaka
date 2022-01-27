@@ -1,7 +1,13 @@
-import { getInserts } from "../xmlparser/textinsert.js";
+import { getInserts,insertText } from "../xmlparser/textinsert.js";
 const unhide=ctx=>{ (ctx.hide?ctx.hide--:0) };
 
-export const closeHandlers={
+export const onText=(el,ctx)=>{
+    if (teictx.inserts && ctx.inserts.length) {
+        el=insertText(el,ctx.inserts);
+    }
+    return onOfftext(el,ctx);
+}
+export const onClose={
     'cb:div': (el,ctx)=>{ctx.div--},
     'cb:tt':(el,ctx)=>unhide(ctx),
     'cb:mulu':(el,ctx)=>{
@@ -87,6 +93,7 @@ const lb=(el,ctx)=>{
                 ctx.inserts.push([mstag,ms]); //to be inserted when text is ready
             } else {//number or string
                 ctx.compact=true;
+   
                 out+='^'+mstag+ms;   
             }
         })
@@ -118,9 +125,10 @@ const cbtt=(el,ctx)=>{
 }
 
 
-export const handlers={
+export const onOpen={
     pb,g,lb,byline,'cb:tt':cbtt,
     milestone:(el,ctx)=>{ctx.started=true;},//skip the redundant mulu before milestone, see T30n1579_037
+    
     note:(el,ctx)=>{  ctx.hide++;return ''},
     lg:(el,ctx)=>{ctx.compact=true; return '\n^lg'},
     lem:(el,ctx)=>{ ctx.hide+=1},//just keep the rdg

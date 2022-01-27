@@ -1,5 +1,5 @@
 export * from "./build.js"
-import {glob} from '../utils/pattern.js'
+import {glob,filesFromPattern} from '../utils/pattern.js'
 import {patchBuf} from '../utils/errata.js'
 import nodefs from '../platform/nodefs.js' // "await nodefs" at begining of cli script
 import kluer from "./kluer.js"
@@ -13,4 +13,4 @@ const writeChanged=(fn,buf,enc='utf8')=>{ //write to fn only if changed
 }
 
 
-export {kluer,glob,patchBuf,nodefs,writeChanged};
+export {kluer,glob,patchBuf,nodefs,writeChanged,filesFromPattern};

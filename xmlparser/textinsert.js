@@ -8,17 +8,19 @@
 export const getInserts=(allmilestones,msid)=>{ //this is offtext milestone, not TEI milestone tag,
     if (!allmilestones) return null;
     const out=[];
+
     for (let mstag in allmilestones) {
         const milestones=allmilestones[mstag];
         let n=0; // milestone key 必須唯一，如果一個lb 中有多於一個milestone, 以@1, @2 表示
         let id=msid;
         let m=milestones[id];
-        while (m) {
+        while (m) { // 非零的數字或字串
             out.push([mstag,m]);
             id=msid+'@'+(++n);
             m=milestones[id];
         }
     }
+
     if (!out.length) return null;//此lb 無milestone
     else return out; //多於一個
 }

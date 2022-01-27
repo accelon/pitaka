@@ -1,10 +1,10 @@
 import OffTextFormatter from '../offtext/formatter.js';
-import {handlers,closeHandlers} from './tei.js'
-import {DOMFromString,xpath,XML2OffText} from '../xmlparser/index.js';
+import {onOpen,onClose} from './tei.js'
+import {DOMFromString,xpath,walkDOMOfftext} from '../xmlparser/index.js';
 import { alphabetically } from '../utils/sortedarray.js';
 
 
-const buildChapmap=(charDecl)=>{
+const buildCharmap=(charDecl)=>{
     const res={};
     if (!charDecl)return res;
     for (let i=0;i<charDecl.children.length;i++) {
@@ -49,12 +49,13 @@ const fixJuanT=(bkno,juan,sutraline)=>{
     return [bk,juan]
 }
 
+
 const parseBuffer=(buf,fn='',ctx)=>{
     // if (fn) process.stdout.write('\r processing'+fn+'    '+buf.length);
     ctx.rawContent=buf;
     const el=DOMFromString(buf);
     const body=xpath(el,'text/body');
-    const charmap=buildChapmap(xpath(el,'teiHeader/encodingDesc/charDecl'));
+    const charmap=buildCharmap(xpath(el,'teiHeader/encodingDesc/charDecl'));
 
     let m=fn.match(/n([\dabcdefABCDEF]+)_(\d+)/);
     let bk='',bkno='',chunk='';
@@ -81,7 +82,7 @@ const parseBuffer=(buf,fn='',ctx)=>{
         ctx.teictx={defs:ctx.labeldefs,lbcount:0,hide:0,snippet:'',
         div:0,charmap,fn,started:false,transclusion:ctx.transclusion,milestones:ctx.milestones};    
     }
-    let content=bk+chunk+XML2OffText(body,ctx.teictx,handlers,closeHandlers);
+    let content=bk+chunk+walkDOMOfftext(body,ctx.teictx,onText,onClose,onText);
     content=content.replace(/\^r\n/g,'\n');
     return content;
 }
@@ -121,4 +122,4 @@ export const translatePointer=str=>{
 //     return {valid:true,ptr};
 // }
 export default {Formatter:OffTextFormatter,translatePointer,
-    parseFile,parseBuffer,getZipFileToc}
+    parseFile,parseBuffer,getZipFileToc,buildCharmap,onOpen,onClose}

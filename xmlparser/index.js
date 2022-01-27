@@ -1,6 +1,5 @@
 import Sax from './sax.js'
 import Element from './element.js'
-import { insertText } from './textinsert.js';
 
 const DOMFromString=str=>{
     let tree;
@@ -52,42 +51,40 @@ const xpath=(root,p)=>{
     }
     return el;
 }
-
-const XML2OffText = (el,teictx,H={},CH={}) =>{
-    if (typeof el=='string') {                     // a string node arrives
-        if (teictx.inserts && teictx.inserts.length) {
-            el=insertText(el,teictx.inserts);
-        }
-        let s=el.trimRight();
-        if (teictx.hide) {
-            if (teictx.compact) {
-                teictx.compact=false;
-                return ' ';
-            }
-            return '';
-        }
-        if (teictx.compact && s.charCodeAt(0)<0x7f) { // a compact offtag is emitted just now
-            s=' '+s;                               // use blank to separate tag ]
-            teictx.compact=false;
-        }
-        if (s) teictx.snippet=s;
-        return teictx.started?s:'';
-    }
+const walkDOM=(el,teictx,onOpen={},onClose={},onText=null)=>{
+    if (typeof el==='string') return onText?onText(el,teictx):el;
     let out='';
-    const handler= H[el.name] || H["*"];
-    if (handler) {
-        const out2 = handler(el,teictx);
+
+    const openhandler= onOpen[el.name] || onOpen["*"];
+    if (openhandler) {
+        const out2 = openhandler(el,teictx);
         if (typeof out2=='string') out=out2;
     }
-
     if (el.children && el.children.length) {
-        out+=el.children.map(e=>XML2OffText(e,teictx,H,CH)).join('');
+        out+=el.children.map(e=>walkDOM(e,teictx,onOpen,onClose,onText)).join('');
     }
-
-    if (CH) {
-        const closehandler= CH[el.name] || CH["*"];
-        if (closehandler) out+=closehandler(el,teictx)||'';    
-    }
+    const closehandler= onClose[el.name] || onClose["*"];
+    if (closehandler) out+=closehandler(el,teictx)||'';    
     return out;
 }
-export {DOMFromString,JSONify,xpath,Sax,XML2OffText};
+/* helper for emiting offtext format*/
+const onOfftext=(el,teictx)=>{
+    let s=el.trimRight();
+    if (teictx.hide || teictx.delete) { 
+        teictx.delete=false;
+        return '';
+    }
+    if (teictx.compact && s.charCodeAt(0)<0x7f) { // a compact offtag is emitted just now
+        s=' '+s;                               // use blank to separate tag ]
+        teictx.compact=false;
+    }
+    if (s) teictx.snippet=s;
+    return teictx.started?s:'';
+}
+
+const walkDOMOfftext = (el,teictx,onOpen={},onClose={},onText=onOfftext) =>{
+    return walkDOM(el,teictx,onOpen,onClose,onText);
+}
+
+
+export {Sax,JSONify,DOMFromString,xpath,walkDOM,walkDOMOfftext,onOfftext};

@@ -25,6 +25,7 @@ const expandWildcard=(folder,pat,isDir)=>{
 export function filesFromPattern(pat,rootdir=''){
     const outfiles={};
     const patterns=pat.split(/[;,]/);
+    if (rootdir&&rootdir.substr(rootdir.length-1)!=='/') rootdir+='/';
     
     patterns.forEach(pat=>{
         const at=pat.lastIndexOf('/');
