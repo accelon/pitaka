@@ -1,5 +1,7 @@
 import reservedname from "./reservedname.js";
-import { filesFromStringPattern } from "../utils/index.js";
+import { filesFromPattern } from "../utils/index.js";
+import {fileContent,getFormatTypeDef} from '../format/index.js'
+import { LOCATORSEP } from "../index.js";
 export function validateConfig(json,filenames){
     if (!json) return 'empty json'
     if (!json.name) return 'missing "name" field';
@@ -7,7 +9,7 @@ export function validateConfig(json,filenames){
     if (json.name.length<4 && !reservedname[json.name]) return '"name" too short, need 4 characters or more.'
     if (json.name.length>31) return '"name" should not be more than 32 characters.'
 
-    if (typeof json.files=='string') json.files=filesFromStringPattern(json.files);
+    if (typeof json.files=='string') json.files=filesFromPattern(json.files);
     for (let i=0;i<json.files.length;i++) {
         const f=json.files[i];
         const at=filenames.indexOf(f);
@@ -16,4 +18,69 @@ export function validateConfig(json,filenames){
         }
     }
     return null; //ok
+}
+const combineJSON=(pat,key,obj)=>{
+    const files=filesFromPattern(pat);
+    obj[key]={};
+    files.forEach(fn=>{
+        fileContent(fn).then(content=>{
+            const json=JSON.parse(content);
+            if (Array.isArray(json)) {
+                obj[key]=json;
+            } else {//combine multiple object
+                for (let k in json) obj[key][k]=json[k];
+            }
+        });    
+    });
+}
+const addJSON=(pat,key,context)=> {
+    if (typeof pat==='string') {
+        combineJSON(pat,key,context);
+    } else { //for milestones
+        context[key]={};
+        for (let subkey in pat) {
+            combineJSON(pat[subkey]  , subkey, context[key]);
+        }
+    }
+}
+const  addErrata=(pat,context)=> {
+    const files=filesFromPattern(pat);
+    files.forEach(erratafile=>{
+        fileContent(erratafile).then(content=>{
+            const errata=JSON.parse(content);
+            for (let fn in errata) {
+                for (let i in errata[fn]) {
+                    const [from,to,opts]=errata[fn][i];
+                    if (opts===true) {
+                        const regex=new RegExp(from,'g');
+                        errata[fn][i]=[regex,to];
+                    }
+                    //todo opts is number, dec for each match
+                }
+            }
+            context.errata=errata;
+        })
+    });
+}
+export const initPitakaJSON=(config,context,log)=>{
+    context.labeldefs=getFormatTypeDef(config,{context:context,log});
+
+    if (!config.cluster) {
+        if (context.labeldefs.bk) config.cluster='bk';
+        else if (context.labeldefs.e) config.cluster='e';
+        else throw "no cluster label (bk or e)"
+    } else {
+        const clusterTags=config.cluster.split(LOCATORSEP);
+        clusterTags.forEach(cluster=>{
+            if (!context.labeldefs[cluster]) {
+                throw "cluster label "+cluster+"not defined";
+            }
+        })
+    }
+    
+    if (config.eudc) addJSON(config.eudc,'EUDC',context);
+    if (config.milestones) addJSON(config.milestones,'milestones',context);
+    if (config.errata) addErrata(config.errata,context);
+    if (config.catalog) addJSON(config.catalog,'catalog',context);
+    if (config.transclusion) addJSON(config.transclusion,'transclusion',context);
 }

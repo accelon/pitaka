@@ -1,5 +1,5 @@
 import Label from './label.js'
-import {parsePointer} from '../offtext/pointers.js'
+import {parseAddress} from '../offtext/pointers.js'
 import {pack3,unpack3,pack_delta,unpack_delta,bsearch} from'../utils/index.js';
 import { DELTASEP } from '../platform/constants.js';
 
@@ -18,7 +18,7 @@ class LabelTransclusion extends Label {
         return this;
     }
     action(tag){
-        const ptr=parsePointer(tag.attrs['@']); // ptk, bk, c, dy, hook
+        const ptr=parseAddress(tag.attrs['@']); // ptk, bk, c, dy, hook
         if (ptr && ptr.basket){ //only deal with external quote
             const {basket,bk,c,dy,hook} = ptr;
             if (!this.Q[basket])this.Q[basket]={};

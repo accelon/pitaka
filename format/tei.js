@@ -1,3 +1,4 @@
+import { getInserts } from "../xmlparser/textinsert.js";
 const unhide=ctx=>{ (ctx.hide?ctx.hide--:0) };
 
 export const closeHandlers={
@@ -18,6 +19,7 @@ export const closeHandlers={
     //         return '^r';    
     //     }
     // },
+    p:(el,ctx)=>'\n',
 }
 const getPali=pi=>{
     if (pi.indexOf(' ')==-1 ) {//removing tailing .
@@ -45,9 +47,15 @@ const pb=(el,ctx)=>{
     } else {
         let vol='';
         if (el.attrs.n==='0001a') {
-            vol='^v'+parseInt(el.attrs['xml:id'].substr(1,2));
+            ctx.vol=parseInt(el.attrs['xml:id'].substr(1,2))||ctx.vol;
+            vol='^v'+ctx.vol;
+        } 
+        if (ctx.fn[0]==='N') {
+            out=vol+'^p'+pn.replace(/a$/,'');
+            ctx.compact=true;
+        } else {
+            out=vol+'^p'+ pn;
         }
-        out=vol+'^p'+ pn;
     }
     return out;
 }
@@ -60,15 +68,30 @@ const g=(el,ctx)=>{
         return '^mc'+el.attrs.ref.substr(3); //remove #CB
     }
 }
+
 const lb=(el,ctx)=>{
+    ctx.lbcount++;    
     if (ctx.transclusion[ctx.fn] && el.attrs.type!=='old') {
         ctx.ptr=ctx.transclusion[ctx.fn][el.attrs.n];
     }
-    ctx.lbcount++;
-    if (ctx.lbcount>1) {
-        // ctx.compact=true;
-        return ''  //^r';
+    const inserts= getInserts( ctx.milestones, ctx.vol+'p'+el.attrs.n);
+    let out='';
+    if (inserts) {
+        if (ctx.inserts&&ctx.inserts.length) {
+            console.log('unclear inserts', ctx.inserts)
+        }
+        ctx.inserts=null;
+        inserts.forEach(([mstag,ms])=>{
+            if (Array.isArray(ms)) { //need to locate the text
+                if (!ctx.inserts) ctx.inserts=[];
+                ctx.inserts.push([mstag,ms]); //to be inserted when text is ready
+            } else {//number or string
+                ctx.compact=true;
+                out+='^'+mstag+ms;   
+            }
+        })
     }
+    return out;
 }
 const byline=(el,ctx)=>{
     let s='\n';
@@ -108,7 +131,6 @@ export const handlers={
             return '^t[@'+ptr+']';
         }
     },    
-    p: (el,ctx)=>'\n',
     'cb:mulu':(el,ctx)=>{
         if (!ctx.started)return;
         if (el.attrs.level) {// T01 0001b08 , skip cb:mulu without level 

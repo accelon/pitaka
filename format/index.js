@@ -67,9 +67,9 @@ const getFormatTypeDef=(config,opts)=>{
     return TypeDef( def, {config,...opts});
 }
 
-const getFormatAddressing=format=>{
+const getFormatLocator=format=>{
     const fm=getFormat(format);
-    return fm.addressing;
+    return fm.locator;
 }
 
 const getFormatter=format=>{
@@ -95,4 +95,4 @@ const getQuickPointerSyntax=format=>{
     return fm.QuickPointerSyntax;
 }
 export {readFormatFile, fileContent,translatePointer,getFormatter,
-fileLines,getZipIndex,getFormatTypeDef,getQuickPointerParser,getQuickPointerSyntax,getFormatAddressing};
+fileLines,getZipIndex,getFormatTypeDef,getQuickPointerParser,getQuickPointerSyntax,getFormatLocator};

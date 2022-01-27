@@ -1,5 +1,6 @@
 import Sax from './sax.js'
 import Element from './element.js'
+import { insertText } from './textinsert.js';
 
 const DOMFromString=str=>{
     let tree;
@@ -54,6 +55,9 @@ const xpath=(root,p)=>{
 
 const XML2OffText = (el,teictx,H={},CH={}) =>{
     if (typeof el=='string') {                     // a string node arrives
+        if (teictx.inserts && teictx.inserts.length) {
+            el=insertText(el,teictx.inserts);
+        }
         let s=el.trimRight();
         if (teictx.hide) {
             if (teictx.compact) {
@@ -62,7 +66,6 @@ const XML2OffText = (el,teictx,H={},CH={}) =>{
             }
             return '';
         }
-
         if (teictx.compact && s.charCodeAt(0)<0x7f) { // a compact offtag is emitted just now
             s=' '+s;                               // use blank to separate tag ]
             teictx.compact=false;

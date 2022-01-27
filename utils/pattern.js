@@ -1,4 +1,7 @@
 
+const hasWildcard=s=>{
+    return s.indexOf('?')>-1||s.indexOf('[')>-1||s.indexOf('*')>-1;
+}
 export const glob=(files,filepat)=>{
     if (typeof files=='string') {
         files=fs.readdirSync(files);
@@ -8,21 +11,39 @@ export const glob=(files,filepat)=>{
     const reg=new RegExp(pat);
     return files.filter(f=>f.match(reg));
 }
-
-export function filesFromStringPattern(pat,rootdir){
-    
+const expandWildcard=(folder,pat,isDir)=>{
+    let files=[];
+    if (hasWildcard(pat)) {
+        const folderfiles=fs.readdirSync(folder);
+        files=glob(folderfiles,pat);
+    } else if (fs.existsSync(folder+pat)){
+        files=[pat];
+    }
+    if (isDir) files=files.filter(fn=>fs.statSync(folder+fn).isDirectory())
+    return files;
+}
+export function filesFromPattern(pat,rootdir=''){
     const outfiles={};
     const patterns=pat.split(/[;,]/);
-    const folderfiles=fs.readdirSync(rootdir);
+    
     patterns.forEach(pat=>{
-        if (pat.indexOf('?')>-1 || pat.indexOf('*')>-1) {
-            const files=glob(folderfiles,pat);
-            files.forEach(f=>{
-                outfiles[f]=true;
-            })
-        } else if (fs.existsSync(rootdir+pat)){
-            outfiles[pat]=true;
+        const at=pat.lastIndexOf('/');
+        let dir='';
+        let subfolders=[''];
+        if (at>-1) {
+            dir=pat.substr(0,at);
+            pat=pat.substr(at+1);
+            subfolders=expandWildcard(rootdir,dir,true);
+        } else {
+            subfolders=['']
         }
+        
+        subfolders.forEach(subfolder=>{
+            const files=expandWildcard(rootdir+subfolder,pat);
+            files.forEach(f=>{
+                outfiles[subfolder+'/'+f]=true;
+            })    
+        })
     });
     const out=Object.keys(outfiles);
     return out;

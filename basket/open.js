@@ -71,8 +71,8 @@ class Basket extends JSONPROM {
                             else throw "no cluster label (bk or e)"
                         }
                         //compatible code
-                        if (!self.header.addressing && self.header.tree) {
-                        	self.header.addressing=self.header.tree;
+                        if (!self.header.locator && self.header.tree) {
+                        	self.header.locator=self.header.tree;
                         }
                     
                         self.registerQueryMethods();
@@ -98,7 +98,7 @@ class Basket extends JSONPROM {
         return lbl.linepos.length;
     }
     isDictionary(){
-        return this.header.addressing=='e'
+        return this.header.locator=='e'
     }
     parse(str){
         for (let i=0;i<this.labels.length;i++) {

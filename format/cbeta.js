@@ -60,7 +60,7 @@ const parseBuffer=(buf,fn='',ctx)=>{
     let bk='',bkno='',chunk='';
     
     const sutraNo=m[1].replace('_'+m[2],'').toLowerCase();
-    let sutraline=ctx.catalog[sutraNo].trim();
+    let sutraline=ctx.catalog&&ctx.catalog[sutraNo]&&ctx.catalog[sutraNo].trim() ||'';
     bkno=sutraNo.replace(/^0+/,'');
 
     const at=sutraline.indexOf('^');
@@ -73,13 +73,15 @@ const parseBuffer=(buf,fn='',ctx)=>{
     if (fn[0]=='T') {
         [bk,juan]=fixJuanT(bkno,juan,sutraline);
     } else if (juan===1) {
-        bk='^bk[id='+bkno+' '+sutraline;
+        bk='^bk'+bkno+(sutraline!==']'?'['+sutraline:''); //empty sutraline
     }
 
-    chunk='^c'+juan+'\n';
-    const teictx={defs:ctx.labeldefs,lbcount:0,hide:0,snippet:'',
-    div:0,charmap,fn,started:false,transclusion:ctx.transclusion};
-    let content=bk+chunk+XML2OffText(body,teictx,handlers,closeHandlers);
+    chunk='^c'+juan;
+    if (!ctx.teictx) { //cross multiple file
+        ctx.teictx={defs:ctx.labeldefs,lbcount:0,hide:0,snippet:'',
+        div:0,charmap,fn,started:false,transclusion:ctx.transclusion,milestones:ctx.milestones};    
+    }
+    let content=bk+chunk+XML2OffText(body,ctx.teictx,handlers,closeHandlers);
     content=content.replace(/\^r\n/g,'\n');
     return content;
 }

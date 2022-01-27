@@ -1,9 +1,9 @@
-import {getFormatter, getZipIndex, getFormatTypeDef, getFormatAddressing, fileContent} 
-from '../format/index.js'
+import {getFormatter, getZipIndex, getFormatLocator, fileContent} from '../format/index.js'
 import JSONPROMWriter from '../jsonprom/jsonpromw.js';
 import Inverter from '../fulltext/inverter.js';
 import {serializeLabels} from './serialize-label.js';
 import {linesOffset} from '../utils/index.js'
+import { initPitakaJSON } from './config.js';
 class Builder {
     constructor(opts) {
         this.context={
@@ -27,49 +27,16 @@ class Builder {
         this.log=opts.log || console.log;
         this.config=opts.config;
         //.tree is old name
-        this.config.addressing=this.config.addressing||this.config.tree||getFormatAddressing(this.config.format);
+        this.config.locator=this.config.locator||this.config.tree||getFormatLocator(this.config.format);
         this.opts=opts;
         this.exec=opts.exec;
         this.unknownLabel={};
-        this.context.labeldefs=getFormatTypeDef(this.config,{context:this.context,log:this.log});
 
-        if (!this.config.cluster) {
-            if (this.context.labeldefs.bk) this.config.cluster='bk';
-            else if (this.context.labeldefs.e) this.config.cluster='e';
-            else throw "no cluster label (bk or e)"
-        } else if (!this.context.labeldefs[ this.config.cluster]) {
-            throw "cluster label "+this.config.cluster+"not defined";
-        }
+        initPitakaJSON(this.config,this.context,this.log);
         this.files=[];
-        if (this.config.eudc) this.addJSON(this.config.eudc,'EUDC');
-        if (this.config.errata) this.addErrata(this.config.errata);
-        if (this.config.catalog) this.addJSON(this.config.catalog,'catalog');
-        if (this.config.transclusion) this.addJSON(this.config.transclusion,'transclusion');
         return this;
     }
-    addJSON(fn,key) {
-        const self=this;
-        fileContent(fn).then(content=>{
-            self.context[key]=JSON.parse(content);
-        });
-    }
-    addErrata(erratafile) {
-        const self=this;
-        fileContent(erratafile).then(content=>{
-            const errata=JSON.parse(content);
-            for (let fn in errata) {
-                for (let i in errata[fn]) {
-                    const [from,to,opts]=errata[fn][i];
-                    if (opts===true) {
-                        const regex=new RegExp(from,'g');
-                        errata[fn][i]=[regex,to];
-                    }
-                    //todo opts is number, dec for each match
-                }
-            }
-            self.context.errata=errata;
-        });
-    }
+
     async addLst(lstfile,format) { //only support by nodejs, mainly for cbeta
         if (!fs.existsSync(lstfile)) {
             if (!this.config.allowmissingfile) this.log('missing file',lstfile);
@@ -229,7 +196,6 @@ class Builder {
             return;
         }
         let rawcontent=null;
-
         if (typeof file!=='string' && 'name' in file) {
             fn=file.name;
         }
@@ -242,6 +208,7 @@ class Builder {
         } else if (fn.endsWith('.lst')) {
             return await this.addLst(file,format);
         } else if (typeof fs!=='undefined' && rootdir){
+ 
             if (fs.existsSync(rootdir+fn)&&fs.statSync(rootdir+fn).isDirectory()) {
             // console.log('is folder',fn)
                 return await this.addFolder(file,format);

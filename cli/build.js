@@ -1,5 +1,5 @@
 import {Builder} from 'pitaka/basket'
-import {filesFromStringPattern} from 'pitaka/utils'
+import {filesFromPattern} from 'pitaka/utils'
 import kluer from './kluer.js'
 const {yellow,red} = kluer;
 import {existsSync,readFileSync} from 'fs'
@@ -38,7 +38,7 @@ export const  buildPitaka=async ({config, nosave=false,
     const builder=new Builder({name,title,config,onContent,exec}); //core chinese text
 
     if (typeof files=='string') {
-        files=filesFromStringPattern(files,config.rootdir);
+        files=filesFromPattern(files,config.rootdir);
     }
     builder.files=files;
 

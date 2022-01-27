@@ -1,6 +1,6 @@
 //unpack array of serialized pointer
 import pool from '../basket/pool.js';
-import {PATHSEP,DELTASEP,DEFAULT_ADDRESSING} from '../platform/constants.js'
+import {PATHSEP,DELTASEP,LOCATORSEP} from '../platform/constants.js'
 import {makeHook, parseHook} from './hook.js';
 import {parseOfftextLine} from './parser.js';
 
@@ -15,41 +15,69 @@ export const stringifyAddress=attrs=>{
     }
     return out.join(PATHSEP);
 }
+
+/*
+   loc                   loc only , no PATHSEP, local
+   db/loc                2 items, second item has no = , external
+   loc/dy=0              2 items, second items has =
+   db/loc/dy=0/other=xx/other=yy  , more than 2 items , external
+   loc/dy=0/other=x
+*/
 export const parseAddress=str=>{
-    if (!str) return {}; 
-    const res={basket:'',loc:[]};
+    if (!str) return null; 
+    const res={basket:'',loc:'', locator:[], dy:0, attrs:{} }; //dy must follow loc
     const arr=str.split(PATHSEP);
-    res.basket = arr.shift();
-    let key='loc', v=[] ;
-    while (arr.length) {
-        const it=arr.shift();
+    if (arr.length===1) {
+        res.loc=arr.shift();
+    } else if (arr.length===2) {
+        if (arr[1].indexOf('=')>-1) { //no basket
+            basket=arr.shift();
+        }
+        res.loc=arr.shift();
+    }
+    //just in case
+    res.basket=res.basket.replace(/=.+/,'');
+    res.loc=res.loc.replace(/=.+/,'');
+    res.locator=res.loc.split(LOCATORSEP);
+    arr.forEach( (item,idx) =>{
         const at=it.indexOf('=');
         if (at>0) {
-            res[key]=v.join(PATHSEP);
-            key=it.substr(0,at);
-            v=[];
-            v.push(it.substr(at+1));
+            const key=item.substr(0,at);
+            const value=item.substr(at+1);
+            res[key]=(key==='dy')?parseInt(value)||0: value;
         } else {
-            v.push(it);
+            res.attrs[idx]=item;
         }
-    }
-    res[key]=v.join(PATHSEP)
+    })
     return res;
 }
+/*
 export const parsePointer=str=>{
     if (!str) return {};
-    const res={basket:'',bk:'',c:'',dy:0,hook:'',loc:''};
+    const res={basket:'',loc:'',dy:0,loc:''};
     const pths=str.split(PATHSEP);
     if (str[0]!=='/') {
         res.basket=pths.shift();
         // res.basket=pths.shift();
     }
     
-    res.bk=pths.shift();
-    res.loc=res.bk;
+    res.loc=pths.shift();
     if (!pths.length) return res;
 
-    let bk,c='',dy,dy2;//缺少idarr 時會有dy2，如  :0:7  表示第0卷第7行
+    pths.forEach(pth=>{
+        const at=pth.indexOf('=');
+        if (at>0) {
+            res[pth.substr(0,at)]=pth.substr(at+1);
+        }
+    })
+    if (res.dy) res.dy=parseInt(dy)||0;
+    return res;
+
+    // res.dy=parseInt(dy)||0;
+
+    // let loc,dy,dy2;//缺少idarr 時會有dy2，如  :0:7  表示第0卷第7行
+    
+    
     if (res.bk.indexOf(DELTASEP)>0) { //only one level, no chunk
         [bk,dy]=res.bk.split(DELTASEP);
         res.bk=bk;
@@ -60,20 +88,19 @@ export const parsePointer=str=>{
             dy=dy2;
         }
     }
-    res.c=c;
-    res.dy=parseInt(dy)||0;
-    res.hook=pths.join(PATHSEP);
-    res.loc=res.bk+PATHSEP+res.c;
-    return res;
+    // res.c=c;
+    // res.hook=pths.join(PATHSEP);
+    // res.loc=res.bk+PATHSEP+res.c;
 }
+*/
 export const dereferencing=async (arr,ptk=null)=>{
     if (typeof arr=='string') arr=[arr];
     const out=[],jobs=[];
     for (let i=0;i<arr.length;i++) {
         const ptr={ptk:null, p:'',h:null};
         if (ptk) ptr.ptk=pool.get(ptk.name);
-        const pths=arr[i].split(PATHSEP);
-        if (arr[i][0]!==PATHSEP) {
+        const pths=arr[i].split(LOCATORSEP);
+        if (arr[i][0]!==LOCATORSEP) {
             pths.shift(); //drop leading PATHSEP
             ptk=pool.get(pths.shift());
             ptr.ptk=ptk.name;
@@ -82,7 +109,7 @@ export const dereferencing=async (arr,ptk=null)=>{
         const addr=pths.join(PATHSEP);
         const [from,to]=ptk.getPageRange(addr);
 
-        // const thetree=(ptk.header.addressing||DEFAULT_ADDRESSING).split(PATHSEP);
+        // const thetree=(ptk.header.locator||DEFAULT_LOCATOR).split(LOCATORSEP);
         // const branches=[];
 
         // parseAddress()

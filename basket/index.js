@@ -1,5 +1,5 @@
 import {openBasket} from './open.js';
-import {dereferencing,parsePointer} from '../offtext/pointers.js';
+import {dereferencing,parseAddress} from '../offtext/pointers.js';
 import {validateConfig} from './config.js'
 import pool from './pool.js';
 import Builder from './builder.js';
@@ -98,7 +98,7 @@ function bestEntries(tf){
 }
 
 async function fetchRange(url,opts={}){
-    const ptr=parsePointer(url);
+    const ptr=parseAddress(url);
     let ptk=opts.ptk;
     const extra=opts.extra||0;
     if (!ptk) ptk=await openBasket(ptr.basket);

@@ -31,9 +31,10 @@ if (!existsSync(pitakajson) ){
 } else {
     config=JSON.parse(readFileSync(pitakajson,'utf8').trim());
 }
-const jsonp=()=>build({jsonp:true});
-const raw=()=>build({raw:true});
-const ngram=()=>build( {ngram:parseInt(arg)||2});
+const ptk=()=>_build({jsonp:false}); //build ptk (a zip file)
+const build=()=>_build({jsonp:true});
+const raw=()=>_build({raw:true});
+const ngram=()=>_build( {ngram:parseInt(arg)||2});
 const exec=config=>{
     const jsfn=process.argv[3];
     if (!fs.existsSync(jsfn)) {
@@ -43,7 +44,7 @@ const exec=config=>{
     let dir=process.cwd();
     const f='file://'+dir+Path.sep +jsfn;
     import(f).then(cb=>{
-        build({exec:cb});
+        _build({exec:cb});
     });
 }
 
@@ -66,7 +67,7 @@ const report=(builder)=>{
     return out.join('\n');
 }
 
-const build=async (opts)=>{  
+const _build=async (opts)=>{  
     console.time('pitaka');
     opts=opts||{raw:false,jsonp:false};
     if (!existsSync(pitakajson)) {
@@ -108,8 +109,8 @@ const help=()=>{
     console.log('Description: ')
     console.log(' Pitaka command line interface')
     console.log('\nUsage: ')
-    console.log(yellow('$ pitaka build   '), 'build pitaka rom file')
-    console.log(yellow('$ pitaka jsonp   '), 'build pitaka jsonp folder')
+    console.log(yellow('$ pitaka build   '), 'build as jsonp')
+    console.log(yellow('$ pitaka ptk   '), 'build rom file (.ptk)')
     console.log(yellow('$ pitaka raw     '), 'create *-raw.off')
     console.log(yellow('$ pitaka ngram   '), 'get ngram, default 2')
     // console.log(yellow('$ pitaka info    '), 'show information of pitaka')
@@ -130,10 +131,10 @@ const help=()=>{
 
 try {
     await ({v:validate,validate,
-        j:jsonp,jsonp,raw,r:raw, q:quote,quote, p:pinpoint,pinpoint,
+        build,b:build,raw,r:raw, ptk,q:quote,quote, p:pinpoint,pinpoint, 
         z:zip,zip,ngram,n:ngram,exec,e:exec,l:longline,longline,iast,
         group,g:group,entrysort,y:entrysort,search,s:search,wordseg,w:wordseg, dictwords,d:dictwords,
-        '--help':help,'-h':help,build,b:build})[cmd](config);
+        '--help':help,'-h':help})[cmd](config);
 
 } catch(e) {
     console.log( kluer.red('error running command'),cmd)

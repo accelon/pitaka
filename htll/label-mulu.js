@@ -18,15 +18,15 @@ class LabelMulu extends Label {
     }
     action( tag ,linetext){
         const {x,w,y}=tag;
-        const n=parseInt(tag.attrs.id)||this.id;
-        if (n>0) {
+        const id=parseInt(tag.attrs.id)||this.id;
+        if (id>0) {
             const t= (!this.compact&&tag.attrs.t)? tag.attrs.t.trim() : linetext.substr(x,w);
             this.names.push(t);
             this.level.push(id);
             this.linepos.push(y);
             this.count++;
         } else {
-            throw 'invalid level '+n+' at '+y+' '+linetext;
+            throw 'invalid level '+id+' at '+y+' '+linetext;
         }
     }
     reset(parenttag) { //add a milestone
