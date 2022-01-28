@@ -8,17 +8,23 @@
  *             若為文字，則會搜尋，並以該文字的結尾作為標記的終點。
  **/
 const QUOTEPREFIX='\u001a', QUOTEPAT=/\u001a(\d+)/g ;                // 抽取字串的前綴，之後是序號
-import {OffTag, ALWAYS_EMPTY,
-    OFFTAG_LEADBYTE,OFFTAG_ATTRS, OFFTAG_REGEX_G,QSTRING_REGEX_G} from './def.js'
+import {OffTag, ALWAYS_EMPTY, OFFTAG_ID,
+    OFFTAG_LEADBYTE,OFFTAG_ATTRS, OFFTAG_REGEX_G,QSTRING_REGEX_G, OFFTAG_NAME_ATTR} from './def.js'
 import {findCloseBracket} from '../utils/cjk.js'
+
+//^tag#xx    id="xx" 
+//^tag1xx    id="1xx" 
 const parseCompactAttr=str=>{  //              序號和長度和標記名 簡寫情形，未來可能有 @ 
-    const out={}, arr=str.split(/([#@])/);
+    const out={}, arr=str.split(/([@#])/);
     while (arr.length) {
         const v=arr.shift();
         // if      (v==='~') out['~']=arr.shift();  
-        // if (v==='#') out['#']=arr.shift();  // n  or id
-        if (v==='@') out['@']=arr.shift();  // a hook
-        else if (v.trim()) out.id=v.trim();   // n is alphanumeric 
+        if (v==='@') out['@']=arr.shift();  // a pointer
+        else { 
+            if (v==='#') v=v.shift(); 
+            const m=v.match(OFFTAG_ID); //id with numeric leading may omit #
+            if (m) out.id=m[1]
+        }
     }
     return out;
 }
@@ -51,7 +57,7 @@ export const extractOfftag=(str,namepat)=>{  //namepat== label name+ optional co
     const re=new RegExp(OFFTAG_LEADBYTE+"("+namepat+")"+OFFTAG_ATTRS,'g');
     const out=[];
     str.replace(re,(m,rawName,rawA)=>{
-        let [m2, tagName, compactAttr]=rawName.match(/([A-Za-z_]*)(.*)/);
+        let [m2, tagName, compactAttr]=rawName.match(OFFTAG_NAME_ATTR);
         const [attrs,putback]=parseAttrs(rawA,compactAttr);
         out.push([attrs,putback,m.length]);
     })
@@ -103,7 +109,7 @@ export const parseOffTag=(raw,rawA)=>{ // 剖析一個offtag,  ('a7[k=1]') 等�
             raw=raw.substr(0,at);
         }
     }
-    let [m2, tagName, compactAttr]=raw.match(/([A-Za-z_]*)(.*)/);
+    let [m2, tagName, compactAttr]=raw.match(OFFTAG_NAME_ATTR);
     let [attrs,putback]=parseAttrs(rawA,compactAttr);
     return [tagName,attrs,putback];
 }

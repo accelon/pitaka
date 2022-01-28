@@ -1,5 +1,5 @@
-import {PATHSEP,DELTASEP,LOCATORSEP,DEFAULT_LOCATOR,NAMESEP} from '../platform/constants.js'
-import {parseOffTag,parseAddress,stringifyAddress} from '../offtext/index.js'
+import {PATHSEP,NAMESPACESEP,DELTASEP,LOCATORSEP,DEFAULT_LOCATOR,NAMESEP} from '../platform/constants.js'
+import {parseAddress} from '../offtext/index.js'
 import { bsearch } from "../utils/bsearch.js" ;
 
 function narrowDown(branches){
@@ -48,7 +48,7 @@ function getLocY(addr){
 function getPageRange(addr){
     const thetree=(this.header.locator||DEFAULT_LOCATOR).split(LOCATORSEP);
     if (!addr && thetree[0]=='e') return [0,0];
-    const pths=(addr||'').split(PATHSEP).filter(i=>!!i);
+    const pths=(addr||'').split(LOCATORSEP).filter(i=>!!i);
     const arr=pths.map((item,idx)=>{
         let pth=pths[idx];
         let id=pth;
@@ -58,20 +58,6 @@ function getPageRange(addr){
             lbl=id.substr(0,eq);
             id=id.substr(eq+1);
         }
-        /*
-        const eq=id.indexOf('#');
-        if (eq>0) {
-            const [labelname,attrs]=parseOffTag(id.substr(0,eq)+id.substr(eq+1));
-            id=attrs.n;
-            lbl=labelname;
-        // } else {
-        //     const m=pth.lastIndexOf(DELTASEP);
-        //     dy=m>1?parseInt(pth.substr(m+1)):0;
-        //     if (m>1 && !isNaN(dy) ) {
-        //         pth=pth.substr(0,m);
-        //     }
-        }
-        */
         return {lbl, id }
     })
     const nextlbl=thetree[pths.length]||'';
@@ -84,16 +70,16 @@ function clusterOf(y){
     const address=this.header.cluster.split('/')[0]+'='+id;
     return {id, at, dy:y-cl.linepos[at], address};
 }
-function locOf(y,full=false){
+function locOf(y){
     const arr=this.closest(y,(this.header.locator||DEFAULT_LOCATOR).split(LOCATORSEP));
     const out=arr.map(it=>it.id);
-    let delta=0;
+    let dy=0;
     let s=out.join(LOCATORSEP);
     if (arr.length) {
-        delta=y-arr[arr.length-1].line;
-        if (delta>0) s+=PATHSEP+'dy='+delta;
+        dy=y-arr[arr.length-1].line;
+        if (dy>0) s+=NAMESPACESEP+dy;
     }
-    return full?this.name+PATHSEP+s:s;
+    return this.name+NAMESPACESEP+s;
 }
 
 function dyOf(y_loc) {
@@ -113,10 +99,11 @@ function pageLoc(y_loc){ //loc without line delta and ptkname
         const arr=this.closest(y,(this.header.locator||DEFAULT_LOCATOR).split(LOCATORSEP));
         loc=arr.map(it=>it.id).join(LOCATORSEP);
     } else {
-        const arr=y_loc.split(PATHSEP);
-        const thetree=(this.header.locator||DEFAULT_LOCATOR).split(LOCATORSEP);
-        arr.length=thetree.length;
-        loc=arr.join(PATHSEP);
+        return y_loc;
+        // const arr=y_loc.split(PATHSEP);
+        // const thetree=(this.header.locator||DEFAULT_LOCATOR).split(LOCATORSEP);
+        // arr.length=thetree.length;
+        // loc=arr.join(PATHSEP);
     }
     return loc;
 }
@@ -175,8 +162,8 @@ function getTocTree(addr,locOnly=false){
     if (!addr) addr='';
     const out=[{ptr:'/',name:this.header.shorttitle }];
     if (!addr.trim())return out;
-    const thetree=(this.header.addressing||DEFAULT_LOCATOR).split(PATHSEP);
-    const parents=addr.split(PATHSEP);
+    const thetree=(this.header.addressing||DEFAULT_LOCATOR).split(LOCATORSEP);
+    const parents=addr.split(LOCATORSEP);
     let ptr=''; //pointer to next juan
     let parentfrom=0;
     for (let i=0;i<parents.length-1;i++){
@@ -199,11 +186,11 @@ function getTocTree(addr,locOnly=false){
             const at2=name?name.indexOf(NAMESEP):0;
             if (at2>0) name=name.substr(at2+1);
             out.push({name, n: at, ptr})
-            ptr=ptr+(ptr?PATHSEP:'')+(label.idarr[next].trim()||(DELTASEP+next));
+            ptr=ptr+(ptr?LOCATORSEP:'')+(label.idarr[next].trim()||(DELTASEP+next));
         } else {
             const n=parseInt(parents[i]);
             if (n<label.linepos.length-1) { //need to check boundary of parent
-                ptr=ptr+(ptr?PATHSEP:'')+(n+1);
+                ptr=ptr+(ptr?LOCATORSEP:'')+(n+1);
             }            
             out.push({name:parents[i], n: i, ptr})
         }

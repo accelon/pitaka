@@ -22,6 +22,7 @@ const DOMFromString=str=>{
         if (el) el.t(text);
     }
     const sax=new Sax({startElement,endElement,onText});
+
     sax.write(str);
     return tree;
 }

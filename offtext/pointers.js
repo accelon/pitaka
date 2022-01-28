@@ -1,9 +1,10 @@
 //unpack array of serialized pointer
 import pool from '../basket/pool.js';
-import {PATHSEP,DELTASEP,LOCATORSEP} from '../platform/constants.js'
+import {PATHSEP,NAMESPACESEP,LOCATORSEP} from '../platform/constants.js'
 import {makeHook, parseHook} from './hook.js';
 import {parseOfftextLine} from './parser.js';
 
+/*
 export const stringifyAddress=attrs=>{
     const out=[];
     out.push(attrs.basket||'');
@@ -15,42 +16,44 @@ export const stringifyAddress=attrs=>{
     }
     return out.join(PATHSEP);
 }
-
+*/
 /*
-   loc                   loc only , no PATHSEP, local
-   db/loc                2 items, second item has no = , external
-   loc/dy=0              2 items, second items has =
-   db/loc/dy=0/other=xx/other=yy  , more than 2 items , external
-   loc/dy=0/other=x
+   db:bk.p:delta/k1=v1/k2=v2
 */
 export const parseAddress=str=>{
     if (!str) return null; 
-    const res={basket:'',loc:'', locator:[], dy:0, attrs:{} }; //dy must follow loc
+    const res={basket:'',loc:'', dy:0, attrs:{} }; 
     const arr=str.split(PATHSEP);
-    if (arr.length===1) {
-        res.loc=arr.shift();
-    } else if (arr.length===2) {
-        if (arr[1].indexOf('=')>-1) { //no basket
-            basket=arr.shift();
-        }
-        res.loc=arr.shift();
+
+    const o=arr.shift().split(NAMESPACESEP);
+
+    if (o.length==1) {
+        res.loc=o[0];
+    } else {
+        res.basket=o[0];
+        res.loc=o[1];
+        res.dy=o[2]||0;
     }
-    //just in case
-    res.basket=res.basket.replace(/=.+/,'');
-    res.loc=res.loc.replace(/=.+/,'');
-    res.locator=res.loc.split(LOCATORSEP);
+
     arr.forEach( (item,idx) =>{
-        const at=it.indexOf('=');
+        const at=item.indexOf('=');
         if (at>0) {
-            const key=item.substr(0,at);
-            const value=item.substr(at+1);
-            res[key]=(key==='dy')?parseInt(value)||0: value;
+            res[item.substr(0,at)]=item.substr(at+1);
         } else {
             res.attrs[idx]=item;
         }
     })
     return res;
 }
+export const stringifyAddress=obj=>{
+    let ptk=obj.ptk;
+    if (!obj.basket && obj.ptk) obj.basket=obj.ptk.name;
+    const arr=[];
+    arr.push(obj.basket+NAMESPACESEP+obj.loc+ (obj.delta?NAMESPACESEP+obj.delta:''));
+    for (let key in obj.attrs||{})  arr.push( key+'='+obj.attrs[key])
+    return arr.join(PATHSEP)
+}
+
 /*
 export const parsePointer=str=>{
     if (!str) return {};
@@ -143,17 +146,6 @@ export const dereferencing=async (arr,ptk=null)=>{
     return out.map(i=>i[0]);
 }
 
-export const serializePointer=obj=>{
-    let ptk=obj.ptk;
-    if (!ptk && typeof obj.basket=='string') ptk=pool.get(obj.basket);
-    let s=ptk.name+PATHSEP+obj.loc+ (obj.dy?PATHSEP+'dy='+obj.dy:'');
-
-    for (let key in obj) {
-        if (key=='basket' || key=='ptk' || key=='loc' || key=='dy') continue;
-        s+= PATHSEP+ key+'='+obj[key];
-    }
-    return s;
-}
 
 //serialize array of pointers
 export const referencing=async (arr, ptk=null)=>{
