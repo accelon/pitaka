@@ -36,7 +36,7 @@ const combineJSON=(pat,key,obj)=>{
 const addJSON=(pat,key,context)=> {
     if (typeof pat==='string') {
         combineJSON(pat,key,context);
-    } else { //for milestones
+    } else { //multiple json
         context[key]={};
         for (let subkey in pat) {
             combineJSON(pat[subkey]  , subkey, context[key]);
@@ -55,7 +55,6 @@ const  addErrata=(pat,context)=> {
                         const regex=new RegExp(from,'g');
                         errata[fn][i]=[regex,to];
                     }
-                    //todo opts is number, dec for each match
                 }
             }
             context.errata=errata;
@@ -73,7 +72,7 @@ export const initPitakaJSON=(config,context,log)=>{
         const clusterTags=config.cluster.split(LOCATORSEP);
         clusterTags.forEach(cluster=>{
             if (!context.labeldefs[cluster]) {
-                throw "cluster label "+cluster+"not defined";
+                throw "cluster label "+cluster+" not defined";
             }
         })
     }

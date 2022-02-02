@@ -1,5 +1,5 @@
 import OffTextFormatter from '../offtext/formatter.js';
-import {onOpen,onClose} from './tei.js'
+import {onTextWithInserts,onOpen,onClose} from './tei.js'
 import {DOMFromString,xpath,walkDOMOfftext} from '../xmlparser/index.js';
 import { alphabetically } from '../utils/sortedarray.js';
 
@@ -82,7 +82,7 @@ const parseBuffer=(buf,fn='',ctx)=>{
         ctx.teictx={defs:ctx.labeldefs,lbcount:0,hide:0,snippet:'',
         div:0,charmap,fn,started:false,transclusion:ctx.transclusion,milestones:ctx.milestones};    
     }
-    let content=bk+chunk+walkDOMOfftext(body,ctx.teictx,onText,onClose,onText);
+    let content=bk+chunk+walkDOMOfftext(body,ctx.teictx,onOpen,onClose,onTextWithInserts);
     content=content.replace(/\^r\n/g,'\n');
     return content;
 }

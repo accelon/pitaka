@@ -10,6 +10,7 @@ const writeChanged=(fn,buf,enc='utf8')=>{ //write to fn only if changed
         fs.writeFileSync(fn,buf,enc);
         return true;
     }
+    return false;
 }
 
 

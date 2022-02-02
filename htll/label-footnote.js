@@ -14,7 +14,7 @@ class LabelFootnote extends Label {
     action( tag ,linetext){
         const {x,w,y}=tag;
         const id=tag.attrs.id;
-        if (idarr[id]) {
+        if (this.idarr[id]) {
         	console.log("repeated footnote id",id);
         } else {
 	        this.fnarr.push(id);
@@ -23,7 +23,7 @@ class LabelFootnote extends Label {
         }	
     }
     reset(parenttag) {
-    	this._idarr={};
+    	this.idarr={};
     }
     serialize(){
         const out=super.serialize();

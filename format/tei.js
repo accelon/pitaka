@@ -1,8 +1,9 @@
 import { getInserts,insertText } from "../xmlparser/textinsert.js";
+import { onOfftext } from "../xmlparser/index.js";
 const unhide=ctx=>{ (ctx.hide?ctx.hide--:0) };
 
-export const onText=(el,ctx)=>{
-    if (teictx.inserts && ctx.inserts.length) {
+export const onTextWithInserts=(el,ctx)=>{
+    if (ctx.inserts && ctx.inserts.length) {
         el=insertText(el,ctx.inserts);
     }
     return onOfftext(el,ctx);
@@ -52,8 +53,8 @@ const pb=(el,ctx)=>{
         if (el.attrs.type==='old') return '';
     } else {
         let vol='';
+        ctx.vol=el.attrs['xml:id'].substr(1,2);
         if (el.attrs.n==='0001a') {
-            ctx.vol=parseInt(el.attrs['xml:id'].substr(1,2))||ctx.vol;
             vol='^v'+ctx.vol;
         } 
         if (ctx.fn[0]==='N') {
@@ -87,14 +88,13 @@ const lb=(el,ctx)=>{
             console.log('unclear inserts', ctx.inserts)
         }
         ctx.inserts=null;
-        inserts.forEach(([mstag,ms])=>{
+        inserts.forEach((ms)=>{
             if (Array.isArray(ms)) { //need to locate the text
                 if (!ctx.inserts) ctx.inserts=[];
-                ctx.inserts.push([mstag,ms]); //to be inserted when text is ready
+                ctx.inserts.push(ms); //to be inserted when text is ready
             } else {//number or string
                 ctx.compact=true;
-   
-                out+='^'+mstag+ms;   
+                out+=ms;   
             }
         })
     }

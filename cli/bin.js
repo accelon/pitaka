@@ -24,16 +24,26 @@ import {group,entrysort,search,wordseg,intersect} from './offtextutils.js'
 
 import validate from "./validate.js"
 import zip from "./zip.js"
-const pitakajson='pitaka.json';
+let pitakajson='pitaka.json';
 let config={};
+if (existsSync(process.argv[3])) {
+    pitakajson=process.argv[3];
+}
 if (!existsSync(pitakajson) ){
     console.log(red("missing pitaka.json"));
-} else {
-    config=JSON.parse(readFileSync(pitakajson,'utf8').trim());
 }
+config=JSON.parse(readFileSync(pitakajson,'utf8').trim());
+console.log('using',pitakajson);
+
 const ptk=()=>_build({jsonp:false}); //build ptk (a zip file)
 const build=()=>_build({jsonp:true});
-const raw=()=>_build({raw:true});
+const raw=()=>{
+    if (process.argv[3]) {
+        console.log('override files',config.files,'to',process.argv[3])
+        config.files=process.argv[3]
+    }
+    _build({raw:true, files:process.argv[2]});
+}
 const ngram=()=>_build( {ngram:parseInt(arg)||2});
 const exec=config=>{
     const jsfn=process.argv[3];
@@ -111,7 +121,7 @@ const help=()=>{
     console.log('\nUsage: ')
     console.log(yellow('$ pitaka build   '), 'build as jsonp')
     console.log(yellow('$ pitaka ptk   '), 'build rom file (.ptk)')
-    console.log(yellow('$ pitaka raw     '), 'create *-raw.off')
+    console.log(yellow('$ pitaka raw [pat]'), 'create *-raw.off , may overwrite file pattern')
     console.log(yellow('$ pitaka ngram   '), 'get ngram, default 2')
     // console.log(yellow('$ pitaka info    '), 'show information of pitaka')
     console.log(yellow('$ pitaka zip (regex)'), 'make a zip file')
