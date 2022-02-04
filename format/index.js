@@ -1,6 +1,7 @@
 import {readTextFile} from '../platform/inputfiles.js'
 import { getFormat } from './format.js';
 import TypeDef from './typedef.js'
+import {NAMED_OFFTAG} from '../offtext/def.js';
 const fileContent=async(fn,format,ctx)=>{
     let c;
     const F=getFormat(format);
@@ -94,5 +95,16 @@ const getQuickPointerSyntax=format=>{
     const fm=getFormat(format);
     return fm.QuickPointerSyntax;
 }
+
+const removeLabels=(content,labels)=>{
+    if (!labels) return content;
+    if (typeof labels=='string') labels=labels.split(',');
+    labels.forEach(lbl=>{
+        const regex=new RegExp('\\^'+lbl+NAMED_OFFTAG,'g');
+        content=content.replace(regex,'');
+    });
+    return content;
+}
 export {readFormatFile, fileContent,translatePointer,getFormatter,getFormat,
-fileLines,getZipIndex,getFormatTypeDef,getQuickPointerParser,getQuickPointerSyntax,getFormatLocator};
+fileLines,getZipIndex,getFormatTypeDef,getQuickPointerParser,getQuickPointerSyntax,getFormatLocator,
+removeLabels};

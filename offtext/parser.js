@@ -17,11 +17,11 @@ import {findCloseBracket} from '../utils/cjk.js'
 const parseCompactAttr=str=>{  //              序號和長度和標記名 簡寫情形，未來可能有 @ 
     const out={}, arr=str.split(/([@#])/);
     while (arr.length) {
-        const v=arr.shift();
+        let v=arr.shift();
         // if      (v==='~') out['~']=arr.shift();  
         if (v==='@') out['@']=arr.shift();  // a pointer
         else { 
-            if (v==='#') v=v.shift(); 
+            if (v==='#') v=arr.shift(); 
             const m=v.match(OFFTAG_ID); //id with numeric leading may omit #
             if (m) out.id=m[1]
         }

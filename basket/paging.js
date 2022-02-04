@@ -301,6 +301,38 @@ async function fetchFootnote(y0,fn){
     const out=hlines.map(it=>{ return {key: it[0], text:it[1]} });
     return out;
 }
-
+function enumLocators(){ //only support two level addressing
+    const thetree=(this.header.locator||DEFAULT_LOCATOR).split(LOCATORSEP);
+    const out=[];
+    for (let i=0;i<thetree.length-1;i++) { 
+        const t=thetree[i];
+        const lbl=this.getLabel(t);
+        const nextlbl=this.getLabel(thetree[i+1]);
+        
+        for (let j=0;j<lbl.idarr.length;j++) {
+            if (nextlbl) {
+                const [from,to]=this.getLabelLineRange(lbl,j)
+                const start=bsearch(nextlbl.linepos,from);
+                const end=bsearch(nextlbl.linepos,to);
+                for (let k=start;k<end;k++) {
+                    let subid=k+1-start;
+                    if (nextlbl.idarr) {
+                        subid=nextlbl.idarr[k];
+                    }
+                    out.push(lbl.idarr[j]+LOCATORSEP+subid);
+                }
+            } else {
+                out.push(lbl.idarr[j]);
+            }
+        }
+    }
+    return out;
+}
+async function readLoc(loc){
+    const [y0,y1] = this.getPageRange(loc);
+    const lines=await this.readLines(y0,y1-y0);
+    return lines.map(it=>it[1]);
+}
 export default {closest,getTocTreeDef,getTocTree,getNChild,childCount,dyOf,locOf,clusterOf,pageLoc,
-    fetchPage,fetchToc,fetchFootnote,getPageRange,narrowDown,getLabelLineRange,getLocY}
+    fetchPage,fetchToc,fetchFootnote,getPageRange,narrowDown,getLabelLineRange,getLocY,
+enumLocators,readLoc}

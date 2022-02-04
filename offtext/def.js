@@ -7,6 +7,10 @@ export const OFFTAG_ATTRS="(\\[(?:\\\\.|.)*?\\])?"
 export const OFFTAG_ID=/^([a-z\d\-]+)/;
 export const QSTRING_REGEX_G= /"((?:\\.|.)*?)"/g                                  //字串標式
 export const OFFTAG_LEADBYTE='\\^';
+
+export const NAMED_OFFTAG="([#@\\/\\.\\:~a-z_\\-\\d]* ?)(\\[(?:\\\\.|.)*?\\])?" //已知名稱的標記
+
+
 export function OffTag(name,attrs,y,x,w) {
     return { name,attrs,y,x,w};
 }

@@ -1,4 +1,4 @@
-import {getFormatter, getZipIndex, getFormatLocator, fileContent} from '../format/index.js'
+import {getFormatter, getZipIndex, getFormatLocator, fileContent, removeLabels} from '../format/index.js'
 import JSONPROMWriter from '../jsonprom/jsonpromw.js';
 import Inverter from '../fulltext/inverter.js';
 import {serializeLabels} from './serialize-label.js';
@@ -151,6 +151,7 @@ class Builder {
             const Formatter=getFormatter(format);
             const formatter=new Formatter(this.context,this.log);
             const converted=fn.endsWith('.off');
+            rawcontent=removeLabels(rawcontent,this.config.removeLabels);
             const {text,tags,rawtext}=formatter.scan(rawcontent,converted);
 
             this.context.linesOffset=linesOffset(text);
