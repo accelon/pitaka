@@ -1,19 +1,15 @@
 /** 將內嵌標記剖為正文及標記陣列
- *  標記格式為 ^name#xx~yy  或 ^name[屬性] ，屬性以空白隔開，如果值有空白，需加雙引號。
- *  name : 標記名 只能是 a-z 或 _
- *  #id  : 用法同 html 的 id
- *  n    : 數字式序號，可以 "." 隔開，像ip address，但不限層級。
- *         序號可接在標記名之後。 ~p100 等效於  ~p[n=100]
- *  ~指定標記終點：  0表示nulltag ，正值表示從標記起算n bytes，負值表示從行尾起算，-1最後一字之後，-2指到最後一字之前，類推。
- *             若為文字，則會搜尋，並以該文字的結尾作為標記的終點。
+ *  標記格式為 ^name#xx~yy  或 ^name[key=屬性] ，屬性以空白隔開，如果值有空白，需加雙引號。
+ *  如果無 key= ，屬性會放回本文（包住本文）。如 ^bold[要加粗的字體]
+ *  標記的長度為所包住的文字長度。
+ *  name : 標記名 只能是小寫 a-z 或 _
+ *  #id  : 用法同 html 的 id, id 以數字開頭時，可省略 # ，如 ^p100a 等效於 ^p[id=100a]
  **/
 const QUOTEPREFIX='\u001a', QUOTEPAT=/\u001a(\d+)/g ;                // 抽取字串的前綴，之後是序號
 import {OffTag, ALWAYS_EMPTY, OFFTAG_ID,
     OFFTAG_LEADBYTE,OFFTAG_ATTRS, OFFTAG_REGEX_G,QSTRING_REGEX_G, OFFTAG_NAME_ATTR} from './def.js'
 import {findCloseBracket} from '../utils/cjk.js'
 
-//^tag#xx    id="xx" 
-//^tag1xx    id="1xx" 
 const parseCompactAttr=str=>{  //              序號和長度和標記名 簡寫情形，未來可能有 @ 
     const out={}, arr=str.split(/([@#])/);
     while (arr.length) {

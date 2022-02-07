@@ -6,4 +6,5 @@ export const LOCATORSEP='.';
 export const ADDRSEP='|';
 export const DEFAULT_LOCATOR='bk.c';
 export const NAMESEP='|';
+export const RANGESEP='-';
 export const DEFAULT_LANGUAGE='zh';

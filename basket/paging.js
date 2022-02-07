@@ -1,4 +1,4 @@
-import {PATHSEP,NAMESPACESEP,DELTASEP,LOCATORSEP,DEFAULT_LOCATOR,NAMESEP} from '../platform/constants.js'
+import {PATHSEP,NAMESPACESEP,DELTASEP,LOCATORSEP,DEFAULT_LOCATOR,RANGESEP,NAMESEP} from '../platform/constants.js'
 import {parseAddress} from '../offtext/index.js'
 import { bsearch } from "../utils/bsearch.js" ;
 
@@ -16,7 +16,13 @@ function narrowDown(branches){
         } else {
             at=startfrom+(label.indexOf?label.indexOf(id):parseInt(id)-1); //without DELTASEP is 1 base
         }
+
         from=label.linepos[at] ;
+        if (label.range) {
+            while (at<label.linepos.length &&label.linepos[at+1]==label.linepos[at]) {
+                at++;
+            }
+        }
         to=label.linepos[at+1] || to;
     }
     if (!to|| to==-1) y1=this.lastTextLine();
@@ -301,25 +307,36 @@ async function fetchFootnote(y0,fn){
     const out=hlines.map(it=>{ return {key: it[0], text:it[1]} });
     return out;
 }
-function enumLocators(){ //only support two level addressing
+function enumLocators(filter=null){ //only support two level addressing
     const thetree=(this.header.locator||DEFAULT_LOCATOR).split(LOCATORSEP);
     const out=[];
+    if (filter) {
+        if (typeof filter=='string') filter=new RegExp(filter);
+    }
     for (let i=0;i<thetree.length-1;i++) { 
         const t=thetree[i];
         const lbl=this.getLabel(t);
         const nextlbl=this.getLabel(thetree[i+1]);
-        
+
         for (let j=0;j<lbl.idarr.length;j++) {
+            if (filter && !lbl.idarr[j].match(filter)) continue;
             if (nextlbl) {
                 const [from,to]=this.getLabelLineRange(lbl,j)
                 const start=bsearch(nextlbl.linepos,from);
                 const end=bsearch(nextlbl.linepos,to);
-                for (let k=start;k<end;k++) {
+                let k=start;
+                while (k<end) {
                     let subid=k+1-start;
                     if (nextlbl.idarr) {
                         subid=nextlbl.idarr[k];
                     }
-                    out.push(lbl.idarr[j]+LOCATORSEP+subid);
+                    let n=k+1, id=subid;
+                    if (nextlbl.range) {
+                        while (n<end && nextlbl.linepos[n]==nextlbl.linepos[k]) n++;
+                        if (n>k+1) id=subid+ RANGESEP+ ( n-k+subid-1 );
+                    }
+                    out.push(lbl.idarr[j]+LOCATORSEP+id);
+                    k=n;
                 }
             } else {
                 out.push(lbl.idarr[j]);
@@ -330,7 +347,7 @@ function enumLocators(){ //only support two level addressing
 }
 async function readLoc(loc){
     const [y0,y1] = this.getPageRange(loc);
-    const lines=await this.readLines(y0,y1-y0);
+    let lines=(await this.readLines(y0,y1-y0));
     return lines.map(it=>it[1]);
 }
 export default {closest,getTocTreeDef,getTocTree,getNChild,childCount,dyOf,locOf,clusterOf,pageLoc,

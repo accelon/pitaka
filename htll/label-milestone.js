@@ -17,6 +17,7 @@ class LabelMilestone extends Label {
         if (this.sequencial) {
             if (n!==this.prevn+1){
                 console.log(tag,linetext, n, this.prevn+1)
+                if (this.prevn>n) console.log('prev n is bigger, forgot to reset ?');
                 throw 'linepos not in order, '+tag.attrs.id+' prev '+this.prevn+' at '+y ;
             }
         }
@@ -26,8 +27,13 @@ class LabelMilestone extends Label {
             if (nextn<n) {
                 throw "wrong range number "+tag.attrs.id+' at '+y;
             } else {
-                this.count+= nextn-n+1;
-                this.prevn=nextn;    
+                let fillcount=nextn-n+1;
+                this.count+= fillcount;
+                this.prevn=nextn;
+                while (fillcount>0) {
+                    this.linepos.push(y);
+                    fillcount--;
+                }
             }
         } else {
             this.count++;
