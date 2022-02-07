@@ -21,7 +21,6 @@ export const breakLine=(str,breaker)=>{
     return {substrings,breakpos};
 }
 export const autoBreak=(lines,breaker="([?!।॥;–—] +)")=>{
-    console.log(lines)
     if (typeof lines==='string') lines=[lines];
     const sentences=[], breakpos=[];
     if (typeof breaker==='string') {
@@ -73,21 +72,22 @@ export const diffBreak=(p1,p2)=>{ //p1 cs(larger unit), p2(smaller unit)
         else{
             let at=d.value.indexOf(SENTENCESEP);
             while (at>-1) {
-                if (p2off > -1) out.push(p2off+at);
+                if (p2off >-1) out.push(p2off+at);
                 at=d.value.indexOf(SENTENCESEP,at+1);
             }
-            at=d.value.indexOf(SENTENCESEP1);
-            while (at>-1){
+            at=d.value.lastIndexOf(SENTENCESEP1);
+            if (at>-1){ //如果at>0，則還給上一行 ( 參見 dn1.272 行尾的校注)
                 breakpos.push(out.filter(it=>!!it));
+                if (out.length) out[out.length-1]+=at;
                 out=[];
-                p2off=-1;
+                p2off=-d.value.length-1;
                 at=d.value.indexOf(SENTENCESEP1,at+1);
             }
         }
         if ((!d.removed&&!d.added) || d.removed) p2off+=d.value.length;
     }
     if (breakpos.length<p1.length) breakpos.push(out.filter(it=>!!it));
-    // console.log(breakpos)
+
     return breakpos;
 }
 export default {spacify,autoBreak,paragraphSimilarity,diffBreak,breakSentence}
