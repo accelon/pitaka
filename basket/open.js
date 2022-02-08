@@ -1,6 +1,6 @@
 import JSONPROM from "../jsonprom/jsonprom.js";
 import pool from './pool.js';
-import {deserializeLabels} from './serialize-label.js';
+import {deserializeLabels,deserializeBreakpos} from './serializer.js';
 import {NAMESEP} from '../platform/constants.js';
 import paging from './paging.js';
 import entries from './entries.js';
@@ -9,7 +9,7 @@ import mulus from './mulus.js';
 import inverted from './inverted.js';
 import querymethods from './querymethods.js';
 import parallels from './parallels.js';
-import LabelLang from "../htll/label-lang.js";
+import {labelByType} from "../htll/index.js"
 /*
    Basket is a read-only container
    of htll texts, prebuilt data-structure to facilitate fast access,
@@ -64,7 +64,7 @@ class Basket extends JSONPROM {
                         self.lblTransclusion=self.getLabel('t');
                         self.loadtime.labels=new Date()-now; now= new Date();
                         
-                        self.labelLang=self.findLabelType(LabelLang);
+                        self.labelLang=self.findLabelType('LabelLang');
                         if (!self.header.cluster) {
                             if (self.getLabel('bk')) self.header.cluster='bk';
                             else if (self.getLabel('e')) self.header.cluster='e';
@@ -74,9 +74,17 @@ class Basket extends JSONPROM {
                         if (!self.header.locator && self.header.tree) {
                         	self.header.locator=self.header.tree;
                         }
-                    
                         self.registerQueryMethods();
-                        resolve(true); //resolve earlier, need to check if inverted ready
+                        if (self.header.breakpos) {
+                            const breakpos='breakpos';
+                            self.loadSection(breakpos,function(){
+                                const breakposSection=self.getSection(breakpos);
+                                const breakposSectionRange=self.getSectionRange(breakpos);
+                                self.breakpos=deserializeBreakpos(breakposSection,breakposSectionRange);    
+                                resolve(true);
+                            });
+                        } else resolve(true);
+                        //resolve earlier, need to check if inverted ready
                     });
                 });
             })
@@ -111,9 +119,10 @@ class Basket extends JSONPROM {
         }
     }
     findLabelType(labeltype) {
-        for (let i=0;i<this.labels.length;i++) {
-            if (this.labels[i] instanceof labeltype) return this.labels[i];
-        }  
+        if (typeof labeltype!=='string') {
+            labeltype=labeltype.constructor.name;
+        }
+        return labelByType(labeltype,this.labels);
     }
     getLabel(name){
         for (let i=0;i<this.labels.length;i++) {

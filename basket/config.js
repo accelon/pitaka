@@ -82,4 +82,5 @@ export const initPitakaJSON=(config,context,log)=>{
     if (config.errata) addErrata(config.errata,context);
     if (config.catalog) addJSON(config.catalog,'catalog',context);
     if (config.transclusion) addJSON(config.transclusion,'transclusion',context);
+    if (config.breakpos) addJSON(config.breakpos,'breakpos',context);
 }

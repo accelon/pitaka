@@ -1,7 +1,7 @@
 import {getFormatter, getZipIndex, getFormatLocator, fileContent, removeLabels} from '../format/index.js'
 import JSONPROMWriter from '../jsonprom/jsonpromw.js';
 import Inverter from '../fulltext/inverter.js';
-import {serializeLabels} from './serialize-label.js';
+import {serializeLabels,serializeBreakpos} from './serializer.js';
 import {linesOffset} from '../utils/index.js'
 import { initPitakaJSON } from './config.js';
 class Builder {
@@ -231,18 +231,22 @@ class Builder {
     }
     finalize(opts={}){
         this.context.lastTextLine=this.writer.setEndOfText();
-
         if (!opts.raw && !opts.exec) {
-
             this.writer.addSection('inverted',true);                
             const inverted=this.inverter.serialize();
             this.writer.append(inverted,true); //force new chunk
+
+            if (this.config.breakpos) {
+                this.writer.addSection('breakpos');
+                const section=serializeBreakpos(this.context);
+                this.writer.append(section);    
+            }
+
             console.log('finalizing labels')
             this.writer.addSection('labels');
             const section=serializeLabels(this.context);
             this.writer.append(section);
         }
-
         if (opts.exec && opts.exec.onFinalize) {
             opts.exec.onFinalize(opts);
         }

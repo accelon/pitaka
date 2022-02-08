@@ -1,6 +1,8 @@
-import {LabelTypedefs} from '../htll/index.js'
+import {LabelTypedefs,labelByType} from '../htll/index.js'
+import { pack_delta } from '../utils/packintarray.js';
+import { unpack_delta } from '../utils/unpackintarray.js';
 
-const serializeLabels=(ctx)=>{
+export const serializeLabels=ctx=>{
     let pos=3;//labelNames,labelTypes,labelPoss
     const labelNames=[],labelPoss=[],labelTypes=[];
     let section=[],finalizing=[];
@@ -33,7 +35,7 @@ const serializeLabels=(ctx)=>{
     return section;
 }
 
-const deserializeLabels=(section,range,typedefs,lastTextLine)=>{
+export const deserializeLabels=(section,range,typedefs,lastTextLine)=>{
     const labelNames=section[0].split(',');
     const labelTypes=section[1].split(',');
     const labelPoss=JSON.parse('['+section[2]+']');
@@ -54,4 +56,37 @@ const deserializeLabels=(section,range,typedefs,lastTextLine)=>{
     }
     return out;
 }
-export {serializeLabels,deserializeLabels}
+
+
+export const serializeBreakpos=ctx=>{
+    const lblbk=labelByType('LabelBook',ctx.labeldefs);
+    if (!lblbk) throw "breakpos need LabelBook";
+    const books={};
+    const out=[];
+    for (let bk of lblbk.idarr) {
+        const arr=ctx.breakpos[bk];
+        if (!arr) out.push('');
+        else for (let i=0;i<arr.length;i++) {
+            out.push(pack_delta( arr[i]||[])); //每一行的斷點轉為pack int arr
+        }
+        books[bk]=arr.length; //記錄每本書有幾行。
+    }
+    out.unshift( JSON.stringify(books) );
+    return out;
+}
+export const deserializeBreakpos=(breakposSection,breakposSectionRange)=>{
+    let si=0;
+    const books=JSON.parse(breakposSection[si]);
+    si++;
+    for (let bk in books) {
+        const arr=[];
+        let count=books[bk];
+        for (let i=0;i<count;i++) {
+            arr.push( unpack_delta( breakposSection[si]) );
+            si++;
+        }
+        books[bk]=arr;
+    }
+    return books;
+}
+export default {serializeLabels,deserializeLabels,serializeBreakpos}
