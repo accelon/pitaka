@@ -64,7 +64,7 @@ const compare=()=>{
     if (!f1) throw "missing file 1"
     if (!f2) throw "missing file 2"
     const sims=compareText(f1,f2);
-    console.log(sims)
+    console.log(JSON.stringify(sims,'',' '))
 }
 const report=(builder)=>{
     const {writer,files}=builder;

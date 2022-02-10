@@ -11,7 +11,8 @@ export const removeHeader=str=>{
         .replace(/(\([^\)]+\))/g,(m,m1)=>" ".repeat(m1.length))
 }
 export const removeVariantBold=str=>{
-    return str.replace(/(\^[vb][^\]]+?\])/g,(m,m1)=>" ".repeat(m1.length))
+    return str.replace(/(\^v[^\]]+?\])/g,(m,m1)=>" ".repeat(m1.length))
+    .replace(/\^b([^\]]+?)\]/g,"  $1 ");
 }
 export const breakLine=(str,breaker)=>{
     const substrings=[],breakpos=[];
@@ -130,9 +131,10 @@ const shortestLead= (line,pos,from)=>{
         if (at==-1) {
             throw "cannot find lead at "+pos+'lead '+lead;
         }
-        if (width>MAXWIDTH || line.charAt(pos+width)===',') { //try occur
-            let occur=1;
-            at=line.indexOf(lead,at+1);
+        if (at===pos) return lead;
+        const ch=line.charAt(pos+width);
+        if (width>MAXWIDTH || ch===',' || ch==='^') { //try occur
+            let occur=0;
             while (at!==pos) {
                 at=line.indexOf(lead,at+1);
                 occur++;
@@ -161,13 +163,13 @@ export const hookFromParaLines=paralines=>{
         p+=l.length;
     }
     breakpos.push(bp);
-    const orilines=paralines.join('').replace(/\^n /g,'\n^n').split('\n');
+    const orilines=paralines.join('').replace(/\^n /g,'\n^n ').split('\n');
 
     for (let i=0;i<orilines.length;i++) {
         let from=0,leads=[];
         for (let j=0;j<breakpos[i].length;j++) {
             const leadword=shortestLead(orilines[i],breakpos[i][j], from );
-            from=breakpos[i][j]+leadword.length;
+            from=breakpos[i][j]+1;
             leads.push(leadword);
         }
         out.push(leads)
@@ -176,16 +178,21 @@ export const hookFromParaLines=paralines=>{
 }
 export const breakByHook=(line,hooks,id)=>{ //break a line by hook
     let prev=0,out=[];
+    // if (id=='dn1.159') debugger
     for (let i=0;i<hooks.length;i++){
         let occur=0,at=0,hook=hooks[i];
+        if (!hook) { //just insert a blank line
+            out.push('')
+            continue;
+        }
         const m=hook.match(/\+(\d)$/);
         if (m) {
             occur=parseInt(m[1]);
             hook=hook.substr(0,hook.length-m[0].length);
         }
-        at=line.indexOf(hook,prev);
+        at=line.indexOf(hook,prev+1);
         while (occur>0) {
-            at=line.indexOf(hook,at+hook.length);
+            at=line.indexOf(hook,at+1);
             occur--;
         }
         if (at==-1) {
@@ -195,6 +202,7 @@ export const breakByHook=(line,hooks,id)=>{ //break a line by hook
         out.push(line.substring(prev,at));
         prev=at;
     }
+
     if (prev<line.length) out.push(line.substring(prev))
     return out;
 }
