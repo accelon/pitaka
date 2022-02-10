@@ -62,4 +62,15 @@ export const printDiff=(d,caption)=>{
     })
     console.log(out2)
 }
-export default {diffCJK,printDiff};
+export const diffSim=D=>{
+    let same=0,total=0;
+    for (let i=0;i<D.length;i++) {
+        const d=D[i];
+        if (!d.added && !d.removed) {
+            same+=d.value.length*2;
+            total+=d.value.length*2;
+        } else total+= d.value.length;
+    }
+    return same/total;
+}
+export default {diffCJK,printDiff,diffSim};

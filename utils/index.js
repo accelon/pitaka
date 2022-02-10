@@ -18,6 +18,7 @@ export * from './pattern.js'
 export * from './errata.js'
 export * from './base26.js'
 export * from './breaker.js'
+export * from './compare.js'
 export function linesOffset(lines){
     const out=[0];
     let acc=0;

@@ -1,11 +1,18 @@
 import {OFFTAG_REGEX_G} from "../offtext/def.js"
 import { diffChars, diffWords } from "diff";
+
 export const spacify=str=>{ //remove all offtext and non ascii character, for more precise diff
     return str.replace(OFFTAG_REGEX_G,(m,tagname,attr)=>{
         return " ".repeat(tagname.length+(attr?attr.length:0)+1)
     }).replace(/[^a-zA-Z]/g,' ');
 }
-
+export const removeHeader=str=>{
+    return str.replace(/^(.+)(\^n[\-\d]+)/,(m,rm,n)=>" ".repeat(rm.length)+n)
+        .replace(/(\([^\)]+\))/g,(m,m1)=>" ".repeat(m1.length))
+}
+export const removeVariantBold=str=>{
+    return str.replace(/(\^[vb][^\]]+?\])/g,(m,m1)=>" ".repeat(m1.length))
+}
 export const breakLine=(str,breaker)=>{
     const substrings=[],breakpos=[];
     let prev=0;
@@ -44,17 +51,21 @@ export const paragraphSimilarity=(p1,p2)=>{
     const accdiff=P1.reduce((p,v,i)=> p+=Math.abs(ratio1[i]-ratio2[i])||0,0);
     return accdiff;
 }
-export const breakSentence=(arr,breakpos)=>{
+export const breakSentence=(arr,breakpos,paraprefix='')=>{
     const out=[];
     for (let i=0;i<breakpos.length;i++) {
         const str=arr[i];
         let prev=0;
+        let prefix=paraprefix;
         for (let j=0;j<breakpos[i].length;j++) {
-            out.push(str.substring(prev,breakpos[i][j]));
-            prev=breakpos[i][j];
+            let bp=breakpos[i][j];
+            let sub=str.substring(prev,bp);
+            out.push( (i?prefix:'')+sub);
+            prev=bp;
+            prefix='';
         }
         if(prev<str.length-1) {
-            out.push(str.substr(prev));
+            out.push( str.substr(prev));
         }
     }
     return out;
@@ -84,7 +95,7 @@ export const diffBreak=(p1,p2)=>{ //p1 cs(larger unit), p2(smaller unit)
                 breakpos.push(out.filter(it=>!!it));
                 if (out.length) out[out.length-1]+=at;
                 out=[];
-                p2off=-d.value.length-1;
+                p2off=-d.value.length;
                 at=d.value.indexOf(SENTENCESEP1,at+1);
                 leadspace=true;
             }
@@ -95,4 +106,99 @@ export const diffBreak=(p1,p2)=>{ //p1 cs(larger unit), p2(smaller unit)
     // console.log(breakpos)
     return breakpos;
 }
-export default {spacify,autoBreak,paragraphSimilarity,diffBreak,breakSentence}
+//ensure arrary length
+export const ensureArrayLength=(arr,length,marker='※')=>{
+    if (length>arr.length) {
+        while (length>arr.length) {
+            arr.push(marker);
+        }
+    } else if (length<arr.length) {
+        while (arr.length && length<arr.length) {
+            const last=arr.pop();
+            arr[arr.length-1]+=marker+last;
+        }
+    }
+    return arr;
+}
+//find out shorted lead to reach pos
+const MAXWIDTH=5;
+const shortestLead= (line,pos,from)=>{
+    let lead,at,width=2;//try from 2 chars, up to MAXWIDTH
+    while (at!==pos) {
+        lead=line.substr(pos,width);
+        at=line.indexOf(lead,from);
+        if (at==-1) {
+            throw "cannot find lead at "+pos+'lead '+lead;
+        }
+        if (width>MAXWIDTH || line.charAt(pos+width)===',') { //try occur
+            let occur=1;
+            at=line.indexOf(lead,at+1);
+            while (at!==pos) {
+                at=line.indexOf(lead,at+1);
+                occur++;
+            }
+            lead+='+'+occur;
+            break;
+        } else {
+            width++;
+        }
+    }
+    return lead;
+}
+/* convert sentence break of a paragraph to hooks, output one line per paragraph , separated by tab */
+export const hookFromParaLines=paralines=>{
+    let bp=[],breakpos=[],out=[];
+    let p=0;
+    for (let i=0;i<paralines.length;i++) {
+        const l=paralines[i];
+        if (l.substr(0,3)==='^n ') {
+            breakpos.push(bp);
+            bp=[];
+            p=0;
+        } else {
+            if (p) bp.push(p);
+        }
+        p+=l.length;
+    }
+    breakpos.push(bp);
+    const orilines=paralines.join('').replace(/\^n /g,'\n^n').split('\n');
+
+    for (let i=0;i<orilines.length;i++) {
+        let from=0,leads=[];
+        for (let j=0;j<breakpos[i].length;j++) {
+            const leadword=shortestLead(orilines[i],breakpos[i][j], from );
+            from=breakpos[i][j]+leadword.length;
+            leads.push(leadword);
+        }
+        out.push(leads)
+    }
+    return out;
+}
+export const breakByHook=(line,hooks,id)=>{ //break a line by hook
+    let prev=0,out=[];
+    for (let i=0;i<hooks.length;i++){
+        let occur=0,at=0,hook=hooks[i];
+        const m=hook.match(/\+(\d)$/);
+        if (m) {
+            occur=parseInt(m[1]);
+            hook=hook.substr(0,hook.length-m[0].length);
+        }
+        at=line.indexOf(hook,prev);
+        while (occur>0) {
+            at=line.indexOf(hook,at+hook.length);
+            occur--;
+        }
+        if (at==-1) {
+            console.log('hook error',id,'hook',hook);
+            at=prev;
+        }
+        out.push(line.substring(prev,at));
+        prev=at;
+    }
+    if (prev<line.length) out.push(line.substring(prev))
+    return out;
+}
+
+export default {spacify,removeHeader,removeVariantBold,
+    autoBreak,paragraphSimilarity,diffBreak,breakSentence,ensureArrayLength,
+    hookFromParaLines, breakByHook}

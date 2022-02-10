@@ -20,13 +20,14 @@ import longline from './longline.js';
 import dictwords from './dictwords.js';
 import pinpoint from './pinpoint.js';
 import nGram from '../fulltext/ngram.js';
+import {compareText} from '../utils/compare.js';
 import {group,entrysort,search,wordseg,intersect} from './offtextutils.js'
 
 import validate from "./validate.js"
 import zip from "./zip.js"
 let pitakajson='pitaka.json';
 let config={};
-if (existsSync(process.argv[3])) {
+if (existsSync(process.argv[3]) && process.argv[3].indexOf('.json')>0 ) {
     pitakajson=process.argv[3];
 }
 if (!existsSync(pitakajson) ){
@@ -57,7 +58,14 @@ const exec=config=>{
         _build({exec:cb});
     });
 }
-
+const compare=()=>{
+    const f1=process.argv[3];
+    const f2=process.argv[4];
+    if (!f1) throw "missing file 1"
+    if (!f2) throw "missing file 2"
+    const sims=compareText(f1,f2);
+    console.log(sims)
+}
 const report=(builder)=>{
     const {writer,files}=builder;
     const out=[], maxshow=5;
@@ -124,7 +132,8 @@ const help=()=>{
     console.log(yellow('$ pitaka raw [pat]'), 'create *-raw.off , may overwrite file pattern')
     console.log(yellow('$ pitaka ngram   '), 'get ngram, default 2')
     // console.log(yellow('$ pitaka info    '), 'show information of pitaka')
-    console.log(yellow('$ pitaka zip (regex)'), 'make a zip file')
+    // console.log(yellow('$ pitaka zip (regex)'), 'make a zip file')
+    console.log(yellow('$ pitaka compare f1 f2'), 'compare two file, text only')
     console.log(yellow('$ pitaka validate'), 'validate all htm files')
     console.log(yellow('$ pitaka quote   '), 'extract quote from a ptk or offtext file')
     console.log(yellow('$ pitaka exec [.js] '), 'exec external js on every source file')
@@ -142,7 +151,9 @@ const help=()=>{
 try {
     await ({v:validate,validate,
         build,b:build,raw,r:raw, ptk,q:quote,quote, p:pinpoint,pinpoint, 
-        z:zip,zip,ngram,n:ngram,exec,e:exec,l:longline,longline,iast,
+        // z:zip,zip,
+        compare,c:compare,
+        ngram,n:ngram,exec,e:exec,l:longline,longline,iast,
         group,g:group,entrysort,y:entrysort,search,s:search,wordseg,w:wordseg, dictwords,d:dictwords,
         '--help':help,'-h':help})[cmd](config);
 
