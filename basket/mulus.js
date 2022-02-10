@@ -1,6 +1,6 @@
 import {extractOfftag,parseOfftextLine} from '../offtext/index.js'
 import {bsearch} from '../utils/index.js'
-import TLabelMulu from '../htll/label-mulu.js'
+import TLabelMulu from '../htll/mulu.js'
 function getMulu(from,to){ //本頁目錄加上 前後科文
     const out=[];
     let firstlevel=0;

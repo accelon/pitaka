@@ -1,4 +1,4 @@
-import LabelBook from './label-book.js'
+import LabelBook from './book.js'
 import {pack,unpack,pack_delta,unpack_delta,bsearch,parseArg} from'../utils/index.js';
 class LabelSection extends LabelBook {
     constructor(name,opts={}) {
