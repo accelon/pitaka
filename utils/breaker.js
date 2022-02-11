@@ -4,11 +4,12 @@ import { diffChars, diffWords } from "diff";
 export const spacify=str=>{ //remove all offtext and non ascii character, for more precise diff
     return str.replace(OFFTAG_REGEX_G,(m,tagname,attr)=>{
         return " ".repeat(tagname.length+(attr?attr.length:0)+1)
-    }).replace(/[^a-zA-Z]/g,' ');
+    }).replace(/[^a-zA-Z\u3400-\u9FFF\uD800-\uDFFF“‘]/g,' ');
 }
 export const removeHeader=str=>{
     return str.replace(/^(.+)(\^n[\-\d]+)/,(m,rm,n)=>" ".repeat(rm.length)+n)
         .replace(/(\([^\)]+\))/g,(m,m1)=>" ".repeat(m1.length))
+        .replace(/^sz/g,'   ').replace(/^\^n/g,'  ')
 }
 export const removeVariantBold=str=>{
     return str.replace(/(\^v[^\]]+?\])/g,(m,m1)=>" ".repeat(m1.length))
@@ -73,40 +74,49 @@ export const breakSentence=(arr,breakpos,paraprefix='')=>{
 }
 const SENTENCESEP=String.fromCodePoint(0x2fff);
 const SENTENCESEP1=String.fromCodePoint(0x2ffe);
-export const diffBreak=(p1,p2)=>{ //p1 cs(larger unit), p2(smaller unit)
-    let out=[];
-    const breakpos=[],s1=p1.join(SENTENCESEP1), s2=p2.join(SENTENCESEP);
+export const diffBreak=(p1,p2,id)=>{//p1 cs(larger unit), p2(smaller unit,guiding text)
+    let out='';
+    const s1=p1.join(SENTENCESEP1), s2=p2.join(SENTENCESEP);
     const D=diffChars(s1,s2);
-    let p2off=0, 
-        leadspace=true; //combine leading space (probably offtext, ^sz ,etc to same line, see dn1.498)
     for (let i=0;i<D.length;i++) {
         const d=D[i];
-        const trimd=d.value.trim();
-
-        if ( trimd && trimd!==SENTENCESEP && trimd!==SENTENCESEP1) leadspace=false;
-        if (d.value.trim()===SENTENCESEP && p2off>-1 && !leadspace) out.push(p2off); 
-        else{
-            let at=d.value.indexOf(SENTENCESEP);
-            while (at>-1) {
-                if (p2off >-1 && !leadspace) out.push(p2off+at);
-                at=d.value.indexOf(SENTENCESEP,at+1);
-            }
-            at=d.value.lastIndexOf(SENTENCESEP1);
-            if (at>-1){ //如果at>0，則還給上一行 ( 參見 dn1.272 行尾的校注)
-                breakpos.push(out.filter(it=>!!it));
-                if (out.length) out[out.length-1]+=at;
-                out=[];
-                p2off=-d.value.length;
-                at=d.value.indexOf(SENTENCESEP1,at+1);
-                leadspace=true;
-            }
+        // if (id==="sn5.134-138"||id=="test") console.log(d);
+        let at=d.value.indexOf(SENTENCESEP);
+        while (at>-1) {
+            out+='\n';
+            at=d.value.indexOf(SENTENCESEP,at+1);
         }
-        if ((!d.removed&&!d.added) || d.removed) p2off+=d.value.length;
+        if ( (!d.added && !d.removed) || d.removed) out+=d.value;
     }
-    if (breakpos.length<p1.length) breakpos.push(out.filter(it=>!!it));
-    // console.log(breakpos)
+    
+    const leadch='※';
+    out=out.replace(/\n( *)\u2ffe/g,'$1\n'+leadch) //確定p1換行符在行首
+           .replace(/\u2ffe([ “‘]*)\n/g,'\n'+leadch+'$1');
+    if (out.indexOf(SENTENCESEP1)>0) {
+        out=out.replace(/\u2ffe/g,'\n'+leadch);//deal with leadch in the middle
+    }
+    //convert to breakpos
+    const breaklines=out.split('\n'), breakpos=[];
+    let linepos=[],offset=0, 
+        ln=0; //line index of original text
+    for (let i=0;i<breaklines.length;i++) {
+        if (breaklines[i][0]===leadch) {
+            breakpos.push(linepos);
+            offset=0;
+            ln++;
+            linepos=[];
+        }
+        let len=breaklines[i].replace(/※/g,'').length;
+        if (offset>0) linepos.push(offset+ (p1[ln][offset-1]===' '?-1:0) ); //' \n' to '\n '
+        offset+=len;
+    }
+    breakpos.push(linepos);
+    // if (id==="sn5.134-138") console.log(breakpos)
+
+    while (p1.length>breakpos.length) breakpos.push([]);//make sure breakpos has same length
     return breakpos;
 }
+
 //ensure arrary length
 export const ensureArrayLength=(arr,length,marker='※')=>{
     if (length>arr.length) {
