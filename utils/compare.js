@@ -1,7 +1,7 @@
 import {removeHeader,removeVariantBold,spacify} from './breaker.js';
 import {diffSim} from './diff.js';
 import {diffChars, diffWords} from 'diff'
-import { LOCATORSEP } from '../index.js';
+
 export const compareText=(f1,f2,minsim=0.9)=>{
     const F1=fs.readFileSync(f1,'utf8').split(/\r?\n/);
     const F2=fs.readFileSync(f2,'utf8').split(/\r?\n/);
@@ -21,25 +21,5 @@ export const compareText=(f1,f2,minsim=0.9)=>{
     }
     return out;
 }
-export const toParagraphs=(L,bkpf='')=>{
-    const out=[];
-    let lines=[],pid='';
-    bkpf=bkpf.replace(/\..+$/,'');
-    for (let i=0;i<L.length;i++) {
-        if (L[i].indexOf('^n')>-1 && L[i].substr(0,3)!=='^n ') {
-            const id=L[i].match(/\^n([\d\-]+)/);
-            if (!id) {
-                console.log(L[i])
-            }
-            if (pid) {
-                out.push([pid,lines]);
-                lines=[];        
-            }
-            pid=(bkpf?bkpf+LOCATORSEP:'')+id[1];
-        }
-        lines.push(L[i])
-    }
-    out.push([pid,lines]);
-    return out;
-}
-export default {compareText,toParagraphs};
+
+export default {compareText};

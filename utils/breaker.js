@@ -216,7 +216,11 @@ export const breakByHook=(line,hooks,id)=>{ //break a line by hook
     if (prev<line.length) out.push(line.substring(prev))
     return out;
 }
-
-export default {spacify,removeHeader,removeVariantBold,
+//remove the sentence break of a paragraph lines (sub paragraph starts with ^n )
+export const removeSentenceBreak=paralines=>{
+    const combined=paralines.join('').replace(/\^n /g,"\n^n ").split('\n')
+    return combined;
+}
+export default {spacify,removeHeader,removeVariantBold,removeSentenceBreak,
     autoBreak,paragraphSimilarity,diffBreak,breakSentence,ensureArrayLength,
     hookFromParaLines, breakByHook}

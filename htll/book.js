@@ -19,7 +19,6 @@ class LabelBook extends Label {
         const id=(tag.attrs.id)||' ';
         if (w==0) w=linetext.length;
         const bkname=linetext.substr(x,w);
-        this.names.push(bkname);
         this.linepos.push(y);
         if (this._idarr[id]) {
      	   throw 'repeated bk id, '+id+' at ';
@@ -133,7 +132,6 @@ class LabelBook extends Label {
         return { tofind, caption:this.caption, matches, count:matches.length};
     }
     finalize(){
-        this.log('finalize book')
     }
 }
 export default LabelBook;

@@ -1,5 +1,6 @@
 export * from "./build.js"
 export * from "../platform/constants.js"
+import { readTextLines, readTextContent } from "../platform/fsutils.js"
 import {glob,filesFromPattern} from '../utils/pattern.js'
 import {patchBuf} from '../utils/errata.js'
 import nodefs from '../platform/nodefs.js' // "await nodefs" at begining of cli script
@@ -14,12 +15,7 @@ const writeChanged=(fn,buf,enc='utf8')=>{ //write to fn only if changed
     }
     return false;
 }
-const readTextContent=fn=>{
-    let s=fs.readFileSync(fn,'utf8');
-    if (s.charCodeAt(0)===0xfeff) s=s.substr(1);
-    return s;
-}
-const readTextLines=fn=>readTextContent(fn).split(/\r?\n/);
+
 
 export {kluer,glob,patchBuf,nodefs,writeChanged,filesFromPattern,openBasket,
     readTextContent,readTextLines};

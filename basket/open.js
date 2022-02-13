@@ -1,6 +1,6 @@
 import JSONPROM from "../jsonprom/jsonprom.js";
 import pool from './pool.js';
-import {deserializeLabels,deserializeBreakpos} from './serializer.js';
+import {deserializeLabels, deserializeLineposString} from './serializer.js';
 import {NAMESEP} from '../platform/constants.js';
 import paging from './paging.js';
 import entries from './entries.js';
@@ -10,12 +10,6 @@ import inverted from './inverted.js';
 import querymethods from './querymethods.js';
 import parallels from './parallels.js';
 import {labelByType} from "../htll/index.js"
-/*
-   Basket is a read-only container
-   of htll texts, prebuilt data-structure to facilitate fast access,
-   and optional full text index.
-*/
-
 class Basket extends JSONPROM {
     constructor(opts) {
         super(opts)
@@ -37,61 +31,62 @@ class Basket extends JSONPROM {
         for (let f in querymethods) this[f]=querymethods[f];
         for (let f in parallels) this[f]=parallels[f];
         this.querystore=null; //query result store 
+        this.headings=[];
+        this.headingsLinepos=[];
     }
     init(){
         const section='labels'
         const self=this;
         let now=new Date();
         const promise=new Promise(resolve=>{
-            self.openrom().then(function(){
-                self.load(0).then(function(){
-                    const at=self.header.title.indexOf(NAMESEP);
-                    if (at>0) {
-                        self.header.shorttitle=self.header.title.substr(at+1);
-                        self.header.title=self.header.title.substr(0,at);
-                    } else {
-                        self.header.shorttitle=self.header.title.substr(0,2);
-                    }
+            self.load(0).then(function(){
+                const at=self.header.title.indexOf(NAMESEP);
+                if (at>0) {
+                    self.header.shorttitle=self.header.title.substr(at+1);
+                    self.header.title=self.header.title.substr(0,at);
+                } else {
+                    self.header.shorttitle=self.header.title.substr(0,2);
+                }
 
-                    if (self.header.parallels && typeof self.header.parallels=='string') {
-                        self.header.parallels=self.header.parallels.split(',');
+                if (self.header.parallels && typeof self.header.parallels=='string') {
+                    self.header.parallels=self.header.parallels.split(',');
+                }
+                self.loadtime.open=new Date()-now; now= new Date();
+                self.loadSection(section,function(){
+                    const labelSection=self.getSection(section);
+                    const labelSectionRange=self.getSectionRange(section);
+                    self.labels=deserializeLabels(labelSection,labelSectionRange,self.header.labels);
+                    self.lblTransclusion=self.getLabel('t');
+                    self.loadtime.labels=new Date()-now; now= new Date();
+                    
+                    self.labelLang=self.findLabelType('LabelLang');
+                    if (!self.header.cluster) {
+                        if (self.getLabel('bk')) self.header.cluster='bk';
+                        else if (self.getLabel('e')) self.header.cluster='e';
+                        else throw "no cluster label (bk or e)"
                     }
-                    self.loadtime.open=new Date()-now; now= new Date();
-                    self.loadSection(section,function(){
-                        const labelSection=self.getSection(section);
-                        const labelSectionRange=self.getSectionRange(section);
-                        self.labels=deserializeLabels(labelSection,labelSectionRange,self.header.labels);
-                        self.lblTransclusion=self.getLabel('t');
-                        self.loadtime.labels=new Date()-now; now= new Date();
-                        
-                        self.labelLang=self.findLabelType('LabelLang');
-                        if (!self.header.cluster) {
-                            if (self.getLabel('bk')) self.header.cluster='bk';
-                            else if (self.getLabel('e')) self.header.cluster='e';
-                            else throw "no cluster label (bk or e)"
-                        }
-                        //compatible code
-                        if (!self.header.locator && self.header.tree) {
-                        	self.header.locator=self.header.tree;
-                        }
-                        self.registerQueryMethods();
-                        if (self.header.breakpos) {
-                            const breakpos='breakpos';
-                            self.loadSection(breakpos,function(){
-                                const breakposSection=self.getSection(breakpos);
-                                const breakposSectionRange=self.getSectionRange(breakpos);
-                                self.breakpos=deserializeBreakpos(breakposSection,breakposSectionRange);    
-                                resolve(true);
-                            });
-                        } else resolve(true);
-                        //resolve earlier, need to check if inverted ready
-                    });
+                    //compatible code
+                    if (!self.header.locator && self.header.tree) {
+                        self.header.locator=self.header.tree;
+                    }
+                    self.registerQueryMethods();
+                    const headings='headings';
+                    if (self.header.sectionNames.indexOf(headings)>-1){                            
+                        self.loadSection(headings,function(){
+                            const headingsSection=self.getSection(headings);
+                            const range=self.getSectionRange(headings)
+                            const [linepos,strings]=deserializeLineposString(headingsSection,range);
+                            self.headingsLinepos=linepos;
+                            self.headings=strings;
+                            resolve(true);
+                        });
+                    } else resolve(true);
+                    //resolve earlier, need to check if inverted ready
                 });
-            })
+            });
         });
         return promise;
     }
-
     contentCount() {
         let lbl=this.getLabel('bk');
         if (!lbl) {
@@ -100,8 +95,8 @@ class Basket extends JSONPROM {
         if (!lbl)return 0;
         return lbl.linepos.length;
     }
-    chapterCount() {
-        let lbl=this.getLabel('c');
+    clusterCount() {
+        let lbl=this.getLabel(this.header.cluster);
         if (!lbl)return 0;
         return lbl.linepos.length;
     }

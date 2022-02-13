@@ -1,12 +1,15 @@
-import {parseOfftext} from './parser.js';
+import {parseOfftextHeadings} from './parser.js';
 
 class Formatter_OffText {
-    constructor (context){
+    constructor (context,log,config){
         this.context=context;
+        this.log=log;
+        this.config=config;
     }
-    scan(rawtext){
-        const {text,tags}=parseOfftext(rawtext,this.context.ptkline);
-        return {text,tags,rawtext};    
+    scan(raw,locator){
+        //rawtext will be saved to js
+        const {writertext,text,tags,headings}=parseOfftextHeadings(raw,this.context.ptkline,locator);
+        return {text,tags,writertext,headings};    
     }
 }
 export default Formatter_OffText;

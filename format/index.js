@@ -1,7 +1,8 @@
 import {readTextFile} from '../platform/inputfiles.js'
 import { getFormat } from './format.js';
 import TypeDef from './typedef.js'
-import {NAMED_OFFTAG} from '../offtext/def.js';
+import { LOCATORSEP } from '../platform/constants.js';
+import { offtagRegex } from '../offtext/parser.js';
 const fileContent=async(fn,format,ctx)=>{
     let c;
     const F=getFormat(format);
@@ -70,7 +71,9 @@ const getFormatTypeDef=(config,opts)=>{
 
 const getFormatLocator=format=>{
     const fm=getFormat(format);
-    return fm.locator;
+    let locator=fm.locator||'n';
+    if (typeof locator==='string') locator=locator.split(LOCATORSEP);
+    return locator;
 }
 
 const getFormatter=format=>{
@@ -100,7 +103,7 @@ const removeLabels=(content,labels)=>{
     if (!labels) return content;
     if (typeof labels=='string') labels=labels.split(',');
     labels.forEach(lbl=>{
-        const regex=new RegExp('\\^'+lbl+NAMED_OFFTAG,'g');
+        const regex=offtagRegex(lbl);
         content=content.replace(regex,'');
     });
     return content;

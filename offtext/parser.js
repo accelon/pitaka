@@ -9,6 +9,7 @@ const QUOTEPREFIX='\u001a', QUOTEPAT=/\u001a(\d+)/g ;                // 抽取�
 import {OffTag, ALWAYS_EMPTY, OFFTAG_ID,
     OFFTAG_LEADBYTE,OFFTAG_ATTRS, OFFTAG_REGEX_G,QSTRING_REGEX_G, OFFTAG_NAME_ATTR} from './def.js'
 import {findCloseBracket} from '../utils/cjk.js'
+import { LOCATORSEP } from '../platform/constants.js';
 
 const parseCompactAttr=str=>{  //              序號和長度和標記名 簡寫情形，未來可能有 @ 
     const out={}, arr=str.split(/([@#])/);
@@ -49,9 +50,16 @@ const resolveTagWidth=(line,tags)=>{
         }
     })
 }
-export const extractOfftag=(str,namepat)=>{  //namepat== label name+ optional compact attr
-    const re=new RegExp(OFFTAG_LEADBYTE+"("+namepat+")"+OFFTAG_ATTRS,'g');
+/* return a regular expression matching all label with a given name (no attribute) */
+export const offtagRegex=(name,isglobal=true)=>{
+    return new RegExp('\\'+OFFTAG_LEADBYTE+name+NAMED_OFFTAG,isglobal?'g':'');
+}
+/* 
+ return parsed tag matching given pattern of label (lbl name + compact attributes) ,    
+*/
+export const extractOfftagPattern=(str,namepat)=>{  //namepat== label name+ optional compact attr
     const out=[];
+    const re=new RegExp("\\"+OFFTAG_LEADBYTE+"("+namepat+")"+OFFTAG_ATTRS,"g");
     str.replace(re,(m,rawName,rawA)=>{
         let [m2, tagName, compactAttr]=rawName.match(OFFTAG_NAME_ATTR);
         const [attrs,putback]=parseAttrs(rawA,compactAttr);
@@ -97,7 +105,7 @@ const parseAttrs=(rawA,compactAttr)=>{
     return [attrs,putback];
 }
 export const parseOffTag=(raw,rawA)=>{ // 剖析一個offtag,  ('a7[k=1]') 等效於 ('a7','[k=1]')
-    if (raw[0]=='^') raw=raw.substr(1);
+    if (raw[0]==OFFTAG_LEADBYTE) raw=raw.substr(1);
     if (!rawA){
         const at=raw.indexOf('[');
         if (at>0) {
@@ -130,7 +138,7 @@ export const parseOfftextLine=(str,idx=0)=>{
         // if (width==0 ) width=-1;
 
         textoffset+= offset-prevoff;            //目前文字座標，做為標記的起點
-        tags.push( new OffTag(tagName, attrs, idx, textoffset, width) );
+        tags.push( new OffTag(tagName, attrs, idx, textoffset, width, offset) );
         textoffset+=putback.length - m.length;  
         prevoff=offset;
         return putback;
@@ -139,12 +147,28 @@ export const parseOfftextLine=(str,idx=0)=>{
     return [text,tags];
 }
 
-export const parseOfftext=(str,starty=0)=>{
+export const parseOfftextHeadings=(str,starty=0,locator='n')=>{
     let lines=str;
     if (typeof str=='string') lines=str.split(/\r?\n/);
-    const out=lines.map((line,y)=>parseOfftextLine(line,y+starty) );
+    const headings=[];
+    //out is array of [text,tag]
+    const out=lines.map((line,y)=>parseOfftextLine(line,y+starty));
     const text=out.map(item=>item[0]);
+    if (typeof locator==='string') locator=locator.split(LOCATORSEP)
+    const leafloc=locator[locator.length-1];
+    const quickleafloc=OFFTAG_LEADBYTE+leafloc;
     const tags=[];
     out.forEach(item=>tags.push(...item[1]));
-    return {text,tags};
+    for (let i=0;i<lines.length;i++) {
+        const t=lines[i];
+        if (t.indexOf(quickleafloc)>0) {//might have headings before leafloc
+            const loctag=out[i][1].filter( tag=>tag.name===leafloc);
+            if (loctag.length) {
+                const offset=loctag[0].offset; //start of ^n
+                headings.push([i, t.substr(0,offset)]);
+                lines[i]=t.substr(offset);
+            }
+        }
+    }
+    return {text,tags,headings,writertext:lines};
 }

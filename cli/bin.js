@@ -11,7 +11,7 @@ import kluer from './kluer.js' //copy from https://github.com/lukeed/kleur/
 const {blue,yellow,red,bgWhite} = kluer;
 import nodefs from '../platform/nodefs.js';
 await nodefs;
-import {existsSync,  readFileSync} from 'fs';
+import { readTextLines, readTextContent } from "../platform/fsutils.js"
 import {buildPitaka} from './build.js'
 import {info} from './info.js';
 import quote from './quote.js';
@@ -22,19 +22,19 @@ import pinpoint from './pinpoint.js';
 import nGram from '../fulltext/ngram.js';
 import {compareText} from '../utils/compare.js';
 import {group,entrysort,search,wordseg,intersect} from './offtextutils.js'
-
+import {autoAlign} from '../utils/align.js'
 import validate from "./validate.js"
-import zip from "./zip.js"
 let pitakajson='pitaka.json';
 let config={};
-if (existsSync(process.argv[3]) && process.argv[3].indexOf('.json')>0 ) {
+if (fs.existsSync(process.argv[3]) && process.argv[3].indexOf('.json')>0 ) {
     pitakajson=process.argv[3];
 }
-if (!existsSync(pitakajson) ){
+if (!fs.existsSync(pitakajson) ){
     console.log(red("missing pitaka.json"));
 }
-config=JSON.parse(readFileSync(pitakajson,'utf8').trim());
+config=JSON.parse(readTextContent(pitakajson));
 console.log('using',pitakajson);
+
 
 const ptk=()=>_build({jsonp:false}); //build ptk (a zip file)
 const build=()=>_build({jsonp:true});
@@ -63,9 +63,23 @@ const compare=()=>{
     const f2=process.argv[4];
     if (!f1) throw "missing file 1"
     if (!f2) throw "missing file 2"
-    const sims=compareText(f1,f2);
+    const F1=readTextLines(f1);
+    const F2=readTextLines(f2);
+
+    const sims=compareText(F1,F2);
     console.log(JSON.stringify(sims,'',' '))
 }
+const align=()=>{
+    const f1=process.argv[3];
+    const f2=process.argv[4];
+    if (!f1) throw "missing file 1"
+    if (!f2) throw "missing file 2"
+    const F1=readTextLines(f1);
+    const F2=readTextLines(f2);
+
+    const out=autoAlign(F1,F2);
+}
+
 const report=(builder)=>{
     const {writer,files}=builder;
     const out=[], maxshow=5;
@@ -88,7 +102,7 @@ const report=(builder)=>{
 const _build=async (opts)=>{  
     console.time('pitaka');
     opts=opts||{raw:false,jsonp:false};
-    if (!existsSync(pitakajson)) {
+    if (!fs.existsSync(pitakajson)) {
         console.log(red('pitaka.json not found'));
         return; 
     }
@@ -102,7 +116,7 @@ const _build=async (opts)=>{
 
         if (opts.ngram>2) {
             stockgram={};
-            const items=fs.readFileSync('ngram-'+(opts.ngram-1)+'.txt','utf8').split(/\r?\n/);
+            const items=readTextLines('ngram-'+(opts.ngram-1)+'.txt');
             for (let i=0;i<items.length;i++) {
                 const [gram,count]=items[i].split(',')
                 stockgram[gram]=count;
@@ -131,6 +145,7 @@ const help=()=>{
     console.log(yellow('$ pitaka ptk   '), 'build rom file (.ptk)')
     console.log(yellow('$ pitaka raw [pat]'), 'create *-raw.off , may overwrite file pattern')
     console.log(yellow('$ pitaka ngram   '), 'get ngram, default 2')
+    console.log(yellow('$ pitaka align file file-sentenced  '), 'make file has same sentence, both need ^n marker')
     // console.log(yellow('$ pitaka info    '), 'show information of pitaka')
     // console.log(yellow('$ pitaka zip (regex)'), 'make a zip file')
     console.log(yellow('$ pitaka compare f1 f2'), 'compare two file, text only')
@@ -150,8 +165,7 @@ const help=()=>{
 
 try {
     await ({v:validate,validate,
-        build,b:build,raw,r:raw, ptk,q:quote,quote, p:pinpoint,pinpoint, 
-        // z:zip,zip,
+        build,b:build,raw,r:raw, ptk,q:quote,quote, p:pinpoint,pinpoint, a:align,align,
         compare,c:compare,
         ngram,n:ngram,exec,e:exec,l:longline,longline,iast,
         group,g:group,entrysort,y:entrysort,search,s:search,wordseg,w:wordseg, dictwords,d:dictwords,

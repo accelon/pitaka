@@ -1,9 +1,10 @@
 import {getFormatter, getZipIndex, getFormatLocator, fileContent, removeLabels} from '../format/index.js'
 import JSONPROMWriter from '../jsonprom/jsonpromw.js';
 import Inverter from '../fulltext/inverter.js';
-import {serializeLabels,serializeBreakpos} from './serializer.js';
+import {serializeLabels,serializeLineposString} from './serializer.js';
 import {linesOffset} from '../utils/index.js'
 import { initPitakaJSON } from './config.js';
+import { LOCATORSEP } from '../platform/constants.js';
 class Builder {
     constructor(opts) {
         this.context={
@@ -20,6 +21,7 @@ class Builder {
             ,prevLineCount:0 //line count of previously parsed content
             ,labeldefs:null
             ,rawContent:null //e.g xml before parsing
+            ,headings:[],     //header extract from bodytext, to speed up header search
         };
         this.writer=new JSONPROMWriter(Object.assign({},opts,{context:this.context}));
         this.inverter=new Inverter(Object.assign({},opts,{context:this.context}));
@@ -28,6 +30,8 @@ class Builder {
         this.config=opts.config;
         //.tree is old name
         this.config.locator=this.config.locator||this.config.tree||getFormatLocator(this.config.format);
+        if (typeof this.config.locator==='string') this.config.locator=this.config.locator.split(LOCATORSEP);
+        
         this.opts=opts;
         this.exec=opts.exec;
         this.unknownLabel={};
@@ -70,7 +74,6 @@ class Builder {
                 out.push(fn);
             }
         }
-        // if (touch) console.log(out)
         return out;
     }
     async addZip(file,format){
@@ -127,7 +130,7 @@ class Builder {
             if (labeltype) {
                 labeltype.action(tag,linetext,this.context);
                 if (labeltype.resets) {
-                    const D=this.context.labeldefs;
+                    const D=this.context.labeldefs;                    
                     if (typeof labeltype.resets==='string') {
                         D[labeltype.resets].reset(tag);
                     } else {
@@ -136,7 +139,7 @@ class Builder {
                 }
             } else {
                 if (!this.unknownLabel[tag.name]) {
-                    this.log('undefined tag',this.context.filename,tag.name, tag.y, linetext);
+                    this.log('undefined tag',this.context.filename,tag.name, tag.y,linetext);
                     this.unknownLabel[tag.name]=1;
                 } else this.unknownLabel[tag.name]++;
             }
@@ -152,12 +155,10 @@ class Builder {
             const formatter=new Formatter(this.context,this.log);
             const converted=fn.endsWith('.off');
             rawcontent=removeLabels(rawcontent,this.config.removeLabels);
-            const {text,tags,rawtext}=formatter.scan(rawcontent,converted);
-
+            const {text,tags,writertext,headings}=formatter.scan(rawcontent,this.config.locator,converted);
+            this.context.headings.push(...headings);
             this.context.linesOffset=linesOffset(text);
-            this.context.rawlinesOffset=linesOffset(rawtext);
-            this.context.lineCount=text.length;
-            
+            this.context.lineCount=text.length;            
             if (this.exec) {
                 const {onContent,onRawContent}= this.exec;
                 if(onRawContent) await onRawContent(fn,rawcontent,this.context);
@@ -167,8 +168,8 @@ class Builder {
                     await this.opts.onContent(fn,text,tags,this.context);
                 } else {
                     this.doTags(tags,text);
-                    if (!this.config.textOnly) this.inverter.append(rawtext);
-                    this.writer.append(rawtext);
+                    if (!this.config.textOnly) this.inverter.append(writertext);
+                    this.writer.append(writertext);
                 }    
             }
             this.context.prevLineCount=text.length;
@@ -211,7 +212,6 @@ class Builder {
         } else if (typeof fs!=='undefined' && rootdir){
  
             if (fs.existsSync(rootdir+fn)&&fs.statSync(rootdir+fn).isDirectory()) {
-            // console.log('is folder',fn)
                 return await this.addFolder(file,format);
             } else if (!fs.existsSync(fn) &&fs.existsSync(rootdir+fn)) {
                rawcontent=await fileContent(rootdir+fn,format,this.context);
@@ -222,7 +222,6 @@ class Builder {
         await this.addContent(rawcontent,format,fn);
     }
     save(opts){
-        console.log('saving file')
         if (!this.finalized) {
             this.log('not finalized');
             return;
@@ -236,22 +235,21 @@ class Builder {
             const inverted=this.inverter.serialize();
             this.writer.append(inverted,true); //force new chunk
 
-            if (this.config.breakpos) {
-                this.writer.addSection('breakpos');
-                const section=serializeBreakpos(this.context);
-                this.writer.append(section);    
+            if (this.context.headings.length) {
+                this.writer.addSection('headings');
+                const headings=serializeLineposString(this.context.headings);
+                this.writer.append(headings);
             }
-
-            console.log('finalizing labels')
             this.writer.addSection('labels');
             const section=serializeLabels(this.context);
             this.writer.append(section);
+
         }
         if (opts.exec && opts.exec.onFinalize) {
             opts.exec.onFinalize(opts);
         }
 
-        console.log('memory usage',process.memoryUsage())
+        // console.log('memory usage',process.memoryUsage())
         this.finalized=true;
         return this.context;
     }

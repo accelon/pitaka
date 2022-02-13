@@ -1,4 +1,4 @@
-import {extractOfftag,parseOfftextLine} from '../offtext/index.js'
+import {extractOfftagPattern,parseOfftextLine} from '../offtext/index.js'
 import {bsearch} from '../utils/index.js'
 import TLabelMulu from '../htll/mulu.js'
 function getMulu(from,to){ //本頁目錄加上 前後科文
@@ -17,7 +17,7 @@ function getMulu(from,to){ //本頁目錄加上 前後科文
         if (!linetext)continue;
         const at=linetext.indexOf('^'+mtag);
         if (at>-1) {
-            const otags=extractOfftag(linetext,mtag+'\\d*');
+            const otags=extractOfftagPattern(linetext,mtag+'\\d*');
             otags.forEach(([o,putback,taglen])=>{
                 const n=parseInt(o.n) || 1;
                 if (!firstlevel) firstlevel=n;

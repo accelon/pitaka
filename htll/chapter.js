@@ -29,7 +29,7 @@ class LabelChapter extends Label {
         }
         this.count++;
         this._idarr[id]=true;
-        const text=tag.w?linetext.substr(tag.x,tag.w):linetext;
+        const text=tag.w?linetext.substr(tag.x,tag.w):' ';
         this.names.push(text.replace(/\r?\n/g,' ')|| ' ');
         this.idarr.push(id||'_');
         this.linepos.push(y);

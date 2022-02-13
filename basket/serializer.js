@@ -89,4 +89,18 @@ export const deserializeBreakpos=(breakposSection,breakposSectionRange)=>{
     }
     return books;
 }
-export default {serializeLabels,deserializeLabels,serializeBreakpos}
+// array of [linepos,"string"]
+export const serializeLineposString=lineposString=>{
+    const jslines=[pack_delta(lineposString.map(it=>it[0]))];
+    jslines.push(...lineposString.map(it=>it[1]));
+    return jslines;
+}
+export const deserializeLineposString=jslines=>{
+    const firstline=jslines.shift();
+    const linepos=unpack_delta(firstline);
+    const strings=jslines;
+    return [linepos,strings];
+}
+
+export default {serializeLabels,deserializeLabels,serializeBreakpos
+    ,serializeLineposString,deserializeLineposString};

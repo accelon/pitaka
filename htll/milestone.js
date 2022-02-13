@@ -9,19 +9,24 @@ class LabelMilestone extends Label {
         this.sequencial=opts.sequencial;
         this.range=opts.range;
         this.context=opts.context;
+        this.parenty=0;
         return this;
     }
     action( tag ,linetext){
         const {y}=tag;
         const n=parseInt(tag.attrs.id)||0;
         
-        if (this.skipempty && !n) {
-            return ; //for ^n paragraph marker
+        if (!n) {
+            if (tag.x) console.warn("cannot have empty milestone in the middle of text, at line",y);
+            else return;//ignore ^n
+        }
+        if (tag.w) {
+            console.warn("milestone should not enclose text",tag);
         }
         if (this.sequencial) {
             if (n!==this.prevn+1){
-                console.log(tag,linetext, n, this.prevn+1)
-                if (this.prevn>n) console.log('prev n is bigger, forgot to reset ?');
+                // console.log(tag,linetext, n, this.prevn+1)
+                if (this.prevn>n) console.warn('prev id is bigger, forgot to reset ?');
                 throw 'linepos not in order, '+tag.attrs.id+' prev '+this.prevn+' at '+y ;
             }
         }
@@ -44,8 +49,13 @@ class LabelMilestone extends Label {
             this.prevn=n;    
             this.linepos.push(y);
         }
+        if (this.prevn==1 && y!==this.parenty) {
+            console.warn(tag);
+            throw "missing milestone in parent tag line #"+y;
+        }
     }
-    reset() {
+    reset(parenttag) {
+        this.parenty=parenttag.y;  //
         this.prevn=0;
     }
     serialize(){

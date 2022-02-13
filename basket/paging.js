@@ -52,7 +52,8 @@ function getLocY(addr){
     return this.getPageRange(addr)[0];
 }
 function getPageRange(addr){
-    const thetree=(this.header.locator||DEFAULT_LOCATOR).split(LOCATORSEP);
+    let thetree=(this.header.locator||DEFAULT_LOCATOR);
+    if (typeof thetree==='string') thetree=thetree.split(LOCATORSEP);
     if (!addr && thetree[0]=='e') return [0,0];
     const pths=(addr||'').split(LOCATORSEP).filter(i=>!!i);
     const arr=pths.map((item,idx)=>{
@@ -347,8 +348,7 @@ function enumLocators(filter=null){ //only support two level addressing
 }
 async function readLoc(loc){
     const [y0,y1] = this.getPageRange(loc);
-    let lines=(await this.readLines(y0,y1-y0));
-    return lines.map(it=>it[1]);
+    return (await this.readLines(y0,y1-y0)).map(it=>it[1]);
 }
 export default {closest,getTocTreeDef,getTocTree,getNChild,childCount,dyOf,locOf,clusterOf,pageLoc,
     fetchPage,fetchToc,fetchFootnote,getPageRange,narrowDown,getLabelLineRange,getLocY,

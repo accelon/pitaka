@@ -5,10 +5,21 @@ export const patchBuf=(buf,errata,fn='')=>{
     for (let i=0;i<errata.length;i++) {
         const [from,to]=errata[i];
         let occur=errata[i][2]||1;
-        outbuf=outbuf.replace(from,()=>{
-            occur--;
-            return to;
-        });
+        if (typeof from=='string') {
+            while (occur) {
+                const newoutbuf=outbuf.replace(from,to);    
+                if (newoutbuf===outbuf) {
+                    console.log(fn,"cannot replace",errata[i]);
+                }
+                outbuf=newoutbuf;
+                occur--;
+            }
+        } else {
+            outbuf=outbuf.replace(from,()=>{
+                occur--;
+                return to;
+            });    
+        }
         if (occur!==0) {
             console.log(fn,"errata is not cleared!",occur,'left',errata[i]);
         }

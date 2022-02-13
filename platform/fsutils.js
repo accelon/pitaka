@@ -33,5 +33,10 @@ export const findPitakaFolder=name=>{
 
     return '';
 }
-
-export default {findPitakaFolder}
+export const readTextContent=fn=>{
+    let s=fs.readFileSync(fn,'utf8');
+    if (s.charCodeAt(0)===0xfeff) s=s.substr(1);
+    return s;
+}
+export  const readTextLines=fn=>readTextContent(fn).split(/\r?\n/);
+export default {findPitakaFolder,readTextContent,readTextLines}

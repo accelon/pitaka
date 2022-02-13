@@ -2,7 +2,7 @@ import {loadJSONP,loadFetch,loadNodeJs,loadNodeJsZip} from './loadchunk.js';
 import {findPitakaFolder} from '../platform/fsutils.js'
 import {readLines,prefetchLines,  unreadyChunk,prefetchChunks} from './readline.js';
 import {ROMEXT} from '../rom/romconst.js';
-
+import {bsearch} from '../utils/bsearch.js'
 
 class JSONPROM {
     constructor(opts) {
@@ -42,7 +42,13 @@ class JSONPROM {
         this.prefetchLines=prefetchLines;
         this.prefetchChunks=prefetchChunks;
         this.unreadyChunk=unreadyChunk;
-        this.getLine=i=>lines[i];
+        this.getLine=i=>{
+            let text=lines[i];
+            let at=-1;
+            if (this.headingsLinepos) at= bsearch(this.headingsLinepos,i-1);
+            if (at>-1) text=this.headings[at]+text;
+            return text;
+        };
         this.deleteLine=i=>lines[i]='';
         return this;
     }
@@ -58,43 +64,6 @@ class JSONPROM {
             }
         }
         this.context.loadedChunk[chunk]=true;
-    }
-    async openrom(){
-        return;
-        if (this._loader==loadNodeJs || this._loader==loadNodeJsZip) {
-            const romfn=this.romfolder;//test if romfolder is a .ptk
-            if (fs.existsSync(romfn) && !fs.statSync(romfn).isDirectory()) {
-                const zip=await lazip(romfn);
-                this.romzip=zip;
-                this._loader=loadNodeJsZip;
-            }
-            return;
-        }
-        const tries=[
-            this.header.name+ROMEXT,
-            this.header.name+'/'+this.header.name+ROMEXT
-        ]
-
-        //check if development mode 
-        if (typeof location!=='undefined' && location.port==="5001") {
-            const t=tries[0]; 
-            tries[0]=tries[1];
-            tries[1]=t;
-        }
-        let zip,romfn;
-        for (let i=0;i<tries.length;i++) {
-            romfn=tries[i];
-            zip=await lazip(romfn);
-            if(zip && Object.keys(zip.jszip.fileEntries).length) break;
-        }
-
-        if (zip &&Object.keys(zip.jszip.fileEntries).length) {
-            this.romzip=zip;
-            const folder=this.romzip.jszip.fileEntries[0].fileNameStr;
-            this.filenames=this.romzip.jszip.fileEntries.map(i=>i.fileNameStr
-                .substr(folder.length))//remove leading folder name
-            .filter(i=>!!i);//remove pure folder
-        }
     }
     async load(_chunk=0){
         let res;
