@@ -18,7 +18,8 @@
 	  "./offtext":"./offtext/index.js",
 	  "./xmlparser":"./xmlparser/index.js",
 	  "./nlp":"./nlp/index.js",
-	  "./fulltext":"./fulltext/index.js"
+	  "./fulltext":"./fulltext/index.js",
+	  "./csmeta":"./csmeta/index.js"
   },
   "bin":"cli/bin.js",
   "main": "./index.js",

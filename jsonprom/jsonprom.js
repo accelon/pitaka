@@ -42,13 +42,7 @@ class JSONPROM {
         this.prefetchLines=prefetchLines;
         this.prefetchChunks=prefetchChunks;
         this.unreadyChunk=unreadyChunk;
-        this.getLine=i=>{
-            let text=lines[i];
-            let at=-1;
-            if (this.headingsLinepos) at= bsearch(this.headingsLinepos,i-1);
-            if (at>-1) text=this.headings[at]+text;
-            return text;
-        };
+        this.getLine=i=>lines[i];
         this.deleteLine=i=>lines[i]='';
         return this;
     }
@@ -59,8 +53,17 @@ class JSONPROM {
             this.format=header.format;
             this.opts.onReady&&this.opts.onReady(this);
         } else {
+            //prepending headings
+            const hlp=this.headingsLinepos;
+            let hidx=bsearch(hlp,header.start-1,true);
             for (let i=0;i<payload.length;i++) {
-                this._lines[header.start+i]=payload[i];
+                const y=header.start+i;
+                let line=payload[i];
+                if (y==hlp[hidx]+1 && hidx<hlp.length) {
+                    line=this.headings[hidx]+line;
+                    hidx++;
+                }
+                this._lines[y]=line;
             }
         }
         this.context.loadedChunk[chunk]=true;
