@@ -1,15 +1,31 @@
 
 const hasWildcard=s=>{
-    return s.indexOf('?')>-1||s.indexOf('[')>-1||s.indexOf('*')>-1||s.indexOf('$')>-1;
+    return s.indexOf('?')>-1||s.indexOf('[')>-1||s.indexOf('*')>-1||s.indexOf('$')>-1||s.indexOf('{')>-1;
 }
 export const glob=(files,filepat)=>{
     if (typeof files=='string') {
         files=fs.readdirSync(files);
     }
+    let start,end;
     if (!filepat) return files;
+    const m=filepat.match(/\{(\d+)\-(\d+)\}/);
+    if (m) {
+        start=parseInt(m[1]);
+        end=parseInt(m[2]);
+        filepat=filepat.replace(/\{\d+\-\d+\}/,'(\\d+)');
+    }
     const pat=filepat.replace(/\*/g,'[^\\.]+').replace(/\./g,'\\.').replace(/\?/g,'.');
+
     const reg=new RegExp(pat);
-    return files.filter(f=>f.match(reg));
+
+    if (start && end) {
+        return files.filter(f=>{
+            const m= f.match(reg);
+            return m&& (parseInt(m[1])>=start && parseInt(m[1])<=end) ;
+        })
+    } else {
+        return files.filter(f=>f.match(reg));
+    }
 }
 const expandWildcard=(folder,pat,isDir)=>{
     let files=[];

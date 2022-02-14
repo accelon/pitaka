@@ -221,6 +221,21 @@ export const removeSentenceBreak=paralines=>{
     const combined=paralines.join('').replace(/\^n /g,"\n^n ").split('\n')
     return combined;
 }
+export const autoChineseBreak=line=>{// insert \n
+    return line.replace(/([！。？][』」〕]+)/g,"$1\n")
+    .replace(/([^。？！；：\d]{10,})([！？；：])/g,"$1$2\n")
+    .replace(/([^。？；：\d]{6,})：([〔『「])/g,"$1：\n$2")
+    .replace(/([^。？！；：\d]{5,15})……乃至……([^。？！；：\d]{5,15})/g,"$1……乃至……\n$2")
+    .replace(/([^。？！；：\d]{5,15})，例如/g,"$1，\n例如")
+    .replace(/(\u3400-\u9fff\ud800-\udfff) ([一二三四五六七八九十○]+)§/g,"$1\n $2§")
+    .replace(/\n([』」〕）｝】》〉]+)/g,"$1")
+    // .replace(/([。！？』」〕]+)\n+/g,"$1\n")
+    .replace(/\n([^a-zA-Z\d]{1,8}$)/,"$1")//太短的行
+    .replace(/。([^』」〕])/g,"。\n$1")
+    .replace(/([^ \d\n\]])(\^n\d)/g,"$1\n$2") //^n  一定在行首
+    .replace(/\n+/g,"\n")
+    .trimRight();
+}
 export default {spacify,removeHeader,removeVariantBold,removeSentenceBreak,
     autoBreak,paragraphSimilarity,diffBreak,breakSentence,ensureArrayLength,
-    hookFromParaLines, breakByHook}
+    hookFromParaLines, breakByHook ,autoChineseBreak}

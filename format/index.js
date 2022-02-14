@@ -37,9 +37,9 @@ const getZipIndex=async (zip,format,fn)=>{
     else return {files:zip.files,tocpage:[]};
 }
 const builtin_typedef={
-    'bk':['LabelBook',{resets:'c'}],
-    'ch':'LabelChapter',
+    'bk':['LabelBook',{resets:'n,c'}],
     'c':'LabelChapter',
+    'n':['LabelMilestone',{sequencial:true,range:true}],
     'b':'Label',
     'lang':'LabelLang',    
     'kai':'Label',
