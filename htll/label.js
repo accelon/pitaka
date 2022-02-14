@@ -7,7 +7,6 @@ class Label {
         this.scope='';
         this.filename='';
         this.lastLine=opts.lastLine||-1;
-        this.resets=opts.resets||null; //reseting other label
         this.count=0;
         return this;
     }
@@ -45,7 +44,7 @@ class Label {
     finalize() { //finalize in reverse order of typedef
 
     }
-    reset(){
+    reseting(){
         
     }
 }

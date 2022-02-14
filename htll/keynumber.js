@@ -24,7 +24,7 @@ class LabelKeynumber extends Label {
         this.lineposs[kn].push(tag.y);
         this.count++;
     }
-    reset() {
+    reseting() {
     }
     serialize(){
         const out=super.serialize();

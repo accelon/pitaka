@@ -76,11 +76,41 @@ export const initPitakaJSON=(config,context,log)=>{
             }
         })
     }
+
+    if (typeof config.locator==='string') config.locator=config.locator.split(LOCATORSEP);
     
     if (config.eudc) addJSON(config.eudc,'EUDC',context);
     if (config.milestones) addJSON(config.milestones,'milestones',context);
     if (config.errata) addErrata(config.errata,context);
     if (config.catalog) addJSON(config.catalog,'catalog',context);
     if (config.transclusion) addJSON(config.transclusion,'transclusion',context);
-    if (config.breakpos) addJSON(config.breakpos,'breakpos',context);
+    // if (config.breakpos) addJSON(config.breakpos,'breakpos',context);
+}
+
+export const initLabelTypedef=(config,context,log)=>{
+    const defs=context.labeldefs;
+    for (let lbl in defs) {
+        const labeltype=defs[lbl];
+        if (typeof labeltype.resets==='string') {
+            labeltype.resets=labeltype.resets.split(",");
+        }
+    }
+    for (let lbl in defs) {
+        const labeltype=defs[lbl];
+        if (labeltype.resets) {
+            console.error(`attribute "resets" in parent label is obsolute, use "reset" in child label`);
+        }
+        labeltype.resets=[];
+    }
+    for (let lbl in defs) {
+        const labeltype=defs[lbl];
+        // console.log(labeltype)
+        if (labeltype.reset) {
+            const resetlbl=defs[labeltype.reset];
+            if (!resetlbl) {
+                throw "resetter label "+labeltype.reset+" not found";
+            }
+            if (!resetlbl.resets.includes(labeltype.name)) resetlbl.resets.push(labeltype.name);
+        }
+    }
 }

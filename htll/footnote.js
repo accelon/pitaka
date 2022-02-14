@@ -22,7 +22,7 @@ class LabelFootnote extends Label {
 	        this.count++;
         }	
     }
-    reset(parenttag) {
+    reseting(parenttag) {
     	this.idarr={};
     }
     serialize(){

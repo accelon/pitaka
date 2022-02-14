@@ -34,7 +34,7 @@ class LabelChapter extends Label {
         this.idarr.push(id||'_');
         this.linepos.push(y);
     }
-    reset() {
+    reseting() {
         this._idarr={};
     }
     serialize(){

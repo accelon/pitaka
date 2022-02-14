@@ -7,7 +7,6 @@ class LabelMilestone extends Label {
         this.linepos=[];
         this.prevn=0;
         this.sequencial=opts.sequencial;
-        this.range=opts.range;
         this.context=opts.context;
         this.parenty=0;
         return this;
@@ -27,14 +26,16 @@ class LabelMilestone extends Label {
             if (n!==this.prevn+1){
                 // console.log(tag,linetext, n, this.prevn+1)
                 if (this.prevn>n) console.warn('prev id is bigger, forgot to reset ?');
-                throw 'linepos not in order, '+tag.attrs.id+' prev '+this.prevn+' at '+y ;
+                const line=y-this.context.startY;
+                throw 'linepos not in order, '+tag.attrs.id+' prev '+this.prevn+' at '+line+ ' file '+this.context.filename;
             }
         }
         const at=tag.attrs.id.indexOf('-');
         if (this.range && at>0) { //sn and an has range paranum
             const nextn=parseInt(tag.attrs.id.substr(at+1));
             if (nextn<n) {
-                throw "wrong range number "+tag.attrs.id+' at '+y;
+                const line=y-this.context.startY;
+                throw "wrong range number "+tag.attrs.id+' at '+line;
             } else {
                 let fillcount=nextn-n+1;
                 this.count+= fillcount;
@@ -51,10 +52,11 @@ class LabelMilestone extends Label {
         }
         if (this.prevn==1 && y!==this.parenty) {
             console.warn(tag);
-            throw "missing milestone in parent tag line #"+y;
+            const line=y-this.context.startY;
+            throw "missing parent tag on line #"+line;
         }
     }
-    reset(parenttag) {
+    reseting(parenttag) {
         this.parenty=parenttag.y;  //
         this.prevn=0;
     }

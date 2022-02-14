@@ -31,7 +31,7 @@ class LabelYear extends Label {
         if (!this.years[year])this.years[year]=[];
         this.years[year].push(tag.y);
     }
-    reset() {
+    reseting() {
     }
     serialize(){
         const out=super.serialize();

@@ -1,11 +1,10 @@
 import {readTextFile} from '../platform/inputfiles.js'
-import { getFormat } from './format.js';
-import TypeDef from './typedef.js'
-import { LOCATORSEP } from '../platform/constants.js';
 import { offtagRegex } from '../offtext/parser.js';
-const fileContent=async(fn,format,ctx)=>{
+import TypeDef from './typedef.js'
+
+const fileContent=async(fn,ctx)=>{
     let c;
-    const F=getFormat(format);
+    const F=ctx.Formatter||{};
     if (typeof fn=='string') {
         if (F.parseFile) c= (await F.parseFile(fn,ctx));
         else            c=(await fs.promises.readFile(fn,'utf8')).replace(/\r?\n/g,'\n');
@@ -36,15 +35,18 @@ const getZipIndex=async (zip,format,fn)=>{
     if (fm.getZipFileToc) return await fm.getZipFileToc(zip,fn);
     else return {files:zip.files,tocpage:[]};
 }
+
 const builtin_typedef={
-    'bk':['LabelBook',{resets:'n,c'}],
+    'bk':['LabelBook',{}],
     'c':'LabelChapter',
-    'n':['LabelMilestone',{sequencial:true,range:true}],
+    'r':['LabelChapter',{reset:"bk"}], //new name reading
+    'n':['LabelMilestone',{sequencial:true,range:true,reset:"bk"}],
     'b':'Label',
     'lang':'LabelLang',    
     'kai':'Label',
     'u':'Label',
     'i':'Label',
+    'h':'Label',
     'mu':'LabelMulu',
     't':'LabelTransclusion',
     'k':'LabelLink',
@@ -55,7 +57,16 @@ const builtin_typedef={
 }
 
 const getFormatTypeDef=(config,opts)=>{
-    const def=Object.assign(builtin_typedef,config.labels||getFormat(config.format).def);
+
+    //check if overwriting
+    if (config.labels) {
+        for (let nm in config.labels) {
+            if (builtin_typedef[nm]) {
+                console.warn("overriding built-in label",nm);
+            }
+        }
+    }
+    const def=Object.assign(builtin_typedef,config.labels);//||getFormat(config.format).def);
     if (config.label) { //additional custom label
         const labels=(typeof config.label==='string')?config.label.split(','):config.label;
         for (let i=0;i<labels.length;i++) {
@@ -66,9 +77,10 @@ const getFormatTypeDef=(config,opts)=>{
             }
         }
     }
+    
     return TypeDef( def, {config,...opts});
 }
-
+/*
 const getFormatLocator=format=>{
     const fm=getFormat(format);
     let locator=fm.locator||'n';
@@ -80,16 +92,18 @@ const getFormatter=format=>{
     const fm=getFormat(format);
     return fm.Formatter;
 }
-const translatePointer=(ptr,format)=>{
-    const fm=getFormat(format);
-    return fm.translatePointer?fm.translatePointer(ptr):ptr;
-}
-
 const fileLines=async fn=>{
     const content=await fileContent(fn);
     const lines=content.split('\n');
     return lines;
  }
+*/
+const translatePointer=(ptr,format)=>{
+    const fm=getFormat(format);
+    return fm.translatePointer?fm.translatePointer(ptr):ptr;
+}
+
+
 const getQuickPointerParser=format=>{
     const fm=getFormat(format);
     return fm.parseQuickPointer;
@@ -108,6 +122,8 @@ const removeLabels=(content,labels)=>{
     });
     return content;
 }
-export {readFormatFile, fileContent,translatePointer,getFormatter,getFormat,
-fileLines,getZipIndex,getFormatTypeDef,getQuickPointerParser,getQuickPointerSyntax,getFormatLocator,
+export {translatePointer,fileContent,readFormatFile,getFormatTypeDef,
+    //getFormatter,getFormat,getFormatLocator
+//fileLines,getZipIndex,,
+getQuickPointerParser,getQuickPointerSyntax,
 removeLabels};

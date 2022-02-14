@@ -25,7 +25,7 @@ class LabelKeyword extends Label {
             this._keywords[kw].push(master.linepos.length-1 );
         }
     }
-    reset() {
+    reseting() {
     }
     serialize(){
         const out=super.serialize();

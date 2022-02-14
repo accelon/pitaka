@@ -36,7 +36,7 @@ class LabelYearSpan extends Label {
         if (!this.years[year])this.years[year]=[yearend,[]];
         this.years[year][1].push(tag.y);
     }
-    reset() {
+    reseting() {
     }
     serialize(){
         const out=super.serialize();

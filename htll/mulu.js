@@ -29,7 +29,7 @@ class LabelMulu extends Label {
             throw 'invalid level '+id+' at '+y+' '+linetext;
         }
     }
-    reset(parenttag) { //add a milestone
+    reseting(parenttag) { //add a milestone
         this.names.push('');
         this.level.push(0); //impossible value
         this.linepos.push(parenttag.y);

@@ -17,7 +17,7 @@ class LabelLang extends Label {
         this.linepos.push(y);
         this.count++;
     }
-    reset() {
+    reseting() {
     }
     serialize(){
         const out=super.serialize();line.indexOf("348")>-1

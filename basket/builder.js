@@ -1,10 +1,11 @@
-import {getFormatter, getZipIndex, getFormatLocator, fileContent, removeLabels} from '../format/index.js'
+import {fileContent, removeLabels} from '../format/index.js'
 import JSONPROMWriter from '../jsonprom/jsonpromw.js';
 import Inverter from '../fulltext/inverter.js';
 import {serializeLabels,serializeLineposString} from './serializer.js';
 import {linesOffset} from '../utils/index.js'
-import { initPitakaJSON } from './config.js';
+import { initPitakaJSON ,initLabelTypedef } from './config.js';
 import { LOCATORSEP } from '../platform/constants.js';
+import {parseOfftextHeadings} from '../offtext/parser.js';
 class Builder {
     constructor(opts) {
         this.context={
@@ -29,7 +30,7 @@ class Builder {
         this.log=opts.log || console.log;
         this.config=opts.config;
         //.tree is old name
-        this.config.locator=this.config.locator||this.config.tree||getFormatLocator(this.config.format);
+        this.config.locator=this.config.locator||this.config.tre;
         if (typeof this.config.locator==='string') this.config.locator=this.config.locator.split(LOCATORSEP);
         
         this.opts=opts;
@@ -37,11 +38,12 @@ class Builder {
         this.unknownLabel={};
 
         initPitakaJSON(this.config,this.context,this.log);
+        initLabelTypedef(this.config,this.context,this.log);
         this.files=[];
         return this;
     }
 
-    async addLst(lstfile,format) { //only support by nodejs, mainly for cbeta
+    async addLst(lstfile) { //only support by nodejs, mainly for cbeta
         if (!fs.existsSync(lstfile)) {
             if (!this.config.allowmissingfile) this.log('missing file',lstfile);
             else return;
@@ -50,11 +52,11 @@ class Builder {
         for (let i=0;i<files.length;i++) {
             let fn=files[i];
             if (fs.existsSync(fn)) {
-                await this.addFile(fn,format);
+                await this.addFile(fn);
             } else if (this.config.rootdir){
                 fn=this.config.rootdir+files[i];
                 if (fs.existsSync(fn)) {
-                    await this.addFile(fn,format);
+                    await this.addFile(fn);
                 } else {
                     throw "file not found"+fn
                 }
@@ -76,7 +78,8 @@ class Builder {
         }
         return out;
     }
-    async addZip(file,format){
+    /*
+    async addZip(file){
         let fn=file;       
         if (typeof file!=='string' && 'name' in file) {
             fn=file.name;
@@ -105,7 +108,7 @@ class Builder {
 
         for (let i=0;i<files.length;i++) {
             jobs.push(new Promise( async resolve=>{
-                const c=await fileContent({name:files[i],zip},format,this.context);
+                const c=await fileContent({name:files[i],zip},this.context);
                 contents[i]=c;
                 rawContents[i]=this.context.rawContent;  //backup the rawcontent
                 resolve();
@@ -122,20 +125,17 @@ class Builder {
         }
         if (this.context.error) this.log(fn,'has',this.context.error,'errors')
     }
+    */
     doTags(tags,text){
         for (let i=0;i<tags.length;i++) {
             const tag=tags[i];
             const labeltype=this.context.labeldefs[tag.name];
             const linetext=text[tag.y - this.context.ptkline ];
             if (labeltype) {
+                const D=this.context.labeldefs;                    
                 labeltype.action(tag,linetext,this.context);
-                if (labeltype.resets) {
-                    const D=this.context.labeldefs;                    
-                    if (typeof labeltype.resets==='string') {
-                        D[labeltype.resets].reset(tag);
-                    } else {
-                        labeltype.resets.forEach(r=>D[r]&&D[r].reset(tag));
-                    }
+                if (labeltype.resets) {//fill by "reset" of child
+                    labeltype.resets.forEach(r=>D[r]&&D[r].reseting(tag));
                 }
             } else {
                 if (!this.unknownLabel[tag.name]) {
@@ -145,17 +145,14 @@ class Builder {
             }
         }
     }
-    async addContent(rawcontent,format,fn) {
+    async addContent(rawcontent,fn) {
         //for multiple content, keep starting
         this.context.startY+=this.context.prevLineCount;
         this.context.filename=fn;
         this.context.ptkline=this.writer.header.lineCount; //ptk line count
         try{
-            const Formatter=getFormatter(format);
-            const formatter=new Formatter(this.context,this.log);
-            const converted=fn.endsWith('.off');
             rawcontent=removeLabels(rawcontent,this.config.removeLabels);
-            const {text,tags,writertext,headings}=formatter.scan(rawcontent,this.config.locator,converted);
+            const {writertext,text,tags,headings}=parseOfftextHeadings(rawcontent,this.context.ptkline,this.config.locator);
             this.context.headings.push(...headings);
             this.context.linesOffset=linesOffset(text);
             this.context.lineCount=text.length;            
@@ -179,7 +176,7 @@ class Builder {
             throw '';
         }
     }
-    async addFolder(folder,format) {
+    async addFolder(folder) {
         const files=fs.readdirSync((this.config.rootdir||'')+folder);
         for (let i=0;i<files.length;i++){
             process.stdout.write('\r'+files[i]+'        ');
@@ -188,10 +185,10 @@ class Builder {
                 console.log('skip',fn);
                 continue;
             }
-            await this.addFile((this.config.rootdir||'')+fn,format) ;
+            await this.addFile((this.config.rootdir||'')+fn) ;
         }
     }
-    async addFile(file,format){ //file=='string' nodejs , File browser local file, or a File in zip
+    async addFile(file){ //file=='string' nodejs , File browser local file, or a File in zip
         let fn=file;
         if (this.finalized) {
             this.log("cannot addFile, finalized");
@@ -206,20 +203,21 @@ class Builder {
             rootdir=this.config.rootdir||'';
         }
         if (fn.endsWith('.zip')) {
-            return await this.addZip(file,format);
+            throw "not support zip file"
+            //return await this.addZip(file);
         } else if (fn.endsWith('.lst')) {
-            return await this.addLst(file,format);
+            return await this.addLst(file);
         } else if (typeof fs!=='undefined' && rootdir){
  
             if (fs.existsSync(rootdir+fn)&&fs.statSync(rootdir+fn).isDirectory()) {
-                return await this.addFolder(file,format);
+                return await this.addFolder(file);
             } else if (!fs.existsSync(fn) &&fs.existsSync(rootdir+fn)) {
-               rawcontent=await fileContent(rootdir+fn,format,this.context);
+               rawcontent=await fileContent(rootdir+fn,this.context);
             }
         }
 
-        if (!rawcontent) rawcontent=await fileContent(file,format,this.context);
-        await this.addContent(rawcontent,format,fn);
+        if (!rawcontent) rawcontent=await fileContent(file,this.context);
+        await this.addContent(rawcontent,fn);
     }
     save(opts){
         if (!this.finalized) {

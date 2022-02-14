@@ -15,7 +15,7 @@ class LabelPage extends Label {
         this.autoreset=!!opts.autoreset;
         return this;
     }
-    reset(){
+    reseting(){
         this.pagestart+=this._prevpage;
         this._prevpage=-1;
     }
@@ -35,7 +35,7 @@ class LabelPage extends Label {
         const page=this.npage(tag.attrs.id);
         
         if (this.autoreset&&page==1&&this._prevpage!==-1) {
-            this.reset();
+            this.reseting();
         }
 
         if (this._prevpage>=page) {

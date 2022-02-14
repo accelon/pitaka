@@ -12,7 +12,12 @@ const TypeDef =(json,opts)=>{
         if (!LabelTypes[typename]) {
             throw "label type not found "+typename;
         } else {
-            out[name]=new LabelTypes[typename](name,options);
+            const obj=new LabelTypes[typename](name,options);
+            //auto assign attribute to obj
+            for (let attr in options) {
+                if (typeof obj[attr]==='undefined') obj[attr]=options[attr];
+            }
+            out[name]=obj;
         }
     }
     return out;

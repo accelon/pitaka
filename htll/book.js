@@ -23,7 +23,6 @@ class LabelBook extends Label {
         if (this._idarr[id]) {
      	   throw 'repeated bk id, '+id+' at ';
     	}
-
         this._idarr[id]=y;
         this.idarr.push(id);
         this.count++;
