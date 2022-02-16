@@ -221,6 +221,22 @@ export const removeSentenceBreak=paralines=>{
     const combined=paralines.join('').replace(/\^n /g,"\n^n ").split('\n')
     return combined;
 }
+//make sure each lines is paranum
+export const removeSubPara=paralines=>{
+    let joined='';
+    const out=[];
+    for (let i=0;i<paralines.length;i++) {
+        if (paralines[i].match(/\^n\d+/)) {
+            if (joined && joined.match(/\^n\d+/)) {
+                out.push(joined);
+                joined='';
+            }
+        }
+        joined+=paralines[i];
+    }
+    if (joined) out.push(joined);
+    return out;
+}
 export const autoChineseBreak=line=>{// insert \n
     return line.replace(/([！。？][』」〕]+)/g,"$1\n")
     .replace(/([^。？！；：\d]{10,})([！？；：])/g,"$1$2\n")
@@ -236,6 +252,29 @@ export const autoChineseBreak=line=>{// insert \n
     .replace(/\n+/g,"\n")
     .trimRight();
 }
+export const sentenceRatio=lines=>{
+    if (typeof lines=='string') {
+        lines=lines.split(/\r?\n/);
+    }
+    const total=lines.reduce( (p,v)=>p+v.length,0);
+    const ratio=lines.map( v=> v.length/total);
+    for (let i=1;i<ratio.length;i++) {
+        ratio[i]+=ratio[i-1];
+    }
+    return ratio;
+}
+export const alignParagraph=(para , guide)=>{ //para must have more fregment
+    let i=0;
+    const out=[];
+    for (let gi=0;gi<guide.length;gi++) {
+        while (i<para.length&&para[i]<guide[gi]) i++;
+        if (para[i]>guide[gi]) {
+            out.push([i,gi]);
+        }
+    }
+    return out;
+}
+
 export default {spacify,removeHeader,removeVariantBold,removeSentenceBreak,
     autoBreak,paragraphSimilarity,diffBreak,breakSentence,ensureArrayLength,
-    hookFromParaLines, breakByHook ,autoChineseBreak}
+    hookFromParaLines, breakByHook ,autoChineseBreak,removeSubPara,alignParagraph}

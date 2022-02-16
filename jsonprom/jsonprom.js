@@ -53,14 +53,13 @@ class JSONPROM {
             this.format=header.format;
             this.opts.onReady&&this.opts.onReady(this);
         } else {
-            //prepending headings
             const hlp=this.headingsLinepos;
             let hidx=bsearch(hlp,header.start-1,true);
             for (let i=0;i<payload.length;i++) {
                 const y=header.start+i;
                 let line=payload[i];
                 if (y==hlp[hidx]+1 && hidx<hlp.length) {
-                    line=this.headings[hidx]+line;
+                    line=this.headings[hidx]+line; //headings is separated from body in parseOfftextHeadings
                     hidx++;
                 }
                 this._lines[y]=line;
