@@ -20,7 +20,7 @@ export const booksOf=id=>{ //id can be separated by "," , or a book prefix
             out.push(id)
         }
     })
-    return out;
+    return out.filter(it=>!!it);
 }
 export const sortFilenames=filenames=>{
 	return filenames.sort((f1,f2)=>{

@@ -1,6 +1,7 @@
 import {readTextFile} from '../platform/inputfiles.js'
 import { offtagRegex } from '../offtext/parser.js';
 import TypeDef from './typedef.js'
+import cbeta from './cbeta.js';
 
 const fileContent=async(fn,ctx)=>{
     let c;
@@ -125,5 +126,5 @@ const removeLabels=(content,labels)=>{
 export {translatePointer,fileContent,readFormatFile,getFormatTypeDef,
     //getFormatter,getFormat,getFormatLocator
 //fileLines,getZipIndex,,
-getQuickPointerParser,getQuickPointerSyntax,
+getQuickPointerParser,getQuickPointerSyntax,cbeta,
 removeLabels};

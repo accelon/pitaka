@@ -24,6 +24,7 @@ import {compareText} from '../utils/compare.js';
 import {group,entrysort,search,wordseg,intersect} from './offtextutils.js'
 import {autoAlign} from '../utils/align.js'
 import validate from "./validate.js"
+import { writeChanged } from './index.js';
 let pitakajson='pitaka.json';
 let config={};
 if (fs.existsSync(process.argv[3]) && process.argv[3].indexOf('.json')>0 ) {
@@ -69,15 +70,25 @@ const compare=()=>{
     const sims=compareText(F1,F2);
     console.log(JSON.stringify(sims,'',' '))
 }
+const defaultGuideFolder='../cs/';
 const align=()=>{
-    const f1=process.argv[3];
-    const f2=process.argv[4];
+    let f1=process.argv[3];
+    let f2=process.argv[4];
     if (!f1) throw "missing file 1"
-    if (!f2) throw "missing file 2"
+    if (!f2) {
+        f2=defaultGuideFolder+f1;
+        if (!fs.existsSync(f1)) {
+            throw "missing file 2"
+        }
+    }
     const F1=readTextLines(f1);
     const F2=readTextLines(f2);
 
     const out=autoAlign(F1,F2);
+
+    if (writeChanged(f1+'.aligned',out.join('\n'))) {
+        console.log('written',f1+'.aligned')
+    }
 }
 
 const report=(builder)=>{

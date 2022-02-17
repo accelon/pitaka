@@ -1,5 +1,5 @@
 import { LOCATORSEP } from '../platform/constants.js';
-import { removeSentenceBreak } from './breaker.js';
+import { removeSentenceBreak, sentenceRatio,alignParagraph } from './breaker.js';
 export const toParagraphs=(L,opts={})=>{
     const out=[];
     let lines=[],pid='';
@@ -22,12 +22,45 @@ export const toParagraphs=(L,opts={})=>{
     out.push([pid,unbreak?removeSentenceBreak(lines):lines]);
     return out;
 }
-export const autoAlign=(f1,f2,splitter=null)=>{
+export const autoAlign=(f1,guide)=>{
     //prerequisite
     //f1 and f2 need ^n marker
     //f2 has more lines than f1
     //for each paragraph, let f1 has same sentence as f2
-    console.log(f1.length,f2.length)
+    
+    const gpara=toParagraphs(guide)
+    const para=toParagraphs(f1);
+    
+    if (para.length!==gpara.length) {
+        console.log('para.length unmatch,',para.length,'<guided',gpara.length);
+        return [];
+    }
+    const res=[];
+    for (let i=0;i<gpara.length;i++) {
+        const rgpara=sentenceRatio(gpara[i][1]);
+        const rpara=sentenceRatio(para[i][1]);
+        const aligned=alignParagraph(rpara,rgpara,para[i][0]);
+
+        if (rpara.length<rgpara.length) { //
+            while (para[i][1].length<rgpara.length) {
+                para[i][1].push('<>'); //inserted line
+            }
+            res.push(...para[i][1] );
+            continue;
+        }
+
+        for (let j=0;j<aligned.length;j++) {
+            const t=(para[i][1][aligned[j]]||'')
+            if (t) para[i][1][aligned[j]]='\n'+t;
+        }
+        const newpara=para[i][1].join('').split('\n');
+        while (newpara.length<gpara[i][1].length) {
+            newpara.push('<>');
+        }
+
+        res.push(...newpara);
+    }
+    return res;
 }
 
 export default {autoAlign,toParagraphs};

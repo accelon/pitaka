@@ -131,6 +131,22 @@ export const ensureArrayLength=(arr,length,marker='※')=>{
     }
     return arr;
 }
+/* make sure cluster has ^n*/
+export const ensureClusterHasPN=lines=>{
+    let join='';
+    const out=[];
+    for (let i=0;i<lines.length;i++) {
+        let t=lines[i];
+        if (t.indexOf('^n')==-1) {
+            join+=t;
+        } else {
+            if (join) console.log(join.length,join.substr(0,29))
+            out.push(join+t);
+            join='';
+        }
+    }
+    return out;
+}
 //find out shorted lead to reach pos
 const MAXWIDTH=5;
 const shortestLead= (line,pos,from)=>{
@@ -239,15 +255,16 @@ export const removeSubPara=paralines=>{
 }
 export const autoChineseBreak=line=>{// insert \n
     return line.replace(/([！。？][』」〕]+)/g,"$1\n")
-    .replace(/([^。？！；：\d]{10,})([！？；：])/g,"$1$2\n")
+    .replace(/([^。？；：\d]{5,15})([？；：])/g,"$1$2\n")
     .replace(/([^。？；：\d]{6,})：([〔『「])/g,"$1：\n$2")
-    .replace(/([^。？！；：\d]{5,15})……乃至……([^。？！；：\d]{5,15})/g,"$1……乃至……\n$2")
-    .replace(/([^。？！；：\d]{5,15})，例如/g,"$1，\n例如")
+    .replace(/([^。？；：\d]{5,15})……乃至……([^。？；：\d]{5,15})/g,"$1……乃至……\n$2")
+    .replace(/([^。？；：\d]{5,15})，例如/g,"$1，\n例如")
     .replace(/(\u3400-\u9fff\ud800-\udfff) ([一二三四五六七八九十○]+)§/g,"$1\n $2§")
     .replace(/\n([』」〕）｝】》〉]+)/g,"$1")
+    .replace(/([」』])([『「])/g,"$1\n$2")
     // .replace(/([。！？』」〕]+)\n+/g,"$1\n")
     .replace(/\n([^a-zA-Z\d]{1,8}$)/,"$1")//太短的行
-    .replace(/。([^』」〕])/g,"。\n$1")
+    .replace(/([？。])([^』」〕])/g,"$1\n$2")
     .replace(/([^ \d\n\]])(\^n\d)/g,"$1\n$2") //^n  一定在行首
     .replace(/\n+/g,"\n")
     .trimRight();
@@ -263,18 +280,22 @@ export const sentenceRatio=lines=>{
     }
     return ratio;
 }
-export const alignParagraph=(para , guide)=>{ //para must have more fregment
-    let i=0;
+export const alignParagraph=(para , guide, id)=>{ //para must have more fregment
+    if (para.length<guide.length)  return null;
+    let i=0,prev=0,gi=0;
     const out=[];
+
     for (let gi=0;gi<guide.length;gi++) {
         while (i<para.length&&para[i]<guide[gi]) i++;
-        if (para[i]>guide[gi]) {
-            out.push([i,gi]);
+        if (out.length+1>=guide.length) break;
+        if (i>prev) {
+            out.push(i);
         }
+        prev=i;
     }
     return out;
 }
 
 export default {spacify,removeHeader,removeVariantBold,removeSentenceBreak,
-    autoBreak,paragraphSimilarity,diffBreak,breakSentence,ensureArrayLength,
+    autoBreak,paragraphSimilarity,diffBreak,breakSentence,ensureArrayLength,ensureClusterHasPN,
     hookFromParaLines, breakByHook ,autoChineseBreak,removeSubPara,alignParagraph}

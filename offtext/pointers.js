@@ -1,7 +1,7 @@
 //unpack array of serialized pointer
 import pool from '../basket/pool.js';
 import {PATHSEP,NAMESPACESEP,LOCATORSEP} from '../platform/constants.js'
-import {makeHook, parseHook} from './hook.js';
+import {makeHook, parseHook} from '../utils/hook.js';
 import {parseOfftextLine} from './parser.js';
 
 /*

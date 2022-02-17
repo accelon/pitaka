@@ -1,8 +1,12 @@
 export const headerWithNumber = [
-    /第([一二三四五六七八九十百○零]+)[回章卷品節]*/,
-    /卷([一二三四五六七八九十百○零]+)/,
-    /卷第([一二三四五六七八九十百○零]+)/,
+    /第([一二三四五六七八九十百千○〇零]+)[回章卷品節]*/,
+    /卷([一二三四五六七八九十百千○〇零]+)/,
+    /卷第([一二三四五六七八九十百千○〇零]+)/,
 ]
+export const isChineseNumber=(str,pat)=>{
+    pat=pat||/[一二三四五六七八九十百千○〇]+/
+    return str.replace(pat,'')=='';
+}
 
 export const fromChineseNumber=str=>{
     return parseInt(str
