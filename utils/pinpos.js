@@ -1,5 +1,5 @@
 
-import {PATHSEP,DELTASEP} from '../platform/constants.js'
+import {PATHSEP,PINSEP} from '../platform/constants.js'
 
 export const posBackwardPin=(linetext,x)=>{
     if (x<1) return '';
@@ -8,7 +8,7 @@ export const posBackwardPin=(linetext,x)=>{
     let at=linetext.indexOf(linetext.substr(x-len,len));
 
     while (at!==x-len && x) {
-        if (len>5) break;
+        if (linetext.substr(x-len,len).trim().length>4) break;
         len++;
         at=linetext.indexOf(linetext.substr(x-len,len));
     }
@@ -19,10 +19,16 @@ export const posBackwardPin=(linetext,x)=>{
         occur++;
         at=linetext.indexOf(linetext.substr(x-len,len),at+1);
     }
-    return (at===x-len)?(occur?occur:'')+DELTASEP+linetext.substr(x-len,len):null;
+    return (at===x-len&&linetext[x-len]!==PINSEP&&linetext.charCodeAt(x-len)>=0x20)? //cannot pin : 
+        (occur?occur:'')+PINSEP+linetext.substr(x-len,len):null;
 }
 export const pinPos=(linetext,x,backward=false)=>{
     let pin='';
+    if (linetext.charCodeAt(x)<0x20 || linetext[x]===PINSEP) {
+        console.log('cannot pin separator or control chars')
+        return null;
+    }
+    
     if (backward) {
         pin=posBackwardPin(linetext,x)
     }
@@ -31,18 +37,20 @@ export const pinPos=(linetext,x,backward=false)=>{
     let len=1,occur=0;
     let at=linetext.indexOf(linetext.substr(x,len));
     while (at!==x && x+len<linetext.length) {
-        if (len>5) break;
+        if (linetext.substr(x,len).trim().length>3 ) break;
         len++;
         at=linetext.indexOf(linetext.substr(x,len));
     }
 
-    if (at!==x && linetext.charCodeAt(x)>0xff) len=2;//shorter pin for non-ascii
+    if (at!==x && linetext.charCodeAt(x)>0xff
+    &&linetext.charCodeAt(x+1)>0xff ) len=2;//shorter pin for non-ascii
 
-    while (at!==x && at>-1) {
+    while (at!==x && at>-1 && at<linetext.length) {
         occur++;
-        at=linetext.indexOf(linetext.substr(x,len),at+1);
+        at=linetext.indexOf(linetext.substr(x,len),at+len-1);
+        if (at==-1) break;
     }
-    return (at===x)?linetext.substr(x,len)+(occur?DELTASEP+occur:''):null;
+    return (at===x)?linetext.substr(x,len)+(occur?PINSEP+occur:''):null;
 }
 
 export const posPin=(linetext,pin)=>{
@@ -54,7 +62,7 @@ export const posPin=(linetext,pin)=>{
         return pin;
     }
 
-    if (pin[0]===DELTASEP) {
+    if (pin[0]===PINSEP) {
         return linetext.indexOf(pin.substr(1));
     }
 
@@ -65,7 +73,7 @@ export const posPin=(linetext,pin)=>{
 
     if (mb) {
         occur=parseInt(mb[1]);
-        pin=pin.substr(DELTASEP.length+mb[1].length);
+        pin=pin.substr(PINSEP.length+mb[1].length);
         backward=pin.length;
     } else if (m) {
         occur=parseInt(pin.substr( pin.length-m[1].length ));
@@ -74,7 +82,7 @@ export const posPin=(linetext,pin)=>{
 
     let at=linetext.indexOf(pin);
     while (occur) {
-        at=linetext.indexOf(pin,at+1)
+        at=linetext.indexOf(pin,at+pin.length)
         occur--;
     }
     if (at==-1) return -1;//console.error("cannot pospin",pin,linetext);
@@ -106,7 +114,7 @@ export const makeHook=(linetext,x,w)=>{
         }
     }
 
-    let hook=lead+(occur?DELTASEP+occur:'');
+    let hook=lead+(occur?PINSEP+occur:'');
 
     if (end) {
         let at=linetext.indexOf(end,x);
@@ -116,7 +124,7 @@ export const makeHook=(linetext,x,w)=>{
         }
         if (at>-1) {
             if (eoccur==0&&linetext.indexOf(end.substr(1),x)==at+1) end=end.substr(1);
-            hook+=PATHSEP+end+(eoccur?DELTASEP+eoccur:'');
+            hook+=PATHSEP+end+(eoccur?PINSEP+eoccur:'');
         } else {
             end='';
         }
@@ -129,8 +137,8 @@ export const parseHook=(str_arr,linetext,y=0)=>{
     if (!str_arr)return null;
 
     const [L,E]=Array.isArray(str_arr)?str_arr:str_arr.split(PATHSEP);
-    let [s,nos]=(L||'').split(DELTASEP);
-    let [e,noe]=(E||'').split(DELTASEP);
+    let [s,nos]=(L||'').split(PINSEP);
+    let [e,noe]=(E||'').split(PINSEP);
 
     nos=parseInt(nos)||0;
     noe=parseInt(noe)||0;

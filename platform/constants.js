@@ -2,6 +2,7 @@ export const PITAKA_EXT='.ptk'
 export const PATHSEP='/';
 export const NAMESPACESEP=':';
 export const DELTASEP=':';
+export const PINSEP=':';
 export const LOCATORSEP='.';
 export const ADDRSEP='|';
 export const DEFAULT_LOCATOR='bk.c';

@@ -66,7 +66,7 @@ const compare=()=>{
     if (!f2) throw "missing file 2"
     const F1=readTextLines(f1);
     const F2=readTextLines(f2);
-
+    console.log(F1.length,F2.length)
     const sims=compareText(F1,F2);
     console.log(JSON.stringify(sims,'',' '))
 }

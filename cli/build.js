@@ -46,7 +46,7 @@ export const  buildPitaka=async ({config, nosave=false,
         await builder.addFile(files[i],format);
     }
     builder.finalize({raw,exec});
-
+    console.log('config',builder.config)
     if (!nosave) builder.save({raw,jsonp});
     return builder;
 }

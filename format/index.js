@@ -2,7 +2,7 @@ import {readTextFile} from '../platform/inputfiles.js'
 import { offtagRegex } from '../offtext/parser.js';
 import TypeDef from './typedef.js'
 import cbeta from './cbeta.js';
-
+import Templates from './templates.js'
 const fileContent=async(fn,ctx)=>{
     let c;
     const F=ctx.Formatter||{};
@@ -37,44 +37,28 @@ const getZipIndex=async (zip,format,fn)=>{
     else return {files:zip.files,tocpage:[]};
 }
 
-const builtin_typedef={
-    'bk':['LabelBook',{}],
-    'c':'LabelChapter',
-    'r':['LabelChapter',{reset:"bk"}], //new name reading
-    'n':['LabelMilestone',{sequencial:true,range:true,reset:"bk"}],
-    'b':'Label',
-    'lang':'LabelLang',    
-    'kai':'Label',
-    'u':'Label',
-    'i':'Label',
-    'h':'Label',
-    'mu':'LabelMulu',
-    't':'LabelTransclusion',
-    'k':'LabelLink',
-    "f":["Label", {"caption":"注"}],
-    "fn":["LabelFootnote", {"caption":"注釋"}],
-    //general versioning
-    'cut':'Label','paste':'Label','del':'Label','add':'Label','edit':'Label','corr':'Label'
-}
+
 
 const getFormatTypeDef=(config,opts)=>{
-
+    const templeteLabels=Templates[config.template].labels;
     //check if overwriting
+    
     if (config.labels) {
         for (let nm in config.labels) {
-            if (builtin_typedef[nm]) {
+            if (templeteLabels[nm]) {
                 console.warn("overriding built-in label",nm);
             }
         }
     }
-    const def=Object.assign(builtin_typedef,config.labels);//||getFormat(config.format).def);
+    
+    const def=Object.assign(templeteLabels,config.labels);//||getFormat(config.format).def);
     if (config.label) { //additional custom label
-        const labels=(typeof config.label==='string')?config.label.split(','):config.label;
-        for (let i=0;i<labels.length;i++) {
-            if (def[labels[i]]) {
-                console.error('label already defined',labels[i])
+        const extralabels=(typeof config.label==='string')?config.label.split(','):config.label;
+        for (let i=0;i<extralabels.length;i++) {
+            if (def[extralabels[i]]) {
+                console.error('label already defined',extralabels[i])
             } else {
-                def[labels[i]]="Label";
+                def[extralabels[i]]="Label";
             }
         }
     }
@@ -126,5 +110,5 @@ const removeLabels=(content,labels)=>{
 export {translatePointer,fileContent,readFormatFile,getFormatTypeDef,
     //getFormatter,getFormat,getFormatLocator
 //fileLines,getZipIndex,,
-getQuickPointerParser,getQuickPointerSyntax,cbeta,
+getQuickPointerParser,getQuickPointerSyntax,cbeta,Templates,
 removeLabels};

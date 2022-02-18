@@ -78,7 +78,7 @@ function clusterOf(y){
     return {id, at, dy:y-cl.linepos[at], address};
 }
 function locOf(y){
-    const arr=this.closest(y,(this.header.locator||DEFAULT_LOCATOR).split(LOCATORSEP));
+    const arr=this.closest(y,this.header.locator);
     const out=arr.map(it=>it.id);
     let dy=0;
     let s=out.join(LOCATORSEP);
@@ -126,17 +126,19 @@ function closest(y0,labels){
     		}
     	});
     }
+    let startfrom=0;
     for (let i=0;i<labels.length;i++){
         const label=this.getLabel(labels[i]);
         const idx=bsearch(label.linepos,y0+1,true);
-
         if (idx<0) break;
         
-        const id=label.idarr?label.idarr[idx-1]:idx;
+        const parentidx=bsearch(label.linepos,startfrom,true);
+        const id=label.idarr?label.idarr[idx-1]:(idx-parentidx);
         const line=label.linepos[idx-1];
         const name=label.names?label.names[idx-1]:'';
         //line is smaller than y0
         out.push({id,idx,delta:0,caption:label.caption,lblname:labels[i], name, y0,line});
+        startfrom=label.linepos[idx-1];
     }
     
     
@@ -303,8 +305,9 @@ async function fetchFootnote(y0,fn){
     //TODO 同頁/同卷注
 
     const ranges=this.getPageRange(loc);
-    
-    let hlines=await this.readLines(ranges[0],ranges[1]-ranges[0]);
+    let count=ranges[1]-ranges[0];
+    if (count>10 ) count=10;
+    let hlines=await this.readLines(ranges[0],count);
     const out=hlines.map(it=>{ return {key: it[0], text:it[1]} });
     return out;
 }
@@ -350,6 +353,10 @@ async function readLoc(loc){
     const [y0,y1] = this.getPageRange(loc);
     return (await this.readLines(y0,y1-y0)).map(it=>it[1]);
 }
+function headingOf(y){
+    const at=bsearch(this.headingsLinepos,y,true);
+    return [this.headings[at],  at, this.headingsLinepos[at]-y ];
+}
 export default {closest,getTocTreeDef,getTocTree,getNChild,childCount,dyOf,locOf,clusterOf,pageLoc,
     fetchPage,fetchToc,fetchFootnote,getPageRange,narrowDown,getLabelLineRange,getLocY,
-enumLocators,readLoc}
+enumLocators,readLoc,headingOf}

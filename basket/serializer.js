@@ -92,7 +92,6 @@ export const deserializeBreakpos=(breakposSection,breakposSectionRange)=>{
 // array of [linepos,"string"]
 export const serializeLineposString=lineposString=>{
     const arr=lineposString.map(it=>it[0]);
-    console.log(arr)
     const jslines=[pack_delta(arr)];
     jslines.push(...lineposString.map(it=>it[1]));
     return jslines;

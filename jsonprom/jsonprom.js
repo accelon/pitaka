@@ -58,7 +58,7 @@ class JSONPROM {
             for (let i=0;i<payload.length;i++) {
                 const y=header.start+i;
                 let line=payload[i];
-                if (y==hlp[hidx]+1 && hidx<hlp.length) {
+                if (y==hlp[hidx] && hidx<hlp.length) {
                     line=this.headings[hidx]+line; //headings is separated from body in parseOfftextHeadings
                     hidx++;
                 }

@@ -1,6 +1,6 @@
 import reservedname from "./reservedname.js";
 import { filesFromPattern } from "../utils/index.js";
-import {fileContent,getFormatTypeDef} from '../format/index.js'
+import {fileContent,getFormatTypeDef,Templates} from '../format/index.js'
 import { LOCATORSEP } from "../index.js";
 export function validateConfig(json,filenames){
     if (!json) return 'empty json'
@@ -62,6 +62,16 @@ const  addErrata=(pat,context)=> {
     });
 }
 export const initPitakaJSON=(config,context,log)=>{
+    const template=Templates[config.template];
+    if (config.template && !template) {
+        throw "template "+config.template+" not found";
+    }
+    for (let key in template) {
+        if (key=='labels') continue;
+        if (typeof config[key]=='undefined') {
+            config[key]=template[key];
+        }
+    }
     context.labeldefs=getFormatTypeDef(config,{context:context,log});
 
     if (!config.cluster) {
