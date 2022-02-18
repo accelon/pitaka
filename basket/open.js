@@ -69,6 +69,9 @@ class Basket extends JSONPROM {
                     if (!self.header.locator && self.header.tree) {
                         self.header.locator=self.header.tree;
                     }
+                    if (!self.header.heading) {
+                        self.header.heading=self.header.cluster;
+                    }
                     self.registerQueryMethods();
                     const headings='headings';
                     if (self.header.sectionNames.indexOf(headings)>-1){                            

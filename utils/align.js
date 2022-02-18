@@ -60,7 +60,7 @@ export const autoAlign=(f1,guide)=>{
 
         res.push(...newpara);
     }
-    return res;
+    return res.map(t=>t==='<>'?'':t);
 }
 
 export default {autoAlign,toParagraphs};

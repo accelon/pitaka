@@ -1,5 +1,5 @@
 import {fetchLoc} from 'pitaka';
-import { makeHook } from '../offtext/hook.js';
+import { makeHook } from '../utils/pinpos.js';
 import {extractChineseNumber} from '../utils/cnumber.js';
 import {similarity} from './similarity.js'
 import {diffCJK,printDiff,} from 'pitaka/utils' 

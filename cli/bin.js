@@ -77,8 +77,8 @@ const align=()=>{
     if (!f1) throw "missing file 1"
     if (!f2) {
         f2=defaultGuideFolder+f1;
-        if (!fs.existsSync(f1)) {
-            throw "missing file 2"
+        if (!fs.existsSync(f2)) {
+            throw "missing file 2 "
         }
     }
     const F1=readTextLines(f1);

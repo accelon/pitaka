@@ -165,7 +165,7 @@ export const parseOfftextHeadings=(str,starty=0,locator='n')=>{
             const loctag=out[i][1].filter( tag=>tag.name===leafloc);
             if (loctag.length) {
                 const offset=loctag[0].offset; //start of ^n
-                headings.push([i, t.substr(0,offset)]); //prepend at jsonprom.js::setChunk
+                headings.push([starty+i, t.substr(0,offset)]); //prepend at jsonprom.js::setChunk
                 lines[i]=t.substr(offset);
             }
         }
