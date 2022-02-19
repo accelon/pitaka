@@ -28,7 +28,7 @@ export const fromChineseNumber=str=>{
     .replace(/^十/,'1')
     .replace(/十$/,'0')
     .replace(/十/,'')
-    .replace(/[○零]/g,'0'));
+    .replace(/[○〇零]/g,'0'));
 }
 
 export const extractChineseNumber=(str,firstnum=false)=>{

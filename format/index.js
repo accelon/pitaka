@@ -37,20 +37,15 @@ const getZipIndex=async (zip,format,fn)=>{
     else return {files:zip.files,tocpage:[]};
 }
 
-
-
 const getFormatTypeDef=(config,opts)=>{
-    const templeteLabels=Templates[config.template].labels;
-    //check if overwriting
-    
+    const templeteLabels=Templates[config.template].labels;    
     if (config.labels) {
         for (let nm in config.labels) {
             if (templeteLabels[nm]) {
-                console.warn("overriding built-in label",nm);
+                console.warn("overriding template label",nm, config.labels[n]);
             }
         }
     }
-    
     const def=Object.assign(templeteLabels,config.labels);//||getFormat(config.format).def);
     if (config.label) { //additional custom label
         const extralabels=(typeof config.label==='string')?config.label.split(','):config.label;
@@ -62,32 +57,13 @@ const getFormatTypeDef=(config,opts)=>{
             }
         }
     }
-    
     return TypeDef( def, {config,...opts});
 }
-/*
-const getFormatLocator=format=>{
-    const fm=getFormat(format);
-    let locator=fm.locator||'n';
-    if (typeof locator==='string') locator=locator.split(LOCATORSEP);
-    return locator;
-}
 
-const getFormatter=format=>{
-    const fm=getFormat(format);
-    return fm.Formatter;
-}
-const fileLines=async fn=>{
-    const content=await fileContent(fn);
-    const lines=content.split('\n');
-    return lines;
- }
-*/
 const translatePointer=(ptr,format)=>{
     const fm=getFormat(format);
     return fm.translatePointer?fm.translatePointer(ptr):ptr;
 }
-
 
 const getQuickPointerParser=format=>{
     const fm=getFormat(format);
@@ -107,8 +83,8 @@ const removeLabels=(content,labels)=>{
     });
     return content;
 }
-export {translatePointer,fileContent,readFormatFile,getFormatTypeDef,
+export {Templates,translatePointer,fileContent,readFormatFile,getFormatTypeDef,
     //getFormatter,getFormat,getFormatLocator
 //fileLines,getZipIndex,,
-getQuickPointerParser,getQuickPointerSyntax,cbeta,Templates,
+getQuickPointerParser,getQuickPointerSyntax,cbeta,
 removeLabels};

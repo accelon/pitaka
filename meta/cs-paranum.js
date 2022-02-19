@@ -1,15 +1,15 @@
-import {ClusterPN} from './clusterpn.js';
+import {FirstPN} from './cs-first.js';
 export const firstParanumOf=clusterid=>{ //return first paranum given bkid
-    return ClusterPN[clusterid];
+    return FirstPN[clusterid];
 }
 let BKPN_C=null;
 const buildReverse=()=>{
     BKPN_C={};
-    for (let c in ClusterPN) {
+    for (let c in FirstPN) {
         let bk='';
         const [m,pf,seg]=c.match(/([a-z]+)(\d+)/);
         const nseg=parseInt(seg);
-        const pn=ClusterPN[c];
+        const pn=FirstPN[c];
         if (pf==='d') {
             if (nseg>0 && nseg<=13) bk='dn1'
             else if (nseg>=14&&nseg<=23) bk='dn2'
@@ -36,4 +36,3 @@ export const bookParanumToCluster=(bkid,pn)=>{
     if (!BKPN_C) buildReverse();
     return (BKPN_C[bkid]||{})[pn];
 }
-export {ClusterPN} from './clusterpn.js'

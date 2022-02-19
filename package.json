@@ -19,7 +19,7 @@
 	  "./xmlparser":"./xmlparser/index.js",
 	  "./nlp":"./nlp/index.js",
 	  "./fulltext":"./fulltext/index.js",
-	  "./csmeta":"./csmeta/index.js"
+	  "./meta":"./meta/index.js"
   },
   "bin":"cli/bin.js",
   "main": "./index.js",
