@@ -3,6 +3,7 @@ import LabelVol from './vol.js'
 import LabelPage from './page.js'
 import LabelBook from './book.js'
 import LabelChapter from './chapter.js'
+import LabelChunk from './chunk.js'
 import LabelMulu from './mulu.js'
 import LabelMilestone from './milestone.js'
 import LabelKeyword from './keyword.js'
@@ -24,6 +25,6 @@ import LabelFootnote from './footnote.js'
 
 const LabelTypes = {Label,LabelHeader,LabelEntry,LabelVol,LabelPage,LabelMilestone
     ,LabelKeyword,LabelKeynumber,LabelYear,LabelYearSpan,LabelSeeAlso,LabelLang,LabelFootnote,
-    LabelBook,LabelChapter,LabelMulu,LabelSection,LabelAnchor,LabelTransclusion,LabelLink}
+LabelBook,LabelChapter,LabelChunk,LabelMulu,LabelSection,LabelAnchor,LabelTransclusion,LabelLink}
 
 export default LabelTypes;

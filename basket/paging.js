@@ -48,7 +48,7 @@ function getLabelLineRange(lbl,n){
     }
     return [lbl.linepos[n],lbl.linepos[n+1]]
 }
-function getLocY(addr){
+function locY(addr){
     return this.getPageRange(addr)[0];
 }
 function getPageRange(addr){
@@ -70,14 +70,14 @@ function getPageRange(addr){
     const nextlbl=thetree[pths.length]||'';
     return [...this.narrowDown(arr) ,  nextlbl ] ;
 }
-function clusterOf(y){
-    const cl=this.getClusterLabel();
+function chunkOf(y){
+    const cl=this.getChunkLabel();
     const at=bsearch(cl.linepos,y+1,true)-1;
     const id=cl.idarr[at];
-    const address=this.header.cluster.split('/')[0]+'='+id;
+    const address=this.header.chunk.split('/')[0]+'='+id;
     return {id, at, dy:y-cl.linepos[at], address};
 }
-function locOf(y){
+function locOf(y,nonamespace=false){
     const arr=this.closest(y,this.header.locator);
     const out=arr.map(it=>it.id);
     let dy=0;
@@ -86,7 +86,7 @@ function locOf(y){
         dy=y-arr[arr.length-1].line;
         if (dy>0) s+=NAMESPACESEP+dy;
     }
-    return this.name+NAMESPACESEP+s;
+    return nonamespace?s:this.name+NAMESPACESEP+s;
 }
 
 function dyOf(y_loc) {
@@ -354,9 +354,10 @@ async function readLoc(loc){
     return (await this.readLines(y0,y1-y0)).map(it=>it[1]);
 }
 function headingOf(y){
+    if (!y) return ['',-1,0];
     const at=bsearch(this.headingsLinepos,y,true);
     return [this.headings[at],  at, this.headingsLinepos[at]-y ];
 }
-export default {closest,getTocTreeDef,getTocTree,getNChild,childCount,dyOf,locOf,clusterOf,pageLoc,
-    fetchPage,fetchToc,fetchFootnote,getPageRange,narrowDown,getLabelLineRange,getLocY,
+export default {closest,getTocTreeDef,getTocTree,getNChild,childCount,dyOf,locOf,chunkOf,pageLoc,
+    fetchPage,fetchToc,fetchFootnote,getPageRange,narrowDown,getLabelLineRange,locY,
 enumLocators,readLoc,headingOf}

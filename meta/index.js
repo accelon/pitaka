@@ -1,7 +1,7 @@
-import {bookParanumToCluster,firstParanumOf} from "./cs-paranum.js";
+import {bookParanumToChunk,firstParanumOf} from "./cs-paranum.js";
 import { booksOf, pitakaOf,getFilesOfBook,sortFilenames} from "./sc-code.js";
 export const cs ={
-    firstParanumOf,bookParanumToCluster
+    firstParanumOf,bookParanumToChunk
 }
 export const sc={
     getFilesOfBook,pitakaOf,booksOf,sortFilenames

@@ -1,8 +1,7 @@
 export default {
     labels:{
         'bk':['LabelBook',{}],
-        'c':['LabelChapter',{reset:"bk"}],
-        'r':['LabelChapter',{reset:"bk"}], //new name reading
+        'ck':['LabelChunk',{reset:"bk"}],
         'n':['LabelMilestone',{sequencial:true,range:true,reset:"bk"}],
         'b':'Label', //bold
         'h':'Label', //generic header
@@ -13,10 +12,10 @@ export default {
     
     },
     //default value, set in pitaka.json to overwrite
-    "cluster":"c",
+    "chunk":"ck",
     "alignment":"cs",
     "locator":"bk.n",
-    "heading":"c",
+    "heading":"ck",
     "rootdir":"off/",
     "license":"CC0",
     "textOnly":true, //for faster build

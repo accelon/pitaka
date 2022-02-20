@@ -130,7 +130,7 @@ export const ensureArrayLength=(arr,length,marker='<>')=>{
     return arr;
 }
 /* make sure cluster has ^n*/
-export const ensureClusterHasPN=lines=>{
+export const ensureChunkHasPN=lines=>{
     let join='';
     const out=[];
     for (let i=0;i<lines.length;i++) {
@@ -298,5 +298,5 @@ export const alignParagraph=(para , guide, id)=>{ //para must have more fregment
 }
 
 export default {spacify,removeHeader,removeBold,removeSentenceBreak,
-    autoBreak,paragraphSimilarity,diffBreak,breakSentence,ensureArrayLength,ensureClusterHasPN,
+    autoBreak,paragraphSimilarity,diffBreak,breakSentence,ensureArrayLength,ensureChunkHasPN,
     hookFromParaLines, breakByPin ,autoChineseBreak,removeSubPara,alignParagraph}

@@ -42,7 +42,7 @@ const getFormatTypeDef=(config,opts)=>{
     if (config.labels) {
         for (let nm in config.labels) {
             if (templeteLabels[nm]) {
-                console.warn("overriding template label",nm, config.labels[n]);
+                console.warn("overriding template label",nm, config.labels[nm]);
             }
         }
     }

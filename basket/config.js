@@ -1,7 +1,7 @@
 import reservedname from "./reservedname.js";
 import { filesFromPattern } from "../utils/index.js";
 import {fileContent,getFormatTypeDef,Templates} from '../format/index.js'
-import { LOCATORSEP } from "../index.js";
+import { LOCATORSEP } from "../platform/constants.js";
 export function validateConfig(json,filenames){
     if (!json) return 'empty json'
     if (!json.name) return 'missing "name" field';
@@ -61,6 +61,7 @@ const  addErrata=(pat,context)=> {
         })
     });
 }
+
 export const initPitakaJSON=(config,context,log)=>{
     const template=Templates[config.template];
     if (config.template && !template) {
@@ -74,15 +75,15 @@ export const initPitakaJSON=(config,context,log)=>{
     }
     context.labeldefs=getFormatTypeDef(config,{context:context,log});
 
-    if (!config.cluster) {
-        if (context.labeldefs.bk) config.cluster='bk';
-        else if (context.labeldefs.e) config.cluster='e';
-        else throw "no cluster label (bk or e)"
+    if (!config.chunk) {
+        if (context.labeldefs.bk) config.chunk='bk';
+        else if (context.labeldefs.e) config.chunk='e';
+        else throw "no chunk label (bk or e)"
     } else {
-        const clusterTags=config.cluster.split(LOCATORSEP);
-        clusterTags.forEach(cluster=>{
-            if (!context.labeldefs[cluster]) {
-                throw "cluster label "+cluster+" not defined";
+        const chunkTags=config.chunk.split(LOCATORSEP);
+        chunkTags.forEach(chunk=>{
+            if (!context.labeldefs[chunk]) {
+                throw "chunk label "+chunk+" not defined";
             }
         })
     }

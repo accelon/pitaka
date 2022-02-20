@@ -36,19 +36,7 @@ function backlinkCount(loc){
     return out;
 }
 
-function connect(){
-    if (!this.lblTransclusion) return;
-    const self=this;
-    this.lblTransclusion.ptks.forEach(ptk=>{
-        const fptk=pool.get(ptk);
-        if (fptk) {
-            if (!fptk.foreign[self.name]) fptk.foreign[self.name]=true;
-            if (self.futureforeign[ptk]) delete self.futureforeign[ptk];
-        } else {
-            self.futureforeign[ptk]=true;  //not in pool yet
-        }
-    })
-}
+
 const quickPointerParser=(ptk,str)=>{
     if (typeof str!=='string' && !str) {
         return 0;
@@ -80,5 +68,5 @@ function quickPointerSyntax(){
     return getQuickPointerSyntax(this.header.format) || 
     "「書號/卷數」或「冊p頁」，卷數可省略。";
 }
-export default {findTransclusion,getBacklinks,backlinkCount,connect,
+export default {findTransclusion,getBacklinks,backlinkCount,
     parseQuickPointer,quickPointerSyntax}

@@ -8,7 +8,7 @@ import pointers from './pointers.js';
 import mulus from './mulus.js';
 import inverted from './inverted.js';
 import querymethods from './querymethods.js';
-import parallels from './parallels.js';
+import connections from './connections.js';
 import {labelByType} from "../htll/index.js"
 class Basket extends JSONPROM {
     constructor(opts) {
@@ -18,6 +18,7 @@ class Basket extends JSONPROM {
         this.labels={};
         this.foreign={};        //search backlinks here
         this.futureforeign={};  //not in pool yet, to be check on every new ptk added to pool.
+        this.aligned=[];        //name of aligned ptk, in pool
         this.lblTransclusion=null;
         this.inverted=null;
         this.loadtime={};
@@ -29,7 +30,7 @@ class Basket extends JSONPROM {
         for (let f in mulus) this[f]=mulus[f];
         for (let f in inverted) this[f]=inverted[f];
         for (let f in querymethods) this[f]=querymethods[f];
-        for (let f in parallels) this[f]=parallels[f];
+        for (let f in connections) this[f]=connections[f];
         this.querystore=null; //query result store 
         this.headings=[];
         this.headingsLinepos=[];
@@ -48,8 +49,8 @@ class Basket extends JSONPROM {
                     self.header.shorttitle=self.header.title.substr(0,2);
                 }
 
-                if (self.header.parallels && typeof self.header.parallels=='string') {
-                    self.header.parallels=self.header.parallels.split(',');
+                if (self.header.alignment && typeof self.header.alignment=='string') {
+                    self.header.alignment=self.header.alignment.split(',');
                 }
                 self.loadtime.open=new Date()-now; now= new Date();
                 self.loadSection(section,function(){
@@ -60,17 +61,17 @@ class Basket extends JSONPROM {
                     self.loadtime.labels=new Date()-now; now= new Date();
                     
                     self.labelLang=self.findLabelType('LabelLang');
-                    if (!self.header.cluster) {
-                        if (self.getLabel('bk')) self.header.cluster='bk';
-                        else if (self.getLabel('e')) self.header.cluster='e';
-                        else throw "no cluster label (bk or e)"
+                    if (!self.header.chunk) {
+                        if (self.getLabel('bk')) self.header.chunk='bk';
+                        else if (self.getLabel('e')) self.header.chunk='e';
+                        else throw "no chunk label (bk or e)"
                     }
                     //compatible code
                     if (!self.header.locator && self.header.tree) {
                         self.header.locator=self.header.tree;
                     }
                     if (!self.header.heading) {
-                        self.header.heading=self.header.cluster;
+                        self.header.heading=self.header.chunk;
                     }
                     self.registerQueryMethods();
                     const headings='headings';
@@ -98,8 +99,8 @@ class Basket extends JSONPROM {
         if (!lbl)return 0;
         return lbl.linepos.length;
     }
-    clusterCount() {
-        let lbl=this.getLabel(this.header.cluster);
+    chunkCount() {
+        let lbl=this.getLabel(this.header.chunk);
         if (!lbl)return 0;
         return lbl.linepos.length;
     }
@@ -127,8 +128,8 @@ class Basket extends JSONPROM {
             if (this.labels[i].name==name) return this.labels[i];
         }
     }
-    getClusterLabel() {
-        return this.getLabel(this.header.cluster.split('/')[0]||'bk')
+    getChunkLabel() {
+        return this.getLabel(this.header.chunk.split('/')[0]||'bk')
     }
     find(label,tofind,near) {
         const lbl=this.getLabel(label);
@@ -145,17 +146,18 @@ export async function openBasket(name){
         // console.log('reuse',name)
         return pool.get(name);
     }
-    const basket= new Basket({name});
+    const ptk= new Basket({name});
     try {
-        const success=await basket.init();
+        const success=await ptk.init();
         if (success) { //a new pitaka is added to pool
-            pool.add(name,basket);
-            pool.getAll().forEach( ptk=>ptk.connect()); //tell other pitaka 
+            pool.add(name,ptk);
+            ptk.connect();
+            pool.getAll().forEach( p=>p.connect()); //tell other pitaka 
         }
     } catch(e) {
         console.error(e)
     }
-    return basket;
+    return ptk;
 }
 
 export const openPointerBaskets=async arr=>{

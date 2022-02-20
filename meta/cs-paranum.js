@@ -1,6 +1,6 @@
 import {FirstPN} from './cs-first.js';
-export const firstParanumOf=clusterid=>{ //return first paranum given bkid
-    return FirstPN[clusterid];
+export const firstParanumOf=chunkid=>{ //return first paranum given bkid
+    return FirstPN[chunkid];
 }
 let BKPN_C=null;
 const buildReverse=()=>{
@@ -27,12 +27,12 @@ const buildReverse=()=>{
         } else if (pf==='a') {
             bk='an'+seg;
         }
-        if (!bk) throw "error cluster "+c
+        if (!bk) throw "error chunk "+c
         if (!BKPN_C[bk]) BKPN_C[bk]={};
         BKPN_C[bk][pn]=c;
     }
 }
-export const bookParanumToCluster=(bkid,pn)=>{
+export const bookParanumToChunk=(bkid,pn)=>{
     if (!BKPN_C) buildReverse();
     return (BKPN_C[bkid]||{})[pn];
 }

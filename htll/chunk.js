@@ -7,7 +7,7 @@ import {unpack_delta} from'../utils/index.js';
   chunk id must be unique
 */
 
-class LabelChapter extends Label {
+class LabelChunk extends Label {
     constructor(name,opts={}) {
         super(name,opts)
         this.caption=opts.caption||'章';
@@ -64,4 +64,4 @@ class LabelChapter extends Label {
 
     }
 }
-export default LabelChapter;
+export default LabelChunk;
