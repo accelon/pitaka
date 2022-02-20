@@ -11,7 +11,7 @@ export const OFFTAG_LEADBYTE='^';
 
 export const NAMED_OFFTAG="([#@\\/\\.\\:~a-z_\\-\\d]* ?)(\\[(?:\\\\.|.)*?\\])?" //已知名稱的標記
 
-
+export const QUOTEPREFIX='\u001a', QUOTEPAT=/\u001a(\d+)/g ;                // 抽取字串的前綴，之後是序號
 export function OffTag(name,attrs,y,x,w,offset) {
     return { name,attrs,y,x,w,offset};
 }

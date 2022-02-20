@@ -67,8 +67,9 @@ const compare=()=>{
     const F1=readTextLines(f1);
     const F2=readTextLines(f2);
     console.log(F1.length,F2.length)
-    const sims=compareText(F1,F2);
-    console.log(JSON.stringify(sims,'',' '))
+    const diffs=compareText(F1,F2,{min:0.93,longLength:20,ignoreBlank:true,ignorePeyyala:true});
+    console.log(JSON.stringify(diffs,'',' '))
+    console.log("difference count",diffs.length)
 }
 const defaultGuideFolder='../cs/';
 const align=()=>{

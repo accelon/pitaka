@@ -9,7 +9,7 @@ export const toParagraphs=(L,opts={})=>{
         if (L[i].indexOf('^n')>-1 && L[i].substr(0,3)!=='^n ') {
             const id=L[i].match(/\^n([\d\-]+)/);
             if (!id) {
-                console.log(L[i])
+                console.log('no id',L[i],i)
             }
             if (pid) {
                 out.push([pid,unbreak?removeSentenceBreak(lines):lines]);

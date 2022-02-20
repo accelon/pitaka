@@ -200,27 +200,37 @@ export const hookFromParaLines=paralines=>{
     }
     return out;
 }
-export const breakByPin=(line,puretext,pins,id)=>{ //break a line by hook
-    let prev=0,out=[],extrablank=false;
+export const breakByPin=(line,pins,id)=>{ //break a line by hook
+    let prev=0,out=[],extrabr=0;
     for (let i=0;i<pins.length;i++){
         let pos=0,pin=pins[i];
         if (!pin) { //just insert a blank line
-            extrablank++;
+            extrabr++;
             continue;
         }
-        pos=posPin(puretext,pin);
+        pos=posPin(line,pin);
         if (pos==-1) {
-            console.log('pin error',id,'pin',pin,puretext.substr(0,30));
+            console.log('pin error',id,'pin',pin,line.substr(0,30));
             pos=prev;
         }
         out.push(line.substring(prev,pos));
-        while (extrablank>0) {
-            extrablank--;
+        while (extrabr>0) {
+            extrabr--;
             out.push('');
+        }
+        if (pos<prev) {
+            console.log(pos,prev,pin)
+            throw "pin pos not in order"
         }
         prev=pos;
     }
-    if (prev<line.length) out.push(line.substring(prev))
+    out.push(line.substring(prev));
+
+    if (pins.filter(it=>!!it)==0) extrabr--; //無釘文的情況，每個tab算一個空行，而不是釘文分隔符的語意(因pins數=tab數+1)
+    while (extrabr>0) {
+        extrabr--;
+        out.push('');
+    }
     return out;
 }
 //remove the sentence break of a paragraph lines (sub paragraph starts with ^n )

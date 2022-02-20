@@ -44,7 +44,8 @@ export const pinPos=(linetext,x,backward=false)=>{
 
     if (at!==x && linetext.charCodeAt(x)>0xff
     &&linetext.charCodeAt(x+1)>0xff ) len=2;//shorter pin for non-ascii
-
+    // if (at!==x && linetext.substr(x,len).trim().length==0) len=; 
+      //如果是很長的空白(可能是一連串標點)，必須弄短，否則會找不到
     while (at!==x && at>-1 && at<linetext.length) {
         occur++;
         at=linetext.indexOf(linetext.substr(x,len),at+len-1);

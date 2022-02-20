@@ -5,8 +5,8 @@
  *  name : 標記名 只能是小寫 a-z 或 _
  *  #id  : 用法同 html 的 id, id 以數字開頭時，可省略 # ，如 ^p100a 等效於 ^p[id=100a]
  **/
-const QUOTEPREFIX='\u001a', QUOTEPAT=/\u001a(\d+)/g ;                // 抽取字串的前綴，之後是序號
-import {OffTag, ALWAYS_EMPTY, OFFTAG_ID,
+
+import {OffTag, ALWAYS_EMPTY, OFFTAG_ID,QUOTEPREFIX,QUOTEPAT,
     OFFTAG_LEADBYTE,OFFTAG_ATTRS, OFFTAG_REGEX_G,QSTRING_REGEX_G, OFFTAG_NAME_ATTR} from './def.js'
 import {findCloseBracket} from '../utils/cjk.js'
 import { LOCATORSEP } from '../platform/constants.js';
@@ -62,13 +62,13 @@ export const extractOfftagPattern=(str,namepat)=>{  //namepat== label name+ opti
     const re=new RegExp("\\"+OFFTAG_LEADBYTE+"("+namepat+")"+OFFTAG_ATTRS,"g");
     str.replace(re,(m,rawName,rawA)=>{
         let [m2, tagName, compactAttr]=rawName.match(OFFTAG_NAME_ATTR);
-        const [attrs,putback]=parseAttrs(rawA,compactAttr);
+        const [attrs,putback]=parseAttributes(rawA,compactAttr);
         out.push([attrs,putback,m.length]);
     })
     return out;
 }
 
-const parseAttrs=(rawA,compactAttr)=>{
+const parseAttributes=(rawA,compactAttr)=>{
     let quotes=[];             //字串抽出到quotes，方便以空白為拆分單元,
     let putback='';            //標記中非屬性的文字，放回正文
     const getqstr=(str,withq)=>str.replace(QUOTEPAT,(m,qc)=>{
@@ -114,7 +114,7 @@ export const parseOffTag=(raw,rawA)=>{ // 剖析一個offtag,  ('a7[k=1]') 等�
         }
     }
     let [m2, tagName, compactAttr]=raw.match(OFFTAG_NAME_ATTR);
-    let [attrs,putback]=parseAttrs(rawA,compactAttr);
+    let [attrs,putback]=parseAttributes(rawA,compactAttr);
     return [tagName,attrs,putback];
 }
 export const parseOfftextLine=(str,idx=0)=>{
