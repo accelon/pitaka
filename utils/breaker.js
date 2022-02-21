@@ -296,7 +296,23 @@ export const alignParagraph=(para , guide, id)=>{ //para must have more fregment
     }
     return out;
 }
-
+export const afterPN=str=>{
+    const first2=str.substr(0,2);
+    if (first2==='^n') {
+        if (str.substr(0,3)==='^n ') return str.substr(3);
+        else {
+            const m=str.match(/^\n[\d\-]/);
+            if (m) return str.substr(m.length);
+        }
+    }
+    const m=str.match(/\^n([\d\-]+ ?)/);
+    if (m) return str.substr(m.index+m[0].length);
+    return str;
+}
+export const beforePN=str=>{
+    const t=afterPN(str);
+    return str.substr(0,str.length-t.length);
+}
 export default {spacify,removeHeader,removeBold,removeSentenceBreak,
     autoBreak,paragraphSimilarity,diffBreak,breakSentence,ensureArrayLength,ensureChunkHasPN,
-    hookFromParaLines, breakByPin ,autoChineseBreak,removeSubPara,alignParagraph}
+    hookFromParaLines, breakByPin ,autoChineseBreak,removeSubPara,alignParagraph,afterPN,beforePN}

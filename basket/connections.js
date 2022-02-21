@@ -18,7 +18,6 @@ export function getParallelLinks(y_loc){
     const ploc=this.pageLoc(addr.loc);
     const m=ploc.match(/(\.[^\/]+)/);
     const out=[];
-    console.log(loc,this.aligned)
     if (m && this.header.parallels) {
         for (let i=0;i<this.header.parallels.length;i++) {
             const par=this.header.parallels[i];

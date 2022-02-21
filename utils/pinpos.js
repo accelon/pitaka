@@ -28,13 +28,17 @@ export const pinPos=(linetext,x,backward=false)=>{
         console.log('cannot pin separator or control chars')
         return null;
     }
+    if (x+1>=linetext.length) {
+        console.log('beyond string boundary');
+        return null;
+    }
     
     if (backward) {
         pin=posBackwardPin(linetext,x)
     }
     if (pin) return pin;
 
-    let len=1,occur=0;
+    let len=2,occur=0;
     let at=linetext.indexOf(linetext.substr(x,len));
     while (at!==x && x+len<linetext.length) {
         if (linetext.substr(x,len).trim().length>3 ) break;
@@ -48,8 +52,9 @@ export const pinPos=(linetext,x,backward=false)=>{
       //如果是很長的空白(可能是一連串標點)，必須弄短，否則會找不到
     while (at!==x && at>-1 && at<linetext.length) {
         occur++;
-        at=linetext.indexOf(linetext.substr(x,len),at+len-1);
-        if (at==-1) break;
+        const newat=linetext.indexOf(linetext.substr(x,len),at+len-1);
+        if (at==-1 || newat==at) break;
+        at=newat;
     }
     return (at===x)?linetext.substr(x,len)+(occur?PINSEP+occur:''):null;
 }
