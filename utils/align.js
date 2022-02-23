@@ -22,7 +22,7 @@ export const toParagraphs=(L,opts={})=>{
     out.push([pid,unbreak?removeSentenceBreak(lines):lines]);
     return out;
 }
-export const autoAlign=(f1,guide)=>{
+export const autoAlign=(f1,guide,fn)=>{
     //prerequisite
     //f1 and f2 need ^n marker
     //f2 has more lines than f1
@@ -32,8 +32,8 @@ export const autoAlign=(f1,guide)=>{
     const para=toParagraphs(f1);
     
     if (para.length!==gpara.length) {
-        console.log('para.length unmatch,',para.length,'<guided',gpara.length);
-        return [];
+        console.log(fn,'para.length unmatch,',para.length,'< guided',gpara.length);
+        return f1;
     }
     const res=[];
     for (let i=0;i<gpara.length;i++) {

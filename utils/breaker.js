@@ -256,7 +256,7 @@ export const removeSubPara=paralines=>{
 }
 export const autoChineseBreak=line=>{// insert \n
     return line.replace(/([！。？][』」〕]+)/g,"$1\n")
-    .replace(/([^。？；：\d]{5,15})([？；：])/g,"$1$2\n")
+    .replace(/([^。？；：\d]{4,15})([？；：])/g,"$1$2\n")
     .replace(/([^。？；：\d]{6,})：([〔『「])/g,"$1：\n$2")
     .replace(/([^。？；：\d]{5,15})……乃至……([^。？；：\d]{5,15})/g,"$1……乃至……\n$2")
     .replace(/([^。？；：\d]{5,15})，例如/g,"$1，\n例如")

@@ -35,7 +35,7 @@ export const  buildPitaka=async ({config, nosave=false,
 	if (!name) name=getWorkingDirectory();
     if (!files) [files,title]=indexHTMLFiles();
 
-    const builder=new Builder({name,title,config,onContent,exec}); //core chinese text
+    const builder=new Builder({name,title,config,onContent,exec,raw}); //core chinese text
 
     if (typeof files=='string') {
         files=filesFromPattern(files,config.rootdir);

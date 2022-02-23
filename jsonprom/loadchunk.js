@@ -52,9 +52,13 @@ export const loadFetch= async (name,chunk,rom)=>{
         console.error('fetch failed,',uri);
     }
 }
-import jsonp from './jsonp.js'
+const jsonp=function(chunk,header,_payload){
+    const payload=_payload.split(/\r?\n/);
+    this.setChunk(chunk,header,payload); //this is binded to rom, not in pool yet for first chunk
+}
+
 export const loadJSONP=async (name,chunk,rom)=>{
-    if (!typeof window.jsonp!=='function') window.jsonp=jsonp;
+    if (!typeof window.jsonp!=='function') window.jsonp=jsonp.bind(rom);
     const script=document.createElement("script");
     script.src=makeChunkURI(name,chunk,rom);
     const promise=new Promise((resolve,reject)=>{

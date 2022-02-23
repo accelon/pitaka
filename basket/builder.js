@@ -29,8 +29,9 @@ class Builder {
         this.finalized=false;
         this.log=opts.log || console.log;
         this.config=opts.config;
+
         //.tree is old name
-        this.config.locator=this.config.locator||this.config.tre;
+        this.config.locator=this.config.locator||this.config.tree;
         if (typeof this.config.locator==='string') this.config.locator=this.config.locator.split(LOCATORSEP);
         
         this.opts=opts;
@@ -78,54 +79,6 @@ class Builder {
         }
         return out;
     }
-    /*
-    async addZip(file){
-        let fn=file;       
-        if (typeof file!=='string' && 'name' in file) {
-            fn=file.name;
-        }
-        const jszip=new lazip.JSZip();
-        let zip;
-        if (typeof file=='string') {
-            fn=(this.config.rootdir||'')+file;
-            if (!fs.existsSync(fn)) {
-                if (!this.config.allowmissingfile) this.log('missing file',fn);
-                else return;
-            }
-            const data=await fs.promises.readFile(fn);
-            zip=await jszip.loadAsync(data);
-        } else {
-            zip=await jszip.loadAsync(file.getFile());
-        }
-        this.context.error=0;
-        let {files,tocpage}=await getZipIndex(zip,format,fn); //pitaka not using tocpage
-        
-        if (this.context.errata) files=this.adjustChapter(files);
-
-        const jobs=[];
-        const contents=new Array(files.length); //save the contents in order
-        const rawContents=new Array(files.length);
-
-        for (let i=0;i<files.length;i++) {
-            jobs.push(new Promise( async resolve=>{
-                const c=await fileContent({name:files[i],zip},this.context);
-                contents[i]=c;
-                rawContents[i]=this.context.rawContent;  //backup the rawcontent
-                resolve();
-            }));
-        }
-        await Promise.all(jobs);
-        if (tocpage.length) {
-            this.context.rawContent=rawContents[i]; //get the rawcontent back
-            await this.addContent([tocpage[0]],'offtext','index.html');//only take the bookname
-        }
-        for (let i=0;i<files.length;i++) {
-            this.context.rawContent=rawContents[i];
-            await this.addContent(contents[i], format, files[i]);
-        }
-        if (this.context.error) this.log(fn,'has',this.context.error,'errors')
-    }
-    */
     doTags(tags,text){
         for (let i=0;i<tags.length;i++) {
             const tag=tags[i];
@@ -166,7 +119,7 @@ class Builder {
                 } else {
                     this.doTags(tags,text);
                     if (!this.config.textOnly) this.inverter.append(writertext);
-                    this.writer.append(writertext);
+                    this.writer.append(this.opts.raw?rawcontent:writertext);
                 }    
             }
             this.context.prevLineCount=text.length;
