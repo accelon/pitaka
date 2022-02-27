@@ -225,7 +225,7 @@ export const breakByPin=(line,pins,id)=>{ //break a line by hook
             out.push('');
         }
         if (pos<prev) {
-            console.log(pos,prev,pin)
+            console.log('id',id,'pos',pos,'prev',prev,'pins',pins,'line',line)
             throw "pin pos not in order"
         }
         prev=pos;

@@ -24,6 +24,7 @@ export const compareText=(F1,F2,opts)=>{
             if (ignorePeyyala && (F1[i].includes('…') || F2[i].includes('…'))) continue;
             out.push([i,sim,F1[i],F2[i]] );
         }
+        if (out.length>50) break;
     }
     return out;
 }

@@ -1,5 +1,5 @@
 import { LOCATORSEP } from '../platform/constants.js';
-import { removeSentenceBreak, sentenceRatio,diffParanum,autoENBreak } from './breaker.js';
+import { removeSentenceBreak, sentenceRatio,diffParanum,autoENBreak, ensureChunkHasPN, ensurefirstLineHasPN } from './breaker.js';
 import {linePN} from '../offtext/index.js'
 export const toParagraphs=(L,opts={})=>{
     const out=[];
@@ -18,9 +18,8 @@ export const toParagraphs=(L,opts={})=>{
             }
             pid=(bkpf?bkpf+LOCATORSEP:'')+id[1];
         }
-        if (L[i].trim()) lines.push(L[i])
+        lines.push(L[i])
     }
-    // while (lines.length && !lines[lines.length-1].trim()) lines.pop();
     out.push([pid,unbreak?removeSentenceBreak(lines):lines]);
     return out;
 }
@@ -32,7 +31,7 @@ export const autoAlign=(f1,guide,fn)=>{
     
     const gpara=toParagraphs(guide);
     const para=toParagraphs(f1);
-    
+
     if (para.length!==gpara.length) {
         console.log(fn,'para.length unmatch,',para.length,'< guided',gpara.length);
         console.log(diffParanum(para.map(it=>it[0]),gpara.map(it=>it[0])));
@@ -41,12 +40,12 @@ export const autoAlign=(f1,guide,fn)=>{
     const res=[];
     for (let i=0;i<gpara.length;i++) {
         const rgpara=sentenceRatio(gpara[i][1]);
-        const rpara=sentenceRatio(para[i][1]);
+        let rpara=sentenceRatio(para[i][1]);
         const aligned=alignParagraph(rpara,rgpara,para[i][0]);
-
         if (rpara.length<rgpara.length) { //
+
             while (para[i][1].length<rgpara.length) {
-                para[i][1].push('<>'); //inserted line
+                para[i][1].push(''); //inserted line
             }
             res.push(...para[i][1] );
             continue;
@@ -58,12 +57,12 @@ export const autoAlign=(f1,guide,fn)=>{
         }
         const newpara=para[i][1].join('').split('\n');
         while (newpara.length<gpara[i][1].length) {
-            newpara.push('<>');
+            newpara.push('');
         }
 
         res.push(...newpara);
     }
-    return res.map(t=>t==='<>'?'':t);
+    return res;
 }
 
 export const combineHeaders=str=>{
