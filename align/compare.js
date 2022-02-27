@@ -1,5 +1,5 @@
 import {removeHeader,removeBold,spacify} from './breaker.js';
-import {diffSim} from './diff.js';
+import {diffSim} from '../utils/diff.js';
 import {diffChars, diffWords} from 'diff'
 
 export const compareText=(F1,F2,opts)=>{

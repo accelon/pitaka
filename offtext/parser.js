@@ -146,7 +146,7 @@ export const parseOfftextLine=(str,idx=0)=>{
     resolveTagWidth(text,tags);
     return [text,tags];
 }
-
+export const linePN=str=>str.match(/\^n([\d\.\-]* ?)/);
 export const parseOfftextHeadings=(str,starty=0,locator='n')=>{
     let lines=str;
     if (typeof str=='string') lines=str.split(/\r?\n/);

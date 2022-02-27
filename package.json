@@ -19,7 +19,8 @@
 	  "./xmlparser":"./xmlparser/index.js",
 	  "./nlp":"./nlp/index.js",
 	  "./fulltext":"./fulltext/index.js",
-	  "./meta":"./meta/index.js"
+	  "./meta":"./meta/index.js",
+	  "./align":"./align/index.js"
   },
   "bin":"cli/bin.js",
   "main": "./index.js",

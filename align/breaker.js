@@ -29,6 +29,12 @@ export const breakLine=(str,breaker)=>{
     }
     return {substrings,breakpos};
 }
+export const autoENBreak=line=>{
+    line=line.replace(/([:\!\?\.][”’]* )/g,(m,m1)=>m1+'\n')
+               .replace(/([:\?\.])(\^f\d+)/g,(m,m1,m2)=>m1+m2+'\n')
+    
+    return line.split('\n')
+}
 export const autoBreak=(lines,breaker="([?!।॥;–—] +)")=>{
     if (typeof lines==='string') lines=[lines];
     const sentences=[], breakpos=[];
@@ -281,21 +287,6 @@ export const sentenceRatio=lines=>{
     }
     return ratio;
 }
-export const alignParagraph=(para , guide, id)=>{ //para must have more fregment
-    if (para.length<guide.length)  return null;
-    let i=0,prev=0,gi=0;
-    const out=[];
-
-    for (let gi=0;gi<guide.length;gi++) {
-        while (i<para.length&&para[i]<guide[gi]) i++;
-        if (out.length+1>=guide.length) break;
-        if (i>prev) {
-            out.push(i);
-        }
-        prev=i;
-    }
-    return out;
-}
 export const afterPN=str=>{
     const first2=str.substr(0,2);
     if (first2==='^n') {
@@ -313,6 +304,31 @@ export const beforePN=str=>{
     const t=afterPN(str);
     return str.substr(0,str.length-t.length);
 }
-export default {spacify,removeHeader,removeBold,removeSentenceBreak,
+export const ensurefirstLineHasPN=str=>{
+    let at=str.indexOf('^n');
+    let remain=str.substr(at);
+    let headers=str.substr(0,at).replace(/\n/g,'');
+    if (headers&&headers.indexOf('^h')==-1&&headers.indexOf('^z')==-1) {
+        headers='^h['+headers+']';
+    }
+    // console.log(at,headers,remain.substr(0,10));
+    return headers+remain;
+}
+
+export const diffParanum=(para,gpara)=>{
+    const GPN={},PN={};
+    gpara.map(id=>{
+        if (GPN[id]) throw "repeated id "+id
+        GPN[id]=true;
+    });
+    para.map(id=>{
+        if (PN[id]) throw "repeated id "+id
+        PN[id]=true
+    });
+    const missing=gpara.filter(pn=>!PN[pn]);
+    const extra=para.filter(pn=>!GPN[pn]);
+    return {missing,extra};
+}
+export default {spacify,removeHeader,removeBold,removeSentenceBreak,autoENBreak,
     autoBreak,paragraphSimilarity,diffBreak,breakSentence,ensureArrayLength,ensureChunkHasPN,
-    hookFromParaLines, breakByPin ,autoChineseBreak,removeSubPara,alignParagraph,afterPN,beforePN}
+    hookFromParaLines, breakByPin ,autoChineseBreak,removeSubPara,afterPN,beforePN}

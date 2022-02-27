@@ -40,6 +40,10 @@ export const  buildPitaka=async ({config, nosave=false,
     if (typeof files=='string') {
         files=filesFromPattern(files,config.rootdir);
     }
+    if (!files.length){
+        console.error("no source file.");
+        return builder;
+    }
     builder.files=files;
 
     for (let i=0;i<files.length;i++){ 

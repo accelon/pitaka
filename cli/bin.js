@@ -20,9 +20,9 @@ import longline from './longline.js';
 import dictwords from './dictwords.js';
 import pinpoint from './pinpoint.js';
 import nGram from '../fulltext/ngram.js';
-import {compareText} from '../utils/compare.js';
+import {compareText} from '../align/compare.js';
 import {group,entrysort,search,wordseg,intersect} from './offtextutils.js'
-import {autoAlign} from '../utils/align.js'
+import {autoAlign} from '../align/align.js'
 import validate from "./validate.js"
 import { writeChanged } from './index.js';
 let pitakajson='pitaka.json';
@@ -145,7 +145,7 @@ const _build=async (opts)=>{
         const s=ngram.dump();
         fs.writeFileSync('ngram-'+opts.ngram+'.txt',s.join('\n'),'utf8')
     }
-    builder.log('\n'+report(builder));
+    builder.finalized&&builder.log('\n'+report(builder));
     console.timeEnd('pitaka');
 }
 

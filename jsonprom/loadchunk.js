@@ -1,3 +1,5 @@
+import { loadScript } from "../utils/loadscript.js";
+
 const chunkfilename=chunk=>chunk.toString().padStart(3,'0')+'.js';
 
 const makeChunkURI=(name,chunk,rom)=>{
@@ -60,20 +62,6 @@ const jsonp=function(chunk,header,_payload){
 export const loadJSONP=async (name,chunk,rom)=>{
     if (!typeof window.jsonp!=='function') window.jsonp=jsonp.bind(rom);
     const script=document.createElement("script");
-    script.src=makeChunkURI(name,chunk,rom);
-    const promise=new Promise((resolve,reject)=>{
-        let tried=0;
-        const timer=setInterval(function(){
-            if (rom.context.loadedChunk[chunk] ) {
-                clearInterval(timer);
-                resolve();
-            } else if (tried>50) {
-                clearInterval(timer);
-                reject('too many trieds');
-            }
-            tried++;
-        },50);    
-    });
-    document.getElementsByTagName("body")[0].appendChild(script);
+    promises=loadScript(makeChunkURI(name,chunk,rom),()=>rom.context.loadedChunk[chunk]);
     return promise;
 }

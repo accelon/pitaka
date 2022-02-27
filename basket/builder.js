@@ -161,14 +161,14 @@ class Builder {
         } else if (fn.endsWith('.lst')) {
             return await this.addLst(file);
         } else if (typeof fs!=='undefined' && rootdir){
- 
+
             if (fs.existsSync(rootdir+fn)&&fs.statSync(rootdir+fn).isDirectory()) {
                 return await this.addFolder(file);
             } else if (!fs.existsSync(fn) &&fs.existsSync(rootdir+fn)) {
                rawcontent=await fileContent(rootdir+fn,this.context);
             }
         }
-
+        
         if (!rawcontent) rawcontent=await fileContent(file,this.context);
         await this.addContent(rawcontent,fn);
     }
