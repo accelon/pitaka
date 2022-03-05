@@ -1,18 +1,21 @@
 
 import {PATHSEP,PINSEP} from '../platform/constants.js'
 
-export const posBackwardPin=(linetext,x)=>{
+export const posBackwardPin=(linetext,x,wholeword)=>{
     if (x<1) return '';
-
     let len=2,occur=0; //start from 2 char for better looking of foot note
+    if (wholeword) {
+        while (x>len&&linetext.substr(x-len,1).match(/[\dA-Za-z]/)) len++;
+        if (len>2) len--;
+    }
     let at=linetext.indexOf(linetext.substr(x-len,len));
 
     while (at!==x-len && x) {
-        if (linetext.substr(x-len,len).trim().length>4) break;
+        if (!wholeword && linetext.substr(x-len,len).trim().length>4) break;
+        if (wholeword && !linetext.substr(x-len,1).match(/[\dA-Za-z]/) ) break;
         len++;
         at=linetext.indexOf(linetext.substr(x-len,len));
     }
-
     if (at!==x-len && linetext.charCodeAt(x)>0xff) len=2;
 
     while (at!==x-len && at>-1) {
@@ -22,19 +25,19 @@ export const posBackwardPin=(linetext,x)=>{
     return (at===x-len&&linetext[x-len]!==PINSEP&&linetext.charCodeAt(x-len)>=0x20)? //cannot pin : 
         (occur?occur:'')+PINSEP+linetext.substr(x-len,len):null;
 }
-export const pinPos=(linetext,x,backward=false)=>{
+export const pinPos=(linetext,x,backward=false,wholeword=false)=>{
     let pin='';
     if (linetext.charCodeAt(x)<0x20 || linetext[x]===PINSEP) {
         console.log('cannot pin separator or control chars')
         return null;
     }
-    if (x+1>=linetext.length) {
+    if (x>=linetext.length) {
         console.log('beyond string boundary');
         return null;
     }
     
     if (backward) {
-        pin=posBackwardPin(linetext,x)
+        pin=posBackwardPin(linetext,x,wholeword)
     }
     if (pin) return pin;
 
@@ -58,7 +61,10 @@ export const pinPos=(linetext,x,backward=false)=>{
     }
     return (at===x)?linetext.substr(x,len)+(occur?PINSEP+occur:''):null;
 }
-
+export const pinTailNote=(linetext,offset)=>{
+    const pp=pinPos( linetext, offset ,true,true);
+    return pp;
+}
 export const posPin=(linetext,pin)=>{
     if (typeof pin==='number') {
         if (pin<0 || pin>linetext.length) {
@@ -167,4 +173,4 @@ export const parseHook=(str_arr,linetext,y=0)=>{
     return {y,x,w:x2-x+e.length,s,nos,e,noe}
 }
 
-export default {parseHook,makeHook,pinPos,posPin }
+export default {parseHook,makeHook,pinPos,posPin,pinTailNote }

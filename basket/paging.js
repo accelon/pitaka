@@ -49,7 +49,9 @@ function getLabelLineRange(lbl,n){
     return [lbl.linepos[n],lbl.linepos[n+1]]
 }
 function locY(addr){
-    return this.getPageRange(addr)[0];
+    const ptr=parseAddress(addr);
+    if (!ptr) return 0;
+    return this.getPageRange(ptr.loc)[0]+ptr.dy;
 }
 function getPageRange(addr){
     let thetree=(this.header.locator||DEFAULT_LOCATOR);

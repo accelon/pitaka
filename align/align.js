@@ -66,20 +66,29 @@ export const autoAlign=(f1,guide,fn)=>{
 }
 
 export const combineHeaders=str=>{
-    let headers='';
+    let headers='',pncount=0;
     const lines=str.split('\n'), out=[];
     for (let i=0;i<lines.length;i++) {
-        const l=lines[i];
+        let l=lines[i]||'';
         if (linePN(l) ) {
+            pncount++;
             out.push(headers+l);
             headers='';
-        } else if (l.match(/\^[zh][\d\[]/)){
-            headers+=l;
         } else {
-            out.push(l);
+            const m=l.match(/\^[zh][\d\[]/);
+            if (m || !pncount){
+                if (!m) l='^h['+l+']' //add generic header
+                headers+=l;
+            } else {
+                out.push(l);
+            }
         }
     }
-    return out.join('\n');
+    //ensure each ^n\d has text followed
+    let s=out.join('\n');
+    s=s.replace(/(\^n\d[\d\-]*)\n/g,'$1');
+    // console.log(s.substr(0,1300))
+    return s;
 }
 
 export const alignParagraph=(para , guide, id)=>{ //para must have more fregment
@@ -98,11 +107,12 @@ export const alignParagraph=(para , guide, id)=>{ //para must have more fregment
     return out;
 }
 export const alignParagraphLinecount=(para, paralinecount, id)=>{
-    const out=[];
+    let out=[];
+    if (para[0].match(/\^n(\d+ ?)$/) && para.length>1)  para[0]= para.shift() + para[0];
     if (para.length==paralinecount) {
         return para;
     } if (para.length>paralinecount) {
-        console.warn( `bb has more line ${para.length} > ${paralinecount} ,id ${id}`)
+        // console.warn( `has more line ${para.length} > ${paralinecount} ,id ${id}`)
         out.push(...para)
     } else if (para.length<paralinecount) {
         for (let i=0;i<para.length;i++) {
@@ -111,35 +121,20 @@ export const alignParagraphLinecount=(para, paralinecount, id)=>{
             out.push(... broken);
         }
     }
+    out=out.filter(it=>!!it);
+    
     while (out.length<paralinecount) {
         out.push('');
     }
     while (out.length>paralinecount) {
-        const last=out.pop();
-        out[out.length-1]+=last;
+        const first=out.shift();
+        out[0]=first+out[0];
     }
-
+    if (out[0].match(/\^n(\d+ ?)$/) && out.length>1) {
+        out[0]= out.shift() + out[0];
+        out.push('');
+    } 
     return out;
 }
 
-export const SuttaCentralify=(lines,prefix)=>{
-    if (typeof lines==='string') lines=lines.split('\n');
-    let vakya=0,pn='';
-    const out={};
-    for (let i=0;i<lines.length;i++) {
-        let l=lines[i];
-        const m=linePN(l);
-        if (m) {
-            pn=m[1].trim();
-            const headers=(m.index>2?l.substr(0, m.index):'');
-            if (headers) {
-                out[prefix+pn+'.0']=headers;
-            }
-            l= l.substr(m.index+m[1].length+2);//2 is "^n".length
-            vakya=0;
-        }
-        out[prefix+pn+'.'+ (++vakya)]=l;
-    }
-    return JSON.stringify(out,'',' ');
-}
-export default {combineHeaders,autoAlign,toParagraphs,alignParagraph,alignParagraphLinecount,SuttaCentralify};
+export default {combineHeaders,autoAlign,toParagraphs,alignParagraph,alignParagraphLinecount};

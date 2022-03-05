@@ -29,11 +29,15 @@ export const breakLine=(str,breaker)=>{
     }
     return {substrings,breakpos};
 }
+export const moveFootnoteToTail=str=>str.replace(/\n( *\^f\d+ *)/g,"$1\n");
+
 export const autoENBreak=line=>{
-    line=line.replace(/([:\!\?\.][”’]* )/g,(m,m1)=>m1+'\n')
-               .replace(/([:\?\.])(\^f\d+)/g,(m,m1,m2)=>m1+m2+'\n')
+    line=line.replace(/([^\dA-Z])([:\!\?\.”]+[:\!\?\.”’〕\)]* ?)/g,(m,alpha,m1)=>alpha+m1+'\n')
+               .replace(/([^\dA-Z])([:\?\.”〕\)]+)(\^f\d+)/g,(m,alpha,m1,m2)=>alpha+m1+m2+'\n')
     
-    return line.split('\n')
+    line=moveFootnoteToTail(line);
+    line=line.replace(/\n\]/g,']\n');
+    return line.split('\n');
 }
 export const autoBreak=(lines,breaker="([?!।॥;–—] +)")=>{
     if (typeof lines==='string') lines=[lines];
@@ -314,6 +318,8 @@ export const ensurefirstLineHasPN=str=>{
     // console.log(at,headers,remain.substr(0,10));
     return headers+remain;
 }
+
+
 
 export const diffParanum=(para,gpara)=>{
     const GPN={},PN={};

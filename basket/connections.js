@@ -1,6 +1,7 @@
 import { PATHSEP,DEFAULT_LANGUAGE } from "../platform/constants.js";
 import { parseAddress } from "../offtext/pointers.js";
 import pool from './pool.js';
+// import { useBasket } from "./index.js";
 
 
 export function getAlignedHeading(loc){
@@ -8,6 +9,15 @@ export function getAlignedHeading(loc){
     if (!y) return '';//無對應經文
     const [text]=this.headingOf(y);
     return text;
+}
+export function alignedY(y){
+    const alignment=this.header.alignment;
+    const master=pool.get(alignment);    
+    if (!master || master.header.lastTextLine==this.header.lastTextLine) return y;
+    /* slow mode, partially aligned */
+    const loc=master.locOf(y);
+    const newy=this.locY(loc);
+    return newy;
 }
 export function getParallelLinks(y_loc){
     let loc=y_loc;
@@ -65,4 +75,4 @@ function connect(){
     connectTransclusion.call(this);
     this.aligned = connectAlignment.call(this);
 }
-export default {getParallelLinks,langOf,connect,getAlignedHeading};
+export default {getParallelLinks,langOf,connect,getAlignedHeading,alignedY};

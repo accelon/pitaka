@@ -61,7 +61,5 @@ const jsonp=function(chunk,header,_payload){
 
 export const loadJSONP=async (name,chunk,rom)=>{
     if (!typeof window.jsonp!=='function') window.jsonp=jsonp.bind(rom);
-    const script=document.createElement("script");
-    promises=loadScript(makeChunkURI(name,chunk,rom),()=>rom.context.loadedChunk[chunk]);
-    return promise;
+    return loadScript(makeChunkURI(name,chunk,rom),()=>rom.context.loadedChunk[chunk]);
 }

@@ -171,7 +171,7 @@ class Builder {
         const py=this.context.startY;
         if (!rawcontent) rawcontent=await fileContent(file,this.context);
         await this.addContent(rawcontent,fn);
-        console.log(fn,this.context.startY,this.context.startY-py,rawcontent.split('\n').length)
+        // console.log(fn,this.context.startY,this.context.startY-py,rawcontent.split('\n').length)
     }
     save(opts){
         if (!this.finalized) {
