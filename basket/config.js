@@ -63,7 +63,7 @@ const  addErrata=(pat,context)=> {
 }
 
 export const initPitakaJSON=(config,context,log)=>{
-    const template=Templates[config.template];
+    const template=Templates[config.template||'simple'];
     if (config.template && !template) {
         throw "template "+config.template+" not found";
     }

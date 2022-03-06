@@ -5,3 +5,4 @@ test
 node_modules
 *.min.js
 jszip.node.js
+pitaka

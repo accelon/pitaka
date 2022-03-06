@@ -20,4 +20,5 @@ const builtin_typedef={
 }
 */
 import cs from './cs.js'
-export default {cs};
+import simple from './simple.js'
+export default {cs,simple};

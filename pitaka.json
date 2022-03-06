@@ -1,0 +1,9 @@
+{
+    "name":"pitaka",
+    "title": "Manual|pitaka",
+    "description":"User Manual",
+    "lang":"zh",
+    "label":"",
+    "homepage":"https://github.com/accelon/pitaka",
+    "files":"build.off"
+}

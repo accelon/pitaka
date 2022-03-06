@@ -38,7 +38,7 @@ const getZipIndex=async (zip,format,fn)=>{
 }
 
 const getFormatTypeDef=(config,opts)=>{
-    const templeteLabels=Templates[config.template].labels;    
+    const templeteLabels=Templates[config.template||'simple'].labels;
     if (config.labels) {
         for (let nm in config.labels) {
             if (templeteLabels[nm]) {
