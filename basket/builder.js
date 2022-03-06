@@ -1,11 +1,12 @@
 import {fileContent, removeLabels} from '../format/index.js'
 import JSONPROMWriter from '../jsonprom/jsonpromw.js';
 import Inverter from '../fulltext/inverter.js';
-import {serializeLabels,serializeLineposString} from './serializer.js';
+import {serializeLabels,serializeLineposString,serializeNotes,packNotes} from './serializer.js';
 import {linesOffset} from '../utils/index.js'
 import { initPitakaJSON ,initLabelTypedef } from './config.js';
 import { LOCATORSEP } from '../platform/constants.js';
 import {parseOfftextHeadings} from '../offtext/parser.js';
+import { readTextContent } from '../platform/fsutils.js';
 class Builder {
     constructor(opts) {
         this.context={
@@ -22,7 +23,8 @@ class Builder {
             ,prevLineCount:0 //line count of previously parsed content
             ,labeldefs:null
             ,rawContent:null //e.g xml before parsing
-            ,headings:[],     //header extract from bodytext, to speed up header search
+            ,headings:[]     //header extract from bodytext, to speed up header search
+            ,notes:[]       //multi-purpose trait , group by line
         };
         this.writer=new JSONPROMWriter(Object.assign({},opts,{context:this.context}));
         this.inverter=new Inverter(Object.assign({},opts,{context:this.context}));
@@ -141,6 +143,18 @@ class Builder {
             await this.addFile((this.config.rootdir||'')+fn) ;
         }
     }
+    addNotes(fn){
+        let out='';
+        const notefn=fn.replace(/[^\.]+\.off/g,'notes.json');
+        if (fs.existsSync(notefn)) {
+            try {
+                out=JSON.parse(readTextContent(notefn));
+            } catch (err) {
+                console.error(err);
+            }
+        }
+        packNotes(out,this.context);
+    }
     async addFile(file){ //file=='string' nodejs , File browser local file, or a File in zip
         let fn=file;
         if (this.finalized) {
@@ -161,16 +175,18 @@ class Builder {
         } else if (fn.endsWith('.lst')) {
             return await this.addLst(file);
         } else if (typeof fs!=='undefined' && rootdir){
-
             if (fs.existsSync(rootdir+fn)&&fs.statSync(rootdir+fn).isDirectory()) {
                 return await this.addFolder(file);
             } else if (!fs.existsSync(fn) &&fs.existsSync(rootdir+fn)) {
                rawcontent=await fileContent(rootdir+fn,this.context);
+
             }
         }
-        const py=this.context.startY;
-        if (!rawcontent) rawcontent=await fileContent(file,this.context);
+        if (!rawcontent) {
+            rawcontent=await fileContent(file,this.context);
+        }
         await this.addContent(rawcontent,fn);
+        if (typeof fs!=='undefined' && rootdir) this.addNotes(rootdir+fn,this.context);
         // console.log(fn,this.context.startY,this.context.startY-py,rawcontent.split('\n').length)
     }
     save(opts){
@@ -196,6 +212,11 @@ class Builder {
             const section=serializeLabels(this.context);
             this.writer.append(section);
 
+            if (this.context.notes.length) {
+                this.writer.addSection('notes');
+                const trait=serializeNotes(this.context);
+                 this.writer.append(trait);
+            }
         }
         if (opts.exec && opts.exec.onFinalize) {
             opts.exec.onFinalize(opts);

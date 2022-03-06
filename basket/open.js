@@ -1,6 +1,6 @@
 import JSONPROM from "../jsonprom/jsonprom.js";
 import pool from './pool.js';
-import {deserializeLabels, deserializeLineposString} from './serializer.js';
+import {deserializeLabels, deserializeLineposString, deserializeNotes} from './serializer.js';
 import {NAMESEP} from '../platform/constants.js';
 import paging from './paging.js';
 import entries from './entries.js';
@@ -9,6 +9,7 @@ import mulus from './mulus.js';
 import inverted from './inverted.js';
 import querymethods from './querymethods.js';
 import connections from './connections.js';
+import notesfuncs from './notes.js';
 import {labelByType} from "../htll/index.js"
 class Basket extends JSONPROM {
     constructor(opts) {
@@ -31,12 +32,14 @@ class Basket extends JSONPROM {
         for (let f in inverted) this[f]=inverted[f];
         for (let f in querymethods) this[f]=querymethods[f];
         for (let f in connections) this[f]=connections[f];
+        for (let f in notesfuncs) this[f]=notesfuncs[f];
         this.querystore=null; //query result store 
         this.headings=[];
         this.headingsLinepos=[];
+        this.notes=null;
     }
     init(){
-        const section='labels'
+        const labels='labels'
         const self=this;
         let now=new Date();
         const promise=new Promise(resolve=>{
@@ -53,9 +56,9 @@ class Basket extends JSONPROM {
                     self.header.alignment=self.header.alignment.split(',');
                 }
                 self.loadtime.open=new Date()-now; now= new Date();
-                self.loadSection(section,function(){
-                    const labelSection=self.getSection(section);
-                    const labelSectionRange=self.getSectionRange(section);
+                self.loadSection(labels,function(){
+                    const labelSection=self.getSection(labels);
+                    const labelSectionRange=self.getSectionRange(labels);
                     self.labels=deserializeLabels(labelSection,labelSectionRange,self.header.labels);
                     self.lblTransclusion=self.getLabel('t');
                     self.loadtime.labels=new Date()-now; now= new Date();
@@ -74,11 +77,19 @@ class Basket extends JSONPROM {
                         self.header.heading=self.header.chunk;
                     }
                     self.registerQueryMethods();
+                    const notes='notes';
+                    
+                    if (self.header.sectionNames.includes(notes)){
+                        const [from]=self.getSectionRange(notes);
+                        self.prefetchLines(from,2).then(()=>{
+                            self.notes=deserializeNotes.call(self,from);
+                        });
+                    }
                     const headings='headings';
-                    if (self.header.sectionNames.indexOf(headings)>-1){                            
+                    if (self.header.sectionNames.includes(headings)){                            
                         self.loadSection(headings,function(){
                             const headingsSection=self.getSection(headings);
-                            const range=self.getSectionRange(headings)
+                            const range=self.getSectionRange(headings);
                             const [linepos,strings]=deserializeLineposString(headingsSection,range);
                             self.headingsLinepos=linepos;
                             self.headings=strings;

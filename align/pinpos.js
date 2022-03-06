@@ -31,8 +31,8 @@ export const pinPos=(linetext,x,backward=false,wholeword=false)=>{
         console.log('cannot pin separator or control chars')
         return null;
     }
-    if (x>=linetext.length) {
-        console.log('beyond string boundary');
+    if (x>linetext.length) {
+        console.log('beyond string boundary',x,linetext.length,linetext.substr(0,30));
         return null;
     }
     

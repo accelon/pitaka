@@ -1,6 +1,6 @@
 import {LabelTypedefs,labelByType} from '../htll/index.js'
-import { pack_delta } from '../utils/packintarray.js';
-import { unpack_delta } from '../utils/unpackintarray.js';
+import { pack, pack_delta } from '../utils/packintarray.js';
+import { unpack_delta,unpack } from '../utils/unpackintarray.js';
 
 export const serializeLabels=ctx=>{
     let pos=3;//labelNames,labelTypes,labelPoss
@@ -95,6 +95,45 @@ export const serializeLineposString=lineposString=>{
     const jslines=[pack_delta(arr)];
     jslines.push(...lineposString.map(it=>it[1]));
     return jslines;
+}
+export const deserializeTrait=(jslines)=>{
+    const names=jslines.shift().split('\t');
+    const lengths=unpack(jslines.shift());
+    return [names,lengths];
+}
+
+export const packNotes=(notes,ctx)=>{ //trait is array of {loc, pin, val, ?id }
+    //serialize to an array of lines
+    const linepos=[], pinarr=[], valarr=[], idarr=[];
+    for (let i=0;i<notes.length;i++) {
+        const {y,pin, val,id}=notes[i];
+        linepos.push(ctx.startY+y+1); //one base
+        pinarr.push(pin);
+        valarr.push(val.replace(/\t/g,'\\t')); //tab is unlikely but possible
+        if (id) idarr.push(id);
+    }
+    if (!ctx.notes.length) {
+        ctx.notes=[ [],[],[],[]];
+    }
+    ctx.notes[0]=ctx.notes[0].concat(linepos);
+    ctx.notes[1]=ctx.notes[1].concat(pinarr);
+    ctx.notes[2]=ctx.notes[2].concat(valarr);
+    ctx.notes[3]=ctx.notes[3].concat(idarr);
+}
+export const serializeNotes=ctx=>{
+    const notes=new Array(4);
+    if (ctx.notes[0]) notes[0]=pack(ctx.notes[0]);
+    if (ctx.notes[3] && ctx.notes[3].length) notes[1]=ctx.notes[3].join('\t');
+    else notes[1]='';
+    if (ctx.notes[1]) notes[2]=ctx.notes[1].map( (pin,idx)=>pin+'\t'+ctx.notes[2][idx]).join('\n');
+    const allnotes=notes.join('\n');
+    
+    return allnotes.split('\n'); //update the total line number
+}
+export function deserializeNotes(from){
+    const linepos=unpack(this.getLine(from));
+    const idarr=this.getLine(from+1).split('\t');
+    return {section:from+2,idarr,linepos}
 }
 export const deserializeLineposString=jslines=>{
     const firstline=jslines.shift();
