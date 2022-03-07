@@ -9,7 +9,8 @@ export async function getNotes(from,count){
     const out={};
     for (let i=start;i<=end;i++) {
         if (linepos[i]>=from && linepos[i]<=from+count) {
-            const note=this.getLine(section+i);
+            let note=this.getLine(section+i);
+            if (idarr && idarr[i]) note+='\t'+idarr[i];
             if (!out[ linepos[i]] ) out[linepos[i]]=[];
             out[linepos[i]].push(note);
         }

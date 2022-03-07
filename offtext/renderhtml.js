@@ -106,28 +106,28 @@ export const renderSnippet=(lines=[],tags=[])=>{
                 name=actives[0].name;
             }
             const openx=T[closing-1].x;
-            if (name) out.push({i:closing,closing:true, name }); //第i個tag關閉
+            if (name) out.push({i:closing,closing:true, name ,attrs}); //第i個tag關閉
             activetags=activetags.filter( c=>c.i!==closing-1);
             const clss=activetags.map(t=>t.name);
             clss.push( ... lastSpan(T,activetags,idx,x) );
             if (clss.length) {
-                out.push({clss,x:openx,y,w});
+                out.push({clss,attrs,x:openx,y,w});
             }
         } else {
             let clss=activetags.map(t=>t.name);
             if (clss.length) {
-                out.push({closing:true});
+                out.push({attrs,closing:true}); //attrs is needed sometime
             }
             clss.push(name);
             if (w) clss.push(name+'-'); //原始的標記位置，不是自動補上的
 
-            if (!ALWAYS_EMPTY[name]) activetags.unshift( {i, idx,name,closed:false} );
+            if (!ALWAYS_EMPTY[name]) activetags.unshift( {i,attrs, clss,idx,name,closed:false} );
             i++;
             out.push({i,name,clss,attrs,x,y,w}); 
         }
         prev=x;
     }
-    if (content.substr(prev)) out.push([content.substr(prev),prev]);
+    if (content.substring(prev)) out.push([content.substring(prev),prev]);
     
     let py=0;
     i=0;

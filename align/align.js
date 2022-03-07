@@ -1,5 +1,5 @@
 import { LOCATORSEP } from '../platform/constants.js';
-import { removeSentenceBreak, sentenceRatio,diffParanum,autoENBreak, ensureChunkHasPN, ensurefirstLineHasPN } from './breaker.js';
+import { removeSentenceBreak, sentenceRatio,diffParanum,autoENBreak } from './breaker.js';
 import {linePN} from '../offtext/index.js'
 export const toParagraphs=(L,opts={})=>{
     const out=[];
@@ -43,7 +43,6 @@ export const autoAlign=(f1,guide,fn)=>{
         let rpara=sentenceRatio(para[i][1]);
         const aligned=alignParagraph(rpara,rgpara,para[i][0]);
         if (rpara.length<rgpara.length) { //
-
             while (para[i][1].length<rgpara.length) {
                 para[i][1].push(''); //inserted line
             }
@@ -86,7 +85,7 @@ export const combineHeaders=str=>{
     }
     //ensure each ^n\d has text followed
     let s=out.join('\n');
-    s=s.replace(/(\^n\d[\d\-]*)\n/g,'$1');
+    // if (s=s.replace(/(\^n[\d\-]+)\n/g,'$1');
     // console.log(s.substr(0,1300))
     return s;
 }

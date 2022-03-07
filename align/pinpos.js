@@ -1,9 +1,10 @@
 
 import {PATHSEP,PINSEP} from '../platform/constants.js'
 
-export const posBackwardPin=(linetext,x,wholeword)=>{
+export const posBackwardPin=(linetext,x,{wholeword,cjk})=>{
     if (x<1) return '';
     let len=2,occur=0; //start from 2 char for better looking of foot note
+    if (cjk) len=1;
     if (wholeword) {
         while (x>len&&linetext.substr(x-len,1).match(/[\dA-Za-z]/)) len++;
         if (len>2) len--;
@@ -13,6 +14,7 @@ export const posBackwardPin=(linetext,x,wholeword)=>{
     while (at!==x-len && x) {
         if (!wholeword && linetext.substr(x-len,len).trim().length>4) break;
         if (wholeword && !linetext.substr(x-len,1).match(/[\dA-Za-z]/) ) break;
+        if (cjk && !linetext.substr(x-len,1).match(/[\u3400-\u9fff]/) ) break;
         len++;
         at=linetext.indexOf(linetext.substr(x-len,len));
     }
@@ -22,10 +24,14 @@ export const posBackwardPin=(linetext,x,wholeword)=>{
         occur++;
         at=linetext.indexOf(linetext.substr(x-len,len),at+1);
     }
-    return (at===x-len&&linetext[x-len]!==PINSEP&&linetext.charCodeAt(x-len)>=0x20)? //cannot pin : 
-        (occur?occur:'')+PINSEP+linetext.substr(x-len,len):null;
+    const pin=linetext.substring(x-len,x);
+    let pass=at===x-len&&linetext[x-len]!==PINSEP&&linetext.charCodeAt(x-len)>=0x20;
+    return pass?(occur?occur:'')+PINSEP+pin:null;
 }
-export const pinPos=(linetext,x,backward=false,wholeword=false)=>{
+export const pinPos=(linetext,x,opts={})=>{
+    const backward=opts.backward;
+    const wholeword=opts.wholeword;
+    const cjk=opts.cjk;
     let pin='';
     if (linetext.charCodeAt(x)<0x20 || linetext[x]===PINSEP) {
         console.log('cannot pin separator or control chars')
@@ -37,7 +43,7 @@ export const pinPos=(linetext,x,backward=false,wholeword=false)=>{
     }
     
     if (backward) {
-        pin=posBackwardPin(linetext,x,wholeword)
+        pin=posBackwardPin(linetext,x,{wholeword,cjk})
     }
     if (pin) return pin;
 
@@ -61,10 +67,6 @@ export const pinPos=(linetext,x,backward=false,wholeword=false)=>{
     }
     return (at===x)?linetext.substr(x,len)+(occur?PINSEP+occur:''):null;
 }
-export const pinTailNote=(linetext,offset)=>{
-    const pp=pinPos( linetext, offset ,true,true);
-    return pp;
-}
 export const posPin=(linetext,pin)=>{
     if (typeof pin==='number') {
         if (pin<0 || pin>linetext.length) {
@@ -75,7 +77,8 @@ export const posPin=(linetext,pin)=>{
     }
 
     if (pin[0]===PINSEP) {
-        return linetext.indexOf(pin.substr(1));
+        pin=pin.substr(1);
+        return linetext.indexOf(pin)+pin.length;
     }
 
     const m=pin.match(/:(\d+)$/);
@@ -173,4 +176,4 @@ export const parseHook=(str_arr,linetext,y=0)=>{
     return {y,x,w:x2-x+e.length,s,nos,e,noe}
 }
 
-export default {parseHook,makeHook,pinPos,posPin,pinTailNote }
+export default {parseHook,makeHook,pinPos,posPin }
