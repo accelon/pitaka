@@ -1,4 +1,5 @@
 
+import { parseOfftextLine } from '../offtext/parser.js';
 import {PATHSEP,PINSEP} from '../platform/constants.js'
 
 export const posBackwardPin=(linetext,x,{wholeword,cjk})=>{
@@ -28,9 +29,17 @@ export const posBackwardPin=(linetext,x,{wholeword,cjk})=>{
     let pass=at===x-len&&linetext[x-len]!==PINSEP&&linetext.charCodeAt(x-len)>=0x20;
     return pass?(occur?occur:'')+PINSEP+pin:null;
 }
-export const pinPos=(linetext,x,opts={})=>{
+export const pinPos=(_linetext,x,opts={})=>{
     const backward=opts.backward;
     const wholeword=opts.wholeword;
+    const offtext=opts.offtext;
+    let linetext=_linetext;
+    if (offtext) {
+        linetext=linetext.substring(0,x)+'⚓'+linetext.substring(x);
+        linetext=parseOfftextLine(linetext)[0];
+        x=linetext.indexOf('⚓');
+        linetext=linetext.substring(0,x)+linetext.substring(x+1);
+    }
     const cjk=opts.cjk;
     let pin='';
     if (linetext.charCodeAt(x)<0x20 || linetext[x]===PINSEP) {
