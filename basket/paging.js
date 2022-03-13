@@ -1,5 +1,5 @@
 import {PATHSEP,NAMESPACESEP,DELTASEP,LOCATORSEP,DEFAULT_LOCATOR,RANGESEP,NAMESEP} from '../platform/constants.js'
-import {parseAddress} from '../offtext/index.js'
+import {parseAddress,parseOfftextLine} from '../offtext/index.js'
 import { bsearch } from "../utils/bsearch.js" ;
 
 function narrowDown(branches){
@@ -72,7 +72,10 @@ function getPageRange(addr){
     const nextlbl=thetree[pths.length]||'';
     return [...this.narrowDown(arr) ,  nextlbl ] ;
 }
-function chunkOf(y){
+function chunkOf(y_loc){
+    let y=y_loc;
+    if (typeof y!=='number') y=this.locY(y_loc);
+    
     const cl=this.getChunkLabel();
     const at=bsearch(cl.linepos,y+1,true)-1;
     const id=cl.idarr[at];
@@ -355,10 +358,15 @@ async function readLoc(loc){
     const [y0,y1] = this.getPageRange(loc);
     return (await this.readLines(y0,y1-y0)).map(it=>it[1]);
 }
-function headingOf(y){
+function headingOf(y_loc){
+    let y=y_loc;
+    if (typeof y!=='number') y=this.locY(y_loc);
+
     if (!y) return ['',-1,0];
     const at=bsearch(this.headingsLinepos,y,true);
-    return [this.headings[at],  at, this.headingsLinepos[at]-y ];
+    const rawtext=this.headings[at]
+    const [text]=parseOfftextLine(rawtext);
+    return {text, rawtext,  at, idx:this.headingsLinepos[at]-y };
 }
 export default {closest,getTocTreeDef,getTocTree,getNChild,childCount,dyOf,locOf,chunkOf,pageLoc,
     fetchPage,fetchToc,fetchFootnote,getPageRange,narrowDown,getLabelLineRange,locY,

@@ -4,12 +4,6 @@ import pool from './pool.js';
 // import { useBasket } from "./index.js";
 
 
-export function getAlignedHeading(loc){
-    const y=this.locY(loc);
-    if (!y) return '';//無對應經文
-    const [text]=this.headingOf(y);
-    return text;
-}
 export function alignedY(y){
     const alignment=this.header.alignment;
     const master=pool.get(alignment);    
@@ -75,4 +69,4 @@ function connect(){
     connectTransclusion.call(this);
     this.aligned = connectAlignment.call(this);
 }
-export default {getParallelLinks,langOf,connect,getAlignedHeading,alignedY};
+export default {getParallelLinks,langOf,connect,alignedY};

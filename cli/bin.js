@@ -19,6 +19,7 @@ import iast from './provident.js';
 import longline from './longline.js';
 import dictwords from './dictwords.js';
 import pinpoint from './pinpoint.js';
+import {pin} from './pin-brk.js';
 import nGram from '../fulltext/ngram.js';
 import {compareText} from '../align/compare.js';
 import {group,entrysort,search,wordseg,intersect} from './offtextutils.js'
@@ -157,6 +158,7 @@ const help=()=>{
     console.log(yellow('$ pitaka ptk   '), 'build rom file (.ptk)')
     console.log(yellow('$ pitaka raw [pat]'), 'create *-raw.off , may overwrite file pattern')
     console.log(yellow('$ pitaka ngram   '), 'get ngram, default 2')
+    console.log(yellow('$ pitaka pin [pat]'), 'create a pin break file')
     console.log(yellow('$ pitaka align file file-sentenced  '), 'make file has same sentence, both need ^n marker')
     // console.log(yellow('$ pitaka info    '), 'show information of pitaka')
     // console.log(yellow('$ pitaka zip (regex)'), 'make a zip file')
@@ -177,11 +179,11 @@ const help=()=>{
 
 try {
     await ({v:validate,validate,
-        build,b:build,raw,r:raw, ptk,q:quote,quote, p:pinpoint,pinpoint, a:align,align,
+        build,b:build,raw,r:raw, ptk,q:quote,quote, pin, pinpoint,a:align,align,
         compare,c:compare,
         ngram,n:ngram,exec,e:exec,l:longline,longline,iast,
         group,g:group,entrysort,y:entrysort,search,s:search,wordseg,w:wordseg, dictwords,d:dictwords,
-        '--help':help,'-h':help})[cmd](config);
+        '--help':help,'-h':help})[cmd](config,process.argv[3]);
 
 } catch(e) {
     console.log( kluer.red('error running command'),cmd)

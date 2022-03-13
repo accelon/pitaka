@@ -1,7 +1,7 @@
 import {OFFTAG_REGEX_G} from "../offtext/def.js"
 import { diffChars, diffWords } from "diff";
 import { posPin } from "./pinpos.js";
-
+import {DELTASEP,LOCATORSEP} from '../platform/constants.js'
 export const spacify=str=>{ //remove all offtext and non ascii character, for more precise diff
     return str.replace(OFFTAG_REGEX_G,(m,tagname,attr)=>{
         return " ".repeat(tagname.length+(attr?attr.length:0)+1)
@@ -109,7 +109,7 @@ export const diffBreak=(p1,p2,id,marker='<>')=>{//p1 cs(larger unit), p2(smaller
         ln=0; //line index of original text
     const regmarker=new RegExp(marker,"g");
     for (let i=0;i<breaklines.length;i++) {
-        if (breaklines[i].substr(0,marker.length)===marker) {
+        if (breaklines[i].substring(0,marker.length)===marker) {
             breakpos.push(linepos);
             offset=0;
             ln++;
@@ -220,7 +220,7 @@ export const breakByPin=(line,pins,id)=>{ //break a line by hook
         }
         pos=posPin(line,pin);
         if (pos==-1) {
-            console.log('pin error',id,'pin',pin,line.substr(0,30));
+            console.log('pin error',id,'pin',pin,'\nline',line);
             pos=prev;
         }
         out.push(line.substring(prev,pos));
@@ -229,7 +229,8 @@ export const breakByPin=(line,pins,id)=>{ //break a line by hook
             out.push('');
         }
         if (pos<prev) {
-            console.log('id',id,'pos',pos,'prev',prev,'pins',pins,'line',line)
+            console.log('id',id,'pos',pos,line.substring(pos,pos+10),
+            'prev',prev,line.substring(prev,prev+10),'pins',pins)
             throw "pin pos not in order"
         }
         prev=pos;
@@ -265,17 +266,17 @@ export const removeSubPara=paralines=>{
     return out;
 }
 export const autoChineseBreak=line=>{// insert \n
-    return line.replace(/([！。？][』」〕]+)/g,"$1\n")
+    return line.replace(/([！。？][』」”’〕]+)/g,"$1\n")
     .replace(/([^。？；：\d]{4,15})([？；：])/g,"$1$2\n")
-    .replace(/([^。？；：\d]{6,})：([〔『「])/g,"$1：\n$2")
+    .replace(/([^。？；：\d]{6,})：([〔『「“‘])/g,"$1：\n$2")
     .replace(/([^。？；：\d]{5,15})……乃至……([^。？；：\d]{5,15})/g,"$1……乃至……\n$2")
     .replace(/([^。？；：\d]{5,15})，例如/g,"$1，\n例如")
     .replace(/(\u3400-\u9fff\ud800-\udfff) ([一二三四五六七八九十○]+)§/g,"$1\n $2§")
-    .replace(/\n([』」〕）｝】》〉]+)/g,"$1")
-    .replace(/([」』])([『「])/g,"$1\n$2")
+    .replace(/\n([”’』」〕）｝】》〉]+)/g,"$1")
+    .replace(/([」』”’])([『「“‘])/g,"$1\n$2")
     // .replace(/([。！？』」〕]+)\n+/g,"$1\n")
     .replace(/\n([^a-zA-Z\d]{1,8}$)/,"$1")//太短的行
-    .replace(/([？。])([^』」〕])/g,"$1\n$2")
+    .replace(/([？。])([^』」”’〕])/g,"$1\n$2")
     .replace(/([^ \d\n\]])(\^n\d)/g,"$1\n$2") //^n  一定在行首
     .replace(/\n+/g,"\n")
     .trimRight();
@@ -335,6 +336,32 @@ export const diffParanum=(para,gpara)=>{
     const extra=para.filter(pn=>!GPN[pn]);
     return {missing,extra};
 }
+
+export const guidedBreakLines=(buf,pins,fn='')=>{
+    if (!pins) return buf;
+    const lines=buf.split('\n');
+    const out=[];
+    let pn='';
+    for (let i=0;i<lines.length&&i<pins.length;i++) {
+        const m=lines[i].match(/\^n([\d\-]+)/);
+        if (m) pn=m[1];
+        const id=fn.replace('.xml','')+LOCATORSEP+pn;
+        if (!pins[i].length) {
+            throw `empty pin entry of ${id}, #${i+1}`
+        }
+        const Pins=pins[i].split('\t');
+        const pinpn=Pins.shift();
+        if (pn!==pinpn && pinpn[0]!==DELTASEP) {
+            throw `pin paranum missmatch  ${pn} != ${pinpn}, #${i+1}`
+        }
+        const before=beforePN(lines[i]);
+        let sentences=breakByPin(afterPN(lines[i]), Pins,id);
+        sentences[0]=before+sentences[0]
+        out.push( ...sentences  );
+    }
+    return out.join('\n');
+}
+
 export default {spacify,removeHeader,removeBold,removeSentenceBreak,autoENBreak,
     autoBreak,paragraphSimilarity,diffBreak,breakSentence,ensureArrayLength,ensureChunkHasPN,
-    hookFromParaLines, breakByPin ,autoChineseBreak,removeSubPara,afterPN,beforePN}
+    hookFromParaLines, breakByPin ,autoChineseBreak,removeSubPara,afterPN,beforePN,guidedBreakLines}

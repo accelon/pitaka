@@ -6,6 +6,7 @@ export const toParagraphs=(L,opts={})=>{
     let lines=[],pid='';
     const unbreak=opts.unbreak||false;
     const bkpf=(opts.bkid||'').replace(/\..+$/,'');
+
     for (let i=0;i<L.length;i++) {
         if (L[i].indexOf('^n')>-1 && L[i].substr(0,3)!=='^n ') {
             const id=L[i].match(/\^n([\d\-\.]+)/);

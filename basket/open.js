@@ -51,10 +51,10 @@ class Basket extends JSONPROM {
                 } else {
                     self.header.shorttitle=self.header.title.substr(0,2);
                 }
-
+                //basket could be alignment, might not in pool
                 if (self.header.alignment && typeof self.header.alignment=='string') {
                     self.header.alignment=self.header.alignment.split(',');
-                }
+                } else self.header.alignment=[];
                 self.loadtime.open=new Date()-now; now= new Date();
                 self.loadSection(labels,function(){
                     const labelSection=self.getSection(labels);

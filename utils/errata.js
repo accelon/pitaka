@@ -5,6 +5,7 @@ export const patchBuf=(buf,errata,fn='')=>{
         const [from,to]=errata[i];
         let n=errata[i][3]||0;
         let occur=errata[i][2]||1;
+        const unlimited=occur==-1;
         let newoutbuf=outbuf;
         if (typeof to==='function'){
             if (typeof from==='string') {
@@ -38,11 +39,11 @@ export const patchBuf=(buf,errata,fn='')=>{
                 })
             }
         }
-        if (newoutbuf===outbuf) {
+        if (newoutbuf===outbuf && !unlimited) {
             console.log(fn,"cannot replace",errata[i]);
         }
         outbuf=newoutbuf;
-        if (occur!==0) {
+        if (occur!==0 && !unlimited) {
             console.log(fn,"errata is not cleared!",occur,'left',errata[i]);
         }
     }

@@ -47,7 +47,6 @@ export const getFilesOfBook=(pat,filesFolders,rootfolder)=>{
     const files=[];
     folders.forEach(subfolder=>{
         const f=filesFromPattern(subfolder,rootfolder);
-        
         files.push(... sortFilenames(f));
     })
     return files;
