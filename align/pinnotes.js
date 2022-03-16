@@ -26,7 +26,7 @@ export const pinNotes=(lines,notes,opts={})=>{
         const note=notes[nid];
         if (typeof note.y=='undefined') continue;
         const pin=pinPos(lines[note.y], note.pin, {wholeword:true,backward:true,offtext:true});
-        const item=[note.y,pin, note.val];
+        const item=[note.y,pin, note.val.replace(/\n/g,'\\n')];
         if (!opts.removeId) item.push(note.id);
         out.push(item)
     }
