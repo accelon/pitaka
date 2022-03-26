@@ -229,8 +229,11 @@ export const breakByPin=(line,pins,id)=>{ //break a line by hook
             out.push('');
         }
         if (pos<prev) {
-            console.log('id',id,'pos',pos,line.substring(pos,pos+10),
-            'prev',prev,line.substring(prev,prev+10),'pins',pins)
+            console.log('id',id,
+            '\npin',pin,'pos',pos,'text',line.substring(pos,pos+10),
+            '\nprev',prev,'text',line.substring(prev,prev+10),
+            '\npins',pins)
+
             throw "pin pos not in order"
         }
         prev=pos;
@@ -351,7 +354,7 @@ export const guidedBreakLines=(buf,pins,fn='')=>{
         }
         const Pins=pins[i].split('\t');
         const pinpn=Pins.shift();
-        if (pn!==pinpn && pinpn[0]!==DELTASEP) {
+        if (m && pn!==pinpn && pinpn[0]!==DELTASEP) {
             throw `pin paranum missmatch  ${pn} != ${pinpn}, #${i+1}`
         }
         const before=beforePN(lines[i]);

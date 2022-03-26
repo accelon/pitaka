@@ -1,6 +1,6 @@
 import {toIAST,fromIAST} from 'provident-pali';
 import {OFFTAG_REGEX_G} from '../offtext/index.js';
-import { prepareInput } from './input.js';
+
 const iast2provident=(content,reverse=false)=>{
     let s='';
     const lines=content.split(/\r?\n/);
@@ -26,7 +26,35 @@ const iast2provident=(content,reverse=false)=>{
     return s;
 }
 
-const iast=()=>{
+
+export const provident=()=>{
+    const fn=process.argv[3];
+    const lines=fs.readFileSync(fn,'utf8').split(/\r?\n/);
+    let err=0;
+    for (let i=0;i<lines.length;i++) {
+        const line=lines[i];
+        const out=iast2provident(line,true);
+        if (out!==line ) {
+            const rev=iast2provident( out);
+            if (rev!==line) {
+                console.log('wrong conversion at',i+1);
+                console.log('rev ',rev)
+                console.log('ori ',line)    
+                console.log('iast',out)
+                console.log('')    
+                err++;
+                if (err>10) break;
+            }
+            lines[i]=out;
+        }
+    }
+    if (!err) {
+        console.log('overwrite',fn, 'lines',lines.length)
+        fs.writeFileSync(fn,lines.join('\n'),'utf8');
+    }
+}
+
+export const iast=()=>{
     const fn=process.argv[3];
     const lines=fs.readFileSync(fn,'utf8').split(/\r?\n/);
     let err=0;
@@ -52,5 +80,3 @@ const iast=()=>{
         fs.writeFileSync(fn,lines.join('\n'),'utf8');
     }
 }
-
-export default iast;

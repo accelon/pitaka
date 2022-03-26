@@ -55,14 +55,16 @@ export const pinPos=(_linetext,x,opts={})=>{
     }
     if (pin) return pin;
 
-    let len=2,occur=0;
+    let len=4,occur=0;
+    if (cjk) len=2;
     let at=linetext.indexOf(linetext.substr(x,len));
-    while (at!==x && x+len<linetext.length) {
-        if (linetext.substr(x,len).trim().length>3 ) break;
+    while (x+len<linetext.length) {
+        if (!wholeword && linetext.substring(x,len).trim().length>3) break;
+        if (wholeword && len>3 && !linetext.substr(x+len,1).match(/[\dA-Za-zñṅḍṭṃṇāūḷī]/) ) break;
         len++;
         at=linetext.indexOf(linetext.substr(x,len));
     }
-
+    // console.log(linetext.substr(x,len),len,linetext.substr(x+len,1), linetext.substr(x,len+1))
     if (at!==x && linetext.charCodeAt(x)>0xff
     &&linetext.charCodeAt(x+1)>0xff && cjk) {
         len=2;//shorter pin for non-ascii
@@ -72,7 +74,7 @@ export const pinPos=(_linetext,x,opts={})=>{
       //如果是很長的空白(可能是一連串標點)，必須弄短，否則會找不到
     while (at!==x && at>-1 && at<linetext.length) {
         occur++;
-        const newat=linetext.indexOf(linetext.substr(x,len),at+len-1);
+        const newat=linetext.indexOf(linetext.substr(x,len),at+len-1); 
         if (at==-1 || newat==at) break;
         at=newat;
     }
@@ -108,7 +110,7 @@ export const posPin=(linetext,pin)=>{
 
     let at=linetext.indexOf(pin);
     while (occur) {
-        at=linetext.indexOf(pin,at+pin.length)
+        at=linetext.indexOf(pin,at+pin.length-1); //see line 77
         occur--;
     }
     if (at==-1) return -1;//console.error("cannot pospin",pin,linetext);

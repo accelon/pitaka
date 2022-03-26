@@ -50,7 +50,6 @@ const pinParagraph=([id,paralines],opts={})=>{
         if (l.length<paralines[i].length) {//新的一行
             addParaPins();
         } else { //被折之文字
-            if (id=='267' && offset==424) debugger
             const pin=pinPos(paratext,offset,opts);
 
             if (!pin) {
@@ -66,11 +65,10 @@ const pinParagraph=([id,paralines],opts={})=>{
 
 export const pin=(config,pat)=>{
     const filelist= glob(srcfolder,pat).filter(fn=>fn.endsWith('.off'));
-    const opts={cjk:config.lang=='zh'}
+    const opts={cjk:config.lang=='zh'}//, wholeword:true}//wholeword
     filelist.forEach(fn=>{
         const out=[];
         let lines=readTextLines(srcfolder+fn);
-
         const paras=toParagraphs(lines);  //返回 [ id, paralines ] , paralines 是分好句的字串陣列
         out.push(... paras.map(([id,lines])=>pinParagraph([id,lines],opts)));
         //dn1有559個段號(^n\d+)，927個p(368個^n )

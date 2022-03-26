@@ -4,9 +4,10 @@ import pool from './pool.js';
 // import { useBasket } from "./index.js";
 
 
-export function alignedY(y){
-    const alignment=this.header.alignment;
-    const master=pool.get(alignment);    
+export function alignedY(y, master){
+    // const alignment=this.header.alignment;
+    // const master=pool.get(alignment);    
+    if (master==this) return y;
     if (!master || master.header.lastTextLine==this.header.lastTextLine) return y;
     /* slow mode, partially aligned */
     const loc=master.locOf(y);

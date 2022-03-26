@@ -15,7 +15,7 @@ import { readTextLines, readTextContent } from "../platform/fsutils.js"
 import {buildPitaka} from './build.js'
 import {info} from './info.js';
 import quote from './quote.js';
-import iast from './provident.js';
+import {iast,provident} from './provident.js';
 import longline from './longline.js';
 import dictwords from './dictwords.js';
 import pinpoint from './pinpoint.js';
@@ -174,6 +174,7 @@ const help=()=>{
     console.log(yellow('$ pitaka wordseg fn words/dict_ptk'), 'word segmentation')
     // console.log(yellow('$ pitaka intersect f1 f2'), 'intersect stringlist')
     console.log(yellow('$ pitaka iast fn'), 'convert IAST to provident')
+    console.log(yellow('$ pitaka provident fn'), 'convert provident to IAST')
     console.log(yellow('$ pitaka dictwords fn headword.txt'), 'words found in dictionary headword');
 }
 
@@ -181,7 +182,7 @@ try {
     await ({v:validate,validate,
         build,b:build,raw,r:raw, ptk,q:quote,quote, pin, pinpoint,a:align,align,
         compare,c:compare,
-        ngram,n:ngram,exec,e:exec,l:longline,longline,iast,
+        ngram,n:ngram,exec,e:exec,l:longline,longline,iast,provident,
         group,g:group,entrysort,y:entrysort,search,s:search,wordseg,w:wordseg, dictwords,d:dictwords,
         '--help':help,'-h':help})[cmd](config,process.argv[3]);
 
