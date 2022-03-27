@@ -3,7 +3,7 @@ import {PATHSEP} from '../platform/constants.js'
 import {getQuickPointerParser,getQuickPointerSyntax} from '../format/index.js';
 import LabelTypes from '../htll/labeltypes.js';
 import { bsearch } from 'pitaka/utils';
-const {LabelBook,LabelChapter,LabelVol,LabelPage} = LabelTypes;
+const {LabelVol,LabelPage} = LabelTypes;
 
 function findTransclusion(srcptk,ptr){
     if (!this.lblTransclusion)return {};

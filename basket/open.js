@@ -25,6 +25,7 @@ class Basket extends JSONPROM {
         this.loadtime={};
         this.querymethods={};   
         this.labelLang=null;
+        this.labelBook=null; //cache the book label
         for (let f in paging) this[f]=paging[f];
         for (let f in entries) this[f]=entries[f];
         for (let f in pointers) this[f]=pointers[f];

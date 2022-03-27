@@ -93,7 +93,6 @@ function locOf(y,nonamespace=false){
     }
     return nonamespace?s:this.name+NAMESPACESEP+s;
 }
-
 function dyOf(y_loc) {
     if (typeof y_loc==='string') {
         const arr=y_loc.split(PATHSEP);
@@ -104,6 +103,17 @@ function dyOf(y_loc) {
         const [from]=getPageRange(page);
         return y_loc-from;    
     }
+}
+function bookOf(y_loc) {
+    let y=y_loc;
+    if (typeof y_loc=='string') {
+        y=this.locY(y_loc);
+    }
+    if (!this.labelBook) {
+        this.labelBook=this.findLabelType('LabelBook');
+    }
+    let at=bsearch(this.labelBook.linepos,y+1, true);
+    return this.labelBook.idarr[at-1];
 }
 function pageLoc(y_loc){ //loc without line delta and ptkname
     let loc='';
@@ -370,4 +380,4 @@ function headingOf(y_loc){
 }
 export default {closest,getTocTreeDef,getTocTree,getNChild,childCount,dyOf,locOf,chunkOf,pageLoc,
     fetchPage,fetchToc,fetchFootnote,getPageRange,narrowDown,getLabelLineRange,locY,
-enumLocators,readLoc,headingOf}
+enumLocators,readLoc,headingOf,bookOf}

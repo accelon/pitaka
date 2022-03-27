@@ -3,7 +3,15 @@ import { parseAddress } from "../offtext/pointers.js";
 import pool from './pool.js';
 // import { useBasket } from "./index.js";
 
-
+export function hasBook(books){
+    const bk=this.findLabelType('LabelBook');
+    if (!bk) return false;
+    if (typeof books=='string') books=[books];
+    for (let i=0;i<books.length;i++) {
+        if (bk.idarr.indexOf(books[i])>-1) return true;
+    }
+    return false;
+}
 export function alignedY(y, master){
     // const alignment=this.header.alignment;
     // const master=pool.get(alignment);    
@@ -70,4 +78,4 @@ function connect(){
     connectTransclusion.call(this);
     this.aligned = connectAlignment.call(this);
 }
-export default {getParallelLinks,langOf,connect,alignedY};
+export default {getParallelLinks,langOf,connect,alignedY,hasBook};
