@@ -2,30 +2,53 @@
 BackEnd and CLI of Accelon2021
 Accelon2021 後端引擎及製作資料庫的工具
 
-# install 
+## install 
 
     npm -g install
 
 
-# usage
+## usage
 need pitaka.json in working folder
 
+list all available commands
+
     pitaka
+
+build a "pitaka"
+    
+    pitaka build
+
 
 example json file
 https://github.com/accelon/sc/blob/main/pitaka.json
 
+## 架構
+
+* 來源不同的數據以不同的repo管理，一律轉換成offtext格式（詳見 https://github.com/accelon/cs ）。
+* `pitaka build` 產生pitaka數據庫
+* [前端程式](https://github.com/accelon/accelon2021) 消費pitaka數據庫（不必發布offtext源文件）。 
+
+## pitaka 數據庫
+
+* 唯讀式
+* 前端無須安裝任何軟件，直接打開 html 即可（不依賴http協議）。
+* 數據庫包含了正文(從多個offtext文件合併)、標題清單、標記群、注釋群、反向索引(非必要)。
+* 每個數據庫一個文件夾，分成若干個js(數據塊) ，000.js 為metadata ，001.js 之後大小相近，最多999.js。每個js約 128K 個字符。
+* 000.js 記錄每個數據塊的起始行(chunkStarts)，以及 pitaka.json 。
+* 載入內存的最小單元是數據塊。換言之，即使只要求一行文字，也會載入該行所在的數據塊。讀兩行文字，最糟的情況是載入兩個數據塊（第一行在上一數據塊的最後一行，第二行在這個數據塊的第一行）。
+
+
 ## offtext 標記格式
 
-    1. 容易剖析及轉換成其他格式。
-    2. 從純文本開始，只標記必要的結構支撐信息。
-    3. 在內存表現為字符串陣列，而非XML複雜的樹狀結構。
-    4. 非結構信息盡量外部化（從底文剝離）。（如腳注、紙本頁碼、科判、異讀、校勘等等）
-    5. offtext將複雜的TEI/XML分隔成多個「文層」。
-       以底文為基礎、不同使用者的批注、校釋等等可分層處理及編輯，不相互干擾。
-       就像標注在加疊於地圖上的透明薄片，而不直接修改底圖。
-       換言之，offtext 像是有「圖層」概念的Adobe Photoshop，
-       而TEI/XML就像所有編輯操作都攪在一起的小畫家 (paintbrush)。
+* 容易剖析及轉換成其他格式。
+* 從純文本開始，只標記必要的結構支撐信息。
+* 在內存表現為字符串陣列，而非XML複雜的樹狀結構。
+* 非結構信息盡量外部化（從底文剝離）。（如腳注、紙本頁碼、科判、異讀、校勘等等）
+* offtext將複雜的TEI/XML分隔成多個「文層」。
+* 以底文為基礎、不同使用者的批注、校釋等等可分層處理及編輯，不相互干擾。
+  就像標注於透明薄片再疊在地圖上（而非直接修改底圖）。
+  換言之，offtext 是類似 Adobe Photoshop 多圖層格式，
+  而TEI/XML就像所有編輯操作都攪在一起的 bitmap/png 格式。
 
 標記以 ^ 開頭，標記名稱必須英文小寫，且在一行內結束。標記正則表達式見 offtext/def.js
 
@@ -59,7 +82,7 @@ https://github.com/accelon/sc/blob/main/pitaka.json
     清淨道論一章一chunk。
 
 ## pin 文釘 ：
-//前釘，定位句子
+//前釘，定位斷句
 
     abc       首個"abc"出現的位置
     abc:2     第三個"abc"的位置
