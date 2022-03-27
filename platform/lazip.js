@@ -1,3 +1,4 @@
+/*
 import JSZip from '../3rdparty/jszip.js' //need tailored version of jszip.
 
 function readInt(buf,idx,size) {
@@ -93,3 +94,4 @@ const LaZip= async function(zipfn){
 LaZip.JSZip=JSZip;
 LaZip.loadAsync=JSZip.loadAsync;
 export default LaZip;
+*/

@@ -1,7 +1,7 @@
 {
   "name": "pitaka",
-  "version": "0.0.5",
-  "description": "Backend for progressive corpus",
+  "version": "0.0.6",
+  "description": "Backend for accelon2021",
   "type":"module",
   "exports" :{
     ".":"./index.js",
@@ -29,15 +29,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yapcheahshen/pitaka.git"
+    "url": "git+https://github.com/accelon/pitaka.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/yapcheahshen/pitaka/issues"
+    "url": "https://github.com/accelon/pitaka/issues"
   },
-  "homepage": "https://github.com/yapcheahshen/pitaka#readme",
+  "homepage": "https://github.com/accelon/pitaka#readme",
   "dependencies": {
 	"diff":"^5.0.0",
     "lossless-simplified-chinese":"^0.0.8"

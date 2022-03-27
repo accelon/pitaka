@@ -55,13 +55,14 @@ export const dereferencing=async (arr,ptk=null)=>{
         const ptr={ptk:null, p:'',h:null};
         if (ptk) ptr.ptk=pool.get(ptk.name);
         const pths=arr[i].split(LOCATORSEP);
-        if (arr[i][0]!==LOCATORSEP) {
+
+        if (arr.length>1 && arr[i][0]!==LOCATORSEP) {
             pths.shift(); //drop leading PATHSEP
             ptk=pool.get(pths.shift());
             ptr.ptk=ptk.name;
         }
 
-        const addr=pths.join(PATHSEP);
+        const addr=pths.join(LOCATORSEP);
         const [from,to]=ptk.getPageRange(addr);
 
         const chunks=ptk.unreadyChunk(from,to)

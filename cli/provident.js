@@ -8,7 +8,7 @@ const iast2provident=(content,reverse=false)=>{
     for (let i=0;i<lines.length;i++) {
         const line=lines[i];
         const out=[];
-        let prev=0;
+        let prev=-1;
         line.replace(OFFTAG_REGEX_G, (m,m1,m2,offset)=>{
             if (offset>prev) out.push( line.substring(prev,offset) );
             out.push('^'+m1+(m2?m2:''));
@@ -36,11 +36,11 @@ export const provident=()=>{
         const out=iast2provident(line,true);
         if (out!==line ) {
             const rev=iast2provident( out);
-            if (rev!==line) {
+            if (rev!==line.replace(/[।॥]/g,'.')) {
                 console.log('wrong conversion at',i+1);
-                console.log('rev ',rev)
-                console.log('ori ',line)    
-                console.log('iast',out)
+                console.log('rev ',rev,rev.length)
+                console.log('ori ',line,line.length)    
+                console.log('iast',out,out.length)
                 console.log('')    
                 err++;
                 if (err>10) break;
