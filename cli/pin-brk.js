@@ -69,7 +69,7 @@ export const pin=(config,pat)=>{
     const opts={cjk:config.lang=='zh'}//, wholeword:true}//wholeword
     filelist.forEach(fn=>{
         const out=[];
-        let lines=readTextLines(srcfolder+fn);
+        let lines=readTextLines(srcfolder+fn); 
         const paras=toParagraphs(lines);  //返回 [ id, paralines ] , paralines 是分好句的字串陣列
         out.push(... paras.map(([id,lines])=>pinParagraph([id,lines],opts)));
         //dn1有559個段號(^n\d+)，927個p(368個^n )

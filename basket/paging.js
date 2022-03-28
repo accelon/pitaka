@@ -373,10 +373,11 @@ function headingOf(y_loc){
     if (typeof y!=='number') y=this.locY(y_loc);
 
     if (!y) return ['',-1,0];
-    const at=bsearch(this.headingsLinepos,y,true);
+    let at=bsearch(this.headingsLinepos,y,true);
+    if (at&&this.headingsLinepos[at]>y) at--;
     const rawtext=this.headings[at]
     const [text]=parseOfftextLine(rawtext);
-    return {text, rawtext,  at, idx:this.headingsLinepos[at]-y };
+    return {text, rawtext,  at, idx:this.headingsLinepos[at]-y, y };
 }
 export default {closest,getTocTreeDef,getTocTree,getNChild,childCount,dyOf,locOf,chunkOf,pageLoc,
     fetchPage,fetchToc,fetchFootnote,getPageRange,narrowDown,getLabelLineRange,locY,
