@@ -6,7 +6,7 @@
  *  #id  : 用法同 html 的 id, id 以數字開頭時，可省略 # ，如 ^p100a 等效於 ^p[id=100a]
  **/
 
-import {OffTag, ALWAYS_EMPTY, OFFTAG_ID,QUOTEPREFIX,QUOTEPAT,
+import {OffTag, ALWAYS_EMPTY, OFFTAG_ID,QUOTEPREFIX,QUOTEPAT,NAMED_OFFTAG,
     OFFTAG_LEADBYTE,OFFTAG_ATTRS, OFFTAG_REGEX_G,QSTRING_REGEX_G, OFFTAG_NAME_ATTR} from './def.js'
 import {findCloseBracket} from '../utils/cjk.js'
 import { LOCATORSEP } from '../platform/constants.js';

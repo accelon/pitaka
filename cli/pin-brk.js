@@ -65,6 +65,7 @@ const pinParagraph=([id,paralines],opts={})=>{
 
 export const pin=(config,pat)=>{
     const filelist= glob(srcfolder,pat).filter(fn=>fn.endsWith('.off'));
+
     const opts={cjk:config.lang=='zh'}//, wholeword:true}//wholeword
     filelist.forEach(fn=>{
         const out=[];
