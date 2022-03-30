@@ -1,7 +1,7 @@
 import Label from './label.js'
 import {parseAddress} from '../offtext/pointers.js'
 import {pack3,unpack3,pack_delta,unpack_delta,bsearch} from'../utils/index.js';
-import { DELTASEP } from '../platform/constants.js';
+import { DELTASEP, LOCATORSEP } from '../platform/constants.js';
 
 class LabelTransclusion extends Label {
     constructor(name,opts={}) {
@@ -15,16 +15,21 @@ class LabelTransclusion extends Label {
         this.chunks_start=[];     // starting quote number
         this.hooks=[];           // the target hooks of each quotes, sorted by target ptk/bk/c
         this.ypos=[];           // this is not in order, should not use the name of linepos
+        this.basket=opts.basket;        //default basket name
         return this;
     }
-    action(tag){
+    action(tag,linetext,context){
         const ptr=parseAddress(tag.attrs['@']); // ptk, bk, c, dy, hook
-        if (ptr && ptr.basket){ //only deal with external quote
-            const {basket,bk,c,dy,hook} = ptr;
+        if (ptr){ //only deal with external quote
+            const basket=ptr.basket||this.basket;
+            if (!basket) throw "invalid transclusion "+ptr+' line,'+linetext;
+            const {loc,dy} = ptr;
+            
+            const [bk,ck]=loc.split(LOCATORSEP);
             if (!this.Q[basket])this.Q[basket]={};
             if (!this.Q[basket][bk])this.Q[basket][bk]={};
-            if (!this.Q[basket][bk][c])this.Q[basket][bk][c]=[];
-            this.Q[basket][bk][c].push([tag.y,dy,hook]);
+            if (!this.Q[basket][bk][ck])this.Q[basket][bk][ck]=[];
+            this.Q[basket][bk][ck].push([tag.y,dy]);
             this.count++;
         }
     }
@@ -129,6 +134,7 @@ class LabelTransclusion extends Label {
         return res;
     }
     finalize() {
+        // console.log(this.Q)
         // this.log('finalize q')
     }
 }

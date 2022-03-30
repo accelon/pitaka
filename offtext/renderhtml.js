@@ -89,6 +89,7 @@ export const renderSnippet=(lines=[],tags=[])=>{
     let out=[];
     let activetags=[];//active classes
     let prev=0, i=0;           //offtag index
+
     for(let idx=0;idx<T.length;idx++) { //idx=html tag index
         const {x,closing,name,attrs,y,w} = T[idx];
         const s=content.substring(prev, x);
@@ -195,12 +196,13 @@ export const renderHTML=(lines,tags=[],opts={})=>{
     return snippetsToHTML(snippets,sim);
 }
 
-export const OfftextToSnippet =(linetext , extra=[] , renderInlinetag=true)=>{
+export const OfftextToSnippet =(linetext , extra=[] , renderInlinetag=true, debug=false)=>{
     if (!linetext)return[];
     const hastag=linetext.includes('^');
     if (extra[0]==extra[1]) extra[0]=''
     let tags=[],text=linetext;
     if (hastag && renderInlinetag) [text,tags]=parseOfftextLine(linetext);
+
     extra=extra.filter(i=>!!i);
     for (let i=0;i<extra.length;i++) {
         if (typeof extra[i]==='string' && extra[i].trim()) { //search keyword
@@ -218,9 +220,10 @@ export const OfftextToSnippet =(linetext , extra=[] , renderInlinetag=true)=>{
             tags.push(new OffTag('hl'+i, null, 0, extra[i][0], extra[i][1]) ); 
         }
     }
-    tags.sort((a,b)=>a.x==b.x?b.w-a.w:a.x-b.x);
+    //會造成 pryt-zh:cma.104 塗色錯誤 ^cs@aas.104^n104 ^b[不善心] 
+    //因為 ^b 的x 是0，w又比cs和n 大，會被移到前頭
+    // tags.sort((a,b)=>a.x==b.x?b.w-a.w:a.x-b.x);  
     const snippets= renderSnippet(text,tags);
-    // if (linetext.indexOf('^f1')>0) console.log(snippets)
     return snippets;
 }
 

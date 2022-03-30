@@ -51,7 +51,7 @@ export function langOf(y_loc) {
     return this.labelLang.langOf(y);
 }
 function connectTransclusion(){
-    if (!this.lblTransclusion) return;
+    if (!this.lblTransclusion||!this.lblTransclusion.ptks) return;
     const self=this;
     this.lblTransclusion.ptks.forEach(ptk=>{
         const fptk=pool.get(ptk);

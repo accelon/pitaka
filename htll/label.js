@@ -1,6 +1,6 @@
 import {bsearch} from'../utils/index.js';
 class Label {
-    constructor(name,opts={}) {
+    constructor(name,opts) {
         this.cb=opts.cb;
         this.log=opts.log||console.log;
         this.name=name;

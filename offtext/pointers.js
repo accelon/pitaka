@@ -35,6 +35,9 @@ export const parseAddress=str=>{
 export const makeLocalAddress=(bkid='',loc='',dy=0)=>{
     return (bkid?bkid+LOCATORSEP:'')+loc+(dy?NAMESPACESEP+dy:'')
 }
+export const makeAddress=(basket,loc,dy)=>{
+    return basket+NAMESPACESEP+loc+(dy?NAMESPACESEP+dy:'');
+}
 export const stringifyAddress=obj=>{
     if (!obj.basket && obj.ptk) obj.basket=obj.ptk.name;
     const arr=[];

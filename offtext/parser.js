@@ -118,7 +118,7 @@ export const parseOffTag=(raw,rawA)=>{ // 剖析一個offtag,  ('a7[k=1]') 等�
     return [tagName,attrs,putback];
 }
 export const parseOfftextLine=(str,idx=0)=>{
-    const tags=[];
+    let tags=[];
     let textoffset=0,prevoff=0;
     let text=str.replace(OFFTAG_REGEX_G, (m,rawName,rawA,offset)=>{
         let [tagName,attrs,putback]=parseOffTag(rawName,rawA);
