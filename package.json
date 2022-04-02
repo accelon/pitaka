@@ -1,6 +1,6 @@
 {
   "name": "pitaka",
-  "version": "0.0.8",
+  "version": "0.1.1",
   "description": "Backend for accelon2021",
   "type":"module",
   "exports" :{
@@ -41,6 +41,6 @@
   "dependencies": {
 	"diff":"^5.0.0",
     "lossless-simplified-chinese":"^0.0.8",
-	"provident-pali":"^0.0.9"
+	"provident-pali":"^0.1.0"
   }
 }
