@@ -14,19 +14,24 @@ class LabelMulu extends Label {
         this.compact=opts.compact;
         this.notquickpointer=true;
         this.id=opts.id;
+        this.prevdepth=0;
         return this;
     }
     action( tag ,linetext){
         const {x,w,y}=tag;
-        const id=parseInt(tag.attrs.id)||this.id;
-        if (id>0) {
+        const depth=parseInt(tag.attrs.id)||this.id;
+        if (depth>0) {
             const t= (!this.compact&&tag.attrs.t)? tag.attrs.t.trim() : linetext.substr(x,w);
             this.names.push(t);
-            this.level.push(id);
+            if (depth-1>this.prevdepth) {
+                console.log('warning prev depth',this.prevdepth,'tag',tag)
+            }
+            this.level.push(depth);
             this.linepos.push(y);
+            this.prevdepth=depth;
             this.count++;
         } else {
-            throw 'invalid level '+id+' at '+y+' '+linetext;
+            throw 'invalid level '+depth+' at '+y+' '+linetext;
         }
     }
     reseting(parenttag) { //add a milestone
@@ -57,8 +62,8 @@ class LabelMulu extends Label {
         this.names=names;
         this.level=level;
         this.linepos=linepos;
-        // console.log('after trim',this.linepos.length)
 
+        // console.log('after trim',this.linepos.length)
         // const levels=this.level;
         // const out=[];
         // this.names.forEach((n,idx)=>out.push(levels[idx]+'\t'.repeat(parseInt(levels[idx])) +n));

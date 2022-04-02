@@ -52,6 +52,7 @@ export function trimInnerMulu(_names,_level,_linepos){
      ^ ^ ^                ^ ^  ^ ^ 
  
 */
+
     const out={names:[],level:[],linepos:[]}
 //4987, 5059
     let i=0,upper=0,lower=0,prev=0;
@@ -60,7 +61,7 @@ export function trimInnerMulu(_names,_level,_linepos){
         i++
     }
     while (i<_linepos.length) {
-        if (_level[i]==0) { //chunk breaker
+        if (_level[i]==1) { //chunk breaker
             if (prev>=i-1) {
                 if (_level[prev]) {
                     out.names.push(_names[prev]);
@@ -69,8 +70,10 @@ export function trimInnerMulu(_names,_level,_linepos){
                 }
             } else {
                 const keep=trimMulu(_level,prev,i-1);
+
                 keep.forEach(idx=>{
                     if (_level[idx]){
+                        console.log(_names[idx])
                         out.names.push(_names[idx])
                         out.level.push(_level[idx])
                         out.linepos.push(_linepos[idx])    
@@ -81,5 +84,6 @@ export function trimInnerMulu(_names,_level,_linepos){
         }
         i++;
     }
+
     return out;
 }

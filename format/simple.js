@@ -9,7 +9,8 @@ export default {
         "v":"Label", //to be remove
         "sz":"Label",
         "fn":["LabelFootnote", {"caption":"注釋"}],
-        "cs":["LabelTransclusion",{"basket":"cs"}]
+        "cs":["LabelTransclusion",{"basket":"cs"}],
+        "z":["LabelMulu"]
     },
     //default value, set in pitaka.json to overwrite
     "chunk":"ck",

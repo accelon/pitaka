@@ -50,9 +50,10 @@ const htmlAttrs=(attrs,sim=0)=>{
     let s='';
     for (let name in attrs) {
         let aname=name;
-        if (name=='#') aname='id';
-        if (name=='@') aname='hook'; //link
-        if (name=='~') continue;
+        if (name=='#') aname='n';
+        else if (name=='@') aname='hook'; //link
+        // else if (name=='id') aname='n';
+        else if (name=='~') continue;
         const val=attrs[name];
         s+=' '+aname+'="'+((sim&&aname===name)?toSim(val):val)+'"';//do not convert @,#
     }

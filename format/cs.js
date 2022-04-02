@@ -9,6 +9,7 @@ export default {
         "v":"Label", //to be remove
         "sz":"Label", //偈
         "fn":["LabelFootnote", {"caption":"注釋"}],
+        "z":["LabelMulu"]
     },
     //default value, set in pitaka.json to overwrite
     "chunk":"ck",      // 瀏覽分頁單元

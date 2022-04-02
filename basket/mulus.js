@@ -4,14 +4,10 @@ import TLabelMulu from '../htll/mulu.js'
 function getMulu(from,to){ //本頁目錄加上 前後科文
     const out=[];
     let firstlevel=0;
-    let mtag;
-    for (let i=0;i<this.labels.length;i++) {
-        if (this.labels[i] instanceof TLabelMulu) {
-            mtag=this.labels[i].name;
-            break;
-        }
-    }
-    if (!mtag) return out;
+    const mlbl=this.findLabelType("LabelMulu");
+    if (!mlbl) return out;
+
+    const mtag=mlbl.name;
     for (let i=from;i<to;i++) {
         const linetext=this.getLine(i);
         if (!linetext)continue;
@@ -19,7 +15,7 @@ function getMulu(from,to){ //本頁目錄加上 前後科文
         if (at>-1) {
             const otags=extractOfftagPattern(linetext,mtag+'\\d*');
             otags.forEach(([o,putback,taglen])=>{
-                const n=parseInt(o.n) || 1;
+                const n=parseInt(o.id) || 1;
                 if (!firstlevel) firstlevel=n;
                 let t=o.t||putback;
                 if (!t) { //use entire line as t for yinshun
@@ -33,6 +29,7 @@ function getMulu(from,to){ //本頁目錄加上 前後科文
     let lastlevel=(out.length)?out[0][0]:0;
     //往上找父節點
     const mu=this.getLabel(mtag);
+
     if (!mu || !mu.level) return out;
     let i=bsearch(mu.linepos,from,true);
     let lvl=firstlevel-1;
