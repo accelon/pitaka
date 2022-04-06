@@ -3,7 +3,7 @@ import { makeHook } from '../align/pinpos.js';
 import {extractChineseNumber} from '../utils/cnumber.js';
 import {similarity} from './similarity.js'
 import {diffCJK,printDiff,} from 'pitaka/utils' 
-import {weightToken,scoreRange,convolute,getNthTokenX,CJKWordEnd_Reg} from '../fulltext/index.js'
+import {weightToken,scoreRange,convolute,getNthTokenX,CJKWordEnd_Reg} from '../search/index.js'
 
 
 export const fuzzyMatchQuote=async (bkobj,q)=>{

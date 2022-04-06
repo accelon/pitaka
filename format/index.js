@@ -41,7 +41,7 @@ const getFormatTypeDef=(config,opts)=>{
     const templeteLabels=Templates[config.template||'simple'].labels;
     if (config.labels) {
         for (let nm in config.labels) {
-            if (templeteLabels[nm]) {
+            if (templeteLabels[nm] && templeteLabels!==Templates.simple.labels) {
                 console.warn("overriding template label",nm, config.labels[nm]);
             }
         }

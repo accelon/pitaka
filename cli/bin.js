@@ -20,7 +20,7 @@ import longline from './longline.js';
 import dictwords from './dictwords.js';
 import pinpoint from './pinpoint.js';
 import {pin} from './pin-brk.js';
-import nGram from '../fulltext/ngram.js';
+import nGram from '../search/ngram.js';
 import {compareText} from '../align/compare.js';
 import {group,entrysort,search,wordseg,intersect} from './offtextutils.js'
 import {autoAlign} from '../align/align.js'

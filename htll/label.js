@@ -8,6 +8,12 @@ class Label {
         this.filename='';
         this.lastLine=opts.lastLine||-1;
         this.count=0;
+        this.attrdef={};
+        for (let opt in opts) {
+            if (opt[0]=='@') { //attribute typedef
+                this.attrdef[opt.slice(1)]=opts[opt];
+            }
+        }
         return this;
     }
     action(){

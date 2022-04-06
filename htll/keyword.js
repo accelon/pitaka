@@ -1,6 +1,6 @@
 import Label from './label.js'
 import {pack_delta,unpack_delta} from'../utils/index.js';
-
+import {addKeywords} from './labelkeyword.js'
 class LabelKeyword extends Label {
     constructor(name,opts={}) {
         super(name,opts)
@@ -55,7 +55,7 @@ class LabelKeyword extends Label {
 
         this._sortedKeywords=keywords;
         const master=ctx.labeldefs[this.master];
-        master.addKeywords(this.name,keywords);
+        addKeywords(master,this.name,keywords);
     }
     positionOf(n) {
         const  at=(typeof n=='string')?this.keys.indexOf(n):n;

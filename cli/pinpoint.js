@@ -1,6 +1,6 @@
 
 import {existsSync, fstat, readFileSync, writeFileSync} from 'fs';
-import { locatePhrase ,fuzzyMatchQuote} from '../fulltext/pinpoint.js'
+import { locatePhrase ,fuzzyMatchQuote} from '../search/pinpoint.js'
 import { openBasket, PATHSEP, useBasket } from '../index.js';
 import {extractChineseNumber} from '../utils/index.js'
 

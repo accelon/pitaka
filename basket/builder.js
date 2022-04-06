@@ -1,6 +1,6 @@
 import {fileContent, removeLabels} from '../format/index.js'
 import JSONPROMWriter from '../jsonprom/jsonpromw.js';
-import Inverter from '../fulltext/inverter.js';
+import Inverter from '../search/inverter.js';
 import {serializeLabels,serializeLineposString,serializeNotes,packNotes} from './serializer.js';
 import {linesOffset} from '../utils/index.js'
 import { initPitakaJSON ,initLabelTypedef } from './config.js';
@@ -166,8 +166,8 @@ class Builder {
             fn=file.name;
         }
         let rootdir='';
-        if (typeof fs!=='undefined' && this.config.rootdir) {
-            rootdir=this.config.rootdir||'';
+        if (typeof fs!=='undefined') {
+            rootdir=this.config.rootdir||'off/';
         }
         if (fn.endsWith('.zip')) {
             throw "not support zip file"

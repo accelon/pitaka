@@ -18,7 +18,7 @@
 	  "./offtext":"./offtext/index.js",
 	  "./xmlparser":"./xmlparser/index.js",
 	  "./nlp":"./nlp/index.js",
-	  "./fulltext":"./fulltext/index.js",
+	  "./search":"./search/index.js",
 	  "./meta":"./meta/index.js",
 	  "./align":"./align/index.js"
   },

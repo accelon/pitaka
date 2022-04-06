@@ -1,6 +1,6 @@
 import {fileContent} from '../format/index.js'
 import {parseOfftextLine} from '../offtext/parser.js';
-import {tokenize,TOKEN_SEARCHABLE,TOKEN_CJK_BMP,TK_NAME,TK_TYPE} from '../fulltext/index.js'
+import {tokenize,TOKEN_SEARCHABLE,TOKEN_CJK_BMP,TK_NAME,TK_TYPE} from '../search/index.js'
 import {alphabetically0,packStrings,pack,pack_delta} from '../utils/index.js'
 class Inverter {
     constructor(opts) {

@@ -1,5 +1,5 @@
 import {unpackPosting,tokenize,TOKEN_SEARCHABLE,
-    TK_NAME,TK_TYPE,TK_POSTING} from '../fulltext/index.js'
+    TK_NAME,TK_TYPE,TK_POSTING} from '../search/index.js'
 
 import {unpackStrings,bsearch,unpack_delta,splitUTF32} from '../utils/index.js'
 

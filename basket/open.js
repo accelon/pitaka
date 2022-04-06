@@ -2,14 +2,15 @@ import JSONPROM from "../jsonprom/jsonprom.js";
 import pool from './pool.js';
 import {deserializeLabels, deserializeLineposString, deserializeNotes} from './serializer.js';
 import {NAMESEP} from '../platform/constants.js';
-import paging from './paging.js';
-import entries from './entries.js';
-import pointers from './pointers.js';
-import mulus from './mulus.js';
-import inverted from './inverted.js';
-import querymethods from './querymethods.js';
-import connections from './connections.js';
-import notesfuncs from './notes.js';
+import pagingAPI from './paging.js';
+import entriesAPI from './entries.js';
+import headingsAPI from './headings.js';
+import pointersAPI from './pointers.js';
+import mulusAPI from './mulus.js';
+import invertedAPI from './inverted.js';
+import querymethodsAPI from './querymethods.js';
+import connectionsAPI from './connections.js';
+import notesAPI from './notes.js';
 import {labelByType} from "../htll/index.js"
 class Basket extends JSONPROM {
     constructor(opts) {
@@ -26,14 +27,15 @@ class Basket extends JSONPROM {
         this.querymethods={};   
         this.labelLang=null;
         this.labelBook=null; //cache the book label
-        for (let f in paging) this[f]=paging[f];
-        for (let f in entries) this[f]=entries[f];
-        for (let f in pointers) this[f]=pointers[f];
-        for (let f in mulus) this[f]=mulus[f];
-        for (let f in inverted) this[f]=inverted[f];
-        for (let f in querymethods) this[f]=querymethods[f];
-        for (let f in connections) this[f]=connections[f];
-        for (let f in notesfuncs) this[f]=notesfuncs[f];
+        for (let f in pagingAPI) this[f]=pagingAPI[f];
+        for (let f in entriesAPI) this[f]=entriesAPI[f];
+        for (let f in headingsAPI) this[f]=headingsAPI[f];
+        for (let f in pointersAPI) this[f]=pointersAPI[f];
+        for (let f in mulusAPI) this[f]=mulusAPI[f];
+        for (let f in invertedAPI) this[f]=invertedAPI[f];
+        for (let f in querymethodsAPI) this[f]=querymethodsAPI[f];
+        for (let f in connectionsAPI) this[f]=connectionsAPI[f];
+        for (let f in notesAPI) this[f]=notesAPI[f];
         this.querystore=null; //query result store 
         this.headings=[];
         this.headingsLinepos=[];
@@ -141,7 +143,10 @@ class Basket extends JSONPROM {
         }
     }
     getChunkLabel() {
-        return this.getLabel(this.header.chunk.split('/')[0]||'bk')
+        return this.getLabel(this.header.chunk.split('/')[0]||'ck')
+    }
+    getHeadingLabel() {
+        return this.getLabel(this.header.heading.split('/')[0]||'ck')
     }
     find(label,tofind,near) {
         const lbl=this.getLabel(label);

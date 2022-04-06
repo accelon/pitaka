@@ -1,5 +1,5 @@
 import { fromSim } from "lossless-simplified-chinese";
-import { phraseQuery } from "../fulltext/index.js";
+import { phraseQuery } from "../search/index.js";
 export async function fulltextSearch(tofind,opts={}){
     const ptk=this;
     let posting=await phraseQuery(ptk,tofind);

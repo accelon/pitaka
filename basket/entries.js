@@ -1,57 +1,28 @@
-import { bsearch } from "../utils/bsearch.js" ;
+
+import {matchEntry,filterEntry} from "../search/entry.js";
+
 function getEntry(n) {
     const lbl=this.getLabel('e');
     if (!lbl)return [];
     return [n, lbl.idarr[n] , ...lbl.getRange(n)];
 }
-function filterEntry(tofind,mode=0){
+function filterDictEntry(tofind,mode=0) {
     const lbl=this.getLabel('e');
     if (!lbl)return [];
-    const out=[];
-    if (mode==0) {
-        let at=bsearch(lbl.idarr,tofind,true);
-        while (at>-1 && at<lbl.idarr.length) {
-            if (lbl.idarr[at].substr(0,tofind.length)==tofind) {
-                const [from,to]=lbl.getRange(at);
-                out.push({nth:at,entry:lbl.idarr[at], attrs:lbl.getAttrs(at),from,to});
-                at++
-            } else break;
+    const entries=filterEntry(tofind,lbl.idarr,mode=0);
+    return entries.map(i=>{
+        const [from,to]=lbl.getRange(i);
+        return {
+            
+            nth:i,caption:lbl.names[i],entry:lbl.idarr[i], attrs:lbl.getAttrs(i),from,to
         }
-    } else if (mode===2){ //後
-        for (let i=0;i<lbl.idarr.length;i++) {
-            const name=lbl.idarr[i];
-            const at=name.indexOf(tofind);
-            if (at>0&&at+tofind.length==name.length) {
-                const [from,to]=lbl.getRange(i)
-                out.push({nth:i,entry:lbl.idarr[i], attrs:lbl.getAttrs(i),from,to  });
-            }
-        }    
-    } else {
-        for (let i=0;i<lbl.idarr.length;i++) {
-            const name=lbl.idarr[i];
-            const at=name.indexOf(tofind);
-            if (at>0 && at+tofind.length<name.length) {
-                const [from,to]=lbl.getRange(i)
-                out.push({nth:i,entry:lbl.idarr[i],  attrs:lbl.getAttrs(i),from,to});
-            }
-        }    
-    }
-    return out;
+      });
 }
-function matchEntry(tofind){
+function matchDictEntry(tofind){
     if (!tofind)return;
     const lbl=this.getLabel('e');
     if (!lbl)return [];
-    const out=[];
-    for (let i=1;i<=tofind.length;i++) {
-        const at=lbl.find(tofind.substr(0,i));
-        if (at>-1) {
-            const [from,to]=lbl.getRange(at);
-            out.push({at,e:lbl.idarr[at],from,to } );
-        }
-    }
-    out.sort((a,b)=>b.e.length-a.e.length);
-    return out;
+    return matchEntry(tofind,lbl);
 }
 function getName(tag){
     const m=tag.match(/([a-z]+)(\d+)/);
@@ -66,4 +37,4 @@ function getName(tag){
     return '';
 }
 
-export default {getName,matchEntry,filterEntry,getEntry}
+export default {getName,matchDictEntry,filterDictEntry,getEntry}
