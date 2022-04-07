@@ -11,7 +11,13 @@ export function matchEntry(tofind,lbl) {
     out.sort((a,b)=>b.e.length-a.e.length);
     return out;    
 }
-
+export function allEntry(entries){
+    const out=[];
+    for (let i=0;i<entries.length;i++) {
+        out.push(i)
+    }
+    return out;
+}
 export function filterEntry(tofind,entries,mode=0){
     const out=[];
     if (mode==0) {

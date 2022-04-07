@@ -19,21 +19,16 @@ export const plFind=(arr, v, p=0)=>{
 }
 
 export const plAnd=(pl1,pl2,dist=1)=>{
-    let p1 = 0, p2 = 0 , c=0;
+    let p2 = 0 , c=0;
     if (pl1.length==0 ||pl2.length==0) return [];
     const sz=Math.min(pl1.length,pl2.length);
     let out=new Int32Array(sz);
-
-    while (p1 < pl1.length && p2 < pl2.length)  {
-        var v1 = pl1[p1]+dist;
-        let v2 = pl2[p2];
-        if (v1>v2) {
-            p2 = plFind(pl2, v1, p2);
-        } else if (v2>v1) {
-            p1 = plFind(pl1, v2, p1);
-        } else {
+    for (let p1=0;p1<pl1.length;p1++){
+        let v1=pl1[p1]+dist;
+        let v2=pl2[p2];
+        while (v1>v2 && p2<pl2.length) v2=pl2[++p2];
+        if (v1===v2) {
             out[c++]=v1-dist;
-            p1++;p2++;
         }
     }
     return new Int32Array( out.slice(0,c));

@@ -1,4 +1,5 @@
 import {bsearch} from'../utils/index.js';
+import {ATTRPREFIX} from '../platform/constants.js'
 class Label {
     constructor(name,opts) {
         this.cb=opts.cb;
@@ -9,12 +10,27 @@ class Label {
         this.lastLine=opts.lastLine||-1;
         this.count=0;
         this.attrdef={};
+        this.attrIndex=null;
         for (let opt in opts) {
-            if (opt[0]=='@') { //attribute typedef
+            if (opt[0]===ATTRPREFIX) { //attribute typedef
                 this.attrdef[opt.slice(1)]=opts[opt];
             }
         }
         return this;
+    }
+    findAttrVal(attr,vals){ // vals separate by ',' , or pass in an array
+        if (!this.attrIndex) return [];
+        const A=this.attrIndex[attr];
+        if (!A) return [];
+        const matches={};
+        if (typeof vals=='string') vals=vals.split(',');
+        for (let i=0;i<vals.length;i++) {
+            const V=A[vals[i]];
+            for (let j=0;j<V.length;j++) {
+                if (!matches[V[j]]) matches[V[j]]=true;
+            }
+        }
+        return Object.keys(matches);
     }
     action(){
         this.count++;

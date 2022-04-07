@@ -155,20 +155,24 @@ export const parseOfftextHeadings=(str,starty=0,locator='n')=>{
     const out=lines.map((line,y)=>parseOfftextLine(line,y+starty));
     const text=out.map(item=>item[0]);
     if (typeof locator==='string') locator=locator.split(LOCATORSEP)
-    const leafloc=locator[locator.length-1];
-    const quickleafloc=OFFTAG_LEADBYTE+leafloc;
     const tags=[];
     out.forEach(item=>tags.push(...item[1]));
-    for (let i=0;i<lines.length;i++) {
-        const t=lines[i];
-        if (t.indexOf(quickleafloc)>0) {//might have headings before leafloc
-            const loctag=out[i][1].filter( tag=>tag.name===leafloc);
-            if (loctag.length) {
-                const offset=loctag[0].offset; //start of ^n
-                headings.push([starty+i, t.substr(0,offset)]); //prepend at jsonprom.js::setChunk
-                lines[i]=t.substr(offset);
+
+    if (locator.length>1) { //only for two level locator bk.n
+        const leafloc=locator[locator.length-1];
+        const quickleafloc=OFFTAG_LEADBYTE+leafloc;
+    
+        for (let i=0;i<lines.length;i++) {
+            const t=lines[i];
+            if (t.indexOf(quickleafloc)>0) {//might have headings before leafloc
+                const loctag=out[i][1].filter( tag=>tag.name===leafloc);
+                if (loctag.length) {
+                    const offset=loctag[0].offset; //start of ^n
+                    headings.push([starty+i, t.substr(0,offset)]); //prepend at jsonprom.js::setChunk
+                    lines[i]=t.substr(offset);
+                }
             }
-        }
+        }    
     }
     return {text,tags,headings,writertext:lines};
 }

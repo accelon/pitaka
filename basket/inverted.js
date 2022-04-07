@@ -1,7 +1,7 @@
-import {unpackPosting,tokenize,TOKEN_SEARCHABLE,
-    TK_NAME,TK_TYPE,TK_POSTING} from '../search/index.js'
+import {unpackPosting,tokenize,TOKEN_SEARCHABLE,LINETOKENGAP,
+    TK_NAME,TK_TYPE,TK_POSTING,getTokenX} from '../search/index.js'
 
-import {unpackStrings,bsearch,unpack_delta,splitUTF32} from '../utils/index.js'
+import {unpackStrings,bsearch,unpack_delta} from '../utils/index.js'
 
 async function prepareToken(str){
     if (!this.inverted) await this.setupInverted();
@@ -76,5 +76,19 @@ async function setupInverted(cb){
 
 }
 
-
-export default {prepareToken,setupInverted}
+export function hitPos(y,posting,tofind){ //to be extend to multiple tofinds
+    const tofindlen=tokenize(tofind||'').length;
+    if (!posting.length || !this.inverted || !this.inverted.linetokenpos) return [];
+    const ltp=this.inverted.linetokenpos;
+    const from=ltp[y-1];
+    const to=ltp[y];
+    const hits=posting.filter(v=>v>=from&&v<to).map(v=>v-from-LINETOKENGAP+1); //hits is one base
+    const line=this.getLine(y);
+    const tokenpos=getTokenX( line,hits);
+    return tokenpos.map(it=>[it,tofindlen]);
+}
+export function lineOfPosting(posting){
+    const ltp=this.inverted.linetokenpos;
+    return posting.map( v=> bsearch(ltp,v,true) );
+}
+export default {prepareToken,setupInverted, hitPos, lineOfPosting}

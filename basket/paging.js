@@ -372,12 +372,21 @@ function headingOf(y_loc){
     let y=y_loc;
     if (typeof y!=='number') y=this.locY(y_loc);
 
+    let linepos,names;
+    if (this.headingsLinepos && this.headingsLinepos.length) {
+        names=this.headings;
+        linepos=this.headingsLinepos;
+    } else {
+        const lbl=this.getHeadingLabel();
+        names=lbl.names;
+        linepos=lbl.linepos;
+    }
     if (!y) return ['',-1,0];
-    let at=bsearch(this.headingsLinepos,y,true);
-    if (at&&this.headingsLinepos[at]>y) at--;
-    const rawtext=this.headings[at]
+    let at=bsearch(linepos,y,true);
+    if (at&&linepos[at]>y) at--;
+    const rawtext=names[at]
     const [text]=parseOfftextLine(rawtext);
-    return {text, rawtext,  at, idx:this.headingsLinepos[at]-y, y };
+    return {text, rawtext,  at, idx:linepos[at]-y, y };
 }
 export default {closest,getTocTreeDef,getTocTree,getNChild,childCount,dyOf,locOf,chunkOf,pageLoc,
     fetchPage,fetchToc,fetchFootnote,getPageRange,narrowDown,getLabelLineRange,locY,

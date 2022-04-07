@@ -18,6 +18,7 @@ export * from './pattern.js'
 export * from './errata.js'
 export * from './base26.js'
 export * from './loadscript.js'
+export * from './array.js'
 
 export function linesOffset(lines){
     const out=[0];

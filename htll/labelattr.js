@@ -1,22 +1,22 @@
 
 
 export function doAttributes(self,tag,linetext){
+    if (!self.attrIndex) self.attrIndex={};
+    const A=self.attrIndex;
     for (let attr in tag.attrs) {
         const val=tag.attrs[attr];
-        
         if (self.attrdef[attr]) {
-            const valueCounter='__counter.'+tag.name+'@'+attr;
-            if (!self[valueCounter]) {
-                self[valueCounter]={};
+            if (!A[attr]) {
+                A[attr]={};
                 const options=self.attrdef[attr].options;
                 for (let i=0;i<options.length;i++) {
-                    self[valueCounter][options[i][0]]=0;
+                    A[attr][options[i][0]]=[];
                 }
             };
-            const validval=typeof self[valueCounter][val] !== 'undefined';
-            if (!validval) console.warning("invalid attribute value, attr key=",val,'line',linetext);
+            const validval=typeof A[attr][val] !== 'undefined';
+            if (!validval) console.warn("invalid attribute value, attr key=",val,'line',linetext);
             else {
-                self[valueCounter][val]++;
+                A[attr][val].push(self.count);
             }
         }
     }

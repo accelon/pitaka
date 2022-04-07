@@ -1,6 +1,8 @@
 import Label from './label.js'
 import {unpack_delta} from'../utils/index.js';
 import { doAttributes } from './labelattr.js';
+import {serializeAttributes,deserializeAttributes} from './attributes.js'
+
 /*
   support multiple level,    num/alpha/num/alpha, e.g
   ^c0s56b2  mula(1 for att,2 for tik) samyutta 56 , second vagga , 2 sutta tathāgatasuttaṃ
@@ -43,19 +45,23 @@ class LabelChunk extends Label {
     }
     serialize(){
         const out=super.serialize();
-        out.push(JSON.stringify({hasname:this.hasname}));
+        const lblheader={hasname:this.hasname}
+        if (this.attrIndex) lblheader.attrs =true;
+        out.push(JSON.stringify(lblheader));
         out.push(this.linepos); 
         out.push(this.idarr.join('\t'));  
-        if (this.hasname) out.push(this.names.join('\t'));  
-        return out;
+        if (this.hasname) out.push(this.names.join('\t')); 
+        return out.concat(serializeAttributes(this.attrIndex));
     }
     deserialize(payload){
+
         let at=super.deserialize(payload);
         const opts=JSON.parse(payload[at++]);payload[at-1]='';
         this.hasname=opts.hasname;
         this.linepos=unpack_delta(payload[at++]);payload[at-1]='';
         this.idarr=payload[at++].split('\t');payload[at-1]='';
         if (this.hasname && payload[at]) this.names=payload[at++].split('\t');payload[at-1]='';
+        if (opts.attrs) this.attrIndex=deserializeAttributes(payload,at);
     }
     query(tofind){
         const matches=[];

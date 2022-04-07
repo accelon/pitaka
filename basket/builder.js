@@ -109,6 +109,7 @@ class Builder {
             rawcontent=removeLabels(rawcontent,this.config.removeLabels);
             const {writertext,text,tags,headings}=parseOfftextHeadings(rawcontent,this.context.ptkline,this.config.locator);
             this.context.headings.push(...headings);
+
             this.context.linesOffset=linesOffset(text);
             this.context.lineCount=text.length;            
             if (this.exec) {
@@ -202,7 +203,6 @@ class Builder {
             this.writer.addSection('inverted',true);                
             const inverted=this.inverter.serialize();
             this.writer.append(inverted,true); //force new chunk
-
             if (this.context.headings.length) {
                 this.writer.addSection('headings');
                 const headings=serializeLineposString(this.context.headings);

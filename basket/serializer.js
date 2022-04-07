@@ -1,4 +1,4 @@
-import {LabelTypedefs,labelByType} from '../htll/index.js'
+import {labelByType,LabelTypedefs} from '../htll/index.js'
 import { pack, pack_delta } from '../utils/packintarray.js';
 import { unpack_delta,unpack } from '../utils/unpackintarray.js';
 

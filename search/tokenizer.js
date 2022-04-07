@@ -3,7 +3,7 @@ TOKEN_ROMANIZE=20,TOKEN_CJK=0x30,
 TOKEN_CJK_BMP=0x31,TOKEN_CJK_SURROGATE=0x32;
 export const TOKEN_ID_UNKNOWN=-1;
 export const TK_WEIGHT=0,TK_POSTING=1,TK_NAME=2,TK_OFFSET=3,TK_TYPE=4;
-
+export const LINETOKENGAP=5;
 import {parseOfftextLine} from '../offtext/index.js'
 import {CJKWord_Reg,Romanize_Reg} from './utils.js'
 export const tokenize=text=>{
@@ -77,15 +77,25 @@ export const weightToken=tokens=>{
     return out;
 }
 export const getNthTokenX=(str,n)=>{ //get char offset of nth Searchble token
+    return getTokenX(str,[n]);
+}
+export const getTokenX=(str,hits)=>{
     const [text]=parseOfftextLine(str);
     const tokens=tokenize(text);
-    let i=0;
-    while (i<tokens.length&&n>0) {
-        if (tokens[i][TK_TYPE]>=TOKEN_SEARCHABLE) n--;
-        if (n===0) return tokens[i][TK_OFFSET];        
-        i++;
+    let i=0,acc=0;
+    const out=[];
+    for (let j=0;j<hits.length;j++) {
+        const  n=hits[j];
+        while (i<tokens.length) {
+            if (tokens[i][TK_TYPE]>=TOKEN_SEARCHABLE) acc++;
+            if (n===acc) {
+                out.push(tokens[i][TK_OFFSET]);
+                i++;
+                break;
+            }
+            i++;
+        }
     }
-
-    return tokens[tokens.length-1][TK_OFFSET];
+    return out;
 }
-export default {tokenize,TOKEN_CJK,TOKEN_ROMANIZE,getNthTokenX,weightToken}
+export default {tokenize,TOKEN_CJK,TOKEN_ROMANIZE,getNthTokenX,getTokenX,weightToken}

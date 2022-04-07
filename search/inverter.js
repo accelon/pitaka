@@ -1,6 +1,6 @@
 import {fileContent} from '../format/index.js'
 import {parseOfftextLine} from '../offtext/parser.js';
-import {tokenize,TOKEN_SEARCHABLE,TOKEN_CJK_BMP,TK_NAME,TK_TYPE} from '../search/index.js'
+import {tokenize,TOKEN_SEARCHABLE,TOKEN_CJK_BMP,TK_NAME,TK_TYPE,LINETOKENGAP} from '../search/index.js'
 import {alphabetically0,packStrings,pack,pack_delta} from '../utils/index.js'
 class Inverter {
     constructor(opts) {
@@ -47,7 +47,7 @@ class Inverter {
         for (let i=0;i<lines.length;i++) {
             this.tokenCount=this.indexLine(lines[i],this.tokenCount); //10 to split paragraph
             this.linetokenpos[ndoc+1]=this.tokenCount;
-            this.tokenCount+=5;//gap between lines
+            this.tokenCount+=LINETOKENGAP;//gap between lines
             ndoc++;
         }
     }
