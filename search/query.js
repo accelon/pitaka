@@ -1,16 +1,18 @@
 import {plAnd,getCounter, getSpeed} from './posting.js';
-export const phraseQuery=async (ptk,phrase)=>{
-    // console.time('prepare')
-    const tokens=await ptk.prepareToken(phrase);
-    // console.timeEnd('prepare')
+const queryCache={};
 
-    let out=tokens[0][1];
-    // console.time('phrase')
+export const phraseQuery=async (ptk,phrase)=>{
+    phrase=phrase.trim();
+    const qkey=ptk.name+'@'+phrase;    
+    let out=queryCache[qkey];
+    if (out) return out;
+    const tokens=await ptk.prepareToken(phrase);
+    out=tokens[0][1];
     for (let i=1;i<tokens.length;i++) {
         let pl1=out;
         out=plAnd(pl1,tokens[i][1],i);
     }
-
+    queryCache[qkey]=out;
     return out;
 };
 

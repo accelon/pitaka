@@ -30,7 +30,7 @@ class Label {
                 if (!matches[V[j]]) matches[V[j]]=true;
             }
         }
-        return Object.keys(matches);
+        return Object.keys(matches).map(it=>parseInt(it));
     }
     action(){
         this.count++;

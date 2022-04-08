@@ -1,5 +1,5 @@
 import { fromSim } from "lossless-simplified-chinese";
-import { phraseQuery } from "../search/index.js";
+import { phraseQuery,plRanges } from "../search/index.js";
 export async function fulltextSearch(tofind,opts={}){
     const ptk=this;
     let posting=await phraseQuery(ptk,tofind);
@@ -7,6 +7,10 @@ export async function fulltextSearch(tofind,opts={}){
         tofind=fromSim(tofind);
         posting=await phraseQuery(ptk,tofind);
     }
+    if (opts.ranges && opts.ranges.length) {//only search in ranges
+        posting=plRanges(posting,opts.ranges);
+    }
+
     let scoredLine=[];
     const PL=[posting];
     const scores=[1];
@@ -16,6 +20,7 @@ export async function fulltextSearch(tofind,opts={}){
     const ltp=ptk.inverted.linetokenpos;
     const ltplast=ltp[ltp.length-1];
     const averagelinelen=ltplast/ltp.length;
+
     if (opts.excerpt) {
         let i=0;
         while (i<ltp.length-1) {

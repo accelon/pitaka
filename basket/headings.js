@@ -7,4 +7,26 @@ function getHeadingFilters(){
     }
     return filters;
 }
-export default {getHeadingFilters}
+const combineRanges=ranges=>{ //reduce range count, faster posting filtering
+    const out=[];
+    let pend=-1;
+    for (let i=0;i<ranges.length;i++) {
+        const r=ranges[i];
+        if (pend==r[0]) {
+            out[out.length-1][1]=r[1]
+        } else {
+            out.push( [ r[0], r[1] ] );
+        }
+        pend=r[1];
+    }
+    return out;
+}
+function getHeadingRanges(headings){//given heading idx , return its token pos, for fulltext search excludes 
+    if (!this.inverted) return [];
+    const lbl=this.getHeadingLabel();
+    const ltp=this.inverted.linetokenpos;
+    const ranges=headings.map(idx=> [ ltp[lbl.linepos[idx]],ltp[lbl.linepos[idx+1]]]);
+    return combineRanges(ranges);
+}
+
+export default {getHeadingFilters,getHeadingRanges}

@@ -49,11 +49,24 @@ export const plCount=(pl,plgroup)=>{
     }
     return out;
 }
-
+export const plRanges=(posting,ranges)=>{
+    if (!ranges||!ranges.length)return posting;
+    const out=[];
+    let j=0, r=ranges[j];
+    for (let i=0;i<posting.length;i++) {
+        const p=posting[i];
+        if (p>=r[0] && r[1]>=p) out.push(p);
+        while (p>r[0] && j<ranges.length-1){
+            r=ranges[++j];
+        }
+        if (j>=ranges.length) break;
+    }
+    return out;
+}
 export const scoreLines=weightToken=>{
 
 }
 export const getCounter=()=>counter;
 export const getSpeed=()=>maxspeed;
 export const resetCounter=()=>counter=0;
-export default {plAnd,plFind,getCounter,resetCounter,scoreLines}
+export default {plAnd,plFind,getCounter,resetCounter,scoreLines,plRanges}

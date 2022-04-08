@@ -73,7 +73,6 @@ async function setupInverted(cb){
     this.loadtime.deleteline=new Date()-now; now= new Date();
 
     this.inverted={header,tokens,linetokenpos,postingStart:from+3,cache:{}}
-
 }
 
 export function hitPos(y,posting,tofind){ //to be extend to multiple tofinds
