@@ -20,7 +20,8 @@
 	  "./nlp":"./nlp/index.js",
 	  "./search":"./search/index.js",
 	  "./meta":"./meta/index.js",
-	  "./align":"./align/index.js"
+	  "./align":"./align/index.js",
+	  "./denote":"./denote/index.js"
   },
   "bin":"cli/bin.js",
   "main": "./index.js",

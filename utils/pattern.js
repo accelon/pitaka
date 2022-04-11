@@ -41,15 +41,15 @@ const expandWildcard=(folder,pat,isDir)=>{
 export function filesFromPattern(pat,rootdir=''){
     const outfiles={};
     const patterns=(typeof pat==='string')?pat.split(/[;,]/):pat;
-    if (rootdir&&rootdir.substr(rootdir.length-1)!=='/') rootdir+='/';
+    if (rootdir&&rootdir.slice(rootdir.length-1)!=='/') rootdir+='/';
 
     patterns.forEach(pat=>{
         const at=pat.lastIndexOf('/');
         let dir='';
         let subfolders=[''];
         if (at>-1) {
-            dir=pat.substr(0,at);
-            pat=pat.substr(at+1);
+            dir=pat.slice(0,at);
+            pat=pat.slice(at+1);
             subfolders=expandWildcard(rootdir,dir,true);
         } else {
             subfolders=['']
@@ -74,5 +74,8 @@ export function filesFromPattern(pat,rootdir=''){
     return out;
 }
 
-
-export default {glob}
+export const isIAST=w=>{
+    const m=w.match(/([a-zA-Zḍṭṇñḷṃṁṣśṅṛāīūâîû]+)/);
+    return (m && m[1].length==w.length);
+}
+export default {glob,filesFromPattern,isIAST}

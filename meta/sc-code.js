@@ -40,7 +40,8 @@ export const getFilesOfBook=(pat,filesFolders,rootfolder)=>{
     if (typeof folders==='string') {
         const out=[];
         folders.split(',').forEach(f=>{
-            out.push(... FilesOfBook[f]);
+        	if (filesFolders[f]) out.push(... filesFolders[f]);
+        	else out.push(f);
         });
         folders=out;
     }

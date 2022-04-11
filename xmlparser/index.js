@@ -1,7 +1,7 @@
 import Sax from './sax.js'
 import Element from './element.js'
 
-const DOMFromString=str=>{
+const DOMFromString=(str,debug)=>{
     let tree;
     let el;
     const startElement=(name,attrs)=>{
@@ -53,9 +53,9 @@ const xpath=(root,p)=>{
     return el;
 }
 const walkDOM=(el,teictx,onOpen={},onClose={},onText=null)=>{
+    onText=onText||teictx.onText;
     if (typeof el==='string') return onText?onText(el,teictx):el;
     let out='';
-
     const openhandler= onOpen[el.name] || onOpen["*"];
     if (openhandler) {
         const out2 = openhandler(el,teictx);
@@ -68,9 +68,10 @@ const walkDOM=(el,teictx,onOpen={},onClose={},onText=null)=>{
     if (closehandler) out+=closehandler(el,teictx)||'';    
     return out;
 }
-/* helper for emiting offtext format*/
-const onOfftext=(el,teictx)=>{
-    let s=el.trimRight();
+const onOfftext=(el,teictx,onText)=>{
+    onText=onText||teictx.onText;
+    let s=el;
+    // if (teictx.trimRight) s=s.trimRight();
     if (teictx.hide || teictx.delete) { 
         teictx.delete=false;
         return '';
@@ -80,11 +81,15 @@ const onOfftext=(el,teictx)=>{
         teictx.compact=false;
     }
     if (s) teictx.snippet=s;
-    return teictx.started?s:'';
+    if (onText) {
+        return onText(el,teictx,teictx.started?s:'');
+    } else {
+        return teictx.started?s:'';
+    }
 }
-
-const walkDOMOfftext = (el,teictx,onOpen={},onClose={},onText=onOfftext) =>{
-    return walkDOM(el,teictx,onOpen,onClose,onText);
+const walkDOMOfftext = (el,teictx,onOpen={},onClose={}) =>{
+    /* helper for emiting offtext format*/
+    return walkDOM(el,teictx,onOpen,onClose, onOfftext );
 }
 
 

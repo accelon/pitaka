@@ -7,7 +7,6 @@ export const isChineseNumber=(str,pat)=>{
     pat=pat||/[一二三四五六七八九十百千○〇]+/
     return str.replace(pat,'')=='';
 }
-
 export const fromChineseNumber=str=>{
     return parseInt(str
     .replace(/百([二三四五六七八九])十/,'$1十')
