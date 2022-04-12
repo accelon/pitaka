@@ -1,8 +1,8 @@
-import TIASTList from './iastlist.js';
-import TList from './list.js';
+import TDenList from './denlist.js';
 import {combineList} from './combine.js'
 
-const vri=new TIASTList('Namo tassa bhagavato arahato sammāsambuddhassa nikāyo',{akey:'vri'});
+const vri=new TDenList('Namo tassa bhagavato arahato sammāsambuddhassa nikāyo'
+,{akey:'vri',lang:'iast'});
 
 const kmjtable=[['Namo','nam	名	as	中	単	主	南無、礼拝'],
 ['tassa','	代	代的	男	単	与	それ、かれ'],
