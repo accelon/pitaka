@@ -1,10 +1,11 @@
-import {OFFTAG_COMPACT_ATTR} from '../offtext/index.js'
 export const XMLSerializer=den=>{
     let str='';
     for (let i=0;i<den.data.length;i++) {
         const it=den.data[i];
         const attr=it[den.akey]||{};
-        str+=  (attr.open||'')+it.tk+(attr.close||'');
+        str+=  (attr.open||'') 
+          + (it.lead?it.lead:'')+it.tk + (it.tail?it.tail:'') //the puncuation
+          +(attr.close||'');
     }
     return str;
 }

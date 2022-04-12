@@ -1,6 +1,6 @@
 import {OFFTAG_REGEX_SPLIT,OFFTAG_LEADBYTE,parseOffTag,serializeAttributes} from '../offtext/index.js'
 const plainMarkup=str=>{
-    return [str,null];
+    return [[str,{}]];
 }
 const offtextMarkup=str=>{ //offtext assumn linux linebreak
     const tokens=str.split(OFFTAG_REGEX_SPLIT);
@@ -25,6 +25,7 @@ const offtextMarkup=str=>{ //offtext assumn linux linebreak
             open='';
         }
     }
+
     return out;
 }
 
@@ -46,6 +47,7 @@ const XMLMarkup=str=>{ //naive , doesn't deal with CDATA
             out.push([tk,attr]);
         }
     }
+
     return out;
 }
 

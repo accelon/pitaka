@@ -1,4 +1,4 @@
-export const combineList=(IList,JList,opts={})=>{
+export const diffList=(IList,JList,opts={})=>{
     const maxdiff=opts.maxdiff||10;
     const out=[];
     const I=IList.items(), J=JList.items(), attrI=IList.akey, attrJ=JList.akey;
