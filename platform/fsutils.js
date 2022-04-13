@@ -38,5 +38,5 @@ export const readTextContent=(fn,enc='utf8')=>{
     if (s.charCodeAt(0)===0xfeff) s=s.substr(1);
     return s.replace(/\r?\n/g,'\n');
 }
-export  const readTextLines=fn=>readTextContent(fn,enc).split(/\r?\n/);
+export  const readTextLines=(fn,enc='utf8')=>readTextContent(fn,enc).split(/\r?\n/);
 export default {findPitakaFolder,readTextContent,readTextLines}

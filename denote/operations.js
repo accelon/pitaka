@@ -46,5 +46,7 @@ export const diffList=(IList,JList,opts={})=>{
             i=pi+1;  //no match , advance I
         }
     }
+    while (i<Ilen) add(1,i++,-1);
+    while (j<Jlen) add(-1,-1,j++);
     return out;
 }
