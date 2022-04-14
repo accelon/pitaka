@@ -1,5 +1,5 @@
 export const tokenizeIAST=(str,opts={})=>{
-    const pattern=opts.pattern||/([a-zA-Zḍṭṇñḷṃṁṣśṅṛāīūâîû]+)/ig
+    const pattern=opts.pattern||/([a-zA-Zḍṭṇñḷṃṁṣśṅṛāīūâîû]+\d*)/ig
     const o=str.split(pattern).filter(it=>!!it);
     if (opts.tokenOnly) return o;
     else return o.map(raw=>{return [raw,null]});
@@ -7,7 +7,7 @@ export const tokenizeIAST=(str,opts={})=>{
 tokenizeIAST.splitPunc=str=>str;
 
 export const tokenizeIASTPunc=(str,opts={})=>{
-    opts.pattern=/([“‘]*[a-zA-Zḍṭṇñḷṃṁṣśṅṛāīūâîû]+[ ’।॥\.,;?\!…”–]*)/ig
+    opts.pattern=/([“‘]*[a-zA-Zḍṭṇñḷṃṁṣśṅṛāīūâîû]+\d*[’।॥\.,;?\!…”–]* *)/ig
     return tokenizeIAST(str,opts);
 }
 tokenizeIASTPunc.splitPunc=token=>{
@@ -17,7 +17,7 @@ tokenizeIASTPunc.splitPunc=token=>{
     	lead=mlead[1];
 		token=token.slice(lead.length);
 	}
-	const mtail=token.match(/([ ’।॥\.,;?\!”]*)$/);
+	const mtail=token.match(/(\d*[’।॥\.,;?\!…”–]* *)$/);
 	if (mtail) {
 		tail=mtail[1];
 		token=token.slice(0,token.length-tail.length);

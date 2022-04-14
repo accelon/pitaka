@@ -31,6 +31,7 @@ export class TDenList {
             }
             for (let j=0;j<tokens.length;j++){
             	const [lead,tk,tail]=tokenize.splitPunc(tokens[j][0]);
+                if (!tk.length) continue;
             	const o={tk,...attr};
             	if (lead) o.lead=lead;if (tail) o.tail=tail;
             	o[this.akey]=tokens[j][1];

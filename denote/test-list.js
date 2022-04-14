@@ -1,5 +1,5 @@
 import TDenList from './denlist.js';
-import {combineList} from './combine.js'
+import {diffList} from './operation.js'
 
 const vri=new TDenList('Namo tassa bhagavato arahato sammāsambuddhassa nikāyo'
 ,{akey:'vri',lang:'iast'});

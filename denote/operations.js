@@ -6,10 +6,10 @@ export const diffList=(IList,JList,opts={})=>{
     let i=0,j=0;
     const add=(m,a=-1,b=-1)=>{ // m:0 equal , m:1 only in I , m:-1 only in J
         let obj;
-        if (a>-1) obj={m,tk:I[a].tk,[attrI]:I[a][attrI] };
+        if (a>-1) obj={m,tk:I[a].tk,[attrI]:I[a][attrI], lead:I[a].lead, tail:I[a].tail };
         if (b>-1) {
             if (!obj) {
-                obj={m,tk:J[b].tk,[attrJ]:J[b][attrJ] };
+                obj={m,tk:J[b].tk,[attrJ]:J[b][attrJ], lead:J[b].lead, tail:J[b].tail };
             } else {
                 obj[attrJ]=J[b][attrJ];
             }
