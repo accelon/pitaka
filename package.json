@@ -21,7 +21,8 @@
 	  "./search":"./search/index.js",
 	  "./meta":"./meta/index.js",
 	  "./align":"./align/index.js",
-	  "./denote":"./denote/index.js"
+	  "./denote":"./denote/index.js",
+    "./pali":"./pali/index.js"
   },
   "bin":"cli/bin.js",
   "main": "./index.js",

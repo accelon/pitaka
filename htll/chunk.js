@@ -46,7 +46,7 @@ class LabelChunk extends Label {
     serialize(){
         const out=super.serialize();
         const lblheader={hasname:this.hasname}
-        if (this.attrIndex) lblheader.attrs =true;
+        if (this.attrIndex&&Object.keys(this.attrIndex).length) lblheader.attrs =true;
         out.push(JSON.stringify(lblheader));
         out.push(this.linepos); 
         out.push(this.idarr.join('\t'));  
