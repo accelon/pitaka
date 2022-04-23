@@ -207,7 +207,6 @@ export const OfftextToSnippet =(linetext , extra=[] , renderInlinetag=true, debu
     if (extra[0]==extra[1]) extra[0]=''
     let tags=[],text=linetext;
     if (hastag && renderInlinetag) [text,tags]=parseOfftextLine(linetext);
-
     extra=extra.filter(i=>!!i);
     for (let i=0;i<extra.length;i++) {
         if (typeof extra[i]==='string' && extra[i].trim()) { //search keyword
