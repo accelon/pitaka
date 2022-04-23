@@ -163,9 +163,12 @@ export const renderSnippet=(lines=[],tags=[])=>{
 
 export const composeSnippet=(snippet,lineidx,sim=0,script)=>{
     const {text,open,close}=snippet;
-    let t=text;
-    if (script) t=offtext2indic(text,script);
-    else if (parseInt(sim)) t=toSim(text,sim)
+    let t=text, oritext='';
+    if (script) {
+        t=offtext2indic(text,script);
+        if (t!==text) oritext=text;
+    } else if (parseInt(sim)) t=toSim(text,sim);
+
     let out='';
     if (open && open.empty) {
         out+=open.extra+'<'+open.empty+(open.i?' i="'+open.i+'" ':'')
@@ -178,6 +181,7 @@ export const composeSnippet=(snippet,lineidx,sim=0,script)=>{
                 +' x="'+open.x+'"'+' y="'+(lineidx+open.y)+'"'
                 + (open.w?' w="'+(open.w)+'"':'')
                 +(open.i?' i="'+open.i+'" ':'')
+                +(oritext?' ori="'+oritext+'" ':'')
                 +'>'
         +t
         +'</t'+(close&&close.i?' i="'+close.i+'" ':'')+'>';
