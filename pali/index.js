@@ -1,2 +1,5 @@
 export * from './compound.js'
 export * from './tokenoffset.js'
+export * from './wordcard.js'
+export * from './factorizer.js'
+export * from './formula.js'

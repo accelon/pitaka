@@ -61,8 +61,7 @@ const  addErrata=(pat,context)=> {
         })
     });
 }
-
-export const initPitakaJSON=(config,context,log)=>{
+export const initConfigTemplate=config=>{
     const template=Templates[config.template||'simple'];
     if (config.template && !template) {
         throw "template "+config.template+" not found";
@@ -73,6 +72,14 @@ export const initPitakaJSON=(config,context,log)=>{
             config[key]=template[key];
         }
     }
+}
+export const getSrcFiles=(config,withfolder=false)=>{
+    initConfigTemplate(config);
+    const files=filesFromPattern(config.files,config.rootdir);
+    return withfolder?files.map(f=>config.rootdir+f):files;
+}
+export const initPitakaJSON=(config,context,log)=>{
+    initConfigTemplate(config);
     context.labeldefs=getFormatTypeDef(config,{context:context,log});
 
     if (!config.chunk) {

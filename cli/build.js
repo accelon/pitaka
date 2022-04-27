@@ -1,5 +1,5 @@
-import {Builder} from 'pitaka/basket'
-import {filesFromPattern} from 'pitaka/utils'
+import Builder from '../basket/builder.js'
+import {filesFromPattern} from '../utils/pattern.js'
 import kluer from './kluer.js'
 const {yellow,red} = kluer;
 import {existsSync,readFileSync} from 'fs'

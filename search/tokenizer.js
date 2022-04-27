@@ -6,8 +6,10 @@ export const TK_WEIGHT=0,TK_POSTING=1,TK_NAME=2,TK_OFFSET=3,TK_TYPE=4;
 export const LINETOKENGAP=5;
 import {parseOfftextLine} from '../offtext/index.js'
 import {CJKWord_Reg,Romanize_Reg} from './utils.js'
-export const tokenize=text=>{
+export const tokenize=(text,opts)=>{
     const out=[];
+    opts=opts||{};
+    const searchable=opts.searchable;
     let i=0,unsearchable='',unsearchable_i=0;
     const addUnsearchable=()=>{
         if (unsearchable.trim()) {
@@ -18,7 +20,7 @@ export const tokenize=text=>{
     while (i<text.length) {
         let code=text.codePointAt(i);
         if (code>0xffff) {
-            addUnsearchable();
+            !searchable && addUnsearchable();
             const sur=String.fromCodePoint(code); 
             out.push([0,null,sur,i,TOKEN_CJK_SURROGATE]);
             i++;
@@ -43,14 +45,14 @@ export const tokenize=text=>{
                 if (prev&&offset>prev) {
                     unsearchable_i=i+prev;
                     unsearchable=s.substring(prev,offset);
-                    addUnsearchable();
+                    !searchable && addUnsearchable();
                 }
                 out.push([0,null,m1,i+offset,TOKEN_ROMANIZE]);
                 prev=offset+m.length;
             });
             unsearchable_i=i+prev;
             unsearchable=s.substring(prev);
-            addUnsearchable();
+            !searchable && addUnsearchable();
         }
         i++;
     }
