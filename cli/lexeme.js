@@ -16,6 +16,8 @@ export const lexemeOfSrcFiles = async config=>{
             const [text]=parseOfftextLine(lines[i]);
             const tokens=tokenize(text,{searchable:true}).map(it=>it[2]);
             tokens.forEach(tk=>{
+                if (!isNaN(parseInt(tk)))return;
+                tk=tk.replace(/\d$/,'');
                 if (!lexemes[tk])lexemes[tk]=0;
                 lexemes[tk]++;
             })
