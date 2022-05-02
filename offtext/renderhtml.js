@@ -1,6 +1,6 @@
 import {AUTO_TILL_END,ALWAYS_EMPTY,OffTag} from './def.js';
 import {parseOfftextLine} from './parser.js'
-import {offtext2indic} from 'provident-pali'
+import {offtext2indic,isLex,parseLex} from 'provident-pali'
 import {toSim} from 'lossless-simplified-chinese'
 function HTMLTag (x,closing,name,attrs,y,w,tempclose=false) {
     return {
@@ -161,13 +161,15 @@ export const renderSnippet=(lines=[],tags=[])=>{
     return units;
 }
 
-export const composeSnippet=(snippet,lineidx,sim=0,script)=>{
+export const composeSnippet=(snippet,lineidx,sim=0,pali,palitrans)=>{
     const {text,open,close}=snippet;
     let t=text, oritext='';
-    if (script) {
-        t=offtext2indic(text,script);
+
+    if (pali&&palitrans) {
+        t=offtext2indic(text,palitrans);
         if (t!==text) oritext=text;
-    } else if (parseInt(sim)) t=toSim(text,sim);
+        else if (parseInt(sim)) t=toSim(text,sim);
+    }
 
     let out='';
     if (open && open.empty) {

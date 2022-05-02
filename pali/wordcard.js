@@ -1,7 +1,7 @@
 /* return basic word information */
 
 import {setup} from './mockdata.js';
-await setup();
+// await setup();
 
 
 export const getFactors=pli=>{ //取得因式分解 , 即最短拆分

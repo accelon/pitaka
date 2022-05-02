@@ -1,4 +1,4 @@
-import {Lexicon} from './lexicon.js';
+// import {Lexicon} from './lexicon.js';
 
 export const setup=async ()=>{
 };

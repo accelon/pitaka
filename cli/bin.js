@@ -35,7 +35,7 @@ if (fs.existsSync(process.argv[3]) && process.argv[3].indexOf('.json')>0 ) {
 if (!fs.existsSync(pitakajson) ){
     console.log(red("missing pitaka.json"));
 }
-config=JSON.parse(readTextContent(pitakajson));
+config=JSON.parse(readTextContent(pitakajson).replace(/\/\/ .+/g,''));
 console.log('using',pitakajson);
 
 
