@@ -23,12 +23,12 @@ const markupLex=(lex,showlexeme)=>{
 	s+=lex[lex.length-1];
 	return s;
 }
-export const factorizeText=(str, mode=-1 ) =>{
+export const factorizeText=(str, mode , palitrans) =>{
 	return str.replace(LEX_REG_G,(m,m1,idx)=>{
 		if (m1.length<4 || str[idx-1]==='#'||str[idx-1]==='^') return m1;
 		const lex=parseLex(m1);
-		if (mode===-1) return orthOf(lex)
-		return markupLex(lex,mode);
+		if (palitrans) return mode?m1.replace(/\d+/g,'-'):orthOf(lex);nod
+		return markupLex(lex,mode,palitrans);
 	})
 }
 export default {factorizeText}

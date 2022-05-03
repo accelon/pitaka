@@ -14,6 +14,13 @@ export const enumBases=s=>{
 	let p=s,verb=false;
 	const at=bsearch(knownlist,s);
 	if (at>-1) return s;
+
+	if (s[1]=='V' && s[0].toLowerCase()===s[2].toLowerCase()) {
+		s=s.slice(2);
+	}
+	if (s.length<3) return out;
+
+
 	if (s.endsWith('V') ) {
 		p=s.slice(0,s.length-1)
 		out.push(p);
