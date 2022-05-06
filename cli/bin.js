@@ -148,6 +148,10 @@ const _build=async (opts)=>{
         fs.writeFileSync('ngram-'+opts.ngram+'.txt',s.join('\n'),'utf8')
     }
     builder.finalized&&builder.log('\n'+report(builder));
+
+    if (builder.inverter) {
+        console.log(builder.inverter.report)
+    }
     console.timeEnd('pitaka');
 }
 

@@ -12,7 +12,7 @@ const findn= (arr, obj, near,n) =>{
   while (low < high) {
     mid = (low + high) >> 1;
     if (arr[mid][n] === obj)  {
-      while (mid>-1 &&arr[mid-1][n]===obj ) mid--; //值重覆的元素，回逆到第一個
+      while (mid>-1 && arr[mid-1] &&arr[mid-1][n]===obj ) mid--; //值重覆的元素，回逆到第一個
       return mid;
     }
     (arr[mid][n] < obj) ? low = mid + 1 : high = mid;

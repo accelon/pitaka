@@ -1,7 +1,7 @@
 import {fileContent} from '../format/index.js'
 import {parseOfftextLine} from '../offtext/parser.js';
 import {tokenize,TOKEN_SEARCHABLE,TOKEN_CJK_BMP,TK_NAME,TK_TYPE,LINETOKENGAP} from '../search/index.js'
-import {alphabetically0,packStrings,pack,pack_delta} from '../utils/index.js'
+import {alphabetically0,packStrings,pack,pack_delta,bsearch} from '../utils/index.js'
 class Inverter {
     constructor(opts) {
         this.context=opts.context;
@@ -11,6 +11,8 @@ class Inverter {
         this.romanized={};
         this.linetokenpos=[0];  //last item is the last token count
         this.tokenCount=0;
+        this.compound={};
+        this.report={};
         const self=this;
         if (this.config.bigram) fileContent(this.config.bigram).then(content=>{
             content.split(/\r?\n/).forEach(item=>{
@@ -20,22 +22,42 @@ class Inverter {
         });
     }
     addPosting(tk,ntoken,tbl=this.tokens) {
-        if (tk.charCodeAt(0)<0x2000)tk=tk.toLowerCase();
+        // if (tk.charCodeAt(0)<0x2000)tk=tk.toLowerCase();
         if (!tbl[tk]) tbl[tk]=[];
         tbl[tk].push(ntoken);
+    }
+    indexPaliToken(w,tokenpos) { //share a same token pos
+        const lexemes=w.split(/\d+/);
+        for (let i=0;i<lexemes.length;i++) {
+            this.addPosting(lexemes[i],tokenpos);
+        }
+        if (lexemes.length>1) {
+            if (!this.compound[w]) {
+                this.compound[w]=lexemes;
+            }
+        }
     }
     indexLine(line,tokencount){
         const [text]=parseOfftextLine(line);
         let tokenpos=tokencount,prev='';
         const tokens=tokenize(text);
+        const provident=this.config.lang=='pl';
+
         for (let i=0;i<tokens.length;i++) {
-            let tk=tokens[i];
+            const tk=tokens[i];
+
             if (tk[TK_TYPE]>=TOKEN_SEARCHABLE) {
-                if (this.config.bigram && prev&&this.bigram[prev+tk[TK_NAME]]) {
-                    this.addPosting(prev+tk[TK_NAME],tokenpos-1,this.bigram);
+
+                if (provident) {
+                    this.indexPaliToken(tk[TK_NAME],tokenpos);
+                } else {                
+                    if (this.config.bigram && prev&&this.bigram[prev+tk[TK_NAME]]) {
+                        this.addPosting(prev+tk[TK_NAME].toLowerCase(),tokenpos-1,this.bigram);
+                    }
+                    this.addPosting(tk[TK_NAME].toLowerCase(),tokenpos);
                 }
-                prev=(TK_TYPE===TOKEN_CJK_BMP)?  prev=tk[TK_NAME]:'';
-                this.addPosting(tk[TK_NAME],tokenpos);
+                prev=(TK_TYPE===TOKEN_CJK_BMP)?  prev=tk[TK_NAME].toLowerCase():'';
+
             }
             tokenpos++;
         }
@@ -51,6 +73,25 @@ class Inverter {
             ndoc++;
         }
     }
+    serializeCompound(inverted){
+        // console.log(inverted.map(it=>it[0]))
+        const compound_lexeme={};
+        for (let comp in this.compound) {
+            const tokenid=[];
+            const lexemes=this.compound[comp];
+            for (let i=0;i<lexemes.length;i++) {
+                const lexeme=lexemes[i];
+                const at=bsearch(inverted, lexeme, false, 0);
+                if (at==-1) {
+                    throw lexeme +'not found in compound '+comp;
+                }
+                tokenid.push(at);
+            }
+            compound_lexeme[comp]=tokenid;
+        }
+        console.log(compound_lexeme)
+        return '';
+    }
     serialize(){
         if ('gc' in global) { //need --expose-gc flag in pitaka.cmd
             global.gc();
@@ -64,17 +105,18 @@ class Inverter {
         for (let tk in this.bigram) this.bigram[tk] && addPostings(tk,this.bigram[tk]);
         
         inverted.sort(alphabetically0);
-
+        this.report={uniqueToken:inverted.length,tokenCount:this.tokenCount};
         // console.log(inverted.slice(0,20).map(tk=>tk[0]+tk[1].length))
-        const terms=inverted.map(it=>it[0]);
+        const lemmas=inverted.map(it=>it[0]);
         const postings=inverted.map(it=>it[1]);
         const bigram=!!this.config.bigram;
 
-        const header={'inverted_version':1, termcount:terms.length,bigram};
+        const header={'inverted_version':2, lemmas:lemmas.length,bigram};
 
         section.push(JSON.stringify(header));
+        section.push( this.serializeCompound( inverted ) )
 
-        section.push(packStrings(terms));
+        section.push(packStrings(lemmas));
         section.push(this.linetokenpos);
 
         for (let i=0;i<postings.length;i++) {
