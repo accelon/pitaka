@@ -3,12 +3,12 @@ import {bsearch} from '../utils/bsearch.js'
 import {alphabetically} from '../utils/sortedarray.js'
 import {enumBases} from './stem.js'
 import {removeSubstring} from '../utils/array.js'
-import {fromIAST,toIAST,lexify,syllablify,stringifyLex,orthOf} from 'provident-pali'
+import {fromIAST,toIAST,lexify,syllablify,formulate,orthOf} from 'provident-pali'
 
 
 export class Formula {
-    constructor (fn) {
-        const config=JSON.parse(readTextContent(fn).replace(/\/\/.*\n/g,'\n'));
+    constructor (fn, json) {
+        const config=Object.assign(JSON.parse(readTextContent(fn).replace(/\/\/.*\n/g,'\n')),json);
         this.lexicon=readTextLines(config.lexicon);
         const isIAST=(config.encoding==='iast');
         this.isIAST=isIAST;
@@ -74,19 +74,26 @@ export class Formula {
             const parts=this.findOrth(w,this.decomposes[i]);
             if (parts) {
                 const lex=lexify(w,parts);
-                if (orthOf(lex)===w) {//make sure it can recover
-                    return stringifyLex(lex);
+                const lexstr=formulate(lex);
+                if (orthOf(lexstr)===w) {//make sure it can recover
+                    return formulate(lex);
                 } else {
-                    console.log('cannot lex',this.isIAST?toIAST(w):w,  this.isIAST?parts.map(toIAST):parts)                    
+                    console.log('cannot lex ',this.isIAST?toIAST(w):w,  this.isIAST?parts.map(toIAST):parts, this.isIAST?w:'')                    
                 }
             }
         }
         return null;
     }
-    forEach(cb){
-        for (let i=0;i<this.decomposes.length;i++) {
+    forEach(cb,I=0){ 
+        for (let i=0;i<this.decomposes.length && i<=I;i++) {
             for (let j=0;j<this.decomposes[i].length;j++) {
-                cb(this.decomposes[i][j]);
+                const raw=this.decomposes[i][j];
+                const at=raw.indexOf('=');
+                if (~at) {
+                    const orth=raw.slice(0,at);
+                    const parts=raw.slice(at+1).split('-');
+                    cb(orth,parts,raw); 
+                }
             }
         }
     }
@@ -115,7 +122,7 @@ export class Formula {
 
         if (possible.length>1 && !lex.filter(it=>it==-1).length && lex.length) {
             const fullmatch=lex.join('')==w;
-            if (fullmatch) return stringifyLex(lex);
+            if (fullmatch) return formulate(lex);
         }
         return possible;
     }

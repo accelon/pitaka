@@ -1,4 +1,4 @@
-import {parseLex,orthOf,LEX_REG_G, lexemeOf} from 'provident-pali' 
+import {parseFormula,orthOf,LEX_REG_G, lexemeOf} from 'provident-pali' 
 /* cannot work in side offtag */
 const markupLex=(lex,showlexeme)=>{
 	let s='',left,right;
@@ -31,7 +31,7 @@ export const factorizeText=(str, mode , palitrans) =>{
 	const splitchar=langSplitChar(palitrans);
 	return str.replace(LEX_REG_G,(m,m1,idx)=>{
 		if (m1.length<4 || str[idx-1]==='#'||str[idx-1]==='^') return m1;
-		const lex=parseLex(m1);
+		const lex=parseFormula(m1);
 		// if (palitrans) 
 		return mode?lexemeOf(lex, splitchar):orthOf(lex);
 		// return 
