@@ -19,10 +19,49 @@ export class Formula {
         if (typeof decomposes==='string') decomposes=decomposes.split(',');
         this.decomposes=decomposes.map(fn=>{
             let entries=readTextLines(fn);
+            this.checkdup(entries,fn);
+
             if(isIAST)entries=entries.map(fromIAST);
-            entries.sort(alphabetically);
+            entries=entries.sort(alphabetically);
             return entries;
-        })
+        });
+        this.patchLastDecompose();
+    }
+    checkdup(entries,fn){
+        let prev=this.getOrth(entries[0]);
+        for (let i=1;i<entries.length;i++) {
+            if (this.getOrth(entries[i])==prev) {
+                console.log("warning duplicate items",entries[i],'at line '+ (i+1) );
+            }
+            prev=this.getOrth(entries[i]);
+        }
+    }
+    getOrth(raw){
+        if (!raw)return;
+        const at=raw.indexOf('=');
+        if (~at) return raw.slice(0,at);
+    }
+    patchLastDecompose(){
+        // console.log('patch',this.decomposes)
+        const lastdecompose=this.decomposes[this.decomposes.length-1];
+        /* overwrite first decompose with following */
+        let patchcount=0;
+        for (let i=0;i<this.decomposes.length-1;i++) {
+            const decomp=this.decomposes[i];
+            for (let j=0;j<decomp.length;j++) {
+                const entry=this.getOrth(decomp[j]);
+                const at=bsearch(lastdecompose,entry+'=',true);    
+                if (~at && lastdecompose[at].slice(0,entry.length)===entry) {
+                    // console.log('patch',decomp[j],lastdecompose[at])
+                    lastdecompose[at]='';
+                    patchcount++;
+                }
+            }
+        }
+        if (patchcount) {
+            this.decomposes[this.decomposes.length-1]=lastdecompose.filter(it=>!!it);
+            console.log('patch ',patchcount,'entries')
+        }
     }
     isLemma(w){
         const at=bsearch(this.lexicon,w );
@@ -73,6 +112,7 @@ export class Formula {
         for (let i=0;i<this.decomposes.length;i++) {
             const parts=this.findOrth(w,this.decomposes[i]);
             if (parts) {
+                if (parts.length==1) return parts[0]; 
                 const lex=lexify(w,parts);
                 const lexstr=formulate(lex);
                 if (orthOf(lexstr)===w) {//make sure it can recover
@@ -84,7 +124,8 @@ export class Formula {
         }
         return null;
     }
-    forEach(cb,I=0){ 
+    forEach(cb,I=-1){
+        if (I==-1) I=this.decomposes.length-1; 
         for (let i=0;i<this.decomposes.length && i<=I;i++) {
             for (let j=0;j<this.decomposes[i].length;j++) {
                 const raw=this.decomposes[i][j];
