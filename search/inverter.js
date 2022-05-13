@@ -1,7 +1,8 @@
 import {fileContent} from '../format/index.js'
 import {parseOfftextLine} from '../offtext/parser.js';
 import {tokenize,TOKEN_SEARCHABLE,TOKEN_CJK_BMP,TK_NAME,TK_TYPE,LINETOKENGAP} from '../search/index.js'
-import {alphabetically0,packStrings,pack,pack_delta,bsearch} from '../utils/index.js'
+import {alphabetically0,packStrings,pack,pack2d,pack_delta,bsearch,fromObj} from '../utils/index.js'
+import {orthOf} from 'provident-pali'
 class Inverter {
     constructor(opts) {
         this.context=opts.context;
@@ -11,8 +12,10 @@ class Inverter {
         this.romanized={};
         this.linetokenpos=[0];  //last item is the last token count
         this.tokenCount=0;
-        this.compound={};
+        this.compound={}; // formula : [lexemes]  詞譜及所含的詞件
+        this._orths={}; //orth                    所有的正詞
         this.report={};
+
         const self=this;
         if (this.config.bigram) fileContent(this.config.bigram).then(content=>{
             content.split(/\r?\n/).forEach(item=>{
@@ -29,11 +32,14 @@ class Inverter {
     indexPaliToken(w,tokenpos) { //share a same token pos
         const lexemes=w.split(/\d+/);
         for (let i=0;i<lexemes.length;i++) {
-            this.addPosting(lexemes[i],tokenpos);
+            const lexeme=lexemes[i];
+            this.addPosting(lexeme,tokenpos);
         }
         if (lexemes.length>1) {
-            if (!this.compound[w]) {
+            const orth=orthOf(w);
+            if (!this.compound[w] && orth) {
                 this.compound[w]=lexemes;
+                this._orths[ orth ]=w;
             }
         }
     }
@@ -45,9 +51,7 @@ class Inverter {
 
         for (let i=0;i<tokens.length;i++) {
             const tk=tokens[i];
-
             if (tk[TK_TYPE]>=TOKEN_SEARCHABLE) {
-
                 if (provident) {
                     this.indexPaliToken(tk[TK_NAME],tokenpos);
                 } else {                
@@ -74,11 +78,9 @@ class Inverter {
         }
     }
     serializeCompound(inverted){
-        // console.log(inverted.map(it=>it[0]))
-        const compound_lexeme={};
-        for (let comp in this.compound) {
+        const middle={};
+        const lexemes2id=lexemes=>{
             const tokenid=[];
-            const lexemes=this.compound[comp];
             for (let i=0;i<lexemes.length;i++) {
                 const lexeme=lexemes[i];
                 const at=bsearch(inverted, lexeme, false, 0);
@@ -86,11 +88,29 @@ class Inverter {
                     throw lexeme +'not found in compound '+comp;
                 }
                 tokenid.push(at);
+                if (this._orths[lexeme] && !middle[lexeme]) {
+                    middle[lexeme]=lexemes2id(this.compound[this._orths[lexeme]]);
+                }
             }
-            compound_lexeme[comp]=tokenid;
+            return tokenid;
         }
-        console.log(compound_lexeme)
-        return '';
+
+        const compound_lexeme={};
+        for (let comp in this.compound) {
+            compound_lexeme[comp]=lexemes2id(this.compound[comp])
+        }
+
+
+
+        const arr2=fromObj(middle,(a,b)=>[a,b]); //同時是compound 的部件
+        const arr=fromObj(compound_lexeme,(a,b)=>[a,b]).concat(arr2);
+
+        arr.sort(alphabetically0);
+
+        const compounds=arr.map(a=>a[0]);
+        const lexemes=arr.map(a=>a[1]);
+        
+        return {compounds, lexemes} ;
     }
     serialize(){
         if ('gc' in global) { //need --expose-gc flag in pitaka.cmd
@@ -111,10 +131,14 @@ class Inverter {
         const postings=inverted.map(it=>it[1]);
         const bigram=!!this.config.bigram;
 
-        const header={'inverted_version':2, lemmas:lemmas.length,bigram};
+
+        const header={'inverted_version':3, lemmas:lemmas.length,bigram};
+        const {compounds,lexemes}=this.serializeCompound( inverted );
 
         section.push(JSON.stringify(header));
-        section.push( this.serializeCompound( inverted ) )
+
+        section.push(packStrings(compounds));
+        section.push(pack2d(lexemes));
 
         section.push(packStrings(lemmas));
         section.push(this.linetokenpos);

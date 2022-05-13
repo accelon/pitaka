@@ -1,7 +1,7 @@
 import {unpackPosting,tokenize,TOKEN_SEARCHABLE,LINETOKENGAP,
     TK_NAME,TK_TYPE,TK_POSTING,getTokenX} from '../search/index.js'
 
-import {unpackStrings,bsearch,unpack_delta} from '../utils/index.js'
+import {unpackStrings,bsearch,unpack_delta,unpack2d} from '../utils/index.js'
 
 async function prepareToken(str){
     if (!this.inverted) await this.setupInverted();
@@ -59,20 +59,25 @@ async function setupInverted(cb){
 
     this.loadtime.prefetchinverted=new Date()-now; now= new Date();
     const header=JSON.parse(this.getLine(from));
-    let tokens;
+    let tokens,compounds,formulas;
 
-    tokens=unpackStrings(this.getLine(from+1));
+    compounds=unpackStrings(this.getLine(from+1))
+    formulas=unpack2d(this.getLine(from+2))
+
+    tokens=unpackStrings(this.getLine(from+3));
     this.loadtime.unpacktokens=new Date()-now; now= new Date();
 
-    const linetokenpos=unpack_delta(this.getLine(from+2));
+    const linetokenpos=unpack_delta(this.getLine(from+4));
     this.loadtime.linetokenpos=new Date()-now; now= new Date();
     this.loadtime.linetokenposlength=linetokenpos.length
 
     this.deleteLine(from+1);
     this.deleteLine(from+2);
+    this.deleteLine(from+3);
+    this.deleteLine(from+4);
     this.loadtime.deleteline=new Date()-now; now= new Date();
 
-    this.inverted={header,tokens,linetokenpos,postingStart:from+3,cache:{}}
+    this.inverted={header,tokens,compounds,formulas,linetokenpos,postingStart:from+3,cache:{}}
 }
 
 export function hitPos(y,posting,tofind){ //to be extend to multiple tofinds
