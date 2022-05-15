@@ -164,12 +164,11 @@ export const renderSnippet=(lines=[],tags=[])=>{
 export const composeSnippet=(snippet,lineidx,sim=0,pali,palitrans)=>{
     const {text,open,close}=snippet;
     let t=text, oritext='';
-
     if (pali&&palitrans) {
         t=offtext2indic(text,palitrans);
-        if (t!==text) oritext=text;
-        else if (parseInt(sim)) t=toSim(text,sim);
-    }
+    } else if (parseInt(sim)) t=toSim(text,sim);
+
+    if (t!==text) oritext=text;
 
     let out='';
     if (open && open.empty) {

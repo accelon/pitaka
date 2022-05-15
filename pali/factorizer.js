@@ -26,6 +26,7 @@ const markupLex=(lex,showlexeme)=>{
 export const langSplitChar=palitrans=>{
 	return {'':'⧘','iast':'·',tb:'࿒'}[palitrans]||'-'; //⫶ ┆  ⧘ ⦙
 }
+export const REG_PALI_SPACE_SPLIT=/([ ⧘\-࿒·])/
 export const factorizeText=(str, mode , palitrans) =>{
 	if (!str) return str;
 	const splitchar=langSplitChar(palitrans);

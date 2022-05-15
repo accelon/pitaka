@@ -102,15 +102,13 @@ class Inverter {
 
 
 
-        const arr2=fromObj(middle,(a,b)=>[a,b]); //同時是compound 的部件
-        const arr=fromObj(compound_lexeme,(a,b)=>[a,b]).concat(arr2);
+        const arrmiddle=fromObj(middle,(a,b)=>[a,b]); //同時是compound 的部件
+        arrmiddle.sort(alphabetically0);
+        const compounds=arrmiddle.map(a=>a[0]);
+        const formula=arrmiddle.map(a=>a[1]).concat(fromObj(compound_lexeme,(a,b)=>b));
 
-        arr.sort(alphabetically0);
-
-        const compounds=arr.map(a=>a[0]);
-        const lexemes=arr.map(a=>a[1]);
-        
-        return {compounds, lexemes} ;
+        //compounds lexeme and all formula, first compounds.length formula has orth form
+        return {compounds ,formula} ;
     }
     serialize(){
         if ('gc' in global) { //need --expose-gc flag in pitaka.cmd
@@ -133,12 +131,12 @@ class Inverter {
 
 
         const header={'inverted_version':3, lemmas:lemmas.length,bigram};
-        const {compounds,lexemes}=this.serializeCompound( inverted );
-
+        const {compounds,formula}=this.serializeCompound( inverted );
+        console.log(compounds, formula.length)
         section.push(JSON.stringify(header));
 
         section.push(packStrings(compounds));
-        section.push(pack2d(lexemes));
+        section.push(pack2d(formula));
 
         section.push(packStrings(lemmas));
         section.push(this.linetokenpos);

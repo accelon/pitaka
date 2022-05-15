@@ -1,7 +1,7 @@
 import JSONPROM from "../jsonprom/jsonprom.js";
 import pool from './pool.js';
 import {deserializeLabels, deserializeLineposString, deserializeNotes} from './serializer.js';
-import {NAMESEP} from '../platform/constants.js';
+import {NAMESEP,DEFAULT_LANGUAGE} from '../platform/constants.js';
 import pagingAPI from './paging.js';
 import entriesAPI from './entries.js';
 import headingsAPI from './headings.js';
@@ -54,6 +54,7 @@ class Basket extends JSONPROM {
                 } else {
                     self.header.shorttitle=self.header.title.substr(0,2);
                 }
+                self.header.lang=self.header.lang||DEFAULT_LANGUAGE;
                 //basket could be alignment, might not in pool
                 if (self.header.alignment && typeof self.header.alignment=='string') {
                     self.header.alignment=self.header.alignment.split(',');

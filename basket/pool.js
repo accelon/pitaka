@@ -13,4 +13,10 @@ const getAll=()=>{
     }
     return out;
 }
-export default {has,get,add,getAll};
+const hasLang=lang=>{
+    for (let name in _pool) {
+        const ptk=_pool[name];
+        if (ptk.header.lang===lang)return true;
+    }
+}
+export default {has,get,add,getAll,hasLang};

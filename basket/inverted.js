@@ -61,7 +61,7 @@ async function setupInverted(cb){
     const header=JSON.parse(this.getLine(from));
     let tokens,compounds,formulas;
 
-    compounds=unpackStrings(this.getLine(from+1))
+    compounds=unpackStrings(this.getLine(from+1));
     formulas=unpack2d(this.getLine(from+2))
 
     tokens=unpackStrings(this.getLine(from+3));
@@ -77,7 +77,7 @@ async function setupInverted(cb){
     this.deleteLine(from+4);
     this.loadtime.deleteline=new Date()-now; now= new Date();
 
-    this.inverted={header,tokens,compounds,formulas,linetokenpos,postingStart:from+3,cache:{}}
+    this.inverted={header,tokens,compounds,formulas,linetokenpos,postingStart:from+5,cache:{}}
 }
 
 export function hitPos(y,posting,tofind){ //to be extend to multiple tofinds

@@ -112,6 +112,6 @@ async function fetchRange(url,opts={}){
 
     return {from,lines,loc:ptr.loc,ptk}
 }
-
+const hasLang=pool.hasLang;
 export {openBasket,pool,opened,useBasket,readLines,Builder,validateConfig
-,fetchHooks,fetchLoc,bestEntries,fetchRange};
+,fetchHooks,fetchLoc,bestEntries,fetchRange , hasLang};

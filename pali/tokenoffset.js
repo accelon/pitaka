@@ -15,8 +15,8 @@ export const calOriginalOffset=(offset, screentext, oritext )=>{
 	}
 
 
-	const tokens1=screentext.split(/( +)/);
-	const tokens2=oritext.split(/( +)/);
+	const tokens1=screentext.split(/([A-Za-zṭṣñṅṛāīūḍḷṃ]+)/);
+	const tokens2=oritext.split(/([A-Za-zṭṣñṅṛāīūḍḷṃ]+)/);
 	if (tokens1.length!==tokens2.length) {
 		console.warn('screen text is not converted from oritext',screentext,oritext);
 		return offset;
@@ -25,7 +25,7 @@ export const calOriginalOffset=(offset, screentext, oritext )=>{
 	while (i<tokens1.length) {
 		acc1+=tokens1[i].length;
 		acc2+=tokens2[i].length;
-		if (tokens1[i][0]!==' ' && acc1>offset) {
+		if (tokens1[i]&&tokens1[i].match(/^[A-Za-z]/) && acc1>offset) {
 			acc2-=tokens2[i].length;
 			return acc2;
 		}
