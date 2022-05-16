@@ -132,7 +132,7 @@ class Inverter {
 
         const header={'inverted_version':3, lemmas:lemmas.length,bigram};
         const {compounds,formula}=this.serializeCompound( inverted );
-        console.log(compounds, formula.length)
+//        console.log(compounds, formula.length)
         section.push(JSON.stringify(header));
 
         section.push(packStrings(compounds));

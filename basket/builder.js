@@ -28,10 +28,14 @@ class Builder {
             ,closest:{}     //closest label
         };
         this.writer=new JSONPROMWriter(Object.assign({},opts,{context:this.context}));
-        this.inverter=new Inverter(Object.assign({},opts,{context:this.context}));
         this.finalized=false;
         this.log=opts.log || console.log;
         this.config=opts.config;
+
+        if (!this.config.textOnly) {
+            this.inverter=new Inverter(Object.assign({},opts,{context:this.context}));
+            console.log('inverter',this.config.textOnly)
+        }
 
         //.tree is old name
         this.config.locator=this.config.locator||this.config.tree;
@@ -88,7 +92,7 @@ class Builder {
             const labeltype=this.context.labeldefs[tag.name];
             const linetext=text[tag.y - this.context.ptkline ];
             if (labeltype) {
-                const D=this.context.labeldefs;                    
+                const D=this.context.labeldefs;
                 labeltype.action(tag,linetext,this.context);
                 if (labeltype.resets) {//fill by "reset" of child
                     labeltype.resets.forEach(r=>D[r]&&D[r].reseting(tag));
@@ -204,9 +208,11 @@ class Builder {
     finalize(opts={}){
         this.context.lastTextLine=this.writer.setEndOfText();
         if (!opts.raw && !opts.exec) {
-            this.writer.addSection('inverted',true);                
-            const inverted=this.inverter.serialize();
-            this.writer.append(inverted,true); //force new chunk
+            if (!this.config.textOnly) {
+                this.writer.addSection('inverted',true);                
+                const inverted=this.inverter.serialize();
+                this.writer.append(inverted,true); //force new chunk                
+            }
             if (this.context.headings.length) {
                 this.writer.addSection('headings');
                 const headings=serializeLineposString(this.context.headings);

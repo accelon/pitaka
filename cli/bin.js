@@ -114,7 +114,7 @@ const report=(builder)=>{
 }
 
 const _build=async (opts)=>{  
-    console.time('pitaka');
+    console.time('builder');
     opts=opts||{raw:false,jsonp:false};
     if (!fs.existsSync(pitakajson)) {
         console.log(red('pitaka.json not found'));
@@ -147,12 +147,12 @@ const _build=async (opts)=>{
         const s=ngram.dump();
         fs.writeFileSync('ngram-'+opts.ngram+'.txt',s.join('\n'),'utf8')
     }
-    builder.finalized&&builder.log('\n'+report(builder));
+    builder.finalized&&builder.log(report(builder));
 
     if (builder.inverter) {
-        console.log(builder.inverter.report)
+        console.log( blue('inverter'),builder.inverter.report)
     }
-    console.timeEnd('pitaka');
+    console.timeEnd('builder');
 }
 
 const help=()=>{

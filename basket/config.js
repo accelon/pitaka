@@ -2,6 +2,7 @@ import reservedname from "./reservedname.js";
 import { filesFromPattern } from "../utils/index.js";
 import {fileContent,getFormatTypeDef,Templates} from '../format/index.js'
 import { LOCATORSEP } from "../platform/constants.js";
+
 export function validateConfig(json,filenames){
     if (!json) return 'empty json'
     if (!json.name) return 'missing "name" field';
@@ -78,10 +79,12 @@ export const getSrcFiles=(config,withfolder=false)=>{
     const files=filesFromPattern(config.files,config.rootdir);
     return withfolder?files.map(f=>config.rootdir+f):files;
 }
+
+
 export const initPitakaJSON=(config,context,log)=>{
     initConfigTemplate(config);
     context.labeldefs=getFormatTypeDef(config,{context:context,log});
-
+	
     if (!config.chunk) {
         if (context.labeldefs.bk) config.chunk='bk';
         else if (context.labeldefs.e) config.chunk='e';
@@ -128,7 +131,6 @@ export const initLabelTypedef=(config,context,log)=>{
     }
     for (let lbl in defs) {
         const labeltype=defs[lbl];
-        // console.log(labeltype)
         if (labeltype.reset) {
             const resetlbl=defs[labeltype.reset];
             if (!resetlbl) {
