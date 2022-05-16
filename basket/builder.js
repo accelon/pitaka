@@ -25,6 +25,7 @@ class Builder {
             ,rawContent:null //e.g xml before parsing
             ,headings:[]     //header extract from bodytext, to speed up header search
             ,notes:[]       //multi-purpose trait , group by line
+            ,closest:{}     //closest label
         };
         this.writer=new JSONPROMWriter(Object.assign({},opts,{context:this.context}));
         this.inverter=new Inverter(Object.assign({},opts,{context:this.context}));
@@ -92,6 +93,9 @@ class Builder {
                 if (labeltype.resets) {//fill by "reset" of child
                     labeltype.resets.forEach(r=>D[r]&&D[r].reseting(tag));
                 }
+                //may use label type name or label name to access closest tag
+                this.context.closest[labeltype.constructor.name]=tag; //previous  , faster but doesn't allow label with same type
+                this.context.closest[tag.name]=tag; //use labelutils.js::labelByTypeName to get the label
             } else {
                 if (!this.unknownLabel[tag.name]) {
                     this.log('undefined tag',this.context.filename,tag.name, tag.y,linetext);

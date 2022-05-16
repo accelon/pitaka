@@ -95,6 +95,12 @@ export const initPitakaJSON=(config,context,log)=>{
         })
     }
 
+    if (!config.heading) config.heading=config.chunk;
+    if (!config.heading) throw "missing heading"
+
+    if (!config.locator) config.locator=config.chunk;
+    if (!config.locator) throw "missing locator"
+
     if (typeof config.locator==='string') config.locator=config.locator.split(LOCATORSEP);
     
     if (config.eudc) addJSON(config.eudc,'EUDC',context);

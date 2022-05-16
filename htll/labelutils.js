@@ -1,4 +1,8 @@
-
+export const labelByTypeName=(labeldefs,labeltype)=>{
+    for (let nm in labeldefs) {
+        if (labeldefs[nm].constructor.name==labeltype) return labeldefs[nm];
+    }
+}
 
 export function doAttributes(self,tag,linetext){
     if (!self.attrIndex) self.attrIndex={};

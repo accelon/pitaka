@@ -27,4 +27,5 @@ const LabelTypes = {Label,LabelHeader,LabelEntry,LabelVol,LabelPage,LabelMilesto
     ,LabelKeyword,LabelKeynumber,LabelYear,LabelYearSpan,LabelSeeAlso,LabelLang,LabelFootnote,
 LabelBook,LabelChapter,LabelChunk,LabelMulu,LabelSection,LabelAnchor,LabelTransclusion,LabelLink}
 
+
 export default LabelTypes;

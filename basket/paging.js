@@ -1,6 +1,7 @@
-import {PATHSEP,NAMESPACESEP,DELTASEP,LOCATORSEP,DEFAULT_LOCATOR,RANGESEP,NAMESEP} from '../platform/constants.js'
+import {PATHSEP,NAMESPACESEP,DELTASEP,LOCATORSEP,DEFAULT_LOCATOR,RANGESEP,NAMESEP,FOOTNOTE_SUFFIX} from '../platform/constants.js'
 import {parseAddress,parseOfftextLine} from '../offtext/index.js'
 import { bsearch } from "../utils/bsearch.js" ;
+
 
 function narrowDown(branches){
     let from=0,to=this.lastTextLine();
@@ -312,11 +313,11 @@ function childCount(loc){
     return label.countRange(from,to);
 }
 async function fetchFootnote(y0,fn){
-    let loc=parseAddress(this.locOf(y0,true)).loc;
-    if (loc.indexOf('-fn')==-1) {
-        loc=loc.replace(PATHSEP,'-fn'+PATHSEP);
+    let loc=parseAddress(this.locOf(y0)).loc;
+    if (loc.indexOf(FOOTNOTE_SUFFIX)==-1) {
+        loc=loc.replace(LOCATORSEP,FOOTNOTE_SUFFIX+LOCATORSEP);
     } 
-    loc+=PATHSEP+'fn='+fn;
+    loc+=LOCATORSEP+'fn='+fn;
     //TODO 同頁/同卷注
 
     const ranges=this.getPageRange(loc);

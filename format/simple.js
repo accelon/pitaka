@@ -8,7 +8,7 @@ export default {
         "f":"Label",
         "v":"Label", //to be remove
         "sz":"Label",
-        "fn":["LabelFootnote", {"caption":"注釋"}],
+        "fn":["LabelFootnote", {"caption":"注釋","reset":"ck"}],
         "cs":["LabelTransclusion",{"basket":"cs"}],
         "z":["LabelMulu"]
     },

@@ -10,3 +10,4 @@ export const NAMESEP='|';
 export const RANGESEP='-';
 export const ATTRPREFIX='@';
 export const DEFAULT_LANGUAGE='zh';
+export const FOOTNOTE_SUFFIX='-fn';

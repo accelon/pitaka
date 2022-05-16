@@ -1,6 +1,7 @@
 /* assuming space as delimiter
    new offset is the begining of closest corresponding token
 */
+import {REG_PALI_SPACE_SPLIT} from './factorizer.js'
 export const calOriginalOffset=(offset, screentext, oritext )=>{
 	if (!oritext|| screentext===oritext) return offset;
 	let acc1=0,acc2=0,i=0;
@@ -15,8 +16,8 @@ export const calOriginalOffset=(offset, screentext, oritext )=>{
 	}
 
 
-	const tokens1=screentext.split(/([A-Za-zṭṣñṅṛāīūḍḷṃ]+)/);
-	const tokens2=oritext.split(/([A-Za-zṭṣñṅṛāīūḍḷṃ]+)/);
+	const tokens1=screentext.split(REG_PALI_SPACE_SPLIT);
+	const tokens2=oritext.split(REG_PALI_SPACE_SPLIT);
 	if (tokens1.length!==tokens2.length) {
 		console.warn('screen text is not converted from oritext',screentext,oritext);
 		return offset;
@@ -25,7 +26,7 @@ export const calOriginalOffset=(offset, screentext, oritext )=>{
 	while (i<tokens1.length) {
 		acc1+=tokens1[i].length;
 		acc2+=tokens2[i].length;
-		if (tokens1[i]&&tokens1[i].match(/^[A-Za-z]/) && acc1>offset) {
+		if (tokens1[i]&& !tokens1[i].match(REG_PALI_SPACE_SPLIT) && acc1>offset) {
 			acc2-=tokens2[i].length;
 			return acc2;
 		}

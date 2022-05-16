@@ -14,7 +14,8 @@ class LabelBook extends Label {
         this._maxkeyword=0;
         return this;
     }
-    action(tag ,linetext){
+    action(tag ,linetext, ctx){
+        super.action();
         let {y,x,w}=tag;
         const id=(tag.attrs.id)||' ';
         if (w==0) w=linetext.length;
@@ -24,7 +25,6 @@ class LabelBook extends Label {
     	}
         this._idarr[id]=y;
         this.idarr.push(id);
-        this.count++;
     }
     serialize(){
         const {keylabels,labelsout}=serialize_keywords(this);
