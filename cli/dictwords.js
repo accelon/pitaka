@@ -18,11 +18,11 @@ const matchWords=(sentence,wordhead)=>{
     }
     return out;
 }
-const dictwords= async (config)=>{
+const dictwords= async (config,lexicon)=>{
     const fn=process.argv[3];
     const lines=fs.readFileSync(fn,'utf8').split(/\r?\n/);
     // const lines=['這樣一減一多，鬧得去年春季許多地方幾乎人人談糧食，戶戶談統銷。'];
-    const wordhead=fs.readFileSync(process.argv[4],'utf8').split(/\r?\n/);
+    const wordhead=fs.readFileSync( '../hydcd3/wordhead.txt'||process.argv[3],'utf8').split(/\r?\n/);
     const W={};
     wordhead.sort(alphabetically);
 

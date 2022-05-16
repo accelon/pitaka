@@ -5,7 +5,7 @@ import cbeta from './cbeta.js';
 import Templates from './templates.js'
 const fileContent=async(fn,ctx)=>{
     let c;
-    const F=ctx.Formatter||{};
+    const F=ctx&&ctx.Formatter||{};
     if (typeof fn=='string') {
         if (F.parseFile) c= (await F.parseFile(fn,ctx));
         else            c=(await fs.promises.readFile(fn,'utf8')).replace(/\r?\n/g,'\n');

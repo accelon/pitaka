@@ -44,8 +44,8 @@ class nGram {
 
         const average=total/out.length;
         out=out.filter(a=>a[1]>average*3 && a[1]>20);
-        out.sort((a,b)=>b[1]-a[1]);
-        return out;
+        const result=out.sort((a,b)=>b[1]-a[1]);
+        return {filename:'ngram-'+opts.ngram+'.txt', result};
     }
 
 }

@@ -1,6 +1,6 @@
 import JSONPROM from "../jsonprom/jsonprom.js";
 import pool from './pool.js';
-import {deserializeLabels, deserializeLineposString, deserializeNotes} from './serializer.js';
+import {deserializeLabels, deserializeLineposString, deserializeNotes,deserializeLemma} from './serializer.js';
 import {NAMESEP,DEFAULT_LANGUAGE} from '../platform/constants.js';
 import pagingAPI from './paging.js';
 import entriesAPI from './entries.js';
@@ -89,6 +89,14 @@ class Basket extends JSONPROM {
                             self.notes=deserializeNotes.call(self,from);
                         });
                     }
+                    
+                    if (self.header.lemma) {
+                        const [from]=self.getSectionRange('lemma');
+                        self.prefetchLines(from,1).then(()=>{//lemma is
+                            self.lemma=deserializeLemma.call(self,from)
+                        })
+                    }
+
                     const headings='headings';
                     if (self.header.sectionNames.includes(headings)){                            
                         self.loadSection(headings,function(){
@@ -100,6 +108,8 @@ class Basket extends JSONPROM {
                             resolve(true);
                         });
                     } else resolve(true);
+
+
                     //resolve earlier, need to check if inverted ready
                 });
             });

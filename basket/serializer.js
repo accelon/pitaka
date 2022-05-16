@@ -1,6 +1,8 @@
 import {labelByType,LabelTypedefs} from '../htll/index.js'
 import { pack, pack_delta } from '../utils/packintarray.js';
 import { unpack_delta,unpack } from '../utils/unpackintarray.js';
+import { unpackStrings } from '../utils/unpackstr.js';
+import { packStrings } from '../utils/packstr.js';
 
 export const serializeLabels=ctx=>{
     let pos=3;//labelNames,labelTypes,labelPoss
@@ -74,6 +76,10 @@ export const serializeBreakpos=ctx=>{
     out.unshift( JSON.stringify(books) );
     return out;
 }
+
+export const serializeLemma=lemma=>{
+    return packStrings(lemma);
+}
 export const deserializeBreakpos=(breakposSection,breakposSectionRange)=>{
     let si=0;
     const books=JSON.parse(breakposSection[si]);
@@ -135,6 +141,9 @@ export function deserializeNotes(from){
     const idarr=this.getLine(from+1).split('\t');
     return {section:from+2,idarr,linepos}
 }
+export function deserializeLemma(from) {
+    return unpackStrings(this.getLine(from));
+}
 export const deserializeLineposString=jslines=>{
     const firstline=jslines.shift();
     const linepos=unpack_delta(firstline);
@@ -143,4 +152,4 @@ export const deserializeLineposString=jslines=>{
 }
 
 export default {serializeLabels,deserializeLabels,serializeBreakpos
-    ,serializeLineposString,deserializeLineposString};
+    ,serializeLineposString,deserializeLineposString,deserializeLemma,serializeLemma};

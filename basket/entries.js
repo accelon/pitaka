@@ -1,4 +1,4 @@
-
+import {bsearch} from "../utils/index.js";
 import {matchEntry,filterEntry} from "../search/entry.js";
 
 function getEntry(n) {
@@ -36,5 +36,15 @@ function getName(tag){
     }
     return '';
 }
-
-export default {getName,matchDictEntry,filterDictEntry,getEntry}
+function enumLemma(str){
+    if (!this.lemma) return [];
+    const out=[];
+    for (let i=2;i<str.length;i++) {
+        const w=str.slice(0,i);
+        const at=bsearch(this.lemma,w);
+        if (at>-1) out.push(w);
+    }
+    out.sort((a,b)=>b.length-a.length);
+    return out;
+}
+export default {getName,matchDictEntry,filterDictEntry,getEntry,enumLemma}

@@ -1,7 +1,7 @@
 import {fileContent, removeLabels} from '../format/index.js'
 import JSONPROMWriter from '../jsonprom/jsonpromw.js';
 import Inverter from '../search/inverter.js';
-import {serializeLabels,serializeLineposString,serializeNotes,packNotes} from './serializer.js';
+import {serializeLabels,serializeLineposString,serializeNotes,serializeLemma,packNotes} from './serializer.js';
 import {linesOffset} from '../utils/index.js'
 import { initPitakaJSON ,initLabelTypedef } from './config.js';
 import { LOCATORSEP } from '../platform/constants.js';
@@ -26,6 +26,7 @@ class Builder {
             ,headings:[]     //header extract from bodytext, to speed up header search
             ,notes:[]       //multi-purpose trait , group by line
             ,closest:{}     //closest label
+            ,lemma:null     // 詞表
         };
         this.writer=new JSONPROMWriter(Object.assign({},opts,{context:this.context}));
         this.finalized=false;
@@ -208,8 +209,9 @@ class Builder {
     finalize(opts={}){
         this.context.lastTextLine=this.writer.setEndOfText();
         if (!opts.raw && !opts.exec) {
+
             if (!this.config.textOnly) {
-                this.writer.addSection('inverted',true);                
+                this.writer.addSection('inverted',true);
                 const inverted=this.inverter.serialize();
                 this.writer.append(inverted,true); //force new chunk                
             }
@@ -218,6 +220,12 @@ class Builder {
                 const headings=serializeLineposString(this.context.headings);
                 this.writer.append(headings);
             }
+            if (this.context.lemma) {
+                this.writer.addSection('lemma');
+                const lemma=serializeLemma(this.context.lemma);
+                this.writer.append(lemma);
+            }
+
             this.writer.addSection('labels');
             const section=serializeLabels(this.context);
             this.writer.append(section);
