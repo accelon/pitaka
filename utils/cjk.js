@@ -4,7 +4,9 @@ export const CJKRange=s=>{
     if (s.charCodeAt(0)>=0xD800 && s.charCodeAt(0)<=0xDFFF) return 2;
     if (s.charCodeAt(0)>=0xE000 && s.charCodeAt(0)<=0xFADF) return 3;
 }
-
+export const isSurrogate=s=>{
+    return CJKRange(s)==2;
+}
 export const isPunc=(str,full)=>{
     if (!str) return false;
     const cp=str.charCodeAt(0);

@@ -47,7 +47,12 @@ export const deserializeLabels=(section,range,typedefs,lastTextLine)=>{
         const name=labelNames[i];
         const lbltype=LabelTypedefs[labelTypes[i]];
         let opts={};
-        if (typedefs && typedefs[name]) opts=typedefs[name][1];
+        if (typedefs && typedefs[name]) {
+        	opts=typedefs[name]; 
+           if (Array.isArray(opts)) {
+           	   opts=opts[1];//legacy format
+           }
+    	}
         const lt=new lbltype(name, { lastLine, ...opts });
         const labelPayload=[];
         for (let j=labelPoss[i];j<(labelPoss[i+1]||section.length);j++ ) {

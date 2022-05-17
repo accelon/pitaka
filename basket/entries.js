@@ -39,7 +39,7 @@ function getName(tag){
 function enumLemma(str){
     if (!this.lemma) return [];
     const out=[];
-    for (let i=2;i<str.length;i++) {
+    for (let i=2;i<=str.length;i++) {
         const w=str.slice(0,i);
         const at=bsearch(this.lemma,w);
         if (at>-1) out.push(w);

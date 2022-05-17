@@ -1,16 +1,21 @@
 const isStopChar=ch=>{
     return ch==='的' || ch=='了' || ch=='是'||ch==='之'||ch=='矣'||ch==='與'||ch==='曰'||ch==='曰'
 }
+import {removeLemma} from 'pitaka/utils'
 class nGram {
     constructor (opts) {
         this.gram=opts.gram;
+        this.lemma=opts.lemma;
         this.stockgram=opts.stockgram;
         this.ngram={};
     }
     add(content){
         for (let j=0;j<content.length;j++) {
             let prev=0;
-            const line=content[j]            
+            let line=content[j];
+            if (this.lemma) {
+                line=removeLemma(content[j],this.lemma);
+            }
             for (let i=0;i<line.length;i++) {
                 const cp=line.charCodeAt(i);
                 if (cp>=0x3400 && cp<=0x9FFF) { //BMP CJK ONLY
@@ -41,11 +46,10 @@ class nGram {
             out.push([g,this.ngram[g]]);
             total+=this.ngram[g];
         }
-
         const average=total/out.length;
-        out=out.filter(a=>a[1]>average*3 && a[1]>20);
+        out=out.filter(a=>a[1]>average*3 && a[1]>10);
         const result=out.sort((a,b)=>b[1]-a[1]);
-        return {filename:'ngram-'+opts.ngram+'.txt', result};
+        return {filename:'ngram-'+this.gram+'.txt', result};
     }
 
 }

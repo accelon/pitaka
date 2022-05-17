@@ -7,6 +7,7 @@
 */
 const cmd=process.argv[2] || '-h';
 const arg=process.argv[3];
+const arg2=process.argv[4];
 import kluer from './kluer.js' //copy from https://github.com/lukeed/kleur/
 const {blue,yellow,red,bgWhite} = kluer;
 import nodefs from '../platform/nodefs.js';
@@ -17,7 +18,6 @@ import {info} from './info.js';
 import quote from './quote.js';
 import {iast,provident} from './provident.js';
 import longline from './longline.js';
-import dictwords from './dictwords.js';  //find words in dictionary
 import pinpoint from './pinpoint.js';
 import {pin} from './pin-brk.js';
 import nGram from '../search/ngram.js';
@@ -30,8 +30,8 @@ import {lexemeOfSrcFiles} from "./lexeme.js"
 import { writeChanged } from './index.js';
 let pitakajson='pitaka.json';
 let config={},task='builder';
-if (fs.existsSync(process.argv[3]) && process.argv[3].indexOf('.json')>0 ) {
-    pitakajson=process.argv[3];
+if (fs.existsSync(arg) && arg.indexOf('.json')>0 ) {
+    pitakajson=arg;
 }
 if (!fs.existsSync(pitakajson) ){
     console.log(red("missing pitaka.json"));
@@ -43,16 +43,16 @@ console.log('using',pitakajson);
 const ptk=()=>_build({jsonp:false}); //build ptk (a zip file)
 const build=()=>_build({jsonp:true});
 const raw=()=>{
-    if (process.argv[3]) {
-        console.log('override files',config.files,'to',process.argv[3])
-        config.files=process.argv[3]
+    if (arg) {
+        console.log('override files',config.files,'to',arg)
+        config.files=arg
     }
     _build({raw:true, files:process.argv[2]});
 }
-const ngram=()=>_build( {ngram:parseInt(arg)||2});
+const ngram=()=>_build( {ngram:parseInt(arg)||2, lemma:arg2});
 const wordhead=()=>_build({wordhead:arg||'hydcd3'})
 const exec=config=>{
-    const jsfn=process.argv[3];
+    const jsfn=arg;
     if (!fs.existsSync(jsfn)) {
         console.log('missing js file');
         return;
@@ -64,8 +64,8 @@ const exec=config=>{
     });
 }
 const compare=()=>{
-    const f1=process.argv[3];
-    const f2=process.argv[4];
+    const f1=arg;
+    const f2=arg2;
     if (!f1) throw "missing file 1"
     if (!f2) throw "missing file 2"
     const F1=readTextLines(f1);
@@ -77,8 +77,8 @@ const compare=()=>{
 }
 const defaultGuideFolder='../cs/';
 const align=()=>{
-    let f1=process.argv[3];
-    let f2=process.argv[4];
+    let f1=arg;
+    let f2=arg2;
     if (!f1) throw "missing file 1"
     if (!f2) {
         f2=defaultGuideFolder+f1;
@@ -136,7 +136,11 @@ const _build=async (opts)=>{
                 stockgram[gram]=count;
             }
         }
-        let tasker=new nGram({gram:opts.ngram,stockgram});
+        let lemma;
+        if (opts.lemma) {
+            lemma=readTextLines( opts.lemma );
+        }
+        tasker=new nGram({gram:opts.ngram,stockgram,lemma});
         onContent=(fn,text)=>tasker.add(text);
         task='ngram '+opts.ngram;
         
@@ -147,7 +151,7 @@ const _build=async (opts)=>{
     	task='raw';
 	} else if (opts.wordhead) {
         nosave=true;
-        const lexicon=readTextLines( '../'+opts.wordhead+'/wordhead.txt'||process.argv[3]);
+        const lexicon=readTextLines( '../'+opts.wordhead+'/wordhead.txt'||arg);
         tasker=new EnumWordHead({lexicon});
         onContent=(fn,text)=>tasker.add(text,fn);
         task='wordhead in '+opts.wordhead;
@@ -205,7 +209,7 @@ try {
         compare,c:compare,lexeme:lexemeOfSrcFiles,
         ngram,n:ngram,exec,e:exec,l:longline,longline,iast,provident,
         group,g:group,entrysort,y:entrysort,search,s:search,wordseg,w:wordseg, wordhead,
-        '--help':help,'-h':help})[cmd](config,process.argv[3]);
+        '--help':help,'-h':help})[cmd](config,arg);
 
 } catch(e) {
     console.log( kluer.red('error running command'),cmd)

@@ -73,6 +73,7 @@ export const initConfigTemplate=config=>{
             config[key]=template[key];
         }
     }
+
 }
 export const getSrcFiles=(config,withfolder=false)=>{
     initConfigTemplate(config);
