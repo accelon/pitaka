@@ -18,5 +18,5 @@ export default {
     "heading":"ck",
     "rootdir":"off/",
     "license":"CC0",
-    "textOnly":true, //for faster build
+    "fulltextsearch":false, //for faster build
 }

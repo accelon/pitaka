@@ -167,9 +167,8 @@ const _build=async (opts)=>{
         }
     }
     builder.finalized&&builder.log(report(builder));
-
     if (builder.inverter) {
-        console.log( blue('inverter'),builder.inverter.report)
+    	console.log('inverter',builder.inverter.report);
     }
     console.timeEnd(task);
 }

@@ -1,8 +1,9 @@
 import {fileContent} from '../format/index.js'
 import {parseOfftextLine} from '../offtext/parser.js';
-import {tokenize,TOKEN_SEARCHABLE,TOKEN_CJK_BMP,TK_NAME,TK_TYPE,LINETOKENGAP} from '../search/index.js'
+import {tokenize,TOKEN_SEARCHABLE,TOKEN_CJK_BMP,TOKEN_ROMANIZE,TK_NAME,TK_TYPE,LINETOKENGAP} from '../search/index.js'
 import {alphabetically0,packStrings,pack,pack2d,pack_delta,bsearch,fromObj} from '../utils/index.js'
 import {orthOf} from 'provident-pali'
+import {isStopword} from './stopwords.js';
 class Inverter {
     constructor(opts) {
         this.context=opts.context;
@@ -55,13 +56,14 @@ class Inverter {
                 if (provident) {
                     this.indexPaliToken(tk[TK_NAME],tokenpos);
                 } else {                
-                    if (this.config.bigram && prev&&this.bigram[prev+tk[TK_NAME]]) {
+                    if (tk[TK_TYPE]===TOKEN_CJK_BMP && this.config.bigram && prev&&this.bigram[prev+tk[TK_NAME]]) {
                         this.addPosting(prev+tk[TK_NAME].toLowerCase(),tokenpos-1,this.bigram);
                     }
-                    this.addPosting(tk[TK_NAME].toLowerCase(),tokenpos);
+                    const token=tk[TK_NAME].toLowerCase();
+                    if (tk[TK_TYPE]==TOKEN_ROMANIZE && (token.length<2 || !isNaN(parseInt(token)) || isStopword(token))) continue;
+                    this.addPosting(token,tokenpos);    
                 }
-                prev=(TK_TYPE===TOKEN_CJK_BMP)?  prev=tk[TK_NAME].toLowerCase():'';
-
+                prev=(TK_TYPE===TOKEN_CJK_BMP)?prev=tk[TK_NAME].toLowerCase():'';
             }
             tokenpos++;
         }
@@ -100,8 +102,6 @@ class Inverter {
             compound_lexeme[comp]=lexemes2id(this.compound[comp])
         }
 
-
-
         const arrmiddle=fromObj(middle,(a,b)=>[a,b]); //同時是compound 的部件
         arrmiddle.sort(alphabetically0);
         const compounds=arrmiddle.map(a=>a[0]);
@@ -116,12 +116,15 @@ class Inverter {
         }
         this.linetokenpos.push(this.tokenCount); //last Token
         const inverted=[],section=[];
-        const addPostings=(tk,postings)=>{        
+        const addPostings=(tk,postings)=>{
             inverted.push([tk,postings]);
         }        
         for (let tk in this.tokens) this.tokens[tk] && addPostings(tk,this.tokens[tk]);
         for (let tk in this.bigram) this.bigram[tk] && addPostings(tk,this.bigram[tk]);
-        
+
+        inverted.sort((a,b)=>b[1].length-a[1].length);
+        const freq=inverted.slice(0,10);
+        console.log('top 10 tokens',freq.map(a=>[a[0],a[1].length]));
         inverted.sort(alphabetically0);
         this.report={uniqueToken:inverted.length,tokenCount:this.tokenCount};
         // console.log(inverted.slice(0,20).map(tk=>tk[0]+tk[1].length))
@@ -129,8 +132,8 @@ class Inverter {
         const postings=inverted.map(it=>it[1]);
         const bigram=!!this.config.bigram;
 
+        const header={'inverted_version':3, lemmas:lemmas.length,bigram,tokenCount:this.tokenCount};
 
-        const header={'inverted_version':3, lemmas:lemmas.length,bigram};
         const {compounds,formula}=this.serializeCompound( inverted );
 //        console.log(compounds, formula.length)
         section.push(JSON.stringify(header));

@@ -83,12 +83,12 @@ function chunkOf(y_loc){
     const address=this.header.chunk.split('/')[0]+'='+id;
     return {id, at, dy:y-cl.linepos[at], address};
 }
-function locOf(y,nonamespace=false){
+function locOf(y,nonamespace=false,nody=false){
     const arr=this.closest(y,this.header.locator);
     const out=arr.map(it=>it.id);
     let dy=0;
     let s=out.join(LOCATORSEP);
-    if (arr.length) {
+    if (arr.length && !nody) {
         dy=y-arr[arr.length-1].line;
         if (dy>0) s+=NAMESPACESEP+dy;
     }
@@ -100,8 +100,8 @@ function dyOf(y_loc) {
         const tree=(this.header.locator||DEFAULT_LOCATOR).split(LOCATORSEP)
         return (arr.length>tree.length)?parseInt(arr[tree.length]):0;
     } else if (typeof y_loc==='number') {
-        const page=pageLoc(y_loc);
-        const [from]=getPageRange(page);
+        const page=pageLoc.call(this,y_loc);
+        const [from]=getPageRange.call(this,page);
         return y_loc-from;    
     }
 }
@@ -119,7 +119,7 @@ function bookOf(y_loc) {
 function pageLoc(y_loc){ //loc without line delta and ptkname
     let loc='';
     if (typeof y_loc==='number') {
-        const arr=this.closest(y,(this.header.locator||DEFAULT_LOCATOR).split(LOCATORSEP));
+        const arr=this.closest(y_loc,(this.header.locator||DEFAULT_LOCATOR));
         loc=arr.map(it=>it.id).join(LOCATORSEP);
     } else {
         return y_loc;

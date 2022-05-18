@@ -1,6 +1,6 @@
 import {bsearch} from "../utils/index.js";
 import {matchEntry,filterEntry} from "../search/entry.js";
-
+import { fromSim } from "lossless-simplified-chinese";
 function getEntry(n) {
     const lbl=this.getLabel('e');
     if (!lbl)return [];
@@ -37,14 +37,35 @@ function getName(tag){
     return '';
 }
 function enumLemma(str){
-    if (!this.lemma) return [];
+    let lexicon=this.lemma;
+    if (!lexicon && this.inverted ) lexicon=this.inverted.tokens;
+    if (!lexicon) return [];
     const out=[];
     for (let i=2;i<=str.length;i++) {
         const w=str.slice(0,i);
-        const at=bsearch(this.lemma,w);
+        const at=bsearch(lexicon,w);
         if (at>-1) out.push(w);
     }
     out.sort((a,b)=>b.length-a.length);
     return out;
 }
-export default {getName,matchDictEntry,filterDictEntry,getEntry,enumLemma}
+function prefixLemma(str,maxitem=200){
+    let lexicon=this.lemma;
+    if (!lexicon && this.inverted ) lexicon=this.inverted.tokens;    
+    if (!lexicon) return [];
+    let at=bsearch(lexicon,str,true);
+    if (at<0) {
+        str=fromSim(str);
+        at=bsearch(lexicon,str,true);
+    }
+    if (at<0)return [];
+    const out=[];
+    for (let i=at;i<lexicon.length;i++) {
+        if (lexicon[i].slice(0, str.length)===str) {
+            if (out.length>=maxitem) break;
+            out.push(lexicon[i]);
+        } else break;
+    }
+    return out;
+}
+export default {getName,matchDictEntry,filterDictEntry,getEntry,enumLemma,prefixLemma}

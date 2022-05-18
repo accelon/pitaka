@@ -33,9 +33,8 @@ class Builder {
         this.log=opts.log || console.log;
         this.config=opts.config;
 
-        if (!this.config.textOnly) {
+        if (this.config.fulltextsearch) {
             this.inverter=new Inverter(Object.assign({},opts,{context:this.context}));
-            console.log('inverter',this.config.textOnly)
         }
 
         //.tree is old name
@@ -130,7 +129,7 @@ class Builder {
                     await this.opts.onContent(fn,text,tags,this.context);
                 } else {
                     this.doTags(tags,text);
-                    if (!this.config.textOnly) this.inverter.append(writertext);
+                    if (this.config.fulltextsearch) this.inverter.append(writertext);
                     this.writer.append(this.opts.raw?rawcontent:writertext);
                 }    
             }
@@ -210,7 +209,7 @@ class Builder {
         this.context.lastTextLine=this.writer.setEndOfText();
         if (!opts.raw && !opts.exec) {
 
-            if (!this.config.textOnly) {
+            if (this.config.fulltextsearch) {
                 this.writer.addSection('inverted',true);
                 const inverted=this.inverter.serialize();
                 this.writer.append(inverted,true); //force new chunk                

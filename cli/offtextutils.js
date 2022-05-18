@@ -202,7 +202,6 @@ export const group=()=>{
 
     const obj={},out=[];
     if (pat) {
-        console.log(pat)
         const content=fs.readFileSync(fn,'utf8').trimLeft();
         const regex=new RegExp(pat,'g');
         content.replace(regex,(m,m1)=>{

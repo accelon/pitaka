@@ -18,5 +18,5 @@ export default {
     "heading":"ck",    //標題
     "rootdir":"off/", //source offtext folder
     "license":"CC0",  //版權 creative common zero
-    "textOnly":true, //for faster build , 不產生全文索引
+    "fulltextsearch":false, //for faster build , 不產生全文索引
 }

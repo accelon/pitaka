@@ -1,25 +1,34 @@
-# Pitaka
-BackEnd and CLI of Accelon2021
-Accelon2021 後端引擎及製作資料庫的工具
+# Pitaka Database Engine
+* BackEnd and CLI of Accelon2021
+* Accelon2021 後端引擎及製作資料庫的工具
+
+## 功能
+
+* 純 EMCAScript 全文資料庫引擎，不依賴 filesystem API。
+* 不依賴 http ，可使用 file:// 協議。單機端不必運行服務器。
+* 運行於 https 服務器，支持 Progressive Web Application 離線使用。
+
+## 警告
+
+* 本說明文件滯後於源代碼，欲製作 pitaka 資料庫的朋友請與作者連繫。
+* 不經常更新 npm.org 版本
 
 ## install 
 
-    npm -g install
-
+`npm -g install` 或 clone repo ，再從git repo安裝 cli， `npm -g install .`
 
 ## usage
-need pitaka.json in working folder
+* need pitaka.json in working folder
+* list all available commands
 
-list all available commands
+    `pitaka`
 
-    pitaka
-
-build a "pitaka"
+* build a "pitaka"
     
-    pitaka build
+    `pitaka build`
 
 
-example json file
+* example json file
 https://github.com/accelon/sc/blob/main/pitaka.json
 
 ## 架構
