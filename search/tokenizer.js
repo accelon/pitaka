@@ -23,7 +23,7 @@ export const tokenize=(text,opts)=>{
             !searchable && addUnsearchable();
             const sur=String.fromCodePoint(code); 
             out.push([0,null,sur,i,TOKEN_CJK_SURROGATE]);
-            i++;
+            i+=2;
         } else if (code>=0x2000&&code<=0xffff) {
             if ( (code>=2e80&&code<=0x2fff) //radical
                 ||(code>=0x3041&&code<=0x9fff) //0xpunc
@@ -34,11 +34,13 @@ export const tokenize=(text,opts)=>{
                 if (!unsearchable) unsearchable_i=i;
                 unsearchable+=text[i];
             }
+            i++;
         } else {
             let s='',prev=0;
+            let j=i;
             while (code<0x2000) {
-                s+=text[i];
-                code=text.codePointAt(++i)
+                s+=text[j];
+                code=text.codePointAt(++j)
             }
             
             s.replace(Romanize_Reg,(m,m1,offset)=>{
@@ -53,8 +55,8 @@ export const tokenize=(text,opts)=>{
             unsearchable_i=i+prev;
             unsearchable=s.substring(prev);
             !searchable && addUnsearchable();
+            i=j;
         }
-        i++;
     }
     return out;
 }
@@ -79,7 +81,7 @@ export const weightToken=tokens=>{
     return out;
 }
 export const getNthTokenX=(str,n)=>{ //get char offset of nth Searchble token
-    return getTokenX(str,[n]);
+    return getTokenX(str,[n]); // only one postings
 }
 export const getTokenX=(str,hits)=>{
     const [text]=parseOfftextLine(str);
@@ -91,7 +93,7 @@ export const getTokenX=(str,hits)=>{
         while (i<tokens.length) {
             if (tokens[i][TK_TYPE]>=TOKEN_SEARCHABLE) acc++;
             if (n===acc) {
-                out.push(tokens[i][TK_OFFSET]);
+                out.push(tokens[i][TK_OFFSET]); 
                 i++;
                 break;
             }

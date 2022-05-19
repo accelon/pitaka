@@ -80,16 +80,23 @@ async function setupInverted(cb){
     this.inverted={header,tokens,compounds,formulas,linetokenpos,postingStart:from+5,cache:{}}
 }
 
-export function hitPos(y,posting,tofind){ //to be extend to multiple tofinds
-    const tofindlen=tokenize(tofind||'').length;
-    if (!posting.length || !this.inverted || !this.inverted.linetokenpos) return [];
+export function hitPos(y,postings,phrases){ //to be extend to multiple tofinds
+
+    if (!postings.length || !this.inverted || !this.inverted.linetokenpos) return [];
+    const line=this.getLine(y);
+    if (!line) return [];
+
     const ltp=this.inverted.linetokenpos;
     const from=ltp[y-1];
     const to=ltp[y];
-    const hits=posting.filter(v=>v>=from&&v<to).map(v=>v-from-LINETOKENGAP+1); //hits is one base
-    const line=this.getLine(y);
-    const tokenpos=getTokenX( line,hits);
-    return tokenpos.map(it=>[it,tofindlen]);
+    let tokenX=[]; // token pos in line and nth phrase 
+
+    for (let i=0;i<postings.length;i++) {
+        const hits=postings[i].filter(v=>v>=from&&v<to).map(v=>v-from-LINETOKENGAP+1); //hits is one base
+        tokenX=tokenX.concat(getTokenX( line,hits).map(it=>[it,phrases[i].length ]));
+    }
+    tokenX.sort((a,b)=>a[0]-b[0]);
+    return tokenX;
 }
 export function lineOfPosting(posting){
     const ltp=this.inverted.linetokenpos;

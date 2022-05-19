@@ -1,20 +1,16 @@
 import { fromSim } from "lossless-simplified-chinese";
-import { phraseQuery,plRanges } from "../search/index.js";
+import { parseQuery,plRanges } from "../search/index.js";
 export async function fulltextSearch(tofind,opts={}){
     const ptk=this;
-    let posting=await phraseQuery(ptk,tofind);
-    if (!posting.length && opts.tosim) {
-        tofind=fromSim(tofind);
-        posting=await phraseQuery(ptk,tofind);
-    }
-    if (opts.ranges && opts.ranges.length) {//only search in ranges
-        posting=plRanges(posting,opts.ranges);
-    }
 
+    tofind=tofind.slice(0,50);
+
+    const [phrases,postings]=await parseQuery(ptk,tofind,opts);
     let scoredLine=[];
-    const PL=[posting];
-    const scores=[1];
-    const ptr=new Array(PL.length);
+    const allhits=postings.reduce((acc,i)=>i.length+acc ,0 );
+    const weights=postings.map( pl=> Math.sqrt(allhits/pl.length) );
+    
+    const ptr=new Array(postings.length);
     ptr.fill(0);
     const minscore=opts.minscore||0.6;
     const ltp=ptk.inverted.linetokenpos;
@@ -23,29 +19,30 @@ export async function fulltextSearch(tofind,opts={}){
 
     if (opts.excerpt) {
         let i=0;
-        while (i<ltp.length-1) {
+        while (i<ltp.length-1) { //sum up all Postings 
             let rangescore=0,nearest=ltplast;
             const from=ltp[i], to=ltp[i+1];
-            for (let j=0;j<PL.length;j++) {
-                const pl=PL[j];
+            for (let j=0;j<postings.length;j++) {
+                const pl=postings[j];
                 let v=pl[ptr[j]];
                 while (v<from&&ptr[j]<pl.length) {
                     ptr[j]++
                     v=pl[ptr[j]];
                 }
                 if (v>=from&&v<to) {
-                    rangescore+=scores[j];
+                    rangescore+=weights[j];
                 }
                 if (nearest>v) nearest=v;
             }
-            const boost=Math.log(averagelinelen/(to-from+1));
+            //boost single phrase search with linelen, shorter line get higher score
+            const boost=postings.length==1?Math.log(averagelinelen/(to-from+1)):1; 
             if (rangescore>=minscore) scoredLine.push([i+1,rangescore*boost]);//y is 1 base
             i++;
             while (nearest>ltp[i+1]) i++;
         }
         scoredLine=scoredLine.sort((a,b)=>b[1]-a[1]);
     }
-    const r={ tofind,caption:'內文',posting,count:posting.length, scoredLine }
+    const r={ tofind,caption:'內文',postings, scoredLine ,phrases}
     return r;
 }
 export function registerQueryMethods(){
