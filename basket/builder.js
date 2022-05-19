@@ -208,12 +208,16 @@ class Builder {
     finalize(opts={}){
         this.context.lastTextLine=this.writer.setEndOfText();
         if (!opts.raw && !opts.exec) {
+            // TODO , cannot sae before labels, need check
+
 
             if (this.config.fulltextsearch) {
                 this.writer.addSection('inverted',true);
                 const inverted=this.inverter.serialize();
+                // console.log('inverted len',inverted.length)
                 this.writer.append(inverted,true); //force new chunk                
             }
+
             if (this.context.headings.length) {
                 this.writer.addSection('headings');
                 const headings=serializeLineposString(this.context.headings);
@@ -225,15 +229,16 @@ class Builder {
                 this.writer.append(lemma);
             }
 
-            this.writer.addSection('labels');
-            const section=serializeLabels(this.context);
-            this.writer.append(section);
-
             if (this.context.notes.length) {
                 this.writer.addSection('notes');
                 const trait=serializeNotes(this.context);
                  this.writer.append(trait);
             }
+
+            this.writer.addSection('labels');
+            const section=serializeLabels(this.context);
+            this.writer.append(section);
+
         }
         if (opts.exec && opts.exec.onFinalize) {
             opts.exec.onFinalize(opts);

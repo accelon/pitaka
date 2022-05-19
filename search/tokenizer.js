@@ -5,59 +5,50 @@ export const TOKEN_ID_UNKNOWN=-1;
 export const TK_WEIGHT=0,TK_POSTING=1,TK_NAME=2,TK_OFFSET=3,TK_TYPE=4;
 export const LINETOKENGAP=5;
 import {parseOfftextLine} from '../offtext/index.js'
-import {CJKWord_Reg,Romanize_Reg} from './utils.js'
-export const tokenize=(text,opts)=>{
+import {CJKWord_Reg,Word_tailspace_Reg} from './utils.js'
+
+
+export const tokenize=text=>{
     const out=[];
-    opts=opts||{};
-    const searchable=opts.searchable;
-    let i=0,unsearchable='',unsearchable_i=0;
-    const addUnsearchable=()=>{
-        if (unsearchable.trim()) {
-            out.push([0,null,unsearchable,unsearchable_i,TOKEN_UNSEARCHABLE]);
-        }
-        unsearchable='';
-    }
+    let i=0;
     while (i<text.length) {
         let code=text.codePointAt(i);
         if (code>0xffff) {
-            !searchable && addUnsearchable();
             const sur=String.fromCodePoint(code); 
             out.push([0,null,sur,i,TOKEN_CJK_SURROGATE]);
             i+=2;
+            continue;
         } else if (code>=0x2000&&code<=0xffff) {
-            if ( (code>=2e80&&code<=0x2fff) //radical
+            const tt=(code>=2e80&&code<=0x2fff) //radical
                 ||(code>=0x3041&&code<=0x9fff) //0xpunc
                 || (code>=0xd400&&code<0xdfff)  //surrogates
-                || (code>=0xe000&&code<0xfadf)){  //PUA
-                out.push([0,null,text[i],i,TOKEN_CJK_BMP]);
-            } else {
-                if (!unsearchable) unsearchable_i=i;
-                unsearchable+=text[i];
-            }
+                || (code>=0xe000&&code<0xfadf)? TOKEN_CJK_BMP:TOKEN_UNSEARCHABLE;
+
+            out.push([0,null,text[i],i,tt]);
             i++;
-        } else {
-            let s='',prev=0;
-            let j=i;
-            while (code<0x2000) {
-                s+=text[j];
-                code=text.codePointAt(++j)
-            }
-            
-            s.replace(Romanize_Reg,(m,m1,offset)=>{
-                if (prev&&offset>prev) {
-                    unsearchable_i=i+prev;
-                    unsearchable=s.substring(prev,offset);
-                    !searchable && addUnsearchable();
-                }
-                out.push([0,null,m1,i+offset,TOKEN_ROMANIZE]);
-                prev=offset+m.length;
-            });
-            unsearchable_i=i+prev;
-            unsearchable=s.substring(prev);
-            !searchable && addUnsearchable();
-            i=j;
+            continue;
         }
+        //space or alpha number
+        let s='',prev=0;
+        let j=i;
+        while (code<0x2000) {
+            s+=text[j];
+            code=text.codePointAt(++j)
+        }
+
+
+        s.replace(Word_tailspace_Reg,(m,m1,offset)=>{
+            if (offset>prev) {
+                out.push([0,null, s.substring(prev,offset) , prev+i,TOKEN_UNSEARCHABLE]);
+            }
+            while (s[offset]==' ') offset++;
+            out.push([0,null,m1,i+offset,TOKEN_ROMANIZE]);
+            prev=offset+m.length;
+        });
+        if (prev<s.length) out.push( [0,null, s.substring(prev)  ,prev+i,TOKEN_UNSEARCHABLE ]);
+        i=j;
     }
+
     return out;
 }
 
@@ -80,26 +71,5 @@ export const weightToken=tokens=>{
     
     return out;
 }
-export const getNthTokenX=(str,n)=>{ //get char offset of nth Searchble token
-    return getTokenX(str,[n]); // only one postings
-}
-export const getTokenX=(str,hits)=>{
-    const [text]=parseOfftextLine(str);
-    const tokens=tokenize(text);
-    let i=0,acc=0;
-    const out=[];
-    for (let j=0;j<hits.length;j++) {
-        const  n=hits[j];
-        while (i<tokens.length) {
-            if (tokens[i][TK_TYPE]>=TOKEN_SEARCHABLE) acc++;
-            if (n===acc) {
-                out.push(tokens[i][TK_OFFSET]); 
-                i++;
-                break;
-            }
-            i++;
-        }
-    }
-    return out;
-}
-export default {tokenize,TOKEN_CJK,TOKEN_ROMANIZE,getNthTokenX,getTokenX,weightToken}
+
+export default {tokenize,TOKEN_CJK,TOKEN_ROMANIZE,weightToken}

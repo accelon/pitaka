@@ -1,6 +1,6 @@
 import {fileContent} from '../format/index.js'
 import {parseOfftextLine} from '../offtext/parser.js';
-import {tokenize,TOKEN_SEARCHABLE,TOKEN_CJK_BMP,TOKEN_ROMANIZE,TK_NAME,TK_TYPE,LINETOKENGAP} from '../search/index.js'
+import {tokenize,TOKEN_SEARCHABLE,TK_OFFSET,TOKEN_CJK_BMP,TOKEN_ROMANIZE,TK_NAME,TK_TYPE,LINETOKENGAP} from '../search/index.js'
 import {alphabetically0,packStrings,pack,pack2d,pack_delta,bsearch,fromObj} from '../utils/index.js'
 import {orthOf} from 'provident-pali'
 import {isStopword} from './stopwords.js';
@@ -46,34 +46,33 @@ class Inverter {
     }
     indexLine(line,tokencount){
         const [text]=parseOfftextLine(line);
-        let tokenpos=tokencount,prev='';
+        let prev='',tkpos=0;
         const tokens=tokenize(text);
         const provident=this.config.lang=='pl';
-
         for (let i=0;i<tokens.length;i++) {
             const tk=tokens[i];
             if (tk[TK_TYPE]>=TOKEN_SEARCHABLE) {
                 if (provident) {
-                    this.indexPaliToken(tk[TK_NAME],tokenpos);
+                    this.indexPaliToken(tk[TK_NAME],tokencount+i);
                 } else {                
                     if (tk[TK_TYPE]===TOKEN_CJK_BMP && this.config.bigram && prev&&this.bigram[prev+tk[TK_NAME]]) {
-                        this.addPosting(prev+tk[TK_NAME].toLowerCase(),tokenpos-1,this.bigram);
+                        this.addPosting(prev+tk[TK_NAME].toLowerCase(),tokencount+i-1,this.bigram);
                     }
                     const token=tk[TK_NAME].toLowerCase();
                     if (tk[TK_TYPE]==TOKEN_ROMANIZE && (token.length<2 || !isNaN(parseInt(token)) || isStopword(token))) continue;
-                    this.addPosting(token,tokenpos);    
+                    this.addPosting(token,tokencount+i);
                 }
                 prev=(TK_TYPE===TOKEN_CJK_BMP)?prev=tk[TK_NAME].toLowerCase():'';
             }
-            tokenpos++;
         }
-        return tokenpos;
+        return tokencount+tokens.length;
     }
     append(lines) {
         if (typeof lines==='string') lines=lines.split(/\r?\n/)
         let ndoc=this.context.startY;
         for (let i=0;i<lines.length;i++) {
-            this.tokenCount=this.indexLine(lines[i],this.tokenCount); //10 to split paragraph
+            const tokencount=this.indexLine(lines[i],this.tokenCount); //10 to split paragraph
+            this.tokenCount=tokencount;
             this.linetokenpos[ndoc+1]=this.tokenCount;
             this.tokenCount+=LINETOKENGAP;//gap between lines
             ndoc++;

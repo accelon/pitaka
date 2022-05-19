@@ -1,4 +1,5 @@
-import {plAnd,getCounter, getSpeed} from './posting.js';
+import {plAnd,getCounter, getSpeed,plRanges} from './posting.js';
+import {fromSim} from 'lossless-simplified-chinese'
 const queryCache={};
 
 export const phraseQuery=async (ptk,phrase)=>{
@@ -19,6 +20,7 @@ export const phraseQuery=async (ptk,phrase)=>{
 };
 
 export const parseQuery=async (ptk,tofind,opts)=>{
+    opts=opts||{};
     const phrases=tofind.split(/[ 　]/);
     if (phrases.length>5) phrases.length=5;
     const outphrases=[], postings=[];
@@ -26,8 +28,7 @@ export const parseQuery=async (ptk,tofind,opts)=>{
         if (!phrases[i].trim()) continue;
         let posting=await phraseQuery(ptk,phrases[i]);
         if (!posting.length && opts.tosim) {
-            ph=fromSim(phrases[i]);
-            posting=await phraseQuery(ptk,phrases[i]);
+            posting=await phraseQuery(ptk,fromSim(phrases[i]));
         }
         if (opts.ranges && opts.ranges.length) {//only search in ranges
             posting=plRanges(posting,opts.ranges);

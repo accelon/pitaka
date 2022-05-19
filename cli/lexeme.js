@@ -1,7 +1,7 @@
 import {getSrcFiles  } from '../basket/config.js';
 import {readTextLines} from "../platform/fsutils.js";
 import { parseOfftextLine } from '../offtext/parser.js';
-import {tokenize,TOKEN_SEARCHABLE} from '../search/index.js'
+import {tokenize,TOKEN_SEARCHABLE,TK_NAME} from '../search/index.js'
 import { sortObj } from '../utils/sortedarray.js';
 import { writeChanged } from './index.js';
 export const lexemeOfSrcFiles = async config=>{
@@ -14,7 +14,7 @@ export const lexemeOfSrcFiles = async config=>{
         const lines=readTextLines(fn);
         for (let i=0;i<lines.length;i++) {
             const [text]=parseOfftextLine(lines[i]);
-            const tokens=tokenize(text,{searchable:true}).map(it=>it[2]);
+            const tokens=tokenize(text).map(it=>it[TK_NAME].trim());
             tokens.forEach(tk=>{
                 if (!isNaN(parseInt(tk)))return;
                 tk=tk.replace(/\d$/,'');
