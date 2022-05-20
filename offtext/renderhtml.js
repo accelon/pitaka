@@ -209,6 +209,7 @@ export const OfftextToSnippet =(linetext , extra=[] , renderInlinetag=true, debu
     let tags=[],text=linetext;
     if (hastag && renderInlinetag) [text,tags]=parseOfftextLine(linetext);
     extra=extra.filter(i=>!!i);
+
     for (let i=0;i<extra.length;i++) {
         if (typeof extra[i]==='string' && extra[i].trim()) { //search keyword
             const keywords=extra[i].split(/ +/).filter(i=>!!i.trim());
@@ -219,15 +220,14 @@ export const OfftextToSnippet =(linetext , extra=[] , renderInlinetag=true, debu
                    tags.push(new OffTag('hl'+i, null, 0, offset, m.length) );
                 })
             }
-        } else if (extra[i].name) {//instance of offtag
+        } else {//instance of offtag
             tags.push(extra[i]);
-        } else if (extra[i][1]){ //highlight
-            tags.push(new OffTag('hl'+i, null, 0, extra[i][0], extra[i][1]) ); 
         }
     }
     //會造成 pryt-zh:cma.104 塗色錯誤 ^cs@aas.104^n104 ^b[不善心] 
-    //因為 ^b 的x 是0，w又比cs和n 大，會被移到前頭
-    // tags.sort((a,b)=>a.x==b.x?b.w-a.w:a.x-b.x);  
+    //因為 ^b 的x 是0，w又比cs和n 大，會被移到前頭 2022/5/20 不排序會造成塗紅問題(夾雜注釋時)，開頭空格應讓x+1
+
+    tags.sort((a,b)=>a.x==b.x?b.w-a.w:a.x-b.x);  
     const snippets= renderSnippet(text,tags);
     return snippets;
 }

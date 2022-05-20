@@ -2,7 +2,7 @@ import {unpackPosting,tokenize,TOKEN_SEARCHABLE,LINETOKENGAP,
     TK_NAME,TK_TYPE,TK_POSTING} from '../search/index.js'
 
 import {unpackStrings,bsearch,unpack_delta,unpack2d} from '../utils/index.js'
-
+import {parseOfftextLine} from '../offtext/index.js'
 async function prepareToken(str){
     if (!this.inverted) await this.setupInverted();
     if (!this.inverted) return null
@@ -82,23 +82,47 @@ async function setupInverted(cb){
 
     this.inverted={header,tokens,compounds,formulas,linetokenpos,postingStart:from+5,cache:{}}
 }
-
+export function getTokenX(text,hits){
+    let oneitem=false;
+    if (typeof hits=='number') {
+        hits=[hits];
+        oneitem=true;
+    }
+    const tokens=tokenize(text);
+    const out=[];
+    let acc=0,i=0,j=0;
+    while (i<tokens.length) {
+        while (j<hits.length&& hits[j]==i ) {
+            out.push( acc );
+            j++;
+        }
+        acc+=tokens[i][TK_NAME].length;
+        i++;
+    }
+    return oneitem?out[0]:out;
+}
 export function hitPos(y,postings,phrases){ // hit position for highlight rendering
     if (!postings.length || !this.inverted || !this.inverted.linetokenpos) return [];
     const line=this.getLine(y);
     if (!line) return [];
 
+    const [text]=parseOfftextLine(line);
+    let prev='',tkpos=0;
+
+
     const ltp=this.inverted.linetokenpos;
     const from=ltp[y-1]+LINETOKENGAP;
     const to=ltp[y];
-    let tokenX=[]; // token pos in line and nth phrase 
+    let out=[]; // token pos in line and nth phrase 
     for (let i=0;i<postings.length;i++) {
         const hits=Array.from(postings[i].filter(v=>v>=from&&v<=to).map(v=>v-from));
-        tokenX=tokenX.concat(hits.map(it=>[it,phrases[i].length ]));
+        const tokenx= getTokenX(text,hits);
+        out=out.concat(tokenx.map(it=>[it,phrases[i].length ]));
     }
 
-    tokenX.sort((a,b)=>a[0]-b[0]);
-    return tokenX;
+    out.sort((a,b)=>a[0]-b[0]);
+
+    return out;
 }
 export function lineOfPosting(posting){
     const ltp=this.inverted.linetokenpos;
