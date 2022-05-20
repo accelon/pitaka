@@ -46,23 +46,27 @@ class Inverter {
     }
     indexLine(line,tokencount){
         const [text]=parseOfftextLine(line);
+        const debug=~line.indexOf('countenanced')
         let prev='',tkpos=0;
         const tokens=tokenize(text);
         const provident=this.config.lang=='pl';
+
         for (let i=0;i<tokens.length;i++) {
             const tk=tokens[i];
-            if (tk[TK_TYPE]>=TOKEN_SEARCHABLE) {
+            let tok=tk[TK_NAME].trim();
+            const tktype=tk[TK_TYPE];
+            if (tktype>=TOKEN_SEARCHABLE) {
                 if (provident) {
-                    this.indexPaliToken(tk[TK_NAME],tokencount+i);
+                    this.indexPaliToken(tok,tokencount+i);
                 } else {                
-                    if (tk[TK_TYPE]===TOKEN_CJK_BMP && this.config.bigram && prev&&this.bigram[prev+tk[TK_NAME]]) {
-                        this.addPosting(prev+tk[TK_NAME].toLowerCase(),tokencount+i-1,this.bigram);
+                    if (tktype===TOKEN_CJK_BMP && this.config.bigram && prev&&this.bigram[prev+tok]) {
+                        this.addPosting(prev+tok.toLowerCase(),tokencount+i-1,this.bigram);
                     }
-                    const token=tk[TK_NAME].toLowerCase();
-                    if (tk[TK_TYPE]==TOKEN_ROMANIZE && (token.length<2 || !isNaN(parseInt(token)) || isStopword(token))) continue;
-                    this.addPosting(token,tokencount+i);
+                    tok=tok.toLowerCase();
+                    if (tktype==TOKEN_ROMANIZE && (tok.length<2 || !isNaN(parseInt(tok)) || isStopword(tok))) continue;
+                    this.addPosting(tok,tokencount+i);
                 }
-                prev=(TK_TYPE===TOKEN_CJK_BMP)?prev=tk[TK_NAME].toLowerCase():'';
+                prev=(TK_TYPE===TOKEN_CJK_BMP)?prev=tok:'';
             }
         }
         return tokencount+tokens.length;

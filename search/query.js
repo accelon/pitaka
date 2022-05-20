@@ -26,24 +26,30 @@ export const scoreLine=(ltp,postings)=>{
     const weights=postings.map( pl=> Math.sqrt(allhits/pl.length) );
     const ptr=new Array(postings.length);
     ptr.fill(0);
-
+    let prev=0;
     while (i<ltp.length-1) { //sum up all Postings 
         let nearest=ltplast;
         const from=ltp[i], to=ltp[i+1];
         let matching=[];
+        prev=0;
         for (let j=0;j<postings.length;j++) {
             const pl=postings[j];
             let v=pl[ptr[j]];
+
             while (v<from&&ptr[j]<pl.length) {
                 ptr[j]++
                 v=pl[ptr[j]];
             }
-            while (v>=from&&v<to) {
+            while (v>=from&&v<to ) {
                 if (!matching[j]) matching[j]=0;
-                matching[j]++;                    
+                matching[j]++;                 
+
+                if (j==0) prev=v;
+                else if (prev+j==v) matching[j]+=3;  //more score for phrase match
+
                 ptr[j]++;
                 v=pl[ptr[j]];
-            }
+            }            
             if (nearest>v) nearest=v;
         }
 
