@@ -1,3 +1,5 @@
+import {allEntry} from '../search/entry.js';
+
 function getHeadingFilters(){
     const filters=[];
     const lbl=this.getHeadingLabel();
@@ -28,5 +30,9 @@ function getHeadingRanges(headings){//given heading idx , return its token pos, 
     const ranges=headings.map(idx=> [ ltp[lbl.linepos[idx]],ltp[lbl.linepos[idx+1]]]);
     return combineRanges(ranges);
 }
+function allHeadings(indexonly=false) {
+    const headings=this.getHeadingLabel().names;
+    return indexonly?allEntry(headings):headings;
+}
 
-export default {getHeadingFilters,getHeadingRanges}
+export default {getHeadingFilters,getHeadingRanges,allHeadings}

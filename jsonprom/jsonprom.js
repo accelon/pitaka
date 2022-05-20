@@ -72,9 +72,12 @@ class JSONPROM {
         if (!this.context.loadedChunk[_chunk]) {
             // this.context.loadedChunk[_chunk]=true; //assuming loading is ok, prevent multiple load
             res = await this._loader(this.header.name,_chunk,this);
-            if (res) this.setChunk(_chunk,res.header,res.payload);
+            if (res) {
+                this.setChunk(_chunk,res.header,res.payload);
+                this.context.loadedChunk[_chunk]=true
+            }
             else {
-                this.context.loadedChunk[_chunk]=false;
+                //this.context.loadedChunk[_chunk]=false;
             }
         }        
     }

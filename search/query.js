@@ -42,10 +42,17 @@ export const scoreLine=(ltp,postings)=>{
             }
             while (v>=from&&v<to ) {
                 if (!matching[j]) matching[j]=0;
-                matching[j]++;                 
+                matching[j]++; //each hit has a base score 1
 
-                if (j==0) prev=v;
-                else if (prev+j==v) matching[j]+=3;  //more score for phrase match
+                if (j==0) prev=v;  // score closer token
+                else {
+                    const dist=v-prev-j;
+                    if (dist==0) { //immediate prev token
+                        matching[j] += 3;
+                    } else {  
+                        matching[j] += 1/dist;
+                    }
+                } 
 
                 ptr[j]++;
                 v=pl[ptr[j]];
