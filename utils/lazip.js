@@ -1,3 +1,4 @@
+// obsolete code
 import JSZip from '../3rdparty/jszip.js' //need tailored version of jszip.
 
 function readInt(buf,idx,size) {

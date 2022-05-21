@@ -28,8 +28,8 @@ class LabelYear extends Label {
         if (this.type=='bc') year=-year;
         this.count++;
         year+=YEARPLUS;
-        if (!this.years[year])this.years[year]=[];
-        this.years[year].push(tag.y);
+        if (!this._years[year])this._years[year]=[];
+        this._years[year].push(tag.y);
     }
     reseting() {
     }
@@ -37,13 +37,13 @@ class LabelYear extends Label {
         const out=super.serialize();
 
         const yearlines=[]
-        for (let year in this.years) {
-            yearlines.push([year, this.years[year] ] );
+        for (let year in this._years) {
+            yearlines.push([parseInt(year), this._years[year] ] );
         }
         yearlines.sort((a,b)=>a[0]-b[0]);
-        out.push(JSON.stringify({caption:this.caption,length:yearlines.length}));
-        out.push(pack2( yearlines.map(it=>it[0])));
 
+        out.push(JSON.stringify({caption:this.caption,length:yearlines.length}));
+        out.push(pack2(yearlines.map(it=>it[0])));
         this.lineposs=yearlines.map(it=>it[1]);
         out.push(pack_delta2d( this.lineposs));
         return out;
@@ -52,10 +52,9 @@ class LabelYear extends Label {
         let at=super.deserialize(payload);
         const header=JSON.parse(payload[at++]);payload[at-1]='';
         this.caption=header.caption;
-        this.years=unpack2(payload[at++]);payload[at-1]='';
-
+        this.years=unpack2(payload[at++]).map(i=>i-YEARPLUS) ;payload[at-1]='';
+        this.count=this.years.length;
         this.lineposs=unpack_delta2d(payload[at++]);payload[at-1]='';
-
     }
     finalize() {
 

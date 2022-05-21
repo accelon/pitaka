@@ -68,4 +68,24 @@ function prefixLemma(str,maxitem=200){
     }
     return out;
 }
-export default {getName,matchDictEntry,filterDictEntry,getEntry,enumLemma,prefixLemma}
+export function chunkName(nth){
+    let single=false;
+    if (!Array.isArray(nth)) {
+        nth=[nth];
+        single=true;
+    }
+    const lbl=this.getChunkLabel();
+    const out=nth.map(n=>lbl.names[n]);
+    return single?out[0]:out;
+}
+export function headingName(nth){
+    let single=false;
+    if (!Array.isArray(nth)) {
+        nth=[nth];
+        single=true;
+    }
+    const lbl=this.getHeadingLabel();
+    const out=nth.map(n=>lbl.names[n]);
+    return single?out[0]:out;
+}
+export default {getName,matchDictEntry,filterDictEntry,getEntry,enumLemma,prefixLemma,chunkName,headingName}

@@ -115,6 +115,7 @@ class Builder {
         this.context.ptkline=this.writer.header.lineCount; //ptk line count
         try{
             rawcontent=removeLabels(rawcontent,this.config.removeLabels);
+            //headings only for two level locator
             const {writertext,text,tags,headings}=parseOfftextHeadings(rawcontent,this.context.ptkline,this.config.locator);
             this.context.headings.push(...headings);
 

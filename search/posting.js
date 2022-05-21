@@ -1,4 +1,5 @@
 let counter=0,maxspeed=0;
+import {bsearch} from '../utils/bsearch.js';
 /*inspired by https://github.com/Siderite/SortedArrayIntersect AcceleratingIntersercter*/
 export const plFind=(arr, v, p=0)=>{
     let speed = 1;
@@ -49,7 +50,7 @@ export const plCount=(pl,plgroup)=>{
     }
     return out;
 }
-export const plRanges=(posting,ranges)=>{
+export const plRanges=(posting,ranges)=>{ // filter out postings by ranges
     if (!ranges||!ranges.length)return posting;
     const out=[];
     let j=0, r=ranges[j];
@@ -63,10 +64,24 @@ export const plRanges=(posting,ranges)=>{
     }
     return out;
 }
-export const scoreLines=weightToken=>{
-
+export const plContain=(posting, ltp)=>{ // return line containing with posting
+    // console.log(posting.slice(0,20),ltp.slice(0,10),ltp.length)
+    let p,i=0,j=0;
+    const out=[];
+    while (i<posting.length ) {
+        let p=posting[i];
+        let at=bsearch(ltp, p,true);
+        if (~at && at<ltp.length) {
+            if (out[out.length-1]!==at) {
+                out.push(at);
+            }
+            p=posting[i];
+        } 
+        i++;
+    }
+    return out;
 }
 export const getCounter=()=>counter;
 export const getSpeed=()=>maxspeed;
 export const resetCounter=()=>counter=0;
-export default {plAnd,plFind,getCounter,resetCounter,scoreLines,plRanges}
+export default {plAnd,plFind,getCounter,resetCounter,plRanges,plContain}

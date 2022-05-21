@@ -23,7 +23,7 @@ import {pin} from './pin-brk.js';
 import nGram from '../search/ngram.js';
 import EnumWordHead from '../search/enumwordhead.js';
 import {compareText} from '../align/compare.js';
-import {group,entrysort,search,wordseg,intersect} from './offtextutils.js'
+import {group,entrysort,search,wordseg,intersectFile} from './offtextutils.js'
 import {autoAlign} from '../align/align.js'
 import validate from "./validate.js"
 import {lexemeOfSrcFiles} from "./lexeme.js"

@@ -1,10 +1,10 @@
 
 const cidian={
-    'e':['LabelEntry',{resets:'y'}],
-    'y':['Label',{resets:['d','eg','q']}],
-    'eg':'Label',
-    'd':'Label',
-    'q':'Label',
+    'e':{type:'LabelEntry'},
+    'y':{'Label',reset:'e'},
+    'eg':{type:'Label',reset:'y'},
+    'd':{type:'Label',reset:'y'},
+    'q':{type:'Label',reset:'y'},
     't':'LabelTransclusion',
     'se':'Label',
     'en':'Label',

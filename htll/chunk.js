@@ -68,16 +68,6 @@ class LabelChunk extends Label {
         if (this.hasname && payload[at]) this.names=payload[at++].split('\t');payload[at-1]='';
         if (opts.attrs) this.attrIndex=deserializeAttributes(payload,at);
     }
-    query(tofind){
-        const matches=[];
-        for (let i=0;i<this.names.length;i++) {
-            const at=this.names[i].indexOf(tofind);
-            if (at>-1) {
-                matches.push({at:i, name:this.names[i], id:this.idarr[i], linepos:this.linepos[i]});
-            }
-        }
-        return { tofind, caption:this.caption, matches, count:matches.length};
-    }
     finalize(ctx) {
 
     }

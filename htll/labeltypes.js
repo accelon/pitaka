@@ -1,5 +1,5 @@
 import Label from './label.js'
-import LabelVol from './vol.js'
+//import LabelVol from './vol.js'
 import LabelPage from './page.js'
 import LabelBook from './book.js'
 import LabelChapter from './chapter.js'
@@ -23,7 +23,7 @@ import LabelLink from './link.js'
 import LabelLang from './lang.js'
 import LabelFootnote from './footnote.js'
 
-const LabelTypes = {Label,LabelHeader,LabelEntry,LabelVol,LabelPage,LabelMilestone
+const LabelTypes = {Label,LabelHeader,LabelEntry,LabelPage,LabelMilestone
     ,LabelKeyword,LabelKeynumber,LabelYear,LabelYearSpan,LabelSeeAlso,LabelLang,LabelFootnote,
 LabelBook,LabelChapter,LabelChunk,LabelMulu,LabelSection,LabelAnchor,LabelTransclusion,LabelLink}
 

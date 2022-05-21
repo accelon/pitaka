@@ -57,8 +57,8 @@ class LabelYearSpan extends Label {
         let at=super.deserialize(payload);
         const header=JSON.parse(payload[at++]);payload[at-1]='';
         this.caption=header.caption;
-        this.years=unpack2(payload[at++]);
-        this.yearsEnd=unpack2(payload[at++]);
+        this.years=unpack2(payload[at++]).map(it=>it-YEARPLUS);
+        this.yearsEnd=unpack2(payload[at++]).map(it=>it-YEARPLUS);
         this.lineposs=unpack_delta2d(payload[at++]);payload[at-1]='';
     }
     finalize() {

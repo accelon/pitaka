@@ -41,7 +41,7 @@ export const makeAddress=(basket,loc,dy)=>{
 export const stringifyAddress=obj=>{
     if (!obj.basket && obj.ptk) obj.basket=obj.ptk.name;
     const arr=[];
-    arr.push(obj.basket+NAMESPACESEP+obj.loc+ (obj.dy?NAMESPACESEP+obj.dy:''));
+    arr.push(obj.basket+NAMESPACESEP+(obj.loc||'')+ (obj.dy?NAMESPACESEP+obj.dy:''));
     //not consistent behaviour with parseAddress
     //parseAddress does not put key=value in addrs
     for (let key in obj) {

@@ -1,5 +1,6 @@
 import {bsearch} from'../utils/index.js';
 import {ATTRPREFIX} from '../platform/constants.js'
+import {getCriterion} from '../criteria/index.js';
 class Label {
     constructor(name,opts) {
         this.cb=opts.cb;
@@ -15,6 +16,13 @@ class Label {
             if (opt[0]===ATTRPREFIX) { //attribute typedef
                 this.attrdef[opt.slice(1)]=opts[opt];
             }
+        }
+        if (opts.criterion) {
+        	const criterion=getCriterion(opts.criterion);
+        	if (!criterion) {
+        		this.log("invalid criteria",opts.criterion);
+        	}
+        	this.criterion=opts.criterion;
         }
         return this;
     }

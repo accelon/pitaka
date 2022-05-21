@@ -26,6 +26,7 @@ export const pack2=(arr,esc=false)=>{
 		i2=int % maxlen1;
 		s+=String.fromCharCode(i2+CodeStart)+String.fromCharCode(i1+CodeStart);
 	}
+
 	if (esc) s=escapePackedStr(s); 
 	return s;
 }

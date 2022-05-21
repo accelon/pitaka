@@ -63,7 +63,7 @@ class LabelBook extends Label {
                 matches.push({at:i, name:this.names[i], id:this.idarr[i], linepos:this.linepos[i]});
             }
         }
-        return { tofind, caption:this.caption, matches, count:matches.length};
+        return {  tofind, caption:this.caption, matches, count:matches.length};
     }
     finalize(){
     }

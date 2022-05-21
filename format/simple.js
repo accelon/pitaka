@@ -9,7 +9,7 @@ export default {
         "v":{}, // volto be remove
         "sz":{},//stanza
         "fn":{"caption":"注釋","reset":"ck"},
-        "cs":["LabelTransclusion",{"basket":"cs"}],
+        "cs":{"type":"LabelTransclusion","basket":"cs"},
         "z":{},
     },
     //default value, set in pitaka.json to overwrite

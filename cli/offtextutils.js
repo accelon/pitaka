@@ -100,7 +100,7 @@ const spacing=arr=>{
     }
     return out;
 }
-export const intersect=async ()=>{
+export const intersectFile=async ()=>{
     let wl1=fs.readFileSync(process.argv[3],'utf8').split(/\r?\n/);
     let wl2=fs.readFileSync(process.argv[4],'utf8').split(/\r?\n/);
     wl1=(wl1.map(it=>it.split(',')[0]))

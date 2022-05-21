@@ -9,6 +9,9 @@ class LabelMilestone extends Label {
         this.sequencial=opts.sequencial;
         this.context=opts.context;
         this.parenty=0;
+        this.names=[];
+        this.named=opts.named;
+        this.reset=opts.reset;
         return this;
     }
     action( tag ,linetext){
@@ -19,8 +22,11 @@ class LabelMilestone extends Label {
             if (tag.x) console.warn("cannot have empty milestone in the middle of text, at line",y);
             else return;//ignore ^n
         }
-        if (tag.w) {
-            console.warn("milestone should not enclose text",tag);
+        if (tag.w && !this.named) {
+            console.warn("should not enclose text",tag);
+        } 
+        if (this.named) {
+            this.names.push(linetext.slice(tag.x,tag.x+tag.w));
         }
         if (this.sequencial) {
             if (n!==this.prevn+1){
@@ -50,7 +56,7 @@ class LabelMilestone extends Label {
             this.prevn=n;    
             this.linepos.push(y);
         }
-        if (this.prevn==1 && y!==this.parenty) {
+        if (this.reset&& this.prevn==1 && y!==this.parenty) {
             console.warn(tag);
             const line=y-this.context.startY;
             throw "missing parent tag on line #"+line;
@@ -62,12 +68,18 @@ class LabelMilestone extends Label {
     }
     serialize(){
         const out=super.serialize();
+        out.push(JSON.stringify({named:this.named}));
         out.push(pack_delta(this.linepos)); 
+        this.named&&out.push(packStrings(this.names));
         return out;
     }
     deserialize(payload){
         let at=super.deserialize(payload);
-        this.linepos=unpack_delta(payload[at]);payload[at]='';
+        const header= JSON.parse(payload[at++]);; payload[at-1]='';
+        this.named=header.named;
+        this.linepos=unpack_delta(payload[at++]); payload[at-1]='';
+        this.names=header.named?unpackStrings(payload[at++]):[]; payload[at-1]='';
+        this.count=this.linepos.length-1;
     }
     finalize() {
     }

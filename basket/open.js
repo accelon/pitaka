@@ -8,7 +8,7 @@ import headingsAPI from './headings.js';
 import pointersAPI from './pointers.js';
 import mulusAPI from './mulus.js';
 import invertedAPI from './inverted.js';
-import querymethodsAPI from './querymethods.js';
+import criteriaAPI from './criteria.js';
 import connectionsAPI from './connections.js';
 import notesAPI from './notes.js';
 import {labelByType} from "../htll/index.js"
@@ -24,7 +24,7 @@ class Basket extends JSONPROM {
         this.lblTransclusion=null;
         this.inverted=null;
         this.loadtime={};
-        this.querymethods={};   
+        this.criteria={};   
         this.labelLang=null;
         this.labelBook=null; //cache the book label
         for (let f in pagingAPI) this[f]=pagingAPI[f];
@@ -33,7 +33,7 @@ class Basket extends JSONPROM {
         for (let f in pointersAPI) this[f]=pointersAPI[f];
         for (let f in mulusAPI) this[f]=mulusAPI[f];
         for (let f in invertedAPI) this[f]=invertedAPI[f];
-        for (let f in querymethodsAPI) this[f]=querymethodsAPI[f];
+        for (let f in criteriaAPI) this[f]=criteriaAPI[f];
         for (let f in connectionsAPI) this[f]=connectionsAPI[f];
         for (let f in notesAPI) this[f]=notesAPI[f];
         this.querystore=null; //query result store 
@@ -80,7 +80,8 @@ class Basket extends JSONPROM {
                     if (!self.header.heading) {
                         self.header.heading=self.header.chunk;
                     }
-                    self.registerQueryMethods();
+                    
+                    self.criteria=self.registerCriteria();
                     const notes='notes';
                     
                     if (self.header.sectionNames.includes(notes)){

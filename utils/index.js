@@ -37,11 +37,7 @@ export function chunkjsfn(chunk,folder){
     const jsfn=chunk.toString().padStart(3,'0')+'.js'
     return folder?folder+'/'+jsfn:jsfn;
 }
-export function dedup(arr) {
-    const out=[];
-    arr.forEach(item=>out.indexOf(item)==-1?out.push(item):null);
-    return out;
-}
+
 export const stripLinesNote=(lines,notes,marker='⚓')=>{
     const regex=new RegExp(marker+'([0-9]+)','g');
 

@@ -34,8 +34,8 @@ export const unpack2=str=>{
 	let i1,i2;
 	const count=Math.floor(str.length/2);
 	for (let i=0;i<count;i++) {
-		i2=str.charCodeAt(i*3) -CodeStart;
-		i1=str.charCodeAt(i*3+1) -CodeStart;
+		i2=str.charCodeAt(i*2) -CodeStart;
+		i1=str.charCodeAt(i*2+1) -CodeStart;
 		arr.push(maxlen1*i2+i1 );
 	}
 	return new Int32Array(arr);

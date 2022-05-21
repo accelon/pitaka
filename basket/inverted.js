@@ -1,8 +1,8 @@
 import {unpackPosting,tokenize,TOKEN_SEARCHABLE,LINETOKENGAP,
-    TK_NAME,TK_TYPE,TK_POSTING} from '../search/index.js'
-
+    TK_NAME,TK_TYPE,TK_POSTING,plContain} from '../search/index.js'
 import {unpackStrings,bsearch,unpack_delta,unpack2d} from '../utils/index.js'
 import {parseOfftextLine} from '../offtext/index.js'
+
 async function prepareToken(str){
     if (!this.inverted) await this.setupInverted();
     if (!this.inverted) return null
@@ -57,7 +57,10 @@ async function setupInverted(cb){
     let now=new Date();
     const [from,to]=this.getSectionRange(sectionName);
     
-    if (from<1) return null;
+    if (from<1) {
+        throw "cannot load section 'inverted'"
+        return null;
+    }
     await this.prefetchLines(from,from+5);
 
     this.loadtime.prefetchinverted=new Date()-now; now= new Date();
@@ -128,4 +131,14 @@ export function lineOfPosting(posting){
     const ltp=this.inverted.linetokenpos;
     return posting.map( v=> bsearch(ltp,v,true) );
 }
-export default {prepareToken,setupInverted, hitPos, lineOfPosting}
+//return chunk containing at least one posting
+export function chunkWithPosting(postings){
+    const lbl=this.getChunkLabel();
+    const ltp=this.inverted.linetokenpos;
+    const chunkPosting=lbl.linepos.map( p=> ltp[p] );
+    return plContain(postings, chunkPosting);
+}
+export function scoredChunk(ck,tofind){
+    // console.log(this.criteria('*'))
+}
+export default {prepareToken,setupInverted, hitPos, lineOfPosting,chunkWithPosting}
