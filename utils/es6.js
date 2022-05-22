@@ -4,8 +4,8 @@ export async function sleep(ms){
 
 export function debounce(f,ms){
     let timer;
-    return function(){
+    return function(...args){
         clearTimeout(timer);
-        timer=setTimeout(f,ms)
+        timer=setTimeout( f.bind(this,...args) , ms)
     }
 }

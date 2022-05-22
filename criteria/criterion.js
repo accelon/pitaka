@@ -1,3 +1,4 @@
+/* inherit class must prefix with Criterion_ */
 export default class Criterion {
 	constructor (opts){
 		this.ptk=opts.ptk;

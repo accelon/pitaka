@@ -1,15 +1,16 @@
 import Criterion from './criterion.js'
 import {bsearch} from '../utils/bsearch.js'
-import {unique} from '../utils/array.js'
+import {unique} from '../utils/sortedarray.js'
 
 export default class Criterion_range_multiple extends Criterion {
-	async exec(query,opts){
+	async exec(query,opts={}){
 		let chunks=[];
+		query=query.trim();
 		if (query!==this.query) {
 			const {linepos}=this.label;
 			const idarr=query.split(',');
 			const ck=this.ptk.getChunkLabel();
-			for (let i=0;i<idarr.length;i++) {
+			for (let i=0;i<idarr.length;i++) {			
 				const id=parseInt(idarr[i])-1 ;//zero base
 				const from=linepos[id];
 				const to=linepos[id+1];
@@ -21,7 +22,8 @@ export default class Criterion_range_multiple extends Criterion {
 					}
 				}
 			}
-			chunks=unique(chunks.sort((a,b)=>a-b));
+			chunks=unique(chunks.sort((a,b)=>a-b),true);
+			this.query=query;
 			this.result={chunks};
 		}
 		return this.result;

@@ -41,21 +41,23 @@ export async function runCriteria(query,opts){ //run all criteria with same quer
     return out;
 }
 export async function cascadeCriteria(namedqueries,opts){
+    const ptk=this;
+    if (typeof namedqueries==='string') namedqueries=ptk.parseCriteria(namedqueries);
     for (let method in namedqueries) {
-        const criterion=this.criteria[method];
+        const criterion=ptk.criteria[method];
         if (criterion) {
-            await this.execCriterion(method, namedqueries[method], opts);
+            await ptk.execCriterion(method, namedqueries[method], opts);
         }
     }
     let chunks;
-    for (let method in this.criteria) {
-        const criterion=this.criteria[method];
+    for (let method in ptk.criteria) {
+        const criterion=ptk.criteria[method];
         const r=criterion&& criterion.result;
         if (r) {
-            if (!chunks) chunks=r.all?r.all:r.matches.map(i=>ptk.chunkOf(i));
+            if (!chunks) chunks=r.all?r.all:r.chunks.map(i=>ptk.chunkOf(i));
             else {
                 if (Array.isArray(chunks) && !r.all) {
-                    chunks=intersect(chunks,r.matches.map(i=>ptk.chunkOf(i)));    
+                    chunks=intersect(chunks,r.chunks.map(i=>ptk.chunkOf(i)));    
                 }
             } 
         }
@@ -63,4 +65,26 @@ export async function cascadeCriteria(namedqueries,opts){
     return chunks;
 }
 
-export default {registerCriteria,cascadeCriteria, runCriteria,execCriterion};
+export function stringifyCriteria(attrs){
+    const out=[];
+    for (let n in attrs) {
+        if (this.criteria[n]) {
+            out.push(n+'='+attrs[n]);
+        }
+    }
+    return out.join('/');
+}
+
+export function parseCriteria(str){
+    const items=str.split('/');
+    const out={};
+    for (let i=0;i<items.length;i++) {
+        const [key,value]=items[i].split('=');
+        if (this.criteria[key]) {
+            out[key]=value;
+        }
+    }
+    return out;
+}
+
+export default {registerCriteria,cascadeCriteria, runCriteria,execCriterion, stringifyCriteria, parseCriteria};

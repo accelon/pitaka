@@ -1,19 +1,11 @@
 import {bsearch} from "./bsearch.js";
-
-export const unique=arr=>{
-    let prev,out=[];
-    for (let i=0;i<arr.length;i++) {
-        if (arr[i]!==prev) out.push(arr[i]);
-        prev=arr[i];
-    }
-    return out;
-}
-export const union=(arr1,arr2,allowdup=false)=>{ //arr need to be sorted but allow duplicate items
+import {unique} from './sortedarray.js';
+export const union=(arr1,arr2,hasdup=false)=>{ //arr need to be sorted but allow duplicate items
     if (!arr2||!arr1) return arr1||arr2;
     let out=[];
     const extra=[];
-    let a1=allowdup?unique(arr1):arr1;
-    let a2=allowdup?unique(arr2):arr2;
+    let a1=hasdup?unique(arr1):arr1;
+    let a2=hasdup?unique(arr2):arr2;
     if (a1.length>a2.length) {
         const a=a2;
         a2=a1;

@@ -1,8 +1,8 @@
-import year from "./year.js";
-import zh_partial from "./zh_partial.js";
+import double_number from "./double_number.js";
+import substring from "./substring.js";
 import range_multiple from "./range_multiple.js";
 
-const Criteria={zh_partial,range_multiple,year};
+const Criteria={substring,range_multiple,double_number};
 
 export const getCriterion=name=>{
 	return Criteria[name];

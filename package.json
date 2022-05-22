@@ -1,6 +1,6 @@
 {
   "name": "pitaka",
-  "version": "0.1.1",
+  "version": "0.1.8",
   "description": "Backend for accelon2021",
   "type":"module",
   "exports" :{
@@ -12,8 +12,6 @@
     "./package.json":"./package.json",
     "./cli":"./cli/index.js",
     "./platform":"./platform/index.js",
-    "./adaptors":"./adaptors/index.js",
-    "./lazip":"./utils/lazip.js",
     "./format":"./format/index.js",
 	  "./offtext":"./offtext/index.js",
 	  "./xmlparser":"./xmlparser/index.js",
@@ -21,8 +19,8 @@
 	  "./search":"./search/index.js",
 	  "./meta":"./meta/index.js",
 	  "./align":"./align/index.js",
-	  "./denote":"./denote/index.js",
-    "./pali":"./pali/index.js"
+    "./pali":"./pali/index.js",
+    "./criteria":"./criteria/criteria.js"
   },
   "bin":"cli/bin.js",
   "main": "./index.js",

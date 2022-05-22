@@ -2,7 +2,7 @@ import Criterion from './criterion.js'
 import { parseQuery,plRanges,TOFIND_MAXLEN,scoreLine } from "../search/index.js";
 import {union} from "../utils/array.js";
 
-export default class FullTextSearch extends Criterion {
+export default class Criterion_FullTextSearch extends Criterion {
 	async exec(query,opts={}){
 		if (query===this.query) {
 			if (this.result && !this.result.scores && opts.scoring) {
@@ -21,7 +21,7 @@ export default class FullTextSearch extends Criterion {
 	    const chunks=postings.map( pl=>ptk.chunkWithPosting(pl) ).reduce( (acc,n)=>union(acc,n) , 0);
 	    
 	    const count=postings.reduce((acc,n)=>acc+n.length,  0);
-	    this.result={query,caption:'內文',postings ,phrases , count, chunks ,matches}
+	    this.result={query,caption:'內文',postings ,phrases , count, chunks}
 		this.query=query;
 
 		if (opts.scoring) this.scoring();

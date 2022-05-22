@@ -4,14 +4,14 @@ import {YEARPLUS} from './constant.js'
 class LabelYearSpan extends Label {
     constructor(name,opts={}) {
         super(name,opts)
-        this.years=[];
-        this.yearsEnd=[];
+        this.nums=[];
+        this.nums2=[];
         this.lineposs=[];
         this.context=opts.context;
         this.master=opts.master;
         this.caption=opts.caption;
 
-        this._years={};
+        this._nums={};
         return this;
     }
     action( tag ,linetext){
@@ -33,16 +33,16 @@ class LabelYearSpan extends Label {
             throw "out of year span start:"+y1+' end'+y2;
         }
         this.count++;
-        if (!this.years[year])this.years[year]=[yearend,[]];
-        this.years[year][1].push(tag.y);
+        if (!this.nums[year])this.nums[year]=[yearend,[]];
+        this.nums[year][1].push(tag.y);
     }
     reseting() {
     }
     serialize(){
         const out=super.serialize();
         const yearlines=[]
-        for (let year in this.years) {
-            yearlines.push([parseInt(year), this.years[year][0], this.years[year][1] ] );
+        for (let year in this.nums) {
+            yearlines.push([parseInt(year), this.nums[year][0], this.nums[year][1] ] );
         }
         yearlines.sort((a,b)=>a[0]-b[0]);
         out.push(JSON.stringify({caption:this.caption,length:yearlines.length}));
@@ -57,8 +57,8 @@ class LabelYearSpan extends Label {
         let at=super.deserialize(payload);
         const header=JSON.parse(payload[at++]);payload[at-1]='';
         this.caption=header.caption;
-        this.years=unpack2(payload[at++]).map(it=>it-YEARPLUS);
-        this.yearsEnd=unpack2(payload[at++]).map(it=>it-YEARPLUS);
+        this.nums=unpack2(payload[at++]).map(it=>it-YEARPLUS);
+        this.nums2=unpack2(payload[at++]).map(it=>it-YEARPLUS);
         this.lineposs=unpack_delta2d(payload[at++]);payload[at-1]='';
     }
     finalize() {
