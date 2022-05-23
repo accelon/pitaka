@@ -1,6 +1,6 @@
 import Criterion from './criterion.js'
 import { parseQuery,plRanges,TOFIND_MAXLEN,scoreLine } from "../search/index.js";
-import {union} from "../utils/array.js";
+import {union,unique} from "../utils/index.js";
 
 export default class Criterion_FullTextSearch extends Criterion {
 	async exec(query,opts={}){
@@ -8,7 +8,6 @@ export default class Criterion_FullTextSearch extends Criterion {
 			if (this.result && !this.result.scores && opts.scoring) {
 				this.scoring();
 			}
-			console.log('use fulltextsearch result cache')
 			return this.result;
 		}
 	    const ptk=this.ptk;
@@ -18,14 +17,13 @@ export default class Criterion_FullTextSearch extends Criterion {
 	    
 	    query=query.slice(0,TOFIND_MAXLEN);
 	    const [phrases,postings]=await parseQuery(ptk,query,opts);
-	    const chunks=postings.map( pl=>ptk.chunkWithPosting(pl) ).reduce( (acc,n)=>union(acc,n) , 0);
-	    
+	    const chunks=unique(postings.map( pl=>ptk.chunkWithPosting(pl) ).reduce( (acc,n)=>union(acc,n) , 0));
 	    const count=postings.reduce((acc,n)=>acc+n.length,  0);
 	    this.result={query,caption:'內文',postings ,phrases , count, chunks}
 		this.query=query;
 
 		if (opts.scoring) this.scoring();
-		console.log('run full text',query,'chunks',chunks.length)
+		// console.log('run full text',query,'chunks',chunks.length)
 	    return this.result;
 	}
 	scoring(){

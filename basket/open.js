@@ -25,8 +25,7 @@ class Basket extends JSONPROM {
         this.inverted=null;
         this.loadtime={};
         this.criteria={};   
-        this.labelLang=null;
-        this.labelBook=null; //cache the book label
+        this.cache={}; //generic cache
         for (let f in pagingAPI) this[f]=pagingAPI[f];
         for (let f in entriesAPI) this[f]=entriesAPI[f];
         for (let f in headingsAPI) this[f]=headingsAPI[f];
@@ -67,7 +66,7 @@ class Basket extends JSONPROM {
                     self.lblTransclusion=self.getLabel('t');
                     self.loadtime.labels=new Date()-now; now= new Date();
                     
-                    self.labelLang=self.findLabelType('LabelLang');
+                    self.cache.labelLang=self.findLabelType('LabelLang');
                     if (!self.header.chunk) {
                         if (self.getLabel('bk')) self.header.chunk='bk';
                         else if (self.getLabel('e')) self.header.chunk='e';

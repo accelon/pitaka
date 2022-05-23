@@ -1,9 +1,9 @@
 import { fromSim } from "lossless-simplified-chinese";
 import { getCriterion } from "../criteria/index.js";
-import { PATHSEP } from "../platform/constants.js";
+import { PATHSEP ,VALUESEP,FULLTEXT_METHOD} from "../platform/constants.js";
 import { intersect, bsearch } from "../utils/index.js"
 import FullTextSearch from "../criteria/fulltext.js"
-export const FULLTEXT_METHOD='*';
+
 export function registerCriteria(){
     const ptk=this;
     const criteria={};
@@ -59,7 +59,8 @@ export async function cascadeCriteria(namedqueries,opts){
         if (r) {
             if (!chunks) chunks=criterion.query?r.chunks:null;
             else {
-                if (Array.isArray(chunks) && criterion.query) {
+                //chunks.length for exact chunk id
+                if (Array.isArray(chunks) && chunks.length>1 && criterion.query) { 
                     chunks=intersect(chunks,r.chunks);    
                 }
             } 
@@ -68,7 +69,6 @@ export async function cascadeCriteria(namedqueries,opts){
     const ft=this.criteria[FULLTEXT_METHOD];
     if (ft.result&&ft.result.scores){
         excerpts=ft.result.scores.filter( ([y,score,chunk])=> ~bsearch(chunks,chunk) );
-        // excerpts= ft.result
     }
     return [chunks||ptk.allChunks(), excerpts];
 }
@@ -95,4 +95,4 @@ export function parseCriteria(str){
     return out;
 }
 
-export default {registerCriteria,cascadeCriteria, runCriteria,execCriterion, stringifyCriteria, parseCriteria};
+export default {registerCriteria,cascadeCriteria,FULLTEXT_METHOD, runCriteria,execCriterion, stringifyCriteria, parseCriteria};

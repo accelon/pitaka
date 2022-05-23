@@ -86,7 +86,10 @@ function chunkLinepos(ck){
     return cl.linepos[ck];
 }
 function allChunks(){
-    return this.getChunkLabel().names.map((c,idx)=>idx);
+    if (!this.cache.chunks) {
+        this.cache.chunks=this.getChunkLabel().names.map((c,idx)=>idx);
+    }
+    return this.cache.chunks;
 }
 function locOf(y,nonamespace=false,nody=false){
     const arr=this.closest(y,this.header.locator);
@@ -116,11 +119,11 @@ function bookOf(y_loc) {
         y=this.locY(y_loc);
     }
 
-    if (!this.labelBook) {
-        this.labelBook=this.findLabelType('LabelBook');
+    if (!this.cache.labelBook) {
+        this.cache.labelBook=this.findLabelType('LabelBook');
     }
-    let at=bsearch(this.labelBook.linepos,y+1, true);
-    return this.labelBook.idarr[at-1];
+    let at=bsearch(this.cache.labelBook.linepos,y+1, true);
+    return this.cache.labelBook.idarr[at-1];
 }
 function pageLoc(y_loc){ //loc without line delta and ptkname
     let loc='';

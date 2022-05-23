@@ -71,7 +71,7 @@ export const scoreLine=(postings,linetokenpos,chunklinepos)=>{
         const boost=Math.log(shortpara); //boost 不小於 1
 
         if (score>0) {
-            const chunk=bsearch(chunklinepos,i ,true)
+            const chunk=bsearch(chunklinepos,i ,true)-1
             scoredLine.push([i+1,score*boost,chunk]);//y is 1 base
         }
         i++;

@@ -1,6 +1,6 @@
 import {unpackPosting,tokenize,TOKEN_SEARCHABLE,LINETOKENGAP,
     TK_NAME,TK_TYPE,TK_POSTING,plContain} from '../search/index.js'
-import {unpackStrings,bsearch,unpack_delta,unpack2d} from '../utils/index.js'
+import {unpackStrings,bsearch,unpack_delta,unpack2d,unique} from '../utils/index.js'
 import {parseOfftextLine} from '../offtext/index.js'
 
 async function prepareToken(str){
@@ -104,6 +104,7 @@ export function getTokenX(text,hits){
     }
     return oneitem?out[0]:out;
 }
+
 export function hitPos(y,postings,phrases){ // hit position for highlight rendering
     if (!postings.length || !this.inverted || !this.inverted.linetokenpos) return [];
     const line=this.getLine(y);
@@ -133,12 +134,25 @@ export function lineOfPosting(posting){
 }
 //return chunk containing at least one posting
 export function chunkWithPosting(postings){
-    const lbl=this.getChunkLabel();
+    const cl=this.getChunkLabel();
     const ltp=this.inverted.linetokenpos;
-    const chunkPosting=lbl.linepos.map( p=> ltp[p] );
+    const chunkPosting=cl.linepos.map( p=> ltp[p] );
     return plContain(postings, chunkPosting);
 }
-export function scoredChunk(ck,tofind){
-    // console.log(this.criteria('*'))
+export function postingInChunk(postings,chunk) {
+    if (!postings ||!postings.length)return [];
+
+    const cl=this.getChunkLabel();
+    const ltp=this.inverted.linetokenpos;
+    let out=[];
+
+    const linestart=cl.linepos[chunk], lineend=cl.linepos[chunk+1];
+    const from=ltp[linestart], to=ltp[lineend];
+    for (let i=0;i<postings.length;i++) {
+        const at1=bsearch(postings[i],from,true);
+        const at2=bsearch(postings[i],to,true);
+        out=out.concat( Array.from(postings[i].slice(at1,at2)));
+    }
+    return unique(out.sort((a,b)=>a-b));
 }
-export default {prepareToken,setupInverted, hitPos, lineOfPosting,chunkWithPosting}
+export default {prepareToken,setupInverted, hitPos, lineOfPosting,chunkWithPosting,postingInChunk}

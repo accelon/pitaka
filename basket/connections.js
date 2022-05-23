@@ -43,12 +43,14 @@ export function getParallelLinks(y_loc){
     return out;
 }
 export function langOf(y_loc) {
-    if (!this.labelLang || typeof (y_loc)=='undefined') return this.header.lang||DEFAULT_LANGUAGE;
+    if (!this.cache.labelLang || typeof (y_loc)=='undefined') {
+    	return this.header.lang||DEFAULT_LANGUAGE;
+    }
     let y=y_loc;
     if (typeof y_loc!=='number') {
         y=this.getPageRange(y_loc)[0];
     }
-    return this.labelLang.langOf(y);
+    return this.cache.labelLang.langOf(y);
 }
 function connectTransclusion(){
     if (!this.lblTransclusion||!this.lblTransclusion.ptks) return;
