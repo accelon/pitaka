@@ -5,6 +5,7 @@ class LabelMilestone extends Label {
     constructor(name,opts={}) {
         super(name,opts)
         this.linepos=[];
+        this.caption=opts.caption||'';
         this.prevn=0;
         this.sequencial=opts.sequencial;
         this.context=opts.context;

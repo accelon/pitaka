@@ -25,12 +25,14 @@ export default class Criterion_FullTextSearch extends Criterion {
 		this.query=query;
 
 		if (opts.scoring) this.scoring();
-		console.log('run full text',query,'chunk count',chunks.length)
+		console.log('run full text',query,'chunks',chunks.length)
 	    return this.result;
 	}
 	scoring(){
-		this.result.scores=scoreLine(this.ptk.inverted.linetokenpos,this.result.postings);
-		this.result.matches=this.result.scores.map(([line,scored])=>line).sort();
+		const chunklinepos=this.ptk.getChunkLabel().linepos
+		const ltp=this.ptk.inverted.linetokenpos;
+		this.result.scores=scoreLine(this.result.postings, ltp,chunklinepos);
+		this.result.matches=this.result.scores.map(([line,scored])=>line).sort((a,b)=>a-b);
 	}
 	scoredChunk(ck){
 		/*

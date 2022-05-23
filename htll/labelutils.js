@@ -1,4 +1,4 @@
-export const labelByTypeName=(labeldefs,labeltype)=>{
+export const labelByTypeName=(labeltype,labeldefs)=>{
     for (let nm in labeldefs) {
         if (labeldefs[nm].constructor.name==labeltype) return labeldefs[nm];
     }

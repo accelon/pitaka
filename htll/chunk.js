@@ -1,6 +1,6 @@
 import Label from './label.js'
 import {unpack_delta} from'../utils/index.js';
-import { doAttributes,labelByTypeName } from './labelutils.js';
+import { doAttributes } from './labelutils.js';
 import {serializeAttributes,deserializeAttributes} from './attributes.js'
 import {FOOTNOTE_SUFFIX} from '../platform/constants.js'
 

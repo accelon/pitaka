@@ -1,4 +1,4 @@
-import {labelByType,LabelTypedefs} from '../htll/index.js'
+import {labelByTypeName,LabelTypedefs} from '../htll/index.js'
 import { pack, pack_delta } from '../utils/packintarray.js';
 import { unpack_delta,unpack } from '../utils/unpackintarray.js';
 import { unpackStrings } from '../utils/unpackstr.js';
@@ -66,7 +66,7 @@ export const deserializeLabels=(section,range,typedefs,lastTextLine)=>{
 
 
 export const serializeBreakpos=ctx=>{
-    const lblbk=labelByType('LabelBook',ctx.labeldefs);
+    const lblbk=labelByTypeName('LabelBook',ctx.labeldefs);
     if (!lblbk) throw "breakpos need LabelBook";
     const books={};
     const out=[];

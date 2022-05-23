@@ -1,21 +1,22 @@
 import Criterion from './criterion.js'
-
+import {bsearch} from '../utils/bsearch.js'
 export default class Criterion_substring extends Criterion{
 	async exec (query,opts={}){
 		const lang=opts.lang||this.ptk.header.lang;
 		query=query.trim();
 		if (query!==this.query) {
-			const {linepos,names,idarr,caption}=this.label;
+			const {linepos,names,caption,idarr}=this.label;
 	        const chunks=[];
-	        for (let i=0;i<names.length;i++) {
-	            const at=names[i].indexOf(query);
-	            if (at>-1) {
-	                chunks.push(linepos[i]);
-	            }
-	        }
+			if (parseInt(query).toString()==query) {
+				const at=idarr.indexOf(query);
+				if (~at)  chunks.push( at );
+			} else {
+				for (let i=0;i<names.length;i++) {
+					~names[i].indexOf(query) && chunks.push(i);	
+				}
+			}
 	        this.query=query;
-	        this.result={ query, caption:caption,count:chunks.length, chunks};
-			console.log('run substring',query, this.result.count)
+	        this.result={ query, caption,count:chunks.length, chunks};
 		}
 		return this.result;
 	}

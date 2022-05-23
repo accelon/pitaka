@@ -1,6 +1,6 @@
-import LabelBook from './book.js'
+import Label from './label.js' //cannot inherit from labelbook as release build will mangle the name
 import {pack,unpack,pack_delta,unpack_delta,bsearch,parseArg} from'../utils/index.js';
-class LabelSection extends LabelBook {
+class LabelSection extends Label {
     constructor(name,opts={}) {
         super(name,opts);
         this.superpat=this.pat;

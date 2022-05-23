@@ -78,10 +78,16 @@ function chunkOf(y_loc, idxonly=false){
     const cl=this.getChunkLabel();
     const at=bsearch(cl.linepos,y+1,true)-1;
     const id=cl.idarr[at];
-    const address=this.header.chunk.split('/')[0]+'='+id;
+    const address=this.bookOf(y_loc)+LOCATORSEP+id;
     return idxonly?at:{id, at, dy:y-cl.linepos[at], address, name:cl.names[at]};
 }
-
+function chunkLinepos(ck){
+    const cl=this.getChunkLabel();
+    return cl.linepos[ck];
+}
+function allChunks(){
+    return this.getChunkLabel().names.map((c,idx)=>idx);
+}
 function locOf(y,nonamespace=false,nody=false){
     const arr=this.closest(y,this.header.locator);
     const out=arr.map(it=>it.id);
@@ -109,6 +115,7 @@ function bookOf(y_loc) {
     if (typeof y_loc=='string') {
         y=this.locY(y_loc);
     }
+
     if (!this.labelBook) {
         this.labelBook=this.findLabelType('LabelBook');
     }
@@ -391,4 +398,4 @@ function headingOf(y_loc){
 
 export default {closest,getTocTreeDef,getTocTree,getNChild,childCount,dyOf,locOf,chunkOf,pageLoc,
     fetchPage,fetchToc,fetchFootnote,getPageRange,narrowDown,getLabelLineRange,locY,
-enumLocators,readLoc,headingOf,bookOf}
+enumLocators,readLoc,headingOf,bookOf,chunkLinepos,allChunks}

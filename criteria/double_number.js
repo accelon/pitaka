@@ -32,8 +32,8 @@ export default class Criterion_double_number extends Criterion{
 				}
 				linepos.sort((a,b)=>a-b);
 				chunks= unique(linepos.map( y=>ptk.chunkOf( y,true)),true);
-				this.query=query;
 			}
+			this.query=query;
 			this.result={chunks, linepos};
 		}
 		return this.result;

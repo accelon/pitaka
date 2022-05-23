@@ -1,5 +1,6 @@
 import {plAnd,getCounter, getSpeed,plRanges} from './posting.js';
 import {fromSim} from 'lossless-simplified-chinese'
+import {bsearch} from '../utils/bsearch.js'
 const queryCache={};
 export const TOFIND_MAXLEN=50;
 export const MAX_PHRASE=5;
@@ -18,12 +19,13 @@ const scoreMatch=(matching,weights)=>{
     boost*=boost;  // 有兩個詞，只有一個詞有hit ，那boost只有 0.25。
     return score*boost;
 }
-export const scoreLine=(ltp,postings)=>{
-    let i=0,scoredLine=[];
-    const ltplast=ltp[ltp.length-1];
+export const scoreLine=(postings,linetokenpos,chunklinepos)=>{
+    const ltp=linetokenpos, ltplast=ltp[ltp.length-1];
     const averagelinelen=ltplast/ltp.length;
     const allhits=postings.reduce((acc,i)=>i.length+acc ,0 );
     const weights=postings.map( pl=> Math.sqrt(allhits/pl.length) );
+    let i=0,scoredLine=[];
+
     const ptr=new Array(postings.length);
     ptr.fill(0);
     let prev=0;
@@ -68,7 +70,10 @@ export const scoreLine=(ltp,postings)=>{
         //出現次數相同，較短的段落優先
         const boost=Math.log(shortpara); //boost 不小於 1
 
-        if (score>0) scoredLine.push([i+1,score*boost]);//y is 1 base
+        if (score>0) {
+            const chunk=bsearch(chunklinepos,i ,true)
+            scoredLine.push([i+1,score*boost,chunk]);//y is 1 base
+        }
         i++;
         while (nearest>ltp[i+1]) i++;
     }

@@ -1,7 +1,9 @@
 import { fromSim } from "lossless-simplified-chinese";
 import { getCriterion } from "../criteria/index.js";
-import { intersect } from "../utils/array.js"
+import { PATHSEP } from "../platform/constants.js";
+import { intersect, bsearch } from "../utils/index.js"
 import FullTextSearch from "../criteria/fulltext.js"
+export const FULLTEXT_METHOD='*';
 export function registerCriteria(){
     const ptk=this;
     const criteria={};
@@ -16,7 +18,7 @@ export function registerCriteria(){
     }
 
     //full text search at the end
-    criteria['*']=new FullTextSearch( {ptk});
+    criteria[FULLTEXT_METHOD]=new FullTextSearch( {ptk});
 
     return criteria;
 }
@@ -49,37 +51,43 @@ export async function cascadeCriteria(namedqueries,opts){
             await ptk.execCriterion(method, namedqueries[method], opts);
         }
     }
-    let chunks;
+    let chunks,excerpts=[];
     for (let method in ptk.criteria) {
+
         const criterion=ptk.criteria[method];
         const r=criterion&& criterion.result;
         if (r) {
-            if (!chunks) chunks=r.all?r.all:r.chunks.map(i=>ptk.chunkOf(i));
+            if (!chunks) chunks=criterion.query?r.chunks:null;
             else {
-                if (Array.isArray(chunks) && !r.all) {
-                    chunks=intersect(chunks,r.chunks.map(i=>ptk.chunkOf(i)));    
+                if (Array.isArray(chunks) && criterion.query) {
+                    chunks=intersect(chunks,r.chunks);    
                 }
             } 
         }
     }
-    return chunks;
+    const ft=this.criteria[FULLTEXT_METHOD];
+    if (ft.result&&ft.result.scores){
+        excerpts=ft.result.scores.filter( ([y,score,chunk])=> ~bsearch(chunks,chunk) );
+        // excerpts= ft.result
+    }
+    return [chunks||ptk.allChunks(), excerpts];
 }
 
 export function stringifyCriteria(attrs){
     const out=[];
     for (let n in attrs) {
         if (this.criteria[n]) {
-            out.push(n+'='+attrs[n]);
+            out.push(n+VALUESEP+attrs[n]);
         }
     }
-    return out.join('/');
+    return out.join(PATHSEP);
 }
 
 export function parseCriteria(str){
-    const items=str.split('/');
+    const items=str.split(PATHSEP);
     const out={};
     for (let i=0;i<items.length;i++) {
-        const [key,value]=items[i].split('=');
+        const [key,value]=items[i].split(VALUESEP);
         if (this.criteria[key]) {
             out[key]=value;
         }

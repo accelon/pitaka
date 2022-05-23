@@ -12,6 +12,7 @@ class Label {
         this.count=0;
         this.attrdef={};
         this.attrIndex=null;
+        this.config=opts;
         for (let opt in opts) {
             if (opt[0]===ATTRPREFIX) { //attribute typedef
                 this.attrdef[opt.slice(1)]=opts[opt];

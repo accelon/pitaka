@@ -116,8 +116,12 @@ class Builder {
         try{
             rawcontent=removeLabels(rawcontent,this.config.removeLabels);
             //headings only for two level locator
+
             const {writertext,text,tags,headings}=parseOfftextHeadings(rawcontent,this.context.ptkline,this.config.locator);
-            this.context.headings.push(...headings);
+
+            if (this.config.heading!==this.config.chunk) {
+                this.context.headings.push(...headings);
+            }
 
             this.context.linesOffset=linesOffset(text);
             this.context.lineCount=text.length;            

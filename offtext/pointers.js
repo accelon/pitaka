@@ -38,7 +38,7 @@ export const makeLocalAddress=(bkid='',loc='',dy=0)=>{
 export const makeAddress=(basket,loc,dy)=>{
     return basket+NAMESPACESEP+loc+(dy?NAMESPACESEP+dy:'');
 }
-export const stringifyAddress=obj=>{
+export const stringifyAddress=(obj,hideEmpty)=>{
     if (!obj.basket && obj.ptk) obj.basket=obj.ptk.name;
     const arr=[];
     arr.push(obj.basket+NAMESPACESEP+(obj.loc||'')+ (obj.dy?NAMESPACESEP+obj.dy:''));
@@ -46,6 +46,7 @@ export const stringifyAddress=obj=>{
     //parseAddress does not put key=value in addrs
     for (let key in obj) {
         if (key==='basket'||key==='loc'||key==='dy'||key==='ptk' ||key==='attrs') continue;
+        if (hideEmpty && !obj[key]) continue;
         arr.push( key+'='+obj[key]);
     } 
     return arr.join(PATHSEP)

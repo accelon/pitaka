@@ -11,7 +11,7 @@ import invertedAPI from './inverted.js';
 import criteriaAPI from './criteria.js';
 import connectionsAPI from './connections.js';
 import notesAPI from './notes.js';
-import {labelByType} from "../htll/index.js"
+import {labelByTypeName} from "../htll/index.js"
 class Basket extends JSONPROM {
     constructor(opts) {
         super(opts)
@@ -147,7 +147,7 @@ class Basket extends JSONPROM {
         if (typeof labeltype!=='string') {
             labeltype=labeltype.constructor.name;
         }
-        return labelByType(labeltype,this.labels);
+        return labelByTypeName(labeltype,this.labels);
     }
     getLabel(name){
         for (let i=0;i<this.labels.length;i++) {
