@@ -13,4 +13,5 @@ export const ATTRPREFIX='@';
 export const DEFAULT_LANGUAGE='zh';
 export const FOOTNOTE_SUFFIX='-fn';
 
-export const FULLTEXT_METHOD='*';
+export const FULLTEXT_KEY='*';
+export const ALIGNED_KEY='_';

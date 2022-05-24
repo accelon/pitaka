@@ -1,6 +1,6 @@
 import { fromSim } from "lossless-simplified-chinese";
 import { getCriterion } from "../criteria/index.js";
-import { PATHSEP ,VALUESEP,FULLTEXT_METHOD} from "../platform/constants.js";
+import { PATHSEP ,VALUESEP,FULLTEXT_KEY} from "../platform/constants.js";
 import { intersect, bsearch } from "../utils/index.js"
 import FullTextSearch from "../criteria/fulltext.js"
 
@@ -18,7 +18,7 @@ export function registerCriteria(){
     }
 
     //full text search at the end
-    criteria[FULLTEXT_METHOD]=new FullTextSearch( {ptk});
+    criteria[FULLTEXT_KEY]=new FullTextSearch( {ptk});
 
     return criteria;
 }
@@ -51,9 +51,8 @@ export async function cascadeCriteria(namedqueries,opts){
             await ptk.execCriterion(method, namedqueries[method], opts);
         }
     }
-    let chunks,excerpts=[];
+    let books,chunks,excerpts=[];
     for (let method in ptk.criteria) {
-
         const criterion=ptk.criteria[method];
         const r=criterion&& criterion.result;
         if (r) {
@@ -66,11 +65,18 @@ export async function cascadeCriteria(namedqueries,opts){
             } 
         }
     }
-    const ft=this.criteria[FULLTEXT_METHOD];
+    
+    if(chunks) for (let i=0;i<chunks.length;i++) {
+        const cl=ptk.getChunkLabel();
+        const bk=ptk.bookOf( cl.linepos [ chunks[i]],true );
+        if (!books) books=[];
+        if (books[books.length-1]!==bk) books.push(bk);
+    }
+    const ft=this.criteria[FULLTEXT_KEY];
     if (ft.result&&ft.result.scores){
         excerpts=ft.result.scores.filter( ([y,score,chunk])=> ~bsearch(chunks,chunk) );
     }
-    return [chunks||ptk.allChunks(), excerpts];
+    return [books||ptk.allBooks(), chunks||ptk.allChunks(), excerpts];
 }
 
 export function stringifyCriteria(attrs){
@@ -95,4 +101,4 @@ export function parseCriteria(str){
     return out;
 }
 
-export default {registerCriteria,cascadeCriteria,FULLTEXT_METHOD, runCriteria,execCriterion, stringifyCriteria, parseCriteria};
+export default {registerCriteria,cascadeCriteria,FULLTEXT_KEY, runCriteria,execCriterion, stringifyCriteria, parseCriteria};

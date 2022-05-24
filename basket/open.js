@@ -153,6 +153,9 @@ class Basket extends JSONPROM {
             if (this.labels[i].name==name) return this.labels[i];
         }
     }
+    getBookLabel() {
+        return this.findLabelType('LabelBook');
+    }
     getChunkLabel() {
         return this.getLabel(this.header.chunk.split('/')[0]||'ck')
     }

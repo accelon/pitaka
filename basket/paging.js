@@ -74,11 +74,12 @@ function getPageRange(addr){
 }
 function chunkOf(y_loc, idxonly=false){
     let y=y_loc;
+    if (!y_loc) return;
     if (typeof y!=='number') y=this.locY(y_loc);
     const cl=this.getChunkLabel();
     const at=bsearch(cl.linepos,y+1,true)-1;
     const id=cl.idarr[at];
-    const address=this.bookOf(y_loc)+LOCATORSEP+id;
+    const address=this.bookOf(y_loc).id+LOCATORSEP+id;
     return idxonly?at:{id, at, dy:y-cl.linepos[at], address, name:cl.names[at]};
 }
 function chunkLinepos(ck){
@@ -90,6 +91,22 @@ function allChunks(){
         this.cache.chunks=this.getChunkLabel().names.map((c,idx)=>idx);
     }
     return this.cache.chunks;
+}
+function allBooks(){
+    if (!this.cache.books) {
+        this.cache.books=this.getBookLabel().idarr.map((c,idx)=>idx);
+    }
+    return this.cache.books;
+}
+function getBook(arr){
+    let single=false;
+    if (typeof arr=='number') {
+        single=true;
+        arr=[arr];
+    }
+    const lbl=this.getBookLabel();
+    const r=arr.map(at=>{return {at, name , id:lbl.idarr[at],name:lbl.names[at]}});
+    return single?r[0]:r;
 }
 function locOf(y,nonamespace=false,nody=false){
     const arr=this.closest(y,this.header.locator);
@@ -113,17 +130,18 @@ function dyOf(y_loc) {
         return y_loc-from;    
     }
 }
-function bookOf(y_loc) {
+function bookOf(y_loc,idxonly=false) {
     let y=y_loc;
     if (typeof y_loc=='string') {
         y=this.locY(y_loc);
     }
-
     if (!this.cache.labelBook) {
         this.cache.labelBook=this.findLabelType('LabelBook');
     }
-    let at=bsearch(this.cache.labelBook.linepos,y+1, true);
-    return this.cache.labelBook.idarr[at-1];
+    const lbl=this.cache.labelBook;
+    let at=bsearch(lbl.linepos,y+1, true)-1;
+    if (at<0) return null;
+    return idxonly?at:{at,id:lbl.idarr[at], name:lbl.names[at]};
 }
 function pageLoc(y_loc){ //loc without line delta and ptkname
     let loc='';
@@ -401,4 +419,4 @@ function headingOf(y_loc){
 
 export default {closest,getTocTreeDef,getTocTree,getNChild,childCount,dyOf,locOf,chunkOf,pageLoc,
     fetchPage,fetchToc,fetchFootnote,getPageRange,narrowDown,getLabelLineRange,locY,
-enumLocators,readLoc,headingOf,bookOf,chunkLinepos,allChunks}
+enumLocators,readLoc,headingOf,bookOf,chunkLinepos,allChunks,getBook,allBooks}

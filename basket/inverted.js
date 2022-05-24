@@ -150,7 +150,8 @@ export function postingInChunk(postings,chunk) {
     const from=ltp[linestart], to=ltp[lineend];
     for (let i=0;i<postings.length;i++) {
         const at1=bsearch(postings[i],from,true);
-        const at2=bsearch(postings[i],to,true);
+        let at2=bsearch(postings[i],to,true);
+        if (at2==at1) at2++;//workaround for last linepos
         out=out.concat( Array.from(postings[i].slice(at1,at2)));
     }
     return unique(out.sort((a,b)=>a-b));
