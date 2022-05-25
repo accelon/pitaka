@@ -9,6 +9,7 @@ class LabelMilestone extends Label {
         this.prevn=0;
         this.sequencial=opts.sequencial;
         this.context=opts.context;
+        this.firstsameline=opts.firstsameline; // 第一個出現的milestone必須和reset tag同一行。  即 ^bk#dn1^n1
         this.parenty=0;
         this.names=[];
         this.named=opts.named;
@@ -29,12 +30,13 @@ class LabelMilestone extends Label {
         if (this.named) {
             this.names.push(linetext.slice(tag.x,tag.x+tag.w));
         }
-        if (this.sequencial) {
+
+        if (this.sequencial && !tag.attrs['@']) { //if foot note has link , no sequencial check (for duplicate ^f or other section)
             if (n!==this.prevn+1){
                 // console.log(tag,linetext, n, this.prevn+1)
                 if (this.prevn>n) console.warn('prev id is bigger, forgot to reset ?');
                 const line=y-this.context.startY;
-                throw 'linepos not in order, '+tag.attrs.id+' prev '+this.prevn+' at '+line+ ' file '+this.context.filename;
+                throw 'milestone sequencial fail, linepos not in order, '+tag.attrs.id+' prev '+this.prevn+' at '+line+ ' file '+this.context.filename+ linetext;
             }
         }
         const at=tag.attrs.id.indexOf('-');
@@ -57,8 +59,8 @@ class LabelMilestone extends Label {
             this.prevn=n;    
             this.linepos.push(y);
         }
-        if (this.reset&& this.prevn==1 && y!==this.parenty) {
-            console.warn(tag);
+        if (this.reset && this.prevn==1 && this.firstsameline && y!==this.parenty) {
+            console.warn(tag, this.parenty ,y);
             const line=y-this.context.startY;
             throw "missing parent tag on line #"+line;
         }

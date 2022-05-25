@@ -28,20 +28,6 @@ function narrowDown(branches){
     if (!to|| to==-1) y1=this.lastTextLine();
     return [from,to];
 }
-/*  use pageAt
-function locate(y){
-    const thetree=(this.header.locator||DEFAULT_LOCATOR).split(PATHSEP);
-    const out=[];
-    for (let i=0;i<thetree.length;i++) {
-        const lbl=this.getLabel(thetree[i]);
-        const at=bsearch(lbl.linepos, y , true);
-        const dy= (i===thetree.length-1)?(y-lbl.linepos[at-1]):0 ; //dy for last tree node
-        const id=lbl.idarr?lbl.idarr[at-1]:at; //if idarr is missing , at is 1-base nth chapter
-        out.push(id+(dy ? DELTASEP+dy:'') ) ;
-    }
-    return out;
-}
-*/
 function getLabelLineRange(lbl,n){
     if (typeof lbl==='string') {
         lbl=this.getLabel('bk');
@@ -78,7 +64,7 @@ function chunkOf(y_loc, idxonly=false){
     if (typeof y!=='number') y=this.locY(y_loc);
     const cl=this.getChunkLabel();
     const at=bsearch(cl.linepos,y+1,true)-1;
-    const id=cl.idarr[at];
+    const id=cl.idarr?cl.idarr[at]:at+1;
     const address=this.bookOf(y_loc).id+LOCATORSEP+id;
     return idxonly?at:{id, at, dy:y-cl.linepos[at], address, name:cl.names[at]};
 }
