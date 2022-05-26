@@ -1,6 +1,7 @@
 import {extractOfftagPattern,parseOfftextLine} from '../offtext/index.js'
-import {bsearch} from '../utils/index.js'
+import {bsearch,fromBase26} from '../utils/index.js'
 import TLabelMulu from '../htll/mulu.js'
+
 function getMulu(from,to){ //本頁目錄加上 前後科文
     const out=[];
     let firstlevel=0;
@@ -13,16 +14,21 @@ function getMulu(from,to){ //本頁目錄加上 前後科文
         if (!linetext)continue;
         const at=linetext.indexOf('^'+mtag);
         if (at>-1) {
-            const otags=extractOfftagPattern(linetext,mtag+'\\d*');
-            otags.forEach(([o,putback,taglen])=>{
-                const n=parseInt(o.id) || 1;
+            const otags=extractOfftagPattern(linetext,mtag+'[a-z]*\\d+');
+            otags.forEach(([o,putback,taglen,tagname])=>{ // accept z1,z2,z3  or za1 za2 zb1,zb2, see htll/mulu.js
+                let n;
+                if (tagname.length>1) {
+                   n=fromBase26(tagname.slice(1))+1;
+                } else {
+                   n=parseInt(o.id)||1;
+                }
                 if (!firstlevel) firstlevel=n;
                 let t=o.t||putback;
                 if (!t) { //use entire line as t for yinshun
                     const [text]=parseOfftextLine(linetext);
                     t=text;
                 }
-                n&&out.push([n,t , i]);
+                n&&out.push([n,t,i]);
             }) 
         }
     }
@@ -59,6 +65,7 @@ function getMulu(from,to){ //本頁目錄加上 前後科文
 export function getBooks(){
     const out=[];
     const lblbk=this.getLabel('bk');
+    if (!lblbk) return [];
     for (let j=0;j<lblbk.names.length;j++) {
         const from=lblbk.linepos[j],to=lblbk.linepos[j+1];
         out.push( {name:lblbk.names[j],id:lblbk.idarr[j], from,to}  )

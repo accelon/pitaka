@@ -1,6 +1,7 @@
 import Label from './label.js'
 import {pack,unpack,pack_delta,unpack_delta} from'../utils/index.js';
 import {trimInnerMulu} from './trimmulu.js';
+import {fromBase26} from 'pitaka/utils';
 
 class LabelMulu extends Label {
     constructor(name,opts={}) {
@@ -19,7 +20,13 @@ class LabelMulu extends Label {
     }
     action( tag ,linetext){
         const {x,w,y}=tag;
-        const depth=parseInt(tag.attrs.id)||this.id;
+        let depth,id;
+        if (tag.name.length>1) {
+          depth=fromBase26(tag.name.slice(1))+1;
+          id=tag.attrs.id;
+        } else {
+          depth=parseInt(tag.attrs.id)||this.id;
+        }
         if (depth>0) {
             const t= (!this.compact&&tag.attrs.t)? tag.attrs.t.trim() : linetext.substr(x,w);
             this.names.push(t);

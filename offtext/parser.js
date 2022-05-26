@@ -63,7 +63,7 @@ export const extractOfftagPattern=(str,namepat)=>{  //namepat== label name+ opti
     str.replace(re,(m,rawName,rawA)=>{
         let [m2, tagName, compactAttr]=rawName.match(OFFTAG_NAME_ATTR);
         const [attrs,putback]=parseAttributes(rawA,compactAttr);
-        out.push([attrs,putback,m.length]);
+        out.push([attrs,putback,m.length, tagName]);
     })
     return out;
 }

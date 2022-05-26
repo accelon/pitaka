@@ -10,7 +10,6 @@ export default {
         "sz":{},//stanza
         "fn":{"caption":"注釋","reset":"ck"},
         "cs":{"type":"LabelTransclusion","basket":"cs"},
-        "z":{},
     },
     //default value, set in pitaka.json to overwrite
     "chunk":"ck",

@@ -1,6 +1,6 @@
 # Pitaka Database Engine
-* BackEnd and CLI of Accelon2021
-* Accelon2021 後端引擎及製作資料庫的工具
+* Backend and CLI of Accelon21
+* Accelon21 後端引擎及製作資料庫的工具
 
 ## 功能
 
@@ -75,7 +75,7 @@ https://github.com/accelon/sc/blob/main/pitaka.json
 
 
 屬性名稱可以是任意英文(大小寫皆可)及中文，特殊的屬性名稱有兩個：# 及 @
-    ^f7 為 ^f[#=7] 之簡寫 ，^f[#=可以帶中文及大寫英文字母的id] 不能簡寫
+    ^f7 為 ^f[#7] 之簡寫 ，^f[#帶中文及大寫英文字母的id] 不能簡寫
     ^t@dn1.1 為 ^t[@=dn1.1] 之簡寫
 
 ## 基本標記

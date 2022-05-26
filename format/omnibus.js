@@ -7,6 +7,8 @@ export default {
             "intro":{"caption":"導讀"},
             "f":{"type":"LabelMilestone","sequencial":true,"reset":"ck"}, // if link is true, skip sequencial checking
             "fn":{"type":"LabelMilestone","sequencial":true,"reset":"ck"},
+            "z":{"type":"LabelMulu"},
+            "li":{"type":"Label"},
     },
     //default value, set in pitaka.json to overwrite
     "chunk":"ck",      // 瀏覽分頁單元

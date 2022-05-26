@@ -91,7 +91,9 @@ class Builder {
     doTags(tags,text){
         for (let i=0;i<tags.length;i++) {
             const tag=tags[i];
-            const labeltype=this.context.labeldefs[tag.name];
+            let labeltype=this.context.labeldefs[tag.name];
+            if (!labeltype && tag.name[0]=='z') labeltype=this.context.labeldefs['z'];
+            
             const linetext=text[tag.y - this.context.ptkline ];
             if (labeltype) {
                 const D=this.context.labeldefs;

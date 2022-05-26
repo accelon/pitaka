@@ -73,7 +73,7 @@ export function trimInnerMulu(_names,_level,_linepos){
 
                 keep.forEach(idx=>{
                     if (_level[idx]){
-                        console.log('trimmulu',_names[idx])
+                        //console.log('trimmulu',_names[idx])
                         out.names.push(_names[idx])
                         out.level.push(_level[idx])
                         out.linepos.push(_linepos[idx])    
