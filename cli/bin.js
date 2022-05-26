@@ -111,6 +111,10 @@ const report=(builder)=>{
     out.push(yellow(' max chunk :')+writer.header.chunkStarts.length.toString().padStart(3,'0')+'.js');
     out.push(yellow(' build time:')+writer.header.buildtime);
     
+   	builder.warnings.forEach( w=>{
+   		if (typeof w==='string') out.push(red(w));
+   		else out.push( red(w[0])+w.slice(1).join(' '));
+   	});
     
     return out.join('\n');
 }
@@ -183,7 +187,7 @@ const help=()=>{
     console.log(yellow('$ pitaka ngram   '), 'get ngram, default 2')
     console.log(yellow('$ pitaka pin [pat]'), 'create a pin break file')
     console.log(yellow('$ pitaka align file file-sentenced  '), 'make file has same sentence, both need ^n marker')
-    // console.log(yellow('$ pitaka info    '), 'show information of pitaka')
+    console.log(yellow('$ pitaka info    '), 'show information of pitaka')
     // console.log(yellow('$ pitaka zip (regex)'), 'make a zip file')
     console.log(yellow('$ pitaka compare f1 f2'), 'compare two file, text only')
     console.log(yellow('$ pitaka validate'), 'validate all htm files')
@@ -205,7 +209,7 @@ const help=()=>{
 try {
     await ({v:validate,validate,
         build,b:build,raw,r:raw, ptk,q:quote,quote, pin, pinpoint,a:align,align,
-        compare,c:compare,lexeme:lexemeOfSrcFiles,
+        compare,c:compare,lexeme:lexemeOfSrcFiles,info,
         ngram,n:ngram,exec,e:exec,l:longline,longline,iast,provident,
         group,g:group,entrysort,y:entrysort,search,s:search,wordseg,w:wordseg, wordhead,
         '--help':help,'-h':help})[cmd](config,arg);

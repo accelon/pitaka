@@ -101,4 +101,12 @@ export function parseCriteria(str){
     return out;
 }
 
-export default {registerCriteria,cascadeCriteria,FULLTEXT_KEY, runCriteria,execCriterion, stringifyCriteria, parseCriteria};
+export function resetCriteria(){
+    for (let method in this.criteria) {
+        const criterion=this.criteria[method];
+        criterion.result='';
+        criterion.query=null;
+    }
+}
+export default {registerCriteria,cascadeCriteria,FULLTEXT_KEY, 
+    runCriteria,execCriterion, stringifyCriteria, parseCriteria, resetCriteria};

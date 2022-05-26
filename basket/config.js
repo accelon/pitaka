@@ -124,6 +124,7 @@ export const initPitakaJSON=(config,context,log)=>{
 
 export const initLabelTypedef=(config,context,log)=>{
     const defs=context.labeldefs;
+    console.log(config)
     for (let lbl in defs) {
         const labeltype=defs[lbl];
         if (typeof labeltype.resets==='string') {

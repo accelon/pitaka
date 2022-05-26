@@ -59,3 +59,15 @@ export const stripLinesNote=(lines,notes,marker='⚓')=>{
     })
     return lines;
 }
+
+export const combineObject=(obj1,obj2)=>{
+    const out=Object.assign({},obj1);
+    for (let lbl in obj2 ) {
+        if (out[lbl]) {
+            out[lbl]=Object.assign(obj1[lbl],obj2[lbl]);
+        } else {
+            out[lbl]=obj2[lbl];
+        }
+    }
+    return out;
+}

@@ -58,6 +58,7 @@ function getPageRange(addr){
     const nextlbl=thetree[pths.length]||'';
     return [...this.narrowDown(arr) ,  nextlbl ] ;
 }
+
 function chunkOf(y_loc, idxonly=false){
     let y=y_loc;
     if (!y_loc) return;
@@ -65,8 +66,7 @@ function chunkOf(y_loc, idxonly=false){
     const cl=this.getChunkLabel();
     const at=bsearch(cl.linepos,y+1,true)-1;
     const id=cl.idarr?cl.idarr[at]:at+1;
-    const address=this.bookOf(y_loc).id+LOCATORSEP+id;
-    return idxonly?at:{id, at, dy:y-cl.linepos[at], address, name:cl.names[at]};
+    return idxonly?at:{id, at, dy:y-cl.linepos[at], name:cl.names[at]};
 }
 function chunkLinepos(ck){
     const cl=this.getChunkLabel();
@@ -79,7 +79,7 @@ function allChunks(){
     return this.cache.chunks;
 }
 function allBooks(){
-    if (!this.cache.books) {
+    if (!this.cache.books && this.getBookLabel()) {
         this.cache.books=this.getBookLabel().idarr.map((c,idx)=>idx);
     }
     return this.cache.books;
@@ -136,10 +136,6 @@ function pageLoc(y_loc){ //loc without line delta and ptkname
         loc=arr.map(it=>it.id).join(LOCATORSEP);
     } else {
         return y_loc;
-        // const arr=y_loc.split(PATHSEP);
-        // const thetree=(this.header.locator||DEFAULT_LOCATOR).split(LOCATORSEP);
-        // arr.length=thetree.length;
-        // loc=arr.join(PATHSEP);
     }
     return loc;
 }

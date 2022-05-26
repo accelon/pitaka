@@ -27,11 +27,13 @@ class Builder {
             ,notes:[]       //multi-purpose trait , group by line
             ,closest:{}     //closest label
             ,lemma:null     // 詞表
+            ,warnings:[]
         };
         this.writer=new JSONPROMWriter(Object.assign({},opts,{context:this.context}));
         this.finalized=false;
         this.log=opts.log || console.log;
         this.config=opts.config;
+        this.warnings=this.context.warnings;
 
         if (this.config.fulltextsearch) {
             this.inverter=new Inverter(Object.assign({},opts,{context:this.context}));
@@ -102,7 +104,7 @@ class Builder {
                 this.context.closest[tag.name]=tag; //use labelutils.js::labelByTypeName to get the label
             } else {
                 if (!this.unknownLabel[tag.name]) {
-                    this.log('undefined tag',this.context.filename,tag.name, tag.y,linetext);
+                    this.warnings.push(['undefined tag ',this.context.filename,tag.name, tag.y,linetext]);
                     this.unknownLabel[tag.name]=1;
                 } else this.unknownLabel[tag.name]++;
             }
@@ -193,7 +195,6 @@ class Builder {
                 return await this.addFolder(file);
             } else if (!fs.existsSync(fn) &&fs.existsSync(rootdir+fn)) {
                rawcontent=await fileContent(rootdir+fn,this.context);
-
             }
         }
         if (!rawcontent) {
@@ -214,8 +215,6 @@ class Builder {
         this.context.lastTextLine=this.writer.setEndOfText();
         if (!opts.raw && !opts.exec) {
             // TODO , cannot sae before labels, need check
-
-
             if (this.config.fulltextsearch) {
                 this.writer.addSection('inverted',true);
                 const inverted=this.inverter.serialize();
@@ -239,11 +238,9 @@ class Builder {
                 const trait=serializeNotes(this.context);
                  this.writer.append(trait);
             }
-
             this.writer.addSection('labels');
             const section=serializeLabels(this.context);
             this.writer.append(section);
-
         }
         if (opts.exec && opts.exec.onFinalize) {
             opts.exec.onFinalize(opts);

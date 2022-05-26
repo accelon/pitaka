@@ -36,6 +36,7 @@ const findn= (arr, obj, near,n) =>{
   else return -1;
 }
 const find = (arr, obj, near,n=-1) =>{
+  if (!arr||arr.length<1)return -1;
   if (n>-1) return findn(arr,obj,near,n);
 
   let low = 0, high = arr.length-1, mid;

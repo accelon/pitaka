@@ -2,6 +2,7 @@ import {readTextFile} from '../platform/inputfiles.js'
 import { offtagRegex } from '../offtext/parser.js';
 import TypeDef from './typedef.js'
 import cbeta from './cbeta.js';
+import {combineObject} from '../utils/index.js'
 import Templates from './templates.js'
 const fileContent=async(fn,ctx)=>{
     let c;
@@ -36,28 +37,23 @@ const getZipIndex=async (zip,format,fn)=>{
     if (fm.getZipFileToc) return await fm.getZipFileToc(zip,fn);
     else return {files:zip.files,tocpage:[]};
 }
-
 const getFormatTypeDef=(config,opts)=>{
-    const templeteLabels=Templates[config.template||'simple'].labels;
-    if (config.labels) {
-        for (let nm in config.labels) {
-            if (templeteLabels[nm] && templeteLabels!==Templates.simple.labels) {
-                console.warn("overriding template label",nm, config.labels[nm]);
-            }
-        }
-    }
-    const def=Object.assign(templeteLabels,config.labels);//||getFormat(config.format).def);
+    const templateLabels=Templates[config.template||'simple'].labels;
+    const defs=combineObject(templateLabels, config.labels);
+
+    // const def=Object.assign(templeteLabels,config.labels);//||getFormat(config.format).def);
+
     if (config.label) { //additional custom label
         const extralabels=(typeof config.label==='string')?config.label.split(','):config.label;
         for (let i=0;i<extralabels.length;i++) {
-            if (def[extralabels[i]]) {
+            if (defs[extralabels[i]]) {
                 console.error('label already defined',extralabels[i])
             } else {
-                def[extralabels[i]]="Label";
+                defs[extralabels[i]]="Label";
             }
         }
     }
-    return TypeDef( def, {config,...opts});
+    return TypeDef( defs, {config,...opts});
 }
 
 const translatePointer=(ptr,format)=>{

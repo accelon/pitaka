@@ -53,12 +53,12 @@ async function prepareToken(str){
     return tokens;
 }
 const sectionName='inverted'
-async function setupInverted(cb){
+async function setupInverted(){
     let now=new Date();
     const [from,to]=this.getSectionRange(sectionName);
     
     if (from<1) {
-        throw "cannot load section 'inverted'"
+        // throw "cannot load section 'inverted'"
         return null;
     }
     await this.prefetchLines(from,from+5);
@@ -84,6 +84,7 @@ async function setupInverted(cb){
     this.loadtime.deleteline=new Date()-now; now= new Date();
 
     this.inverted={header,tokens,compounds,formulas,linetokenpos,postingStart:from+5,cache:{}}
+    return true;
 }
 export function getTokenX(text,hits){
     let oneitem=false;

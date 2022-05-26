@@ -1,9 +1,13 @@
 {
     "name":"pitaka",
-    "title": "Manual|pitaka",
+    "title": "Pitaka手冊|man",
     "description":"User Manual",
     "lang":"zh",
     "label":"level",
+    "locator":"ck",
+    "labels":{
+ 	"ck":{"named":true}
+    },
     "homepage":"https://github.com/accelon/pitaka",
     "files":"build.off"
 }

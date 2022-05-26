@@ -12,6 +12,8 @@ import criteriaAPI from './criteria.js';
 import connectionsAPI from './connections.js';
 import notesAPI from './notes.js';
 import {labelByTypeName} from "../htll/index.js"
+import {combineObject} from '../utils/index.js'
+import Templates from "../format/templates.js"
 class Basket extends JSONPROM {
     constructor(opts) {
         super(opts)
@@ -62,7 +64,8 @@ class Basket extends JSONPROM {
                 self.loadSection(labels,function(){
                     const labelSection=self.getSection(labels);
                     const labelSectionRange=self.getSectionRange(labels);
-                    self.labels=deserializeLabels(labelSection,labelSectionRange,self.header.labels);
+                    const typedefs=combineObject((Templates[self.header.template]||{}).labels||{}, self.header.labels||{} );
+                    self.labels=deserializeLabels(labelSection,labelSectionRange,typedefs);
                     self.lblTransclusion=self.getLabel('t');
                     self.loadtime.labels=new Date()-now; now= new Date();
                     

@@ -3,7 +3,12 @@ import {bsearch} from '../utils/bsearch.js'
 export default class Criterion_substring extends Criterion{
 	async exec (query,opts={}){
 		const lang=opts.lang||this.ptk.header.lang;
+		const ignorecase=lang=='en';
 		query=query.trim();
+		let reg;
+		if (ignorecase && isNaN(parseInt(query)) ) {
+			reg=new RegExp(query.toLowerCase(),'i');
+		}
 		if (query!==this.query) {
 			const {linepos,names,caption,idarr}=this.label;
 	        const chunks=[];
@@ -12,7 +17,11 @@ export default class Criterion_substring extends Criterion{
 				if (~at)  chunks.push( at );//only one item , basket/criteria.js::cascadeCriteria stop intersection 
 			} else {
 				for (let i=0;i<names.length;i++) {
-					~names[i].indexOf(query) && chunks.push(i);	
+					if (ignorecase) {
+						names[i].match(reg) && chunks.push(i);
+					} else {
+						~names[i].indexOf(query) && chunks.push(i);							
+					}
 				}
 			}
 	        this.query=query;
