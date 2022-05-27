@@ -35,7 +35,7 @@ https://github.com/accelon/sc/blob/main/pitaka.json
 
 * 來源不同的數據以不同的repo管理，一律轉換成offtext格式（詳見 https://github.com/accelon/cs ）。
 * `pitaka build` 產生pitaka數據庫
-* [前端程式](https://github.com/accelon/accelon2021) 消費pitaka數據庫（不必發布offtext源文件）。
+* [前端程式](https://github.com/accelon/accelon21) 消費pitaka數據庫（不必發布offtext源文件）。
 * [Offtext 標記格式](offtext.md) 
 
 ## pitaka 數據庫
