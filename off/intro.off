@@ -36,7 +36,7 @@
 「简体」為一般轉換（「麵」轉為「面」）。
 以下組合，任何情況下都不轉換，
 「后後」「复覆」「征徵」「于於」「幺麽」「干乾」「姜薑」。
-源碼在 ^github[lossless-simplified-chinese 無損中文]
+源碼在 ^github[@lossless-simplified-chinese 無損中文]
 
 ^ck5[文件說明]
 一個發行包(zip) 包括兩類文件：

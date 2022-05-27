@@ -84,7 +84,6 @@ async function setupInverted(){
     this.loadtime.deleteline=new Date()-now; now= new Date();
 
     this.inverted={header,tokens,compounds,formulas,linetokenpos,postingStart:from+5,cache:{}}
-    this.ltp=()=>linetokenpos;
     return true;
 }
 export function getTokenX(text,hits){

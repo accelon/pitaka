@@ -20,6 +20,7 @@ const builtin_typedef={
 }
 */
 import cs from './cs.js'
+import cc from './cc.js'
 import omnibus from './omnibus.js'
 import simple from './simple.js'
-export default {cs,simple,omnibus};
+export default {cs,cc,simple,omnibus};

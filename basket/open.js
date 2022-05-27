@@ -119,6 +119,9 @@ class Basket extends JSONPROM {
         });
         return promise;
     }
+    ltp(){
+        return this.inverted?this.inverted.linetokenpos:null;
+    }
     contentCount() {
         let lbl=this.getLabel('bk');
         if (!lbl) {
