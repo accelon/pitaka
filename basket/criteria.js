@@ -104,8 +104,8 @@ export function parseCriteria(str){
 export function resetCriteria(){
     for (let method in this.criteria) {
         const criterion=this.criteria[method];
-        criterion.result='';
-        criterion.query=null;
+        criterion.result=null;
+        criterion.query='';
     }
 }
 export default {registerCriteria,cascadeCriteria,FULLTEXT_KEY, 

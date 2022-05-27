@@ -13,14 +13,15 @@ export const fuzzyMatchQuote=async (bkobj,q)=>{
 
     const weighted=weightToken(tokens) 
 
-    const scores=scoreRange(weighted,ptk.inverted.linetokenpos,{from,to,minscore:0.8}).slice(0,3);
+    const scores=scoreRange(weighted,ptk.ltp(),{from,to,minscore:0.8}).slice(0,3);
     
     await ptk.prefetchLines( scores.map(it=>it[0]) );
 
     for (let i=0;i<scores.length;i++) { 
         const y=scores[i][0];
         const src=ptk.getLine(y);   
-        const from=ptk.inverted.linetokenpos[y-1],to=ptk.inverted.linetokenpos[y];
+        const ltp=ptk.inverted.linetokenpos();
+        const from=ltp[y-1],to=ltp[y];
         const at=convolute(weighted,qlen,from,to);
     
         const x=at-from; 

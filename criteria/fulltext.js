@@ -28,7 +28,7 @@ export default class Criterion_FullTextSearch extends Criterion {
 	}
 	scoring(){
 		const chunklinepos=this.ptk.getChunkLabel().linepos
-		const ltp=this.ptk.inverted.linetokenpos;
+		const ltp=this.ptk.ltp();
 		this.result.scores=scoreLine(this.result.postings, ltp,chunklinepos);
 		this.result.matches=this.result.scores.map(([line,scored])=>line).sort((a,b)=>a-b);
 	}

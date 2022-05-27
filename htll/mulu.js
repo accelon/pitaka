@@ -22,7 +22,7 @@ class LabelMulu extends Label {
         const {x,w,y}=tag;
         let depth,id;
         if (tag.name.length>1) {
-          depth=fromBase26(tag.name.slice(1))+1;
+          depth=fromBase26(tag.name.slice(1))+2; // level 1 reserved for chunk breaker
           id=tag.attrs.id;
         } else {
           depth=parseInt(tag.attrs.id)||this.id;
@@ -64,13 +64,13 @@ class LabelMulu extends Label {
     find(tofind,near=false){
     }
     finalize() {
-        // console.log('before trim',this.linepos.length)
+        console.log('before trim',this.linepos.length)
         const {names,level,linepos}=trimInnerMulu(this.names,this.level,this.linepos);
         this.names=names;
         this.level=level;
         this.linepos=linepos;
 
-        // console.log('after trim',this.linepos.length)
+        console.log('after trim',this.linepos.length,names)
         // const levels=this.level;
         // const out=[];
         // this.names.forEach((n,idx)=>out.push(levels[idx]+'\t'.repeat(parseInt(levels[idx])) +n));

@@ -71,7 +71,7 @@ export const plContain=(posting, ltp)=>{ // return line containing with posting
     while (i<posting.length ) {
         let p=posting[i];
         let at=bsearch(ltp, p,true);
-        if (~at && at<ltp.length) {
+        if (at>0 && at<ltp.length) {
             if (out[out.length-1]!==at) {
                 out.push(at-1);
             }

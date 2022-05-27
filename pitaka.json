@@ -3,7 +3,7 @@
     "title": "Pitaka手冊|man",
     "description":"User Manual",
     "lang":"zh",
-    "label":"level",
+    "label":"github,url",
     "locator":"ck",
     "labels":{
  	"ck":{"named":true}

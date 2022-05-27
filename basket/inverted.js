@@ -84,6 +84,7 @@ async function setupInverted(){
     this.loadtime.deleteline=new Date()-now; now= new Date();
 
     this.inverted={header,tokens,compounds,formulas,linetokenpos,postingStart:from+5,cache:{}}
+    this.ltp=()=>linetokenpos;
     return true;
 }
 export function getTokenX(text,hits){
@@ -107,7 +108,7 @@ export function getTokenX(text,hits){
 }
 
 export function hitPos(y,postings,phrases){ // hit position for highlight rendering
-    if (!postings.length || !this.inverted || !this.inverted.linetokenpos) return [];
+    if (!postings.length || !this.inverted || !this.ltp()) return [];
     const line=this.getLine(y);
     if (!line) return [];
 
@@ -115,7 +116,7 @@ export function hitPos(y,postings,phrases){ // hit position for highlight render
     let prev='',tkpos=0;
 
 
-    const ltp=this.inverted.linetokenpos;
+    const ltp=this.ltp();
     const from=ltp[y-1]+LINETOKENGAP;
     const to=ltp[y];
     let out=[]; // token pos in line and nth phrase 
@@ -130,13 +131,16 @@ export function hitPos(y,postings,phrases){ // hit position for highlight render
     return out;
 }
 export function lineOfPosting(posting){
-    const ltp=this.inverted.linetokenpos;
-    return posting.map( v=> bsearch(ltp,v,true) );
+    return posting.map( v=> bsearch(this.ltp(),v,true) );
 }
 //return chunk containing at least one posting
 export function chunkWithPosting(postings){
     const cl=this.getChunkLabel();
-    const ltp=this.inverted.linetokenpos;
+    const ltp=this.ltp();
+    if (!ltp || !ltp.length) {
+        console.log('empty linetopos');
+        return [];
+    }
     const chunkPosting=cl.linepos.map( p=> ltp[p] );
     return plContain(postings, chunkPosting);
 }
@@ -144,7 +148,7 @@ export function postingInChunk(postings,chunk) {
     if (!postings ||!postings.length)return [];
 
     const cl=this.getChunkLabel();
-    const ltp=this.inverted.linetokenpos;
+    const ltp=this.ltp();
     let out=[];
 
     const linestart=cl.linepos[chunk], lineend=cl.linepos[chunk+1];

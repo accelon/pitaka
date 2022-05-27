@@ -42,7 +42,7 @@ const getFormatTypeDef=(config,opts)=>{
     const defs=combineObject(templateLabels, config.labels);
 
     // const def=Object.assign(templeteLabels,config.labels);//||getFormat(config.format).def);
-
+	console.log(config.label);
     if (config.label) { //additional custom label
         const extralabels=(typeof config.label==='string')?config.label.split(','):config.label;
         for (let i=0;i<extralabels.length;i++) {

@@ -7,4 +7,6 @@ export default {
 	'fn':'LabelFootnote',
 	'z':'LabelMulu',
 	'ad':'LabelYear',
+	'github':'LabelURL',
+	'url':'LabelURL'
 }

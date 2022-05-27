@@ -26,7 +26,7 @@ const combineRanges=ranges=>{ //reduce range count, faster posting filtering
 function getHeadingRanges(headings){//given heading idx , return its token pos, for fulltext search excludes 
     if (!this.inverted) return [];
     const lbl=this.getHeadingLabel();
-    const ltp=this.inverted.linetokenpos;
+    const ltp=this.ltp();
     const ranges=headings.map(idx=> [ ltp[lbl.linepos[idx]],ltp[lbl.linepos[idx+1]]]);
     return combineRanges(ranges);
 }
