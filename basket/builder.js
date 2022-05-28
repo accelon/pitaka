@@ -35,10 +35,6 @@ class Builder {
         this.config=opts.config;
         this.warnings=this.context.warnings;
 
-        if (this.config.fulltextsearch) {
-            this.inverter=new Inverter(Object.assign({},opts,{context:this.context}));
-        }
-
         //.tree is old name
         this.config.locator=this.config.locator||this.config.tree;
         if (typeof this.config.locator==='string') this.config.locator=this.config.locator.split(LOCATORSEP);
@@ -49,6 +45,11 @@ class Builder {
 
         initPitakaJSON(this.config,this.context,this.log);
         initLabelTypedef(this.config,this.context,this.log);
+
+        if (this.config.fulltextsearch) {
+            this.inverter=new Inverter(Object.assign({},opts,{context:this.context}));
+        }
+
         this.files=[];
         return this;
     }
@@ -188,7 +189,7 @@ class Builder {
             rootdir=this.config.rootdir||'off/';
         }
         if (fn.endsWith('.zip')) {
-            throw "not support zip file"
+            //throw "not support zip file"
             //return await this.addZip(file);
         } else if (fn.endsWith('.lst')) {
             return await this.addLst(file);

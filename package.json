@@ -40,7 +40,7 @@
   "homepage": "https://github.com/accelon/pitaka#readme",
   "dependencies": {
 	"diff":"^5.0.0",
-    "lossless-simplified-chinese":"^0.0.8",
+  "lossless-simplified-chinese":"^0.0.8",
 	"provident-pali":"^0.1.0"
   }
 }

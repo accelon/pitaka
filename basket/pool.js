@@ -1,7 +1,7 @@
 let _pool={};
-if (typeof chrome!=='undefined' && 'runtime' in chrome) {
-    chrome.runtime.sendMessage("pool",res=>_pool=res.pool);
-}
+//if (typeof chrome!=='undefined' && 'runtime' in chrome) {
+//    chrome.runtime.sendMessage("pool",res=>_pool=res.pool);
+// }
 
 const has=name=>!!_pool[name];
 const get=name=>_pool[name];
