@@ -25,6 +25,7 @@ class LabelBook extends Label {
     	}
         this._idarr[id]=y;
         this.idarr.push(id);
+        this.names.push(linetext.slice(x,w));
     }
     serialize(){
         const {keylabels,labelsout}=serialize_keywords(this);

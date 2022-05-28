@@ -396,9 +396,47 @@ function headingOf(y_loc){
     if (at&&linepos[at]>y) at--;
     const rawtext=names[at]
     const [text]=parseOfftextLine(rawtext);
-    return {text, rawtext,  at, idx:linepos[at]-y, y };
+    return {text, rawtext, at, idx:linepos[at]-y, y };
 }
+
+function headingsFromChunks(chunks){
+    const ptk=this;
+    const {linepos,idarr,names}=ptk.getHeadingLabel();
+    if (ptk.header.heading==ptk.header.chunk) {
+        return unique(chunks.map(ck=>ptk.headingOf( ptk.chunkLinepos(ck) )).map(heading=>{
+            const {at,y,text}=heading;
+            const y0=linepos[at];
+            const id=idarr?idarr[at]:at+1;
+            return {key:y,id, chunk:at,text, y0};    
+        }));
+    } else { //two level headings
+        const out=[];
+        let prevat=-1,headingObj={} ,children=[];
+
+        const cl=ptk.getChunkLabel();
+        for (let i=0;i<chunks.length;i++) {
+            const ck=chunks[i];
+            const heading=ptk.headingOf( ptk.chunkLinepos(ck) )
+
+            const {at,y,text}=heading;
+
+            if (at!==prevat) {
+                const y0=linepos[at];
+                const id=idarr?idarr[at]:at+1;
+                if (prevat>-1)out.push(headingObj);
+                children=[];
+                headingObj={key: y, id, chunk:at, text , y0 , children };
+            }
+            children.push({at:ck, text:cl.names[ck], y0 : cl.linepos[ck]});
+            prevat=at;
+        }
+        out.push(headingObj);
+
+        return out;
+    }
+}
+
 
 export default {closest,getTocTreeDef,getTocTree,getNChild,childCount,dyOf,locOf,chunkOf,pageLoc,
     fetchPage,fetchToc,fetchFootnote,getPageRange,narrowDown,getLabelLineRange,locY,
-enumLocators,readLoc,headingOf,bookOf,chunkLinepos,allChunks,getBook,allBooks}
+enumLocators,readLoc,headingOf,bookOf,chunkLinepos,allChunks,getBook,allBooks,headingsFromChunks}
