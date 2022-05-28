@@ -1,6 +1,6 @@
 {
   "name": "pitaka",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "Backend for accelon2021",
   "type":"module",
   "exports" :{
