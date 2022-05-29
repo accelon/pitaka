@@ -2,6 +2,8 @@
 const hasWildcard=s=>{
     return s.indexOf('?')>-1||s.indexOf('[')>-1||s.indexOf('*')>-1||s.indexOf('$')>-1||s.indexOf('{')>-1;
 }
+export const isSimpleRegEx=s=>!!s.match(/[\{\}\*\+\^\$\[\]\.\?\\]/); //regex string without ( )
+
 export const glob=(files,filepat)=>{
     if (typeof files=='string') {
         files=fs.readdirSync(files);
@@ -78,4 +80,4 @@ export const isIAST=w=>{
     const m=w.match(/([a-zA-Zḍṭṇñḷṃṁṣśṅṛāīūâîû]+)/);
     return (m && m[1].length==w.length);
 }
-export default {glob,filesFromPattern,isIAST}
+export default {glob,filesFromPattern,isIAST,isSimpleRegEx}

@@ -108,10 +108,11 @@ class Basket extends JSONPROM {
                             const [linepos,strings]=deserializeLineposString(headingsSection,range);
                             self.headingsLinepos=linepos;
                             self.headings=strings;
-                            resolve(true);
+                            if (self.header.searchable) setupInverted().then( resolve(true))
+                            else resolve(true);
                         });
-                    } else resolve(true);
-
+                    } else if (self.header.searchable) setupInverted().then( resolve(true))
+                    else resolve(true);
 
                     //resolve earlier, need to check if inverted ready
                 });

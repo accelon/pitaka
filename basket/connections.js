@@ -68,7 +68,8 @@ function connectTransclusion(){
 const alignedPitaka={}; //key:[all conected ]
 function connectAlignment(){
     const alignment=this.header.alignment;
-    if (!alignment) return;
+    if (!alignment.length) return;
+
     if (!alignedPitaka[alignment]) alignedPitaka[alignment]=[];
     if (!alignedPitaka[alignment].includes(this.name)) {
         alignedPitaka[alignment].push(this.name);
@@ -78,6 +79,6 @@ function connectAlignment(){
 }
 function connect(){
     connectTransclusion.call(this);
-    this.aligned = connectAlignment.call(this);
+    this.aligned = connectAlignment.call(this) || [];
 }
 export default {getParallelLinks,langOf,connect,alignedY,hasBook};

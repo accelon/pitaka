@@ -15,3 +15,4 @@ export const FOOTNOTE_SUFFIX='-fn';
 
 export const FULLTEXT_KEY='*';
 export const ALIGNED_KEY='_';
+export const TITLESEP='⸱';

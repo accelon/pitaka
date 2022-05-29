@@ -1,27 +1,7 @@
-/*
-const builtin_typedef={
-    'bk':['LabelBook',{}],
-    'c':'LabelChapter',
-    'r':['LabelChapter',{reset:"bk"}], //new name reading
-    'n':['LabelMilestone',{sequencial:true,range:true,reset:"bk"}],
-    'b':'Label',
-    'lang':'LabelLang',    
-    'kai':'Label',
-    'u':'Label',
-    'i':'Label',
-    'h':'Label',
-    'mu':'LabelMulu',
-    't':'LabelTransclusion',
-    'k':'LabelLink',
-    "f":["Label", {"caption":"注"}],
-    "fn":["LabelFootnote", {"caption":"注釋"}],
-    //general versioning
-    'cut':'Label','paste':'Label','del':'Label','add':'Label','edit':'Label','corr':'Label'
-}
-*/
-import cs from './cs.js'
-import cc from './cc.js'
-import lit from './lit.js'
-import omnibus from './omnibus.js'
-import simple from './simple.js'
-export default {cs,cc,simple,omnibus,lit};
+import cs from './cs.js' //第六次結集
+import cc from './cc.js' //古籍
+import lit from './lit.js' //開放文學
+import omnibus from './omnibus.js'  //全集
+import simple from './simple.js'  //基本
+import cidian from './cidian.js'  //辭典
+export default {cs,cc,simple,omnibus,lit,cidian};

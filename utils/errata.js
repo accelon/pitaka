@@ -39,8 +39,11 @@ export const patchBuf=(buf,errata,fn='')=>{
                 })
             }
         }
+        
         if (newoutbuf===outbuf && !unlimited) {
             console.log(fn,"cannot replace",errata[i]);
+        } else {
+            if (typeof errata[i][2]!=='undefined')  errata[i][2]=occur;
         }
         outbuf=newoutbuf;
         if (occur!==0 && !unlimited) {
@@ -51,4 +54,19 @@ export const patchBuf=(buf,errata,fn='')=>{
     return outbuf;
 }
 
-export default {patchBuf}
+export const RemainingErrata=(Erratas)=>{
+    let count=0;
+    for (let key in Erratas) {
+        let arr=Erratas[key];
+        if (!Array.isArray(arr)) arr=[arr];
+        
+        arr.forEach(([from,to,remain])=>{
+            if (remain) {
+                count++;
+                console.log(key,'remain',remain,'from',from);
+            }
+        });
+    }
+    return count;
+}
+export default {patchBuf,RemainingErrata}

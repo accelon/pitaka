@@ -1,7 +1,6 @@
 import {loadJSONP,loadFetch,loadNodeJs,loadNodeJsZip} from './loadchunk.js';
 import {findPitakaFolder} from '../platform/fsutils.js'
 import {readLines,prefetchLines,  unreadyChunk,prefetchChunks} from './readline.js';
-import {ROMEXT} from '../rom/romconst.js';
 import {bsearch} from '../utils/bsearch.js'
 
 class JSONPROM {

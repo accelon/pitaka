@@ -1,6 +1,6 @@
 import {PATHSEP,NAMESPACESEP,DELTASEP,LOCATORSEP,DEFAULT_LOCATOR,RANGESEP,NAMESEP,FOOTNOTE_SUFFIX} from '../platform/constants.js'
 import {parseAddress,parseOfftextLine} from '../offtext/index.js'
-import { bsearch } from "../utils/bsearch.js" ;
+import { unique,bsearch } from "../utils/index.js" ;
 
 function narrowDown(branches){
     let from=0,to=this.lastTextLine();
@@ -74,7 +74,8 @@ function chunkLinepos(ck){
 }
 function allChunks(){
     if (!this.cache.chunks) {
-        this.cache.chunks=this.getChunkLabel().names.map((c,idx)=>idx);
+        const lbl=this.getChunkLabel();
+        this.cache.chunks=lbl.names.map((c,idx)=>idx);
     }
     return this.cache.chunks;
 }
@@ -388,7 +389,7 @@ function headingOf(y_loc){
         linepos=this.headingsLinepos;
     } else {
         const lbl=this.getHeadingLabel();
-        names=lbl.names;
+        names=lbl.names || lbl.idarr;
         linepos=lbl.linepos;
     }
     if (!y) return ['',-1,0];
@@ -399,16 +400,18 @@ function headingOf(y_loc){
     return {text, rawtext, at, idx:linepos[at]-y, y };
 }
 
-function headingsFromChunks(chunks){
+function headingsFromChunks(chunks,maxitem){
     const ptk=this;
     const {linepos,idarr,names}=ptk.getHeadingLabel();
     if (ptk.header.heading==ptk.header.chunk) {
-        return unique(chunks.map(ck=>ptk.headingOf( ptk.chunkLinepos(ck) )).map(heading=>{
+        const sliced=maxitem?chunks.slice(0,maxitem):chunks;
+        const out=unique(sliced.map(ck=>ptk.headingOf( ptk.chunkLinepos(ck) )).map(heading=>{
             const {at,y,text}=heading;
             const y0=linepos[at];
             const id=idarr?idarr[at]:at+1;
             return {key:y,id, chunk:at,text, y0};    
         }));
+        return out;
     } else { //two level headings
         const out=[];
         let prevat=-1,headingObj={} ,children=[];

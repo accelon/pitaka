@@ -1,6 +1,6 @@
 // import lit from './lit.js'; move to accelon/lit
 import cbeta from './cbeta.js';
-import cidian from './cidian.js';
+//import cidian from './cidian.js';
 import haodoo from './haodoo.js';
 import Formatter from '../offtext/formatter.js'; //default formatter
 import { DEFAULT_LOCATOR} from '../platform/constants.js';
@@ -8,7 +8,7 @@ import { DEFAULT_LOCATOR} from '../platform/constants.js';
 
 const formats={
     haodoo,     //好讀
-    cidian,     //一般辭典格式
+    //cidian,     //一般辭典格式
     cbeta,      //CBETA TEI p5
 }
 

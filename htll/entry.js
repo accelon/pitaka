@@ -4,7 +4,7 @@ class LabelEntry extends Label {
     constructor(name,opts={}) {
         super(name,opts)
         this.caption=opts.caption||'詞條';
-        this.idarr=[];
+        this.names=[];
         this.linepos=[];
         this.prevhw='';
         this.textual=true;
@@ -23,7 +23,7 @@ class LabelEntry extends Label {
         ctx.entry=hw;
         // const lastentrysize=ctx.linesOffset[y-ctx.startY]-ctx.linesOffset[this.prevy-ctx.startY];
         // if (this.prevy) this.entrysize.push(lastentrysize);
-        this.idarr.push(hw);
+        this.names.push(hw);
         this.prevhw=hw;
         this.linepos.push(y);
         this.prevy=y;
@@ -36,7 +36,7 @@ class LabelEntry extends Label {
         }
     }
     parse(addr){
-        let HW=this.idarr;
+        let HW=this.names;
         let tf=addr;
         let at=bsearch(HW,tf);
         while (at==-1 && tf) {
@@ -50,7 +50,7 @@ class LabelEntry extends Label {
     serialize(){
         const out=[];
         out.push(JSON.stringify({attrs:this.attrs}));
-        const hw=packStrings(this.idarr);
+        const hw=packStrings(this.names);
         out.push(hw);  //58ms 
         // out.push(pack(this.entrysize));
         out.push(this.linepos); 
@@ -62,7 +62,7 @@ class LabelEntry extends Label {
     deserialize(payload,lastTextLine){
         let at=super.deserialize(payload);
         const header=JSON.parse(payload[at++]);payload[at-1]=''; 
-        this.idarr=unpackStrings(payload[at++]);payload[at-1]=''; 
+        this.names=unpackStrings(payload[at++]);payload[at-1]=''; 
         // this.entrysize=unpack(payload[at++]);payload[at-1]='';
         this.linepos=unpack_delta(payload[at++]);payload[at-1]='';
         this.attrs=header.attrs;
@@ -81,7 +81,7 @@ class LabelEntry extends Label {
     }
     getRange(n){
         if (typeof n!=='number') {
-            n=bsearch(this.idarr,n);
+            n=bsearch(this.names,n);
         }
         if (n<0) return null;
         const start=this.linepos[n];
@@ -89,17 +89,7 @@ class LabelEntry extends Label {
         return [start,end,n];
     }
     find(tofind,near=false){
-        return bsearch(this.idarr,tofind,near);
-    }
-    query(tofind){
-        const matches=[];
-        for (let i=0;i<this.idarr.length;i++) {
-            const at=this.idarr[i].indexOf(tofind);
-            if (at>-1) {
-                matches.push({id:this.idarr[i], linepos:this.linepos[i]});
-            }
-        }
-        return { tofind, caption:this.caption, matches, count:matches.length};
+        return bsearch(this.names,tofind,near);
     }
     finalize(ctx){
         // const lastentrysize=ctx.linesOffset[ctx.lineCount]
