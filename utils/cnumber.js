@@ -52,3 +52,30 @@ export const extractChineseNumber=(str,firstnum=false)=>{
     }
     return cn;
 }
+const StyledNumber1={'Ⅰ':10,'ⅰ':10,'⒜':26,'Ⓐ':26,'ⓐ':26,'⓫':10,'㉑':15,'㍘':25,'㍙':24,'㈠':10,
+'㊀':10,'㋀':12,'㏠':31,'①':20,'⑴':20,'⒈':20,'⓵':10,'❶':10,'➀':10,'➊':10}
+export const styledNumber=(n,style,offset=1)=>{
+    const max=StyledNumber1[style];
+    if (!max) { //u
+        return n.toString(); //fall back
+    } else {
+        if ((n-offset)>=max) {
+            return n.toString();
+        }
+        let code=style.charCodeAt(0) + n - offset;
+        return String.fromCharCode(code);
+    }
+}
+
+const ForeignNumbers={'၀':true,'०':true,'๐':true,'໐':true,'០':true,'༠':true}
+export const foreignNumber=(n,style)=>{
+    const s=n.toString();
+    const zero=ForeignNumbers[style];
+    if (!zero) return s;
+    const base=style.charCodeAt(0);
+    let out='';
+    for (let i=0;i<s.length;i++) {
+        out+=String.fromCharCode(s.charCodeAt(i)-0x30 + base);
+    }
+    return out;
+}
