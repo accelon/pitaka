@@ -29,7 +29,16 @@ export const fromChineseNumber=str=>{
     .replace(/十/,'')
     .replace(/[○〇零]/g,'0'));
 }
-
+export const isChineseChapter=str=>{
+    for (let i=0;i<headerWithNumber.length;i++) {
+        const pat=headerWithNumber[i];
+        const m=str.match(pat);
+        if (m) {
+            return fromChineseNumber(m[1]);
+        }
+    }
+    return null;;
+}
 export const extractChineseNumber=(str,firstnum=false)=>{
     let cn='';
     for (let i=0;i<headerWithNumber.length;i++) {
