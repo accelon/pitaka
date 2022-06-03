@@ -71,3 +71,14 @@ export const combineObject=(obj1,obj2)=>{
     }
     return out;
 }
+
+export const copySelection=evt=>{
+    const sel=getSelection();
+    const range=document.createRange()
+    range.setStart(evt.target,0);
+    range.setEnd(evt.target,1);
+    sel.removeAllRanges()
+    sel.addRange(range);
+    document.execCommand('copy')
+    sel.removeAllRanges();
+}

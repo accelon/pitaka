@@ -71,6 +71,9 @@ export const fromObj=(obj,cb=null)=>{
             }
         }
     }
+    if (cb && typeof cb!=='function') {
+        arr.sort((a,b)=>b[1]-a[1]);
+    }
     return arr;
 }
 export const sortObj=(obj,func)=>{

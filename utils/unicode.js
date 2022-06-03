@@ -9,6 +9,7 @@ export const forEachUTF32=(s,cb)=>{
     }
 }
 export const splitUTF32=str=>{
+    if (!str)return [];
     let i=0;
     const out=[];
     while (i<str.length) {
@@ -19,6 +20,8 @@ export const splitUTF32=str=>{
     }
     return out;
 }
+export const splitUTF32Char=str=>splitUTF32(str).map( cp=>String.fromCodePoint(cp));
+
 export const codePointLength=text=>{
     var result = text.match(/[\s\S]/gu);
     return result ? result.length : 0;

@@ -1,5 +1,6 @@
 export * from "./build.js"
 export * from "../platform/constants.js"
+export * from "../utils/index.js"
 import { readTextLines, readTextContent } from "../platform/fsutils.js"
 import {glob,filesFromPattern} from '../utils/pattern.js'
 import {patchBuf} from '../utils/errata.js'

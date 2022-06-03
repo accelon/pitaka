@@ -4,6 +4,45 @@ export const CJKRange=s=>{
     if (s.charCodeAt(0)>=0xD800 && s.charCodeAt(0)<=0xDFFF) return 2;
     if (s.charCodeAt(0)>=0xE000 && s.charCodeAt(0)<=0xFADF) return 3;
 }
+export const CJKRanges={
+    'BMP': [0x4e00,0x9fa5],
+    'ExtA':[0x3400,0x4dff],
+    'ExtB':[0x20000,0x2A6FF],
+    'ExtC':[0x2A700,0x2B73F],
+    'ExtD':[0x2B740,0x2B81F],
+    'ExtE':[0x2B820,0x2CEAF],
+    'ExtF':[0x2CEB0,0x2EBE0]
+}
+export const enumCJKRangeNames=()=>Object.keys(CJKRanges);
+
+export const getCJKRange=name=>CJKRanges[name]||[0,0];
+
+export const CJKRangeName=s=>{//return cjk range name by a char or unicode number value or a base 16 string
+    let cp=s;
+    if (typeof s==='string') {
+        const code=parseInt(s,16);
+        if (!isNaN(code)) {
+            cp=code;
+        } else {
+            cp=s.codePointAt(0);
+        }
+    }
+    for (let rangename in CJKRanges) {
+        const [from,to]=CJKRanges[rangename];
+        if (cp>=from && cp<=to) return rangename;
+    }
+}
+export const string2codePoint=(str, snap)=>{
+    if (!str) return 0;
+    const cp=str.codePointAt(0);
+    let n;
+    if (cp>=0x3400 && cp<0x2ffff) {
+        n=cp; 
+    } else {
+        n=(parseInt(str,16)||0x4e00);
+    }
+    return snap? n&0x3ff80 : n;
+}
 export const isSurrogate=s=>{
     return CJKRange(s)==2;
 }
@@ -31,4 +70,12 @@ export const findCloseBracket=(str,from)=>{
             }
         }
     }
+}
+
+export const cjkPhrases=str=>{
+    const out=[];
+    str.replace(/([\u2e80-\u2fd5\u3400-\u9fff\ud800-\udfff\ue000-\ufad9]+)/g,(m,m1)=>{
+        out.push(m1);
+    });
+    return out;
 }
