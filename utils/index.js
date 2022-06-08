@@ -82,3 +82,5 @@ export const copySelection=evt=>{
     document.execCommand('copy')
     sel.removeAllRanges();
 }
+
+export const escapeTemplateString=str=>str.replace(/\\/g,"\\\\").replace(/`/g,"\\`").replace(/\$\{/g,'$\\{');

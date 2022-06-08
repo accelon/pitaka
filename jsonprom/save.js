@@ -2,9 +2,8 @@ import ZipSaver from './savezip.js';
 import JsonpSaver from './savejsonp.js';
 import CacheSaver from './savecache.js';
 import RawSaver from './saveraw.js';
-import {chunkjsfn,pack_delta} from '../utils/index.js';
-const escapeTemplateString=str=>str.replace(/\\/g,"\\\\")
-.replace(/`/g,"\\`").replace(/\$\{/g,'$\\{');
+import {chunkjsfn,pack_delta,escapeTemplateString} from '../utils/index.js';
+
 
 const prepareJSONP=({chunk,name,start},lines,esc=false)=>{
     const payload=lines.join('\n');

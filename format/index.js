@@ -4,6 +4,7 @@ import TypeDef from './typedef.js'
 import cbeta from './cbeta.js';
 import {combineObject} from '../utils/index.js'
 import Templates from './templates.js'
+export * from './dif.js'
 const fileContent=async(fn,ctx)=>{
     let c;
     const F=ctx&&ctx.Formatter||{};
@@ -79,6 +80,7 @@ const removeLabels=(content,labels)=>{
     });
     return content;
 }
+
 export {Templates,translatePointer,fileContent,readFormatFile,getFormatTypeDef,
     //getFormatter,getFormat,getFormatLocator
 //fileLines,getZipIndex,,
