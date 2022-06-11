@@ -11,7 +11,8 @@ export const CJKRanges={
     'ExtC':[0x2A700,0x2B73F],
     'ExtD':[0x2B740,0x2B81F],
     'ExtE':[0x2B820,0x2CEAF],
-    'ExtF':[0x2CEB0,0x2EBE0]
+    'ExtF':[0x2CEB0,0x2EBE0],
+    'ExtG':[0x30000,0x3134A]
 }
 export const enumCJKRangeNames=()=>Object.keys(CJKRanges);
 

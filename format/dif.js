@@ -19,7 +19,7 @@ export const fromDIF=lines=>{
 				row.push(cell);
 				multiline=false;
 			} else {
-				cell+=line;
+				cell+='\n'+line;
 			}
 			i++;
 			continue;

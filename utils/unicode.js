@@ -22,10 +22,7 @@ export const splitUTF32=str=>{
 }
 export const splitUTF32Char=str=>splitUTF32(str).map( cp=>String.fromCodePoint(cp));
 
-export const codePointLength=text=>{
-    var result = text.match(/[\s\S]/gu);
-    return result ? result.length : 0;
-}
+export const codePointLength=text=>splitUTF32(text).length;
 
 export const StringByteLength=text=>{
    return new Blob([text]).size;

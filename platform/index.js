@@ -10,5 +10,6 @@ const cacheStorageReady=(function(){
         return (p=='https:'|| (p=='http:'&& (h=='localhost'||h=='127.0.0.1')));
     }
     return false;
+
 })();
 export {chromefs,nodefs,readFiles,readTextFile,readBLOBFile,cacheStorageReady}
