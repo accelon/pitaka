@@ -25,14 +25,14 @@ export async  function installPWA(){
   deferredPrompt = null;
 };
 */
-window.addEventListener('appinstalled', () => {
+// window.addEventListener('appinstalled', () => {
     // Hide the app-provided install promotion
     // hideInstallPromotion();
     // Clear the deferredPrompt so it can be garbage collected
     // deferredPrompt = null;
     // Optionally, send analytics event to indicate successful install
-    console.log('PWA was installed');
-  });
+    // console.log('PWA was installed');
+  // });
 
 export function getPWADisplayMode() {
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches;

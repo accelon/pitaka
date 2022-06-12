@@ -30,8 +30,9 @@ import {lexemeOfSrcFiles} from "./lexeme.js"
 import { writeChanged } from './index.js';
 let pitakajson='pitaka.json';
 let config={},task='builder';
-if (fs.existsSync(arg) && arg.indexOf('.json')>0 ) {
+if (fs.existsSync(arg) || fs.existsSync(arg+'.json') ) {
     pitakajson=arg;
+    if (!pitakajson.endsWith('.json')) pitakajson+='.json';
 }
 if (!fs.existsSync(pitakajson) ){
     console.log(red("missing pitaka.json"));
